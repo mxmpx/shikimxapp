@@ -1,0 +1,77 @@
+import logging
+from flask import Blueprint, jsonify, session
+from utils import SHIKIMORI_BASE, APP_NAME, fetch_cached_api, fix_image_url, get_auth_headers, fetch_with_retry
+from errors import AppError, api_route
+
+logger = logging.getLogger("shikimxapp.manga")
+manga_bp = Blueprint('manga', __name__)
+
+@manga_bp.route("/api/manga/<int:manga_id>")
+@api_route
+def get_manga_details(manga_id):
+    headers = {"User-Agent": APP_NAME}
+    url = f"{SHIKIMORI_BASE}/api/mangas/{manga_id}"
+
+    data = fetch_cached_api(url, headers, ttl=3600)
+    if not data or not isinstance(data, dict):
+        logger.warning("Manga data unavailable for manga_id=%s", manga_id)
+        raise AppError("Не удалось получить данные о манге", 502)
+
+    poster = fix_image_url(data.get("image"))
+
+    genres = [g.get("russian") or g.get("name") for g in data.get("genres", [])]
+    publishers = [p.get("name") for p in data.get("publishers", [])]
+
+    status_map = {
+        'released': 'Издано',
+        'ongoing': 'Издается',
+        'anons': 'Анонс',
+        'paused': 'Приостановлено',
+        'discontinued': 'Прекращено'
+    }
+    kind_map = {
+        'manga': 'Манга',
+        'manhwa': 'Манхва',
+        'manhua': 'Маньхуа',
+        'light_novel': 'Ранобэ',
+        'novel': 'Новелла',
+        'one_shot': 'Ваншот',
+        'doujin': 'Додзинси'
+    }
+
+    user_rate = None
+    try:
+        user_id = session.get("user_id")
+        auth_headers = get_auth_headers()
+        if user_id and auth_headers:
+            rate_url = f"{SHIKIMORI_BASE}/api/v2/user_rates?user_id={user_id}&target_id={manga_id}&target_type=Manga"
+            rate_data = fetch_with_retry(rate_url, auth_headers)
+            if rate_data and isinstance(rate_data, list) and len(rate_data) > 0:
+                user_rate = {
+                    "status": rate_data[0].get("status"),
+                    "chapters": rate_data[0].get("chapters", 0),
+                    "volumes": rate_data[0].get("volumes", 0)
+                }
+    except Exception as exc:
+        logger.debug("Could not load user rate for manga_id=%s: %s", manga_id, exc)
+        user_rate = None
+
+    logger.debug("Manga details loaded: manga_id=%s", manga_id)
+    return jsonify({
+        "id": data.get("id"),
+        "name": data.get("name"),
+        "russian": data.get("russian") or data.get("name"),
+        "image": poster,
+        "kind": kind_map.get(data.get("kind"), (data.get("kind") or "").upper()),
+        "score": data.get("score"),
+        "status": status_map.get(data.get("status"), data.get("status")),
+        "volumes": data.get("volumes"),
+        "chapters": data.get("chapters"),
+        "aired_on": data.get("aired_on"),
+        "released_on": data.get("released_on"),
+        "genres": genres,
+        "publishers": publishers,
+        "description": data.get("description_html") or data.get("description") or "Описание отсутствует.",
+        "shikimori_url": f"{SHIKIMORI_BASE}{data.get('url')}" if data.get('url') else "",
+        "user_rate": user_rate
+    })

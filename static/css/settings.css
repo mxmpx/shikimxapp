@@ -1,0 +1,137 @@
+/* Модальное окно Настройки */
+.settings-modal-card { max-width: 520px !important; }
+.settings-modal-body { display: flex; flex-direction: column; gap: 20px; }
+.settings-header-banner { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.settings-logo-icon { font-size: 44px; color: var(--primary); filter: drop-shadow(0 0 10px var(--primary)); }
+.settings-title { font-size: 22px; font-weight: 700; margin: 0; color: var(--text-main); }
+
+.settings-section-block { display: flex; flex-direction: column; gap: 12px; }
+.settings-section-block h4 {
+    margin: 0; font-size: 15px; color: var(--text-main);
+    display: flex; align-items: center; gap: 8px;
+}
+.settings-section-block h4 i { color: var(--primary); }
+.settings-hint { margin: 0; font-size: 12px; color: var(--text-muted); }
+
+.settings-mode-tabs { display: flex; gap: 8px; }
+.settings-mode-btn {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 10px 14px; border-radius: var(--radius-pill);
+    border: 1px solid var(--card-border); background: var(--sub-bg);
+    color: var(--text-muted); font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+}
+.settings-mode-btn:hover { border-color: var(--primary); }
+.settings-mode-btn.active {
+    background: var(--primary-container); border-color: var(--primary);
+    color: var(--on-primary-container);
+}
+
+.settings-panel {
+    display: flex; flex-direction: column; gap: 10px;
+    background: var(--sub-bg); border: 1px solid var(--border-sub);
+    border-radius: var(--radius-inner); padding: 14px;
+}
+.settings-panel.hidden { display: none; }
+
+.settings-label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+
+.settings-color-row { display: flex; align-items: center; gap: 12px; }
+.settings-color-row input[type="color"] {
+    width: 56px; height: 40px; padding: 0;
+    border: 1px solid var(--card-border); border-radius: 12px;
+    background: transparent; cursor: pointer;
+}
+.settings-color-value { font-size: 14px; font-weight: 600; color: var(--text-main); }
+
+.settings-input {
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    color: var(--text-main); border-radius: 12px; padding: 10px 14px;
+    font-size: 13px; width: 100%; box-sizing: border-box;
+    outline: none; transition: border-color 0.2s;
+}
+.settings-input:focus { border-color: var(--primary); }
+
+.settings-input-file { font-size: 12px; color: var(--text-muted); }
+.settings-input-file::file-selector-button {
+    background: var(--primary-container); color: var(--on-primary-container);
+    border: none; border-radius: var(--radius-pill); padding: 8px 14px;
+    margin-right: 10px; font-size: 12px; font-weight: 600;
+    font-family: inherit; cursor: pointer; transition: all 0.2s;
+}
+.settings-input-file::file-selector-button:hover { background: var(--primary); color: var(--on-primary); }
+
+.settings-or {
+    text-align: center; font-size: 11px; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 1px;
+}
+
+.settings-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+
+.settings-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+}
+
+.settings-toggle-label {
+    font-size: 13px;
+    color: var(--text-main);
+    font-weight: 500;
+}
+
+.settings-toggle {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.settings-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.settings-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--card-border);
+    border-radius: 24px;
+    transition: all 0.2s;
+}
+
+.settings-toggle-slider::before {
+    content: "";
+    position: absolute;
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.settings-toggle input:checked + .settings-toggle-slider {
+    background: var(--primary);
+}
+
+.settings-toggle input:checked + .settings-toggle-slider::before {
+    transform: translateX(20px);
+    background: var(--on-primary);
+}
+
+.section-hidden {
+    display: none !important;
+}
+
+@media (max-width: 640px) {
+    .settings-modal-card { max-width: 95vw !important; }
+}

@@ -1,0 +1,14 @@
+name: Mistral Config
+version: 1.0.0
+schema: v1
+
+models:
+  - name: Codestral
+    provider: mistral
+    model: codestral-latest
+    apiKey: dduPydGrGsUiuiAZtAMIrJ9vFcsFhx7D
+    roles:
+      - chat
+      - edit
+      - apply
+      - autocomplete

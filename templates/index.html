@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <title>Shiki MX App</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/profile.css">
+    <link rel="stylesheet" href="/static/css/rates.css">
+    <link rel="stylesheet" href="/static/css/explore.css">
+    <link rel="stylesheet" href="/static/css/media.css">
+    <link rel="stylesheet" href="/static/css/anime.css">
+    <link rel="stylesheet" href="/static/css/manga.css">
+    <link rel="stylesheet" href="/static/css/friend.css">
+    <link rel="stylesheet" href="/static/css/settings.css">
+</head>
+
+<body>
+
+    <!-- Лоадер -->
+    <div id="app-loader" class="app-loader">
+        <div class="loader-content">
+            <i class="ti ti-brand-shikimori loader-logo-icon"></i>
+            <h1 class="loader-title">Shiki MX App</h1>
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <!-- Шапка -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="header-brand-container">
+                <div class="header-brand">
+                    <i class="ti ti-device-tv brand-logo"></i>
+                    <span class="brand-title">Shiki MX App</span>
+                    <i class="ti ti-chevron-down brand-chevron"></i>
+                </div>
+                <div class="brand-dropdown">
+                    <button class="dropdown-item" onclick="openSettingsModal()">
+                        <i class="ti ti-settings"></i>
+                        <span data-i18n="settings.title">Настройки</span>
+                    </button>
+                    <button class="dropdown-item" onclick="openAboutModal()">
+                        <i class="ti ti-info-circle"></i>
+                        <span data-i18n="about.title">О сайте</span>
+                    </button>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-footer" id="dropdown-version">
+                        <i class="ti ti-code"></i> Shiki MX v{{ app_version }}
+                    </div>
+                </div>
+            </div>
+
+            <nav class="tabs-nav">
+                <button class="tab-btn active" onclick="openTab('profile')">
+                    <i class="ti ti-compass tab-icon"></i><span class="tab-label" data-i18n="tab.profile">Профиль & Обзор</span>
+                </button>
+                <button class="tab-btn" onclick="openTab('rates')">
+                    <i class="ti ti-list-check tab-icon"></i><span class="tab-label" data-i18n="tab.rates">Списки</span>
+                </button>
+                <button class="tab-btn" onclick="openTab('favourites')">
+                    <i class="ti ti-heart tab-icon"></i><span class="tab-label" data-i18n="tab.favourites">Избранное</span>
+                </button>
+                <button class="tab-btn" onclick="openTab('friends')">
+                    <i class="ti ti-users tab-icon"></i><span class="tab-label" data-i18n="tab.friends">Друзья</span>
+                </button>
+                <button class="tab-btn" onclick="openTab('history')">
+                    <i class="ti ti-history tab-icon"></i><span class="tab-label" data-i18n="tab.history">История</span>
+                </button>
+            </nav>
+
+            <div class="header-right">
+                <button id="search-toggle-btn" class="btn-theme" onclick="toggleNavbarSearch()" data-i18n-title="search.title">
+                    <i class="ti ti-search"></i>
+                </button>
+                <button id="theme-toggle-btn" class="btn-theme" onclick="toggleTheme()" data-i18n-title="theme.title">
+                    <i class="ti ti-sun"></i>
+                </button>
+                <button id="lang-toggle-btn" class="btn-theme" onclick="toggleLanguage()">
+                    <i class="ti ti-language"></i>
+                    <span class="lang-label">RU</span>
+                </button>
+
+                {% if profile %}
+                <div class="user-mini-info">
+                    <img src="{{ profile.image | img_url }}" alt="{{ profile.nickname }}" class="avatar-mini">
+                    <div>
+                        <div class="user-nickname">{{ profile.nickname }}</div>
+                        <a href="/logout"
+                            style="color: var(--danger); font-size: 11px; text-decoration: none;"><span data-i18n="logout">Выйти</span></a>
+                    </div>
+                </div>
+                {% elif google_user %}
+                <div class="user-mini-info">
+                    <img src="{{ google_user.avatar }}" alt="{{ google_user.name }}" class="avatar-mini">
+                    <div>
+                        <div class="user-nickname">{{ google_user.name }}</div>
+                        <a href="/logout"
+                            style="color: var(--danger); font-size: 11px; text-decoration: none;"><span data-i18n="logout">Выйти</span></a>
+                    </div>
+                </div>
+                {% else %}
+                <div style="display: flex; gap: 8px;">
+                    <a href="/login" class="btn"><i class="ti ti-brand-shikimori"></i> <span data-i18n="login.shikimori">Войти</span></a>
+                    <a href="/login/google" class="btn" style="background: #4285F4; color: white; border: none;">
+                        <i class="ti ti-brand-google"></i> <span data-i18n="login.google">Google</span>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Поиск в навбаре -->
+        <div id="navbar-search-panel" class="navbar-search-panel hidden">
+            <div class="search-box">
+                <i class="ti ti-search search-icon"></i>
+                <input type="text" id="explore-search-input" data-i18n="search.placeholder" placeholder="Поиск аниме, манги..."
+                    oninput="handleExploreSearch(this.value)" autocomplete="off">
+                <button class="search-clear-btn hidden" id="search-clear-btn" onclick="clearExploreSearch()"><i
+                        class="ti ti-x"></i></button>
+            </div>
+            <div id="explore-search-results" class="search-results-list hidden"></div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="container">
+
+        <!-- Вкладка Профиль & Обзор -->
+        <div id="profile" class="tab-content active">
+            {% if profile %}
+            <!-- Мобильная карточка профиля (только для мобилок) -->
+            <div class="mobile-profile-card">
+                <img src="{{ profile.image | img_url }}" alt="{{ profile.nickname }}" class="mobile-profile-avatar">
+                <div class="mobile-profile-info">
+                    <div class="mobile-profile-name">{{ profile.nickname }}</div>
+                    <a href="/logout" class="mobile-profile-logout"><i class="ti ti-logout"></i> <span data-i18n="logout">Выйти</span></a>
+                </div>
+            </div>
+            <div class="profile-grid"> <!-- Общая информация -->
+                <div class="card" data-section="profile-info">
+                    <h3><i class="ti ti-id"></i> <span data-i18n="profile.info">Информация</span></h3>
+                    <div class="info-row"><span class="label" data-i18n="profile.id">ID:</span><span>{{ profile.id }}</span></div>
+                    <div class="info-row"><span class="label" data-i18n="profile.name">Имя:</span><span>{{ profile.name or profile.nickname
+                            }}</span></div>
+                    <div class="info-row"><span class="label" data-i18n="profile.age">Возраст:</span><span>{{ profile.age or '—' }}</span></div>
+                    <div class="info-row"><span class="label" data-i18n="profile.sex">Пол:</span><span>{{ profile.sex or '—' }}</span></div>
+                    <div class="info-row"><span class="label" data-i18n="profile.last_visit">Последний визит:</span><span>{{
+                            profile.last_online_at[:10] if profile.last_online_at else '—' }}</span></div>
+                </div>
+
+                <!-- Статистика просмотров/чтения -->
+                <div class="card" data-section="profile-stats">
+                    <h3><i class="ti ti-chart-bar"></i> <span data-i18n="profile.stats">Статистика</span></h3>
+                    {% if profile.stats %}
+                    <div class="info-row clickable" onclick="openTabWithFilter('Anime', 'completed')">
+                        <span class="label" data-i18n="profile.anime_completed">Просмотрено аниме:</span>
+                        <span><b>{{ profile.stats.statuses.anime | selectattr('name', 'equalto', 'completed') |
+                                map(attribute='size') | first or 0 }}</b></span>
+                    </div>
+                    <div class="info-row clickable" onclick="openTabWithFilter('Anime', 'watching')">
+                        <span class="label" data-i18n="profile.anime_watching">Смотрю аниме:</span>
+                        <span><b>{{ profile.stats.statuses.anime | selectattr('name', 'equalto', 'watching') |
+                                map(attribute='size') | first or 0 }}</b></span>
+                    </div>
+                    <div class="info-row clickable" onclick="openTabWithFilter('Manga', 'completed')">
+                        <span class="label" data-i18n="profile.manga_completed">Прочитано манги:</span>
+                        <span><b>{{ profile.stats.statuses.manga | selectattr('name', 'equalto', 'completed') |
+                                map(attribute='size') | first or 0 }}</b></span>
+                    </div>
+                    <div class="info-row clickable" onclick="openTabWithFilter('Manga', 'watching')">
+                        <span class="label" data-i18n="profile.manga_watching">Читаю мангу:</span>
+                        <span><b>{{ profile.stats.statuses.manga | selectattr('name', 'equalto', 'watching') |
+                                map(attribute='size') | first or 0 }}</b></span>
+                    </div>
+                    {% else %}
+                    <p style="color: var(--text-muted);" data-i18n="profile.stats_unavailable">Статистика недоступна</p>
+                    {% endif %}
+                </div>
+
+                <!-- Друзья и клубы -->
+                <div class="card card-friends-preview" data-section="profile-friends">
+                    <div class="card-header">
+                        <h3><i class="ti ti-users"></i> <span data-i18n="profile.friends_clubs">Друзья и клубы</span></h3>
+                        <button class="btn-secondary" onclick="openTab('friends')" data-i18n="profile.all">Все</button>
+                    </div>
+                    <div id="profile-friends-clubs-preview">
+                        <div class="loader"><i class="ti ti-loader animate-spin"></i></div>
+                    </div>
+                </div>
+
+                <!-- Последняя активность -->
+                <div class="card card-history-left" data-section="profile-activity">
+                    <div class="card-header">
+                        <h3><i class="ti ti-history"></i> <span data-i18n="profile.activity">Активность</span></h3>
+                        <button class="btn-secondary" onclick="openTab('history')" data-i18n="profile.full_history">Вся история</button>
+                    </div>
+                    <div id="recent-history-list">
+                        <div class="loader"><i class="ti ti-loader animate-spin"></i></div>
+                    </div>
+                </div>
+
+                <!-- О себе (BBCode) -->
+                <div class="card card-about-right" data-section="profile-about">
+                    <div class="card-header">
+                        <h3><i class="ti ti-info-circle"></i> <span data-i18n="profile.about">О себе</span></h3>
+                        {% if profile.about %}
+                        <button id="toggle-about-btn" class="btn-secondary" onclick="toggleAbout()" data-i18n="profile.show_full">Показать
+                            полностью</button>
+                        {% endif %}
+                    </div>
+                    <div id="about-container" class="about-section collapsed">
+                        {% if profile.about %}
+                        {{ profile.about | bbcode }}
+                        {% else %}
+                        <p style="color: var(--text-muted); margin: 0;" data-i18n="profile.about_empty">Информация о себе не заполнена.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- News (from Explore) - at the end -->
+            <div id="explore-news-container" data-section="profile-news">
+                <div class="loader"><i class="ti ti-loader animate-spin"></i> <span data-i18n="explore.loading">Загрузка...</span></div>
+            </div>
+
+            {% elif google_user %}
+            <div class="card" style="text-align: center; padding: 48px;">
+                <img src="{{ google_user.avatar }}" alt="{{ google_user.name }}" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 16px;">
+                <h2>{{ google_user.name }}</h2>
+                <p style="color: var(--text-muted); margin-bottom: 8px;">{{ google_user.email }}</p>
+                <p style="color: var(--text-muted); margin-bottom: 24px;" data-i18n="auth.google_only">Вы авторизованы через Google. Для доступа к
+                    спискам и обзору войдите через Shikimori.</p>
+                <a href="/login" class="btn" style="display: inline-flex;"><i class="ti ti-brand-shikimori"></i> <span data-i18n="login.via_shikimori">Войти
+                    через Shikimori</span></a>
+            </div>
+            {% else %}
+            <div class="card" style="text-align: center; padding: 48px;">
+                <i class="ti ti-user-x"
+                    style="font-size: 48px; color: var(--primary); margin-bottom: 16px; display: block;"></i>
+                <h2 data-i18n="auth.not_authorized">Авторизация не выполнена</h2>
+                <p style="color: var(--text-muted); margin-bottom: 24px;" data-i18n="auth.not_authorized.desc">Войдите через Shikimori или Google, чтобы
+                    просмотреть свой профиль, списки и обзор.</p>
+                <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                    <a href="/login" class="btn" style="display: inline-flex;"><i class="ti ti-brand-shikimori"></i>
+                        <span data-i18n="login.via_shikimori">Войти через Shikimori</span></a>
+                    <a href="/login/google" class="btn" style="display: inline-flex; background: #4285F4; color: white; border: none;">
+                        <i class="ti ti-brand-google"></i> <span data-i18n="login.via_google">Войти через Google</span></a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Вкладка Списки -->
+        <div id="rates" class="tab-content">
+            <div class="loader"><i class="ti ti-loader animate-spin"></i> <span data-i18n="rates.loading">Загрузка списков...</span></div>
+        </div>
+
+        <!-- Вкладка Избранное -->
+        <div id="favourites" class="tab-content">
+            <div class="loader"><i class="ti ti-loader animate-spin"></i> <span data-i18n="favourites.loading">Загрузка избранного...</span></div>
+        </div>
+
+        <!-- Вкладка Друзья -->
+        <div id="friends" class="tab-content">
+            <div class="loader"><i class="ti ti-loader animate-spin"></i> <span data-i18n="friends.loading">Загрузка друзей...</span></div>
+        </div>
+
+        <!-- Вкладка История -->
+        <div id="history" class="tab-content">
+            <div class="loader"><i class="ti ti-loader animate-spin"></i> <span data-i18n="history.loading">Загрузка истории...</span></div>
+        </div>
+
+    </main>
+
+    <!-- Модальное окно Аниме -->
+    <div id="anime-modal" class="modal-overlay hidden" onclick="closeAnimeModal(event)">
+        <div class="modal-content anime-modal-content">
+            <button class="modal-close-btn" onclick="closeAnimeModal(event)"><i class="ti ti-x"></i></button>
+            <div id="anime-modal-body"></div>
+        </div>
+    </div>
+
+    <!-- Модальное окно О сайте -->
+    <div id="about-modal" class="modal-overlay hidden" onclick="closeAboutModal(event)">
+        <div class="modal-content anime-modal-content about-modal-card">
+            <button class="modal-close-btn" onclick="closeAboutModal(event)"><i class="ti ti-x"></i></button>
+            <div class="about-modal-body">
+                <div class="about-header-banner">
+                    <i class="ti ti-brand-shikimori about-logo-icon"></i>
+                    <h2 class="about-app-title">{{ app_name }}</h2>
+                    <span id="about-badge-version" class="badge badge-watching">v{{ app_version }}</span>
+                </div>
+                <p id="about-modal-desc" class="about-desc-text">{{ app_description }}</p>
+                <div class="about-section-block">
+                    <h4><i class="ti ti-stars"></i> <span data-i18n="about.features">Возможности приложения</span></h4>
+                    <ul id="about-modal-features" class="about-features-list">
+                        {% for feature in app_features %}
+                        <li><i class="ti ti-check"></i> {{ feature }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="about-section-block">
+                    <h4><i class="ti ti-code"></i> <span data-i18n="about.tech_stack">Технологический стек</span></h4>
+                    <div id="about-modal-stack" class="about-tags-grid">
+                        {% for item in app_stack %}
+                        <span class="search-tag">{{ item }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="about-section-block">
+                    <h4><i class="ti ti-history"></i> <span data-i18n="about.changelog">Чейнджлог (История изменений)</span></h4>
+                    <div id="about-modal-changelog" class="changelog-list"></div>
+                </div>
+                <a href="https://shikimori.io" target="_blank" class="btn" style="align-self: center; margin-top: 8px;">
+                    <i class="ti ti-brand-shikimori"></i> Shikimori.io
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно Настройки -->
+    <div id="settings-modal" class="modal-overlay hidden" onclick="closeSettingsModal(event)">
+        <div class="modal-content anime-modal-content settings-modal-card">
+            <button class="modal-close-btn" onclick="closeSettingsModal(event)"><i class="ti ti-x"></i></button>
+            <div class="settings-modal-body">
+                <div class="settings-header-banner">
+                    <i class="ti ti-settings settings-logo-icon"></i>
+                    <h2 class="settings-title" data-i18n="settings.title">Настройки</h2>
+                </div>
+
+                <div class="settings-section-block">
+                    <h4><i class="ti ti-photo"></i> <span data-i18n="settings.background">Фон сайта</span></h4>
+                    <p class="settings-hint" data-i18n="settings.background.hint">Выберите цвет фона или установите любое фото.</p>
+
+                    <div class="settings-mode-tabs">
+                        <button id="bg-mode-color-btn" class="settings-mode-btn active" onclick="setBgMode('color')">
+                            <i class="ti ti-palette"></i> <span data-i18n="settings.color">Цвет</span>
+                        </button>
+                        <button id="bg-mode-image-btn" class="settings-mode-btn" onclick="setBgMode('image')">
+                            <i class="ti ti-photo"></i> <span data-i18n="settings.image">Фото</span>
+                        </button>
+                    </div>
+
+                    <div id="bg-color-panel" class="settings-panel">
+                        <label class="settings-label" data-i18n="settings.bg_color">Цвет фона</label>
+                        <div class="settings-color-row">
+                            <input type="color" id="bg-color-input" value="#2b133d" oninput="onBgColorChange(this.value)">
+                            <span id="bg-color-value" class="settings-color-value">#2b133d</span>
+                        </div>
+                    </div>
+
+                    <div id="bg-image-panel" class="settings-panel hidden">
+                        <label class="settings-label" data-i18n="settings.image_url">URL изображения</label>
+                        <input type="text" id="bg-image-url" class="settings-input" placeholder="https://example.com/image.jpg" onchange="onBgImageUrlChange(this.value)">
+                        <div class="settings-or" data-i18n="settings.or">или</div>
+                        <label class="settings-label" data-i18n="settings.upload">Загрузить с устройства</label>
+                        <input type="file" id="bg-image-file" class="settings-input-file" accept="image/*" onchange="onBgImageFileChange(this)">
+                    </div>
+
+                    <div class="settings-actions">
+                        <button class="btn-secondary" onclick="resetBackgroundSettings()"><i class="ti ti-refresh"></i> <span data-i18n="settings.reset">Сбросить</span></button>
+                    </div>
+                </div>
+
+                <div class="settings-section-block">
+                    <h4><i class="ti ti-eye"></i> <span data-i18n="settings.section_visibility">Видимость разделов</span></h4>
+                    <p class="settings-hint" data-i18n="settings.section_visibility.hint">Выберите, какие разделы отображать на вкладке «Профиль & Обзор».</p>
+
+                    <div class="settings-panel">
+                        <div class="settings-toggle-row">
+                            <span class="settings-toggle-label" data-i18n="profile.info">Информация</span>
+                            <label class="settings-toggle">
+                                <input type="checkbox" data-section="profile-info" checked onchange="onSectionToggle(this)">
+                                <span class="settings-toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="settings-toggle-row">
+                            <span class="settings-toggle-label" data-i18n="profile.stats">Статистика</span>
+                            <label class="settings-toggle">
+                                <input type="checkbox" data-section="profile-stats" checked onchange="onSectionToggle(this)">
+                                <span class="settings-toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="settings-toggle-row">
+                            <span class="settings-toggle-label" data-i18n="profile.friends_clubs">Друзья и клубы</span>
+                            <label class="settings-toggle">
+                                <input type="checkbox" data-section="profile-friends" checked onchange="onSectionToggle(this)">
+                                <span class="settings-toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="settings-toggle-row">
+                            <span class="settings-toggle-label" data-i18n="profile.activity">Активность</span>
+                            <label class="settings-toggle">
+                                <input type="checkbox" data-section="profile-activity" checked onchange="onSectionToggle(this)">
+                                <span class="settings-toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="settings-toggle-row">
+                            <span class="settings-toggle-label" data-i18n="profile.about">О себе</span>
+                            <label class="settings-toggle">
+                                <input type="checkbox" data-section="profile-about" checked onchange="onSectionToggle(this)">
+                                <span class="settings-toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="settings-toggle-row">
+                            <span class="settings-toggle-label" data-i18n="explore.content">Контент</span>
+                            <label class="settings-toggle">
+                                <input type="checkbox" data-section="explore-content" checked onchange="onSectionToggle(this)">
+                                <span class="settings-toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="settings-toggle-row">
+                            <span class="settings-toggle-label" data-i18n="explore.hot_topics">Темы дня</span>
+                            <label class="settings-toggle">
+                                <input type="checkbox" data-section="explore-hot" checked onchange="onSectionToggle(this)">
+                                <span class="settings-toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="settings-toggle-row">
+                            <span class="settings-toggle-label" data-i18n="explore.news_feed">Новостная лента</span>
+                            <label class="settings-toggle">
+                                <input type="checkbox" data-section="explore-news" checked onchange="onSectionToggle(this)">
+                                <span class="settings-toggle-slider"></span>
+                            </label>
+                        </div>
+        
+                        {% if profile and not google_user %}
+                        <div class="settings-section-block">
+                            <h4><i class="ti ti-brand-google"></i> <span data-i18n="settings.google_account">Google аккаунт</span></h4>
+                            <p class="settings-hint" data-i18n="settings.google.link_hint">Привяжите Google аккаунт для входа через Google.</p>
+                            <div class="settings-actions">
+                                <a href="/login/google" class="btn" style="background: #4285F4; color: white; border: none; display: inline-flex;">
+                                    <i class="ti ti-brand-google"></i> <span data-i18n="settings.google.add">Добавить аккаунт Google</span>
+                                </a>
+                            </div>
+                        </div>
+                        {% elif profile and google_user %}
+                        <div class="settings-section-block">
+                            <h4><i class="ti ti-brand-google"></i> <span data-i18n="settings.google_account">Google аккаунт</span></h4>
+                            <p class="settings-hint" data-i18n="settings.google.linked">Google аккаунт привязан:</p>
+                            <div class="settings-actions">
+                                <button class="btn-danger" onclick="unlinkGoogleAccount()">
+                                    <i class="ti ti-link-off"></i> <span data-i18n="settings.google.unlink">Отвязать аккаунт Google</span>
+                                </button>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/logger.js"></script>
+    <script src="/static/js/translations.js"></script>
+    <script src="/static/js/core.js"></script>
+    <script src="/static/js/anime.js"></script>
+    <script src="/static/js/manga.js"></script>
+    <script src="/static/js/friend.js"></script>
+    <script src="/static/js/friends.js"></script>
+    <script src="/static/js/profile.js"></script>
+    <script src="/static/js/history.js"></script>
+    <script src="/static/js/favourites.js"></script>
+    <script src="/static/js/rates.js"></script>
+    <script src="/static/js/explore.js"></script>
+    <script src="/static/js/settings.js"></script>
+</body>
+
+</html>

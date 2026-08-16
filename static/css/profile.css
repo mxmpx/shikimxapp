@@ -1,0 +1,213 @@
+/* Мобильная карточка профиля — скрыта на десктопе, видна на мобилке */
+.mobile-profile-card {
+    display: none;
+    align-items: center;
+    gap: 14px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-card);
+    padding: 14px 20px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow-card);
+}
+
+.mobile-profile-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-pill);
+    object-fit: cover;
+    border: 2px solid var(--primary);
+    box-shadow: 0 0 12px rgba(209, 153, 255, 0.3);
+}
+
+.mobile-profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.mobile-profile-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.mobile-profile-logout {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--danger);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.mobile-profile-logout:hover {
+    opacity: 0.7;
+}
+
+@media (max-width: 768px) {
+    .mobile-profile-card {
+        display: flex;
+    }
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    align-items: stretch;
+    margin-bottom: 20px;
+}
+
+#explore-news-container {
+    margin-top: 24px;
+}
+
+.card-history-left,
+.card-about-right,
+.card-friends-preview {
+    grid-column: span 2;
+    display: flex;
+    flex-direction: column;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 4px;
+    border-bottom: 1px solid var(--border-sub);
+    font-size: 14px;
+}
+
+.info-row.clickable {
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: var(--radius-pill);
+    transition: background 0.2s, color 0.2s;
+}
+
+.info-row.clickable:hover {
+    background: var(--primary-container);
+    color: var(--on-primary-container);
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.label {
+    color: var(--text-muted);
+}
+
+.mini-friends-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+    gap: 10px;
+}
+
+.mini-friend-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-main);
+    font-size: 11px;
+    text-align: center;
+}
+
+.mini-friend-item img {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-pill);
+    object-fit: cover;
+    border: 2px solid var(--card-border);
+    margin-bottom: 4px;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.mini-friend-item.club img {
+    border-radius: var(--radius-inner);
+}
+
+.mini-friend-item:hover img {
+    border-color: var(--primary);
+    transform: scale(1.08);
+}
+
+.mini-friend-item span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.about-section {
+    width: 100%;
+    overflow-x: auto;
+    word-break: break-word;
+    transition: max-height 0.3s ease;
+}
+
+.about-section.collapsed {
+    max-height: 300px;
+    overflow: hidden;
+    position: relative;
+    mask-image: linear-gradient(180deg, #000 60%, transparent 100%);
+    -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent 100%);
+}
+
+.shiki-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--cols, 5), 1fr);
+    gap: 8px;
+    margin: 16px 0;
+    width: 100%;
+}
+
+.shiki-grid.wall-grid {
+    gap: 0;
+}
+
+.shiki-grid-item {
+    position: relative;
+    aspect-ratio: 2 / 3;
+    border-radius: var(--radius-inner);
+    overflow: hidden;
+    background: var(--sub-bg);
+    display: block;
+    text-decoration: none;
+    color: #fff;
+    transition: transform 0.2s;
+}
+
+.shiki-grid.wall-grid .shiki-grid-item {
+    border-radius: 0;
+}
+
+.shiki-grid-item:hover {
+    transform: scale(1.05);
+    z-index: 10;
+}
+
+.shiki-grid-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.shiki-grid-item .item-title {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--shiki-overlay);
+    font-size: 10px;
+    padding: 3px 2px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

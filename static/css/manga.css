@@ -1,0 +1,104 @@
+/* ==================== MANGA MODAL STYLES ==================== */
+
+.manga-modal-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.manga-detail-header {
+    display: flex;
+    gap: 24px;
+}
+
+@media (max-width: 650px) {
+    .manga-detail-header {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+.manga-poster-wrapper {
+    position: relative;
+    width: 200px;
+    flex-shrink: 0;
+}
+
+.manga-poster-img {
+    width: 100%;
+    border-radius: var(--radius-inner);
+    object-fit: cover;
+    border: 1px solid var(--card-border);
+    box-shadow: var(--shadow-md);
+}
+
+.manga-poster-placeholder {
+    height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    background: var(--sub-bg);
+    border-radius: var(--radius-inner);
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+}
+
+.manga-main-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.manga-title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.manga-orig-title {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: -4px;
+}
+
+.manga-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+    margin-top: 10px;
+}
+
+@media (max-width: 500px) {
+    .manga-info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.manga-user-rate-item {
+    grid-column: span 2;
+    background: var(--sub-bg);
+    padding: 8px 12px;
+    border-radius: var(--radius-inner);
+    border: 1px solid var(--card-border);
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.manga-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: auto;
+    padding-top: 14px;
+}
+
+.manga-description-section {
+    border-top: 1px solid var(--card-border);
+    padding-top: 20px;
+}

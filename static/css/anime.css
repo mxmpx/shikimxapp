@@ -1,0 +1,195 @@
+/* Модальное окно аниме */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--overlay-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 1;
+    transition: opacity 0.25s ease;
+}
+.modal-overlay.hidden { display: none; opacity: 0; pointer-events: none; }
+
+.modal-content.anime-modal-content {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 820px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    padding: 28px;
+    box-shadow: var(--shadow-lg);
+    animation: modalScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalScaleIn {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: var(--sub-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-main);
+    font-size: 20px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 2;
+}
+.modal-close-btn:hover { background: var(--primary-container); color: var(--on-primary-container); transform: rotate(90deg); }
+
+.anime-modal-loader, .anime-error {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Детали аниме */
+.anime-detail-header { display: flex; gap: 24px; margin-bottom: 24px; }
+@media (max-width: 650px) { .anime-detail-header { flex-direction: column; align-items: center; } }
+
+.anime-poster-wrapper { position: relative; width: 200px; flex-shrink: 0; }
+.anime-poster { width: 100%; border-radius: 12px; object-fit: cover; border: 1px solid var(--card-border); }
+.anime-poster.placeholder { height: 280px; display: flex; align-items: center; justify-content: center; font-size: 48px; background: var(--sub-bg); border-radius: 12px; }
+
+.anime-score-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: var(--score-color);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.anime-main-info { flex-grow: 1; display: flex; flex-direction: column; gap: 10px; }
+.anime-title { margin: 0; font-size: 22px; font-weight: 700; color: var(--text-main); }
+.anime-orig-title { font-size: 14px; color: var(--text-muted); margin-top: -4px; }
+
+.anime-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; margin-top: 10px; }
+@media (max-width: 500px) { .anime-info-grid { grid-template-columns: 1fr; } }
+
+.info-item { font-size: 13px; color: var(--text-main); }
+.info-item .label { color: var(--text-muted); font-weight: 600; margin-right: 4px; }
+
+.anime-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: auto;
+    padding-top: 14px;
+}
+
+.btn-kodik-play {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--primary);
+    color: var(--on-primary);
+    border: none;
+    padding: 10px 18px;
+    border-radius: var(--radius-inner);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.btn-kodik-play:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.kodik-player-wrapper {
+    margin: 20px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--card-border);
+    background: var(--player-bg);
+    box-shadow: var(--shadow-md);
+}
+
+.kodik-player-wrapper.hidden {
+    display: none;
+}
+
+.anime-description-section {
+    border-top: 1px solid var(--card-border);
+    padding-top: 20px;
+}
+.anime-description-section h3 { font-size: 16px; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px; }
+.anime-description-content { font-size: 14px; line-height: 1.6; color: var(--text-main); opacity: 0.9; }
+
+/* Контейнер плеера (полный вид без обрезки) */
+.watch-player-crop-wrapper {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    overflow: hidden;
+    border-radius: 12px;
+    background: var(--player-container-bg);
+    border: 1px solid var(--card-border);
+}
+
+.watch-player-crop-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+/* Элементы плеера Anicli */
+.anicli-player-wrapper {
+    padding: 12px;
+    background: var(--player-container-bg);
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+}
+
+.anicli-controls-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: var(--text-main);
+}
+
+.anicli-controls-bar .sort-select {
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: var(--sub-bg);
+    color: var(--text-main);
+    border: 1px solid var(--card-border);
+}

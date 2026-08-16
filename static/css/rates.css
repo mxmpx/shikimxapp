@@ -1,0 +1,373 @@
+.list-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 20px;
+    background: var(--card-bg);
+    padding: 18px;
+    border-radius: var(--radius-card);
+    border: 1px solid var(--card-border);
+}
+
+.type-switch {
+    display: flex;
+    gap: 8px;
+}
+
+.type-btn {
+    background: var(--sub-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+    padding: 8px 20px;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.type-btn.active {
+    background: var(--primary);
+    color: var(--on-primary);
+    border-color: var(--primary);
+}
+
+.filter-sort-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.view-mode-bar {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--card-border);
+}
+
+.view-mode-btn {
+    background: var(--sub-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+    padding: 6px 12px;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.view-mode-btn:hover {
+    color: var(--text-main);
+    border-color: var(--primary);
+}
+
+.view-mode-btn.active {
+    background: var(--primary-container);
+    color: var(--on-primary-container);
+    border-color: var(--primary);
+}
+
+.rates-filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    background: var(--sub-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+    padding: 6px 14px;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.filter-btn:hover {
+    color: var(--text-main);
+    border-color: var(--primary);
+}
+
+.filter-btn.active {
+    background: var(--primary-container);
+    color: var(--on-primary-container);
+    border-color: var(--primary);
+}
+
+.sort-select {
+    background-color: var(--sub-bg);
+    color: var(--text-main);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-pill);
+    padding: 8px 36px 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23d199ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+}
+
+.sort-select:hover,
+.sort-select:focus {
+    border-color: var(--primary);
+    background-color: var(--primary-container);
+    color: var(--on-primary-container);
+}
+
+.rates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+}
+
+.rates-view-list {
+    grid-template-columns: 1fr;
+    gap: 8px;
+}
+
+.rates-view-large {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.rate-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-inner);
+    padding: 14px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.rate-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.rate-content {
+    flex-grow: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.rate-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.rate-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--primary);
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.2s;
+}
+
+.rate-title:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+.badge {
+    padding: 3px 10px;
+    border-radius: var(--radius-pill);
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    border: 1px solid transparent;
+}
+
+.badge-watching {
+    background: var(--primary-container);
+    color: var(--on-primary-container);
+    border-color: rgba(209, 153, 255, 0.3);
+}
+
+.badge-completed {
+    background: rgba(163, 247, 191, 0.15);
+    color: var(--success);
+    border-color: rgba(163, 247, 191, 0.3);
+}
+
+.badge-planned {
+    background: var(--sub-bg);
+    color: var(--text-muted);
+    border-color: var(--card-border);
+}
+
+.badge-on_hold {
+    background: rgba(255, 224, 130, 0.15);
+    color: var(--warning);
+    border-color: rgba(255, 224, 130, 0.3);
+}
+
+.badge-dropped {
+    background: rgba(255, 158, 158, 0.15);
+    color: var(--danger);
+    border-color: rgba(255, 158, 158, 0.3);
+}
+
+.score-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--warning);
+    font-weight: 700;
+}
+
+.rate-card .history-thumb,
+.rate-card .history-thumb-placeholder {
+    width: 52px;
+    height: 74px;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.rate-poster-large {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    border-radius: var(--radius-inner);
+}
+
+.rate-list-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-inner);
+    padding: 12px 16px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.rate-list-row:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.rate-list-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+
+.rate-list-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.rates-view-list .rate-card {
+    flex-direction: row;
+    align-items: center;
+    padding: 10px 16px;
+}
+
+.rates-view-list .rate-card .history-thumb,
+.rates-view-list .rate-card .history-thumb-placeholder {
+    display: none;
+}
+
+.rates-view-list .rate-content {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+}
+
+.rates-view-list .rate-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+}
+
+.rates-view-list .info-row {
+    padding: 0;
+    white-space: nowrap;
+}
+
+.rates-view-large .rate-card {
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+}
+
+.rates-view-large .rate-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+    color: #fff;
+    padding: 24px 12px 12px;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.rates-view-large .rate-card:hover .rate-content {
+    transform: translateY(0);
+}
+
+.rates-view-large .rate-title {
+    color: #fff;
+}
+
+.rates-view-large .rate-title:hover {
+    color: var(--primary);
+}
+
+.rates-view-large .badge {
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.rates-view-large .info-row {
+    color: #ddd;
+}
+
+.rates-view-large .info-row .label {
+    color: #aaa;
+}
+
+.rates-view-large .score-pill {
+    color: var(--warning);
+}
+
+.rates-view-large .history-thumb,
+.rates-view-large .history-thumb-placeholder {
+    width: 100%;
+    height: 280px;
+    border-radius: var(--radius-inner);
+}

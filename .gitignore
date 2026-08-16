@@ -1,0 +1,39 @@
+# Environment / secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Cached images
+static/img_cache/
+
+# Logs
+*.log
+server.log
+
+# Test files
+test_*.py
+test*.txt
+test*.deleted
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Misc
+sys_path.txt
