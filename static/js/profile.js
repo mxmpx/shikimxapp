@@ -12,7 +12,7 @@ function toggleAbout() {
     }
 }
 
-async function loadRecentHistory() {
+async function loadRecentHistory(retries = 2) {
     const container = document.getElementById('recent-history-list');
     if (!container) return;
 
@@ -28,11 +28,15 @@ async function loadRecentHistory() {
 
         container.innerHTML = data.slice(0, 4).map(renderHistoryItemHtml).join('');
     } catch (err) {
-        container.innerHTML = `<p style="color: var(--danger); margin: 0;">${i18n('history.load_error')}</p>`;
+        if (retries > 0) {
+            setTimeout(() => loadRecentHistory(retries - 1), 1500);
+        } else {
+            container.innerHTML = `<p style="color: var(--danger); margin: 0;">${i18n('history.load_error')}</p>`;
+        }
     }
 }
 
-async function loadProfileFriendsClubs() {
+async function loadProfileFriendsClubs(retries = 2) {
     const container = document.getElementById('profile-friends-clubs-preview');
     if (!container) return;
 
@@ -43,6 +47,10 @@ async function loadProfileFriendsClubs() {
         const clubs = data.clubs || [];
 
         if (!friends.length && !clubs.length) {
+            if (retries > 0) {
+                setTimeout(() => loadProfileFriendsClubs(retries - 1), 1500);
+                return;
+            }
             container.innerHTML = '<p style="color: var(--text-muted); margin: 0; font-size: 13px;">' + i18n('friends.empty') + '</p>';
             return;
         }
@@ -61,6 +69,10 @@ async function loadProfileFriendsClubs() {
         html += '</div>';
         container.innerHTML = html;
     } catch (err) {
-        container.innerHTML = `<p style="color: var(--danger); margin: 0; font-size: 13px;">${i18n('friends.load_error')}</p>`;
+        if (retries > 0) {
+            setTimeout(() => loadProfileFriendsClubs(retries - 1), 1500);
+        } else {
+            container.innerHTML = `<p style="color: var(--danger); margin: 0; font-size: 13px;">${i18n('friends.load_error')}</p>`;
+        }
     }
-}
+}

@@ -5,8 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer">
+    <meta name="theme-color" content="#2b133d">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Shiki MX App</title>
 
+    <link rel="manifest" href="/manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -15,16 +20,17 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 
-    <link rel="stylesheet" href="/static/css/main.css">
-    <link rel="stylesheet" href="/static/css/profile.css">
-    <link rel="stylesheet" href="/static/css/rates.css">
-    <link rel="stylesheet" href="/static/css/explore.css">
-    <link rel="stylesheet" href="/static/css/media.css">
-    <link rel="stylesheet" href="/static/css/anime.css">
-    <link rel="stylesheet" href="/static/css/manga.css">
-    <link rel="stylesheet" href="/static/css/friend.css">
-    <link rel="stylesheet" href="/static/css/settings.css">
+    <link rel="stylesheet" href="/static/css/main.css?v={{ app_version }}">
+    <link rel="stylesheet" href="/static/css/profile.css?v={{ app_version }}">
+    <link rel="stylesheet" href="/static/css/rates.css?v={{ app_version }}">
+    <link rel="stylesheet" href="/static/css/explore.css?v={{ app_version }}">
+    <link rel="stylesheet" href="/static/css/media.css?v={{ app_version }}">
+    <link rel="stylesheet" href="/static/css/anime.css?v={{ app_version }}">
+    <link rel="stylesheet" href="/static/css/manga.css?v={{ app_version }}">
+    <link rel="stylesheet" href="/static/css/friend.css?v={{ app_version }}">
+    <link rel="stylesheet" href="/static/css/settings.css?v={{ app_version }}">
 </head>
+
 
 <body>
 
@@ -55,6 +61,10 @@
                         <i class="ti ti-info-circle"></i>
                         <span data-i18n="about.title">О сайте</span>
                     </button>
+                    <button class="dropdown-item btn-pwa-install hidden" onclick="installPwaApp()">
+                        <i class="ti ti-download"></i>
+                        <span data-i18n="pwa.install">Установить приложение</span>
+                    </button>
                     <div class="dropdown-divider"></div>
                     <div class="dropdown-footer" id="dropdown-version">
                         <i class="ti ti-code"></i> Shiki MX v{{ app_version }}
@@ -81,6 +91,9 @@
             </nav>
 
             <div class="header-right">
+                <button id="random-anime-btn" class="btn-theme" onclick="pickRandomAnime()" title="Мне повезёт (Рандомайзер)">
+                    <i class="ti ti-sparkles"></i>
+                </button>
                 <button id="search-toggle-btn" class="btn-theme" onclick="toggleNavbarSearch()" data-i18n-title="search.title">
                     <i class="ti ti-search"></i>
                 </button>
@@ -106,6 +119,7 @@
                 {% endif %}
             </div>
         </div>
+
 
         <!-- Поиск в навбаре -->
         <div id="navbar-search-panel" class="navbar-search-panel hidden">
@@ -150,6 +164,9 @@
         <!-- Вкладка Профиль & Обзор -->
         <div id="profile" class="tab-content active">
             {% if profile %}
+            <!-- Блок Продолжить просмотр -->
+            <div id="continue-watching-container" class="continue-watching-wrapper hidden"></div>
+
             <!-- Мобильная карточка профиля (только для мобилок) -->
             <div class="mobile-profile-card">
                 <img src="{{ profile.image | img_url }}" alt="{{ profile.nickname }}" class="mobile-profile-avatar">
@@ -238,6 +255,85 @@
                         {% endif %}
                     </div>
                 </div>
+            </div>
+
+            <!-- Расписание Онгоингов (Календарь) -->
+            <div id="calendar-section-container" class="calendar-wrapper" data-section="explore-calendar"></div>
+
+            <!-- Каталог с фильтрами -->
+            <div id="catalog-section-container" class="catalog-section-container" data-section="explore-catalog">
+                <div class="card catalog-header-card">
+                    <div class="card-header">
+                        <h3><i class="ti ti-layout-grid"></i> <span data-i18n="catalog.title">Каталог аниме</span></h3>
+                        <button id="btn-random-anime-inline" class="btn-secondary" onclick="pickRandomAnime()">
+                            <i class="ti ti-sparkles"></i> <span data-i18n="random.btn">Мне повезёт!</span>
+                        </button>
+                    </div>
+                    <div class="catalog-filters-bar">
+                        <div class="catalog-filter-item">
+                            <label data-i18n="catalog.filter.genre">Жанр</label>
+                            <select id="cat-filter-genre" class="sort-select" onchange="onCatalogFilterChange()">
+                                <option value="" data-i18n="catalog.filter.all_genres">Все жанры</option>
+                            </select>
+                        </div>
+                        <div class="catalog-filter-item">
+                            <label data-i18n="catalog.filter.season">Сезон</label>
+                            <select id="cat-filter-season" class="sort-select" onchange="onCatalogFilterChange()">
+                                <option value="" data-i18n="catalog.filter.all_seasons">Все сезоны</option>
+                                <option value="summer_2026" data-i18n="catalog.season.summer_2026">Лето 2026</option>
+                                <option value="spring_2026" data-i18n="catalog.season.spring_2026">Весна 2026</option>
+                                <option value="winter_2026" data-i18n="catalog.season.winter_2026">Зима 2026</option>
+                                <option value="fall_2025" data-i18n="catalog.season.fall_2025">Осень 2025</option>
+                                <option value="2026" data-i18n="catalog.season.y2026">2026 год</option>
+                                <option value="2025" data-i18n="catalog.season.y2025">2025 год</option>
+                                <option value="2024" data-i18n="catalog.season.y2024">2024 год</option>
+                            </select>
+                        </div>
+                        <div class="catalog-filter-item">
+                            <label data-i18n="catalog.filter.type">Тип</label>
+                            <select id="cat-filter-kind" class="sort-select" onchange="onCatalogFilterChange()">
+                                <option value="" data-i18n="catalog.filter.all_types">Все типы</option>
+                                <option value="tv" data-i18n="catalog.kind.tv">ТВ Сериал</option>
+                                <option value="movie" data-i18n="catalog.kind.movie">Фильм</option>
+                                <option value="ova" data-i18n="catalog.kind.ova">OVA</option>
+                                <option value="ona" data-i18n="catalog.kind.ona">ONA</option>
+                                <option value="special" data-i18n="catalog.kind.special">Спешл</option>
+                            </select>
+                        </div>
+                        <div class="catalog-filter-item">
+                            <label data-i18n="catalog.filter.status">Статус</label>
+                            <select id="cat-filter-status" class="sort-select" onchange="onCatalogFilterChange()">
+                                <option value="" data-i18n="catalog.filter.all_statuses">Все статусы</option>
+                                <option value="ongoing" data-i18n="catalog.status.ongoing">Онгоинг</option>
+                                <option value="released" data-i18n="catalog.status.released">Вышло</option>
+                                <option value="anons" data-i18n="catalog.status.anons">Анонс</option>
+                            </select>
+                        </div>
+                        <div class="catalog-filter-item">
+                            <label data-i18n="catalog.filter.score">Мин. оценка</label>
+                            <select id="cat-filter-score" class="sort-select" onchange="onCatalogFilterChange()">
+                                <option value="" data-i18n="catalog.filter.all_scores">Любая</option>
+                                <option value="8">8+</option>
+                                <option value="7">7+</option>
+                                <option value="6">6+</option>
+                            </select>
+                        </div>
+                        <div class="catalog-filter-item">
+                            <label data-i18n="catalog.filter.sort">Сортировка</label>
+                            <select id="cat-filter-sort" class="sort-select" onchange="onCatalogFilterChange()">
+                                <option value="ranked" data-i18n="catalog.sort.ranked">По рейтингу</option>
+                                <option value="popularity" data-i18n="catalog.sort.popularity">По популярности</option>
+                                <option value="aired_on" data-i18n="catalog.sort.aired_on">По дате выхода</option>
+                                <option value="name" data-i18n="catalog.sort.name">По названию</option>
+                            </select>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div id="catalog-grid-container" class="catalog-cards-grid"></div>
+                <div id="catalog-load-more-wrap" class="catalog-load-more-wrap"></div>
+
             </div>
 
             <!-- News (from Explore) - at the end -->
@@ -416,6 +512,27 @@
                             </label>
                         </div>
                         <div class="settings-toggle-row">
+                            <span class="settings-toggle-label" data-i18n="player.continue_watching">Продолжить просмотр</span>
+                            <label class="settings-toggle">
+                                <input type="checkbox" data-section="continue-watching" checked onchange="onSectionToggle(this)">
+                                <span class="settings-toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="settings-toggle-row">
+                            <span class="settings-toggle-label" data-i18n="calendar.title">Расписание онгоингов</span>
+                            <label class="settings-toggle">
+                                <input type="checkbox" data-section="explore-calendar" checked onchange="onSectionToggle(this)">
+                                <span class="settings-toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="settings-toggle-row">
+                            <span class="settings-toggle-label" data-i18n="catalog.title">Каталог аниме</span>
+                            <label class="settings-toggle">
+                                <input type="checkbox" data-section="explore-catalog" checked onchange="onSectionToggle(this)">
+                                <span class="settings-toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="settings-toggle-row">
                             <span class="settings-toggle-label" data-i18n="explore.content">Контент</span>
                             <label class="settings-toggle">
                                 <input type="checkbox" data-section="explore-content" checked onchange="onSectionToggle(this)">
@@ -437,6 +554,14 @@
                             </label>
                         </div>
                     </div>
+                </div>
+
+                <div class="settings-section-block">
+                    <h4><i class="ti ti-device-mobile"></i> <span data-i18n="pwa.title">Приложение (PWA)</span></h4>
+                    <p class="settings-hint" data-i18n="pwa.desc">Установите Shiki MX как быстрое приложение для рабочего стола или смартфона.</p>
+                    <button type="button" class="btn btn-pwa-install hidden" onclick="installPwaApp()" style="margin-top: 8px;">
+                        <i class="ti ti-download"></i> <span data-i18n="pwa.install">Установить приложение</span>
+                    </button>
                 </div>
 
                 <div class="settings-section-block">
@@ -479,19 +604,26 @@
         </div>
     </div>
 
-    <script src="/static/js/logger.js"></script>
-    <script src="/static/js/translations.js"></script>
-    <script src="/static/js/core.js"></script>
-    <script src="/static/js/anime.js"></script>
-    <script src="/static/js/manga.js"></script>
-    <script src="/static/js/friend.js"></script>
-    <script src="/static/js/friends.js"></script>
-    <script src="/static/js/profile.js"></script>
-    <script src="/static/js/history.js"></script>
-    <script src="/static/js/favourites.js"></script>
-    <script src="/static/js/rates.js"></script>
-    <script src="/static/js/explore.js"></script>
-    <script src="/static/js/settings.js"></script>
+    <!-- Floating Mini Player -->
+    <div id="floating-mini-player" class="floating-mini-player hidden"></div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="/static/js/logger.js?v={{ app_version }}"></script>
+    <script src="/static/js/translations.js?v={{ app_version }}"></script>
+    <script src="/static/js/core.js?v={{ app_version }}"></script>
+    <script src="/static/js/anime.js?v={{ app_version }}"></script>
+    <script src="/static/js/manga.js?v={{ app_version }}"></script>
+    <script src="/static/js/friend.js?v={{ app_version }}"></script>
+    <script src="/static/js/friends.js?v={{ app_version }}"></script>
+    <script src="/static/js/profile.js?v={{ app_version }}"></script>
+    <script src="/static/js/history.js?v={{ app_version }}"></script>
+    <script src="/static/js/favourites.js?v={{ app_version }}"></script>
+    <script src="/static/js/rates.js?v={{ app_version }}"></script>
+    <script src="/static/js/explore.js?v={{ app_version }}"></script>
+    <script src="/static/js/settings.js?v={{ app_version }}"></script>
 </body>
+
 
 </html>

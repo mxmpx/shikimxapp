@@ -1,7 +1,11 @@
 import logging
 import requests
 from flask import Blueprint, jsonify, session, request
-from utils import SHIKIMORI_BASE, APP_NAME, fetch_cached_api, fix_image_url, get_auth_headers, fetch_with_retry, fetch_user_rate
+from utils import (
+    SHIKIMORI_BASE, APP_NAME, fetch_cached_api, fix_image_url,
+    get_auth_headers, fetch_with_retry, fetch_user_rate,
+    resolve_single_anime_poster_graphql
+)
 from errors import AppError, api_route
 
 logger = logging.getLogger("shikimxapp.anime")
@@ -16,6 +20,9 @@ anime_bp = Blueprint('anime', __name__)
 
 def _build_anime_result(data, anime_id, characters_data=None):
     poster = fix_image_url(data.get("image"))
+    if not poster or "missing_" in poster:
+        poster = resolve_single_anime_poster_graphql(anime_id)
+
 
     genres = [g.get("russian") or g.get("name") for g in data.get("genres", [])]
     studios = [s.get("name") for s in data.get("studios", [])]
@@ -98,11 +105,18 @@ def get_anime_details(anime_id):
         logger.warning("Anime data unavailable for anime_id=%s", anime_id)
         raise AppError("Не удалось получить данные с Shikimori", 502)
 
+    # Fetch full screenshots list (returns 30-50+ screenshots instead of only 4)
+    screenshots_url = f"{SHIKIMORI_BASE}/api/animes/{anime_id}/screenshots"
+    screenshots_data = fetch_cached_api(screenshots_url, headers, ttl=3600)
+    if isinstance(screenshots_data, list) and screenshots_data:
+        data["screenshots"] = screenshots_data
+
     roles_url = f"{SHIKIMORI_BASE}/api/animes/{anime_id}/roles"
     roles_data = fetch_cached_api(roles_url, headers, ttl=3600)
 
-    logger.debug("Anime details loaded: anime_id=%s roles=%s", anime_id, len(roles_data) if isinstance(roles_data, list) else 0)
+    logger.debug("Anime details loaded: anime_id=%s roles=%s screenshots=%s", anime_id, len(roles_data) if isinstance(roles_data, list) else 0, len(data.get("screenshots", [])))
     return jsonify(_build_anime_result(data, anime_id, characters_data=roles_data))
+
 
 
 @anime_bp.route("/api/anime/<int:anime_id>/anicli")

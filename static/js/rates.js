@@ -2,6 +2,7 @@ let currentTargetType = localStorage.getItem('currentTargetType') || 'Anime';
 let currentStatusFilter = localStorage.getItem('currentStatusFilter') || 'all';
 let currentSortFilter = localStorage.getItem('currentSortFilter') || 'updated_at';
 let currentViewMode = localStorage.getItem('ratesViewMode') || 'cards';
+let ratesSearchQuery = '';
 
 function getStatusMap() {
     return {
@@ -82,6 +83,58 @@ function updateFilterLabels() {
     if (lblCompleted) lblCompleted.textContent = isAnime ? i18n('rates.completed') : i18n('rates.completed');
 }
 
+function onRatesSearchInput(val) {
+    ratesSearchQuery = val.trim().toLowerCase();
+    applyListFilters();
+}
+window.onRatesSearchInput = onRatesSearchInput;
+
+function clearRatesSearch() {
+    ratesSearchQuery = '';
+    const input = document.getElementById('rates-local-search');
+    if (input) input.value = '';
+    applyListFilters();
+}
+window.clearRatesSearch = clearRatesSearch;
+
+async function quickIncrementRate(targetId, targetType, totalCount, e) {
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    const rateItem = ratesDataCache.find(r => r.target_id == targetId && r.target_type == targetType);
+    if (rateItem) {
+        const field = targetType === 'Anime' ? 'episodes' : 'chapters';
+        rateItem[field] = (rateItem[field] || 0) + 1;
+        if (totalCount && rateItem[field] >= totalCount) {
+            rateItem.status = 'completed';
+        }
+        applyListFilters();
+    }
+
+    try {
+        const res = await fetch('/api/rate/increment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                target_id: parseInt(targetId),
+                target_type: targetType,
+                total_count: totalCount || 0
+            })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+            showToast(`${i18n('mylist.quick_inc')} (${targetType === 'Anime' ? 'эп.' : 'гл.'} ${rateItem ? (targetType === 'Anime' ? rateItem.episodes : rateItem.chapters) : ''})`, 'success', 2000);
+        } else {
+            showToast(data.error || 'Ошибка обновления', 'error');
+        }
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+window.quickIncrementRate = quickIncrementRate;
+
 function renderRatesView() {
     const container = document.getElementById('rates');
     if (!Array.isArray(ratesDataCache) || ratesDataCache.length === 0) {
@@ -95,6 +148,11 @@ function renderRatesView() {
             <div class="type-switch">
                 <button class="type-btn ${isAnime ? 'active' : ''}" onclick="switchListType('Anime')"><i class="ti ti-movie"></i> ${i18n('rates.anime')}</button>
                 <button class="type-btn ${!isAnime ? 'active' : ''}" onclick="switchListType('Manga')"><i class="ti ti-book"></i> ${i18n('rates.manga')}</button>
+            </div>
+            <div class="rates-search-box">
+                <i class="ti ti-search search-icon"></i>
+                <input type="text" id="rates-local-search" placeholder="${i18n('mylist.search_placeholder')}" oninput="onRatesSearchInput(this.value)" value="${ratesSearchQuery}">
+                ${ratesSearchQuery ? `<button class="search-clear-btn" onclick="clearRatesSearch()"><i class="ti ti-x"></i></button>` : ''}
             </div>
             <div class="filter-sort-bar">
                 <div class="rates-filters">
@@ -152,6 +210,16 @@ function applyListFilters() {
     if (cntAll) cntAll.textContent = byType.length;
 
     let filtered = currentStatusFilter === 'all' ? byType : byType.filter(r => r.status === currentStatusFilter);
+    
+    if (ratesSearchQuery) {
+        filtered = filtered.filter(r => {
+            const target = r.target_data || r.anime || r.manga || {};
+            const name = (target.name || '').toLowerCase();
+            const russian = (target.russian || '').toLowerCase();
+            return name.includes(ratesSearchQuery) || russian.includes(ratesSearchQuery);
+        });
+    }
+
     filtered = sortRatesList(filtered, currentSortFilter);
     renderListGrid(filtered);
 }
@@ -175,9 +243,12 @@ function renderListGrid(items) {
                 : `https://shikimori.io/${isAnime ? 'animes' : 'mangas'}/${rate.target_id}`;
             const targetName = targetObj.russian || targetObj.name || `#${rate.target_id}`;
             const statusInfo = getStatusMap()[rate.status] || { anime: rate.status, manga: rate.status, class: 'badge-planned' };
+            const totalCount = isAnime ? (targetObj.episodes || 0) : (targetObj.chapters || 0);
             let progressText = isAnime ? `${rate.episodes ?? 0} / ${targetObj.episodes || '?'} ${i18n('rates.progress.anime')}` : `${rate.chapters ?? 0} / ${targetObj.chapters || '?'} ${i18n('rates.progress.manga')}`;
             if (rate.rewatches > 0) progressText += ` (${i18n('rates.rewatches')} ${rate.rewatches})`;
             const onclickAttr = isAnime ? `onclick="event.preventDefault(); openAnimeModal(${rate.target_id});"` : `onclick="event.preventDefault(); openMangaModal(${rate.target_id});"`;
+
+            const showQuickInc = rate.status === 'watching' || rate.status === 'rewatching';
 
             return `
                 <div class="rate-list-row">
@@ -187,6 +258,11 @@ function renderListGrid(items) {
                     </div>
                     <div class="rate-list-meta">
                         <span class="label">${i18n('rates.progress')}:</span> <b>${progressText}</b>
+                        ${showQuickInc ? `
+                            <button type="button" class="btn-quick-inc" onclick="quickIncrementRate('${rate.target_id}', '${rate.target_type}', ${totalCount}, event)" title="${i18n('mylist.quick_inc')}">
+                                <i class="ti ti-plus"></i> 1
+                            </button>
+                        ` : ''}
                         <span class="label">${i18n('rates.score')}:</span> <span class="score-pill">${rate.score ? `<i class="ti ti-star-filled"></i> ${rate.score}/10` : '—'}</span>
                     </div>
                 </div>`;
@@ -201,24 +277,38 @@ function renderListGrid(items) {
             const targetName = targetObj.russian || targetObj.name || `#${rate.target_id}`;
             const imgUrl = targetObj.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(targetObj.image) : targetObj.image) : '';
             const statusInfo = getStatusMap()[rate.status] || { anime: rate.status, manga: rate.status, class: 'badge-planned' };
+            const totalCount = isAnime ? (targetObj.episodes || 0) : (targetObj.chapters || 0);
             let progressText = isAnime ? `${rate.episodes ?? 0} / ${targetObj.episodes || '?'} ${i18n('rates.progress.anime')}` : `${rate.chapters ?? 0} / ${targetObj.chapters || '?'} ${i18n('rates.progress.manga')}`;
             if (rate.rewatches > 0) progressText += ` (${i18n('rates.rewatches')} ${rate.rewatches})`;
             const onclickAttr = isAnime ? `onclick="event.preventDefault(); openAnimeModal(${rate.target_id});"` : `onclick="event.preventDefault(); openMangaModal(${rate.target_id});"`;
             const posterClass = viewMode === 'large' ? 'rate-poster-large' : 'history-thumb';
 
+            const showQuickInc = rate.status === 'watching' || rate.status === 'rewatching';
+
             return `
                 <div class="rate-card">
-                    ${imgUrl ? `<a href="${targetUrl}" ${onclickAttr}><img src="${imgUrl}" alt="${targetName}" class="${posterClass}" loading="lazy"></a>` : `<div class="history-thumb-placeholder"></div>`}
+                    ${imgUrl ? `<a href="${targetUrl}" ${onclickAttr}><img src="${imgUrl}" alt="${targetName}" class="${posterClass}" loading="lazy" decoding="async"></a>` : `<div class="history-thumb-placeholder"></div>`}
                     <div class="rate-content">
+
                         <div class="rate-header">
                             <a href="${targetUrl}" ${onclickAttr} class="rate-title" title="${targetName}">${targetName}</a>
                             <span class="badge ${statusInfo.class}">${isAnime ? statusInfo.anime : statusInfo.manga}</span>
                         </div>
-                        <div class="info-row" style="padding: 2px 0;"><span class="label">${i18n('rates.progress')}:</span><span><b>${progressText}</b></span></div>
+                        <div class="info-row" style="padding: 2px 0;">
+                            <span class="label">${i18n('rates.progress')}:</span>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span><b>${progressText}</b></span>
+                                ${showQuickInc ? `
+                                    <button type="button" class="btn-quick-inc" onclick="quickIncrementRate('${rate.target_id}', '${rate.target_type}', ${totalCount}, event)" title="${i18n('mylist.quick_inc')}">
+                                        <i class="ti ti-plus"></i> 1
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
                         <div class="info-row" style="padding: 2px 0;"><span class="label">${i18n('rates.score')}:</span><span class="score-pill">${rate.score ? `<i class="ti ti-star-filled"></i> ${rate.score}/10` : '—'}</span></div>
                         ${rate.text ? `<div style="font-size: 12px; color: var(--text-muted); font-style: italic; margin-top: 2px;">"${rate.text}"</div>` : ''}
                     </div>
                 </div>`;
         }).join('');
     }
-}
+}

@@ -141,6 +141,14 @@ button, input, select, textarea {
     line-height: 1;
 }
 
+/* Tabler Icon Compatibility Fallbacks */
+.ti-player-play-filled:before { content: "\ea1f"; }
+.ti-star-filled:before { content: "\eb31"; }
+.ti-check-circle:before { content: "\ea5d"; }
+.ti-headphone:before { content: "\eb02"; }
+.ti-circle-filled:before { content: "\ea58"; }
+
+
 .app-loader {
     position: fixed;
     top: 0;
@@ -179,12 +187,15 @@ button, input, select, textarea {
     box-sizing: border-box;
     z-index: 1000;
     background: var(--header-bg);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--card-border);
     padding: 12px 28px;
     box-shadow: var(--shadow-sm);
+    transform: translateZ(0);
+    will-change: transform;
 }
+
 .header-container { width: 100%; display: flex; align-items: center; gap: 16px; }
 .header-brand-container {
     position: relative;
@@ -260,8 +271,8 @@ button, input, select, textarea {
 .dropdown-footer { padding: 6px 12px; font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
 
 /* Стили модального окна О сайте */
-.about-modal-card { max-width: 540px !important; }
 .about-modal-body { display: flex; flex-direction: column; gap: 20px; }
+
 .about-header-banner { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
 .about-logo-icon { font-size: 56px; color: var(--primary); filter: drop-shadow(0 0 16px var(--primary)); }
 .about-app-title { font-size: 24px; font-weight: 800; margin: 0; color: var(--text-main); }
@@ -464,15 +475,13 @@ button, input, select, textarea {
     .news-item-title { font-size: 14px; }
     .news-item-meta { flex-wrap: wrap; gap: 8px; }
 
-    /* Модальные окна */
-    .modal-content.anime-modal-content { width: 95vw; max-height: 90vh; border-radius: 20px; }
-    .about-modal-card { max-width: 95vw !important; }
     .anime-detail-header { flex-direction: column; align-items: center; }
     .anime-poster-wrapper { width: 50%; max-width: 200px; }
 
     /* Выпадающее меню логотипа */
     .brand-dropdown { min-width: 200px; }
 }
+
 
 @media (max-width: 480px) {
     .container { padding: 8px 6px 0 6px; }
@@ -495,10 +504,8 @@ button, input, select, textarea {
     .media-grid { grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 8px; }
 
     .news-thumb { height: 110px; }
-
-    .anime-poster-wrapper { width: 60%; max-width: 180px; }
-    .anime-info-grid { grid-template-columns: 1fr; }
 }
+
 
 /* Mobile bottom navigation */
 .mobile-bottom-nav {
@@ -596,25 +603,9 @@ button, input, select, textarea {
     .modal-content.anime-modal-content::-webkit-scrollbar { display: none; }
     .modal-content.anime-modal-content { scrollbar-width: none; -ms-overflow-style: none; }
 
-    /* Модальные окна на мобилке — как нижний лист */
-    .modal-overlay {
-        padding: 0;
-        align-items: flex-end;
-    }
-    .modal-content.anime-modal-content {
-        width: 100%;
-        max-width: 100%;
-        max-height: 92vh;
-        border-radius: 16px 16px 0 0;
-        padding: 14px;
-        padding-top: 44px;
-    }
-    .about-modal-card {
-        max-width: 100% !important;
-        border-radius: 16px 16px 0 0;
-    }
     .modal-back-btn,
     .modal-close-btn {
+
         top: 6px;
         width: 32px;
         height: 32px;
@@ -640,3 +631,95 @@ button, input, select, textarea {
         display: none !important;
     }
 }
+
+/* ==================== TOAST NOTIFICATIONS ==================== */
+.toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+    max-width: 360px;
+    width: calc(100% - 48px);
+}
+
+.toast-item {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-inner);
+    box-shadow: var(--shadow-lg);
+    color: var(--text-main);
+    font-size: 13.5px;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(16px) scale(0.95);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    backdrop-filter: blur(16px);
+}
+
+.toast-item.toast-show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.toast-item.toast-hide {
+    opacity: 0;
+    transform: translateY(12px) scale(0.95);
+}
+
+.toast-item.toast-success {
+    border-color: rgba(163, 247, 191, 0.35);
+}
+.toast-item.toast-success .toast-icon {
+    color: var(--success);
+}
+
+.toast-item.toast-error {
+    border-color: rgba(255, 158, 158, 0.35);
+}
+.toast-item.toast-error .toast-icon {
+    color: var(--danger);
+}
+
+.toast-item.toast-warning {
+    border-color: rgba(255, 224, 130, 0.35);
+}
+.toast-item.toast-warning .toast-icon {
+    color: var(--warning);
+}
+
+.toast-item.toast-info {
+    border-color: var(--card-border);
+}
+.toast-item.toast-info .toast-icon {
+    color: var(--primary);
+}
+
+.toast-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.toast-message {
+    flex: 1;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+@media (max-width: 768px) {
+    .toast-container {
+        bottom: 80px;
+        right: 16px;
+        left: 16px;
+        width: auto;
+    }
+}
+

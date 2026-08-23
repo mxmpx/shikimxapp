@@ -30,14 +30,18 @@ def enrich_favourites(favs, headers):
         def fetch_char(c):
             if not isinstance(c, dict) or not c.get("id"):
                 return c
-            data = fetch_cached_api(f"{SHIKIMORI_BASE}/api/characters/{c['id']}", headers, ttl=3600)
+            # If image or url is already present, skip extra API call
+            if c.get("image") and c.get("russian"):
+                return c
+            data = fetch_cached_api(f"{SHIKIMORI_BASE}/api/characters/{c['id']}", headers, ttl=86400)
             if data and isinstance(data, dict):
-                c["image"], c["url"], c["russian"] = data.get("image"), data.get("url"), data.get("russian") or c.get("russian")
+                c["image"], c["url"], c["russian"] = data.get("image") or c.get("image"), data.get("url") or c.get("url"), data.get("russian") or c.get("russian")
             return c
-        with ThreadPoolExecutor(max_workers=8) as executor:
+        with ThreadPoolExecutor(max_workers=2) as executor:
             favs["characters"] = list(executor.map(fetch_char, chars))
 
     return favs
+
 
 @favourites_bp.route("/api/tab/favourites")
 @api_route

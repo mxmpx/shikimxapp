@@ -28,6 +28,8 @@ const TRANSLATIONS = {
         'profile.all': 'Все',
         'profile.full_history': 'Вся история',
         'profile.show_full': 'Показать полностью',
+        'profile.collapse': 'Свернуть',
+        'profile.expand': 'Показать полностью',
         'profile.about_empty': 'Информация о себе не заполнена.',
         'profile.stats_unavailable': 'Статистика недоступна',
         'profile.id': 'ID:',
@@ -48,20 +50,20 @@ const TRANSLATIONS = {
         'explore.no_content': 'Нет доступного контента',
         'explore.no_hot': 'Нет популярных тем',
         'explore.searching': 'Поиск...',
-        'explore.no_results': 'Нет результатов',
+        'explore.no_results': 'Ничего не найдено',
         'explore.min_chars': 'Введите минимум 2 символа',
         'explore.topic': 'Тема',
         'explore.collection': 'Коллекция',
         'explore.review': 'Рецензия',
         'explore.discussion': 'Обсуждение',
         'explore.article': 'Статья',
+        'explore.loading': 'Загрузка...',
         'explore.loading_more': 'Подгрузка новостей...',
         'explore.news_feed': 'Новостная лента',
         'explore.collections': 'коллекции',
         'explore.reviews': 'рецензии',
         'explore.articles': 'статьи',
         'explore.search_error': 'Ошибка поиска',
-        'explore.no_results': 'Ничего не найдено',
         'explore.status.released': 'Завершено',
         'explore.status.ongoing': 'Онгоинг',
         'explore.status.anons': 'Анонс',
@@ -100,8 +102,9 @@ const TRANSLATIONS = {
         'loading': 'Загрузка...',
         'rates.loading': 'Загрузка списков...',
         'favourites.loading': 'Загрузка избранного...',
-        'friends.loading': 'Загрузка друзей...',
+        'friends.loading': 'Загрузка друзей и клубов...',
         'history.loading': 'Загрузка истории...',
+        'common.load_error': 'Ошибка загрузки',
         'error': 'Ошибка',
         'close': 'Закрыть',
 
@@ -170,6 +173,7 @@ const TRANSLATIONS = {
         'anime.playback_error': 'Ошибка воспроизведения',
         'anime.no_players': 'Доступные плееры не найдены',
         'anime.sources': 'Источники:',
+        'anime.open_shikimori': 'Открыть на Shikimori',
         'anime.episode': 'Серия',
         'anime.translation': 'Озвучка / Перевод:',
         'anime.player': 'Плеер / Зеркало:',
@@ -183,6 +187,7 @@ const TRANSLATIONS = {
         'anime.status': 'Статус:',
         'anime.episodes': 'Эпизоды:',
         'anime.duration': 'Длительность:',
+        'anime.min': 'мин.',
         'anime.aired': 'Выпуск:',
         'anime.rating': 'Рейтинг:',
         'anime.studios': 'Студии:',
@@ -201,6 +206,13 @@ const TRANSLATIONS = {
         'anime.chapters': 'Главы:',
         'anime.volumes': 'Тома:',
         'anime.publisher': 'Издательство:',
+
+        // Lightbox
+        'lightbox.close': 'Закрыть (Esc)',
+        'lightbox.prev': 'Назад (←)',
+        'lightbox.next': 'Вперед (→)',
+        'lightbox.zoom': 'Нажмите для увеличения',
+        'video.link': 'Видео',
 
         // Manga modal
         'manga.loading': 'Загрузка информации о манге...',
@@ -226,6 +238,103 @@ const TRANSLATIONS = {
         'club.members': 'Участников:',
         'club.type': 'Тип:',
         'club.description': 'Описание клуба',
+
+        // Player & Continue Watching
+        'player.continue_watching': 'Продолжить просмотр',
+        'player.continue_desc': 'Вы остановились здесь',
+        'player.ep_short': 'сер.',
+        'player.skip_intro': '+85 сек',
+        'player.next_ep': 'След. серия',
+        'player.prev_ep': 'Пред. серия',
+        'player.mini_player': 'Мини-плеер',
+        'player.restore': 'Развернуть',
+        'player.close': 'Закрыть',
+
+        // My List widget
+        'mylist.title': 'Мой список',
+        'mylist.not_in_list': 'Не в списке',
+        'mylist.status': 'Статус:',
+        'mylist.episodes': 'Серии:',
+        'mylist.chapters': 'Главы:',
+        'mylist.volumes': 'Тома:',
+        'mylist.score': 'Оценка:',
+        'mylist.note': 'Заметка / впечатления:',
+        'mylist.note_placeholder': 'Напишите заметку...',
+        'mylist.save': 'Сохранить',
+        'mylist.saving': 'Сохранение...',
+        'mylist.saved': 'Успешно сохранено в Shikimori',
+        'mylist.delete': 'Удалить из списка',
+        'mylist.deleted': 'Удалено из списка',
+        'mylist.quick_inc': '+1',
+        'mylist.search_placeholder': 'Поиск по вашим спискам...',
+        'mylist.delete_confirm': 'Удалить из списка?',
+        'mylist.delete_error': 'Ошибка удаления',
+        'mylist.save_error': 'Ошибка при сохранении',
+        'mylist.update_error': 'Ошибка обновления',
+
+        // Airing Calendar
+        'calendar.title': 'Расписание онгоингов',
+        'calendar.today': 'Сегодня',
+        'calendar.airing_soon': 'Скоро выйдет',
+        'calendar.ep_next': 'серия',
+        'calendar.empty_day': 'В этот день нет запланированных релизов',
+        'calendar.mon': 'Пн',
+        'calendar.tue': 'Вт',
+        'calendar.wed': 'Ср',
+        'calendar.thu': 'Чт',
+        'calendar.fri': 'Пт',
+        'calendar.sat': 'Сб',
+        'calendar.sun': 'Вс',
+
+        // Catalog
+        'catalog.title': 'Каталог аниме',
+        'catalog.filter.genre': 'Жанр',
+        'catalog.filter.all_genres': 'Все жанры',
+        'catalog.filter.season': 'Сезон / Год',
+        'catalog.filter.all_seasons': 'Все сезоны',
+        'catalog.season.summer_2026': 'Лето 2026',
+        'catalog.season.spring_2026': 'Весна 2026',
+        'catalog.season.winter_2026': 'Зима 2026',
+        'catalog.season.fall_2025': 'Осень 2025',
+        'catalog.season.y2026': '2026 год',
+        'catalog.season.y2025': '2025 год',
+        'catalog.season.y2024': '2024 год',
+        'catalog.filter.type': 'Тип',
+        'catalog.filter.all_types': 'Все типы',
+        'catalog.kind.tv': 'ТВ Сериал',
+        'catalog.kind.movie': 'Фильм',
+        'catalog.kind.ova': 'OVA',
+        'catalog.kind.ona': 'ONA',
+        'catalog.kind.special': 'Спешл',
+        'catalog.filter.status': 'Статус',
+        'catalog.filter.all_statuses': 'Все статусы',
+        'catalog.status.ongoing': 'Онгоинг',
+        'catalog.status.released': 'Вышло',
+        'catalog.status.anons': 'Анонс',
+        'catalog.filter.score': 'Мин. оценка',
+        'catalog.filter.all_scores': 'Любая',
+        'catalog.filter.sort': 'Сортировка',
+        'catalog.sort.ranked': 'По рейтингу',
+        'catalog.sort.popularity': 'По популярности',
+        'catalog.sort.aired_on': 'По дате выхода',
+        'catalog.sort.name': 'По названию',
+        'catalog.load_more': 'Загрузить ещё',
+        'catalog.empty': 'Ничего не найдено по выбранным фильтрам',
+
+        // Randomizer & Recommendations
+        'random.title': 'Рандомайзер',
+        'random.btn': 'Мне повезёт!',
+        'random.tooltip': 'Случайное аниме (Мне повезёт!)',
+        'random.finding': 'Подбираем случайное аниме...',
+        'random.error': 'Не удалось подобрать тайтл',
+        'recommendations.title': 'Рекомендуем посмотреть',
+
+        // PWA
+        'pwa.title': 'Приложение (PWA)',
+        'pwa.desc': 'Установите Shiki MX как быстрое приложение для рабочего стола или смартфона.',
+        'pwa.install': 'Установить приложение',
+        'pwa.installed': 'Приложение установлено',
+        'pwa.offline_toast': 'Вы находитесь в офлайн-режиме',
     },
     en: {
         // Header
@@ -235,6 +344,7 @@ const TRANSLATIONS = {
         'tab.friends': 'Friends',
         'tab.history': 'History',
         'search.title': 'Search',
+        'search.placeholder': 'Search anime, manga...',
         'theme.title': 'Change theme',
         'logout': 'Log out',
 
@@ -253,6 +363,8 @@ const TRANSLATIONS = {
         'profile.all': 'All',
         'profile.full_history': 'Full history',
         'profile.show_full': 'Show full',
+        'profile.collapse': 'Collapse',
+        'profile.expand': 'Show more',
         'profile.about_empty': 'About section is not filled.',
         'profile.stats_unavailable': 'Statistics unavailable',
         'profile.id': 'ID:',
@@ -273,18 +385,28 @@ const TRANSLATIONS = {
         'explore.no_content': 'No content available',
         'explore.no_hot': 'No popular topics',
         'explore.searching': 'Searching...',
-        'explore.no_results': 'No results',
+        'explore.no_results': 'No results found',
         'explore.min_chars': 'Enter at least 2 characters',
         'explore.topic': 'Topic',
         'explore.collection': 'Collection',
         'explore.review': 'Review',
         'explore.discussion': 'Discussion',
         'explore.article': 'Article',
+        'explore.loading': 'Loading...',
         'explore.loading_more': 'Loading more news...',
         'explore.news_feed': 'News feed',
         'explore.collections': 'collections',
         'explore.reviews': 'reviews',
         'explore.articles': 'articles',
+        'explore.search_error': 'Search error',
+        'explore.status.released': 'Released',
+        'explore.status.ongoing': 'Ongoing',
+        'explore.status.anons': 'Announced',
+        'explore.type': 'Type:',
+        'explore.year': 'year',
+        'explore.genres': 'Genres:',
+        'explore.no_more_news': 'No more news',
+        'explore.load_more_error': 'Error loading more news:',
 
         // Settings
         'settings.title': 'Settings',
@@ -311,12 +433,13 @@ const TRANSLATIONS = {
         'about.tech_stack': 'Tech stack',
         'about.changelog': 'Changelog (Change history)',
 
-        // Profile
-        'profile.collapse': 'Collapse',
-        'profile.expand': 'Show more',
-
         // Common
         'loading': 'Loading...',
+        'rates.loading': 'Loading lists...',
+        'favourites.loading': 'Loading favorites...',
+        'friends.loading': 'Loading friends and clubs...',
+        'history.loading': 'Loading history...',
+        'common.load_error': 'Loading error',
         'error': 'Error',
         'close': 'Close',
 
@@ -399,6 +522,7 @@ const TRANSLATIONS = {
         'anime.status': 'Status:',
         'anime.episodes': 'Episodes:',
         'anime.duration': 'Duration:',
+        'anime.min': 'min.',
         'anime.aired': 'Aired:',
         'anime.rating': 'Rating:',
         'anime.studios': 'Studios:',
@@ -417,6 +541,13 @@ const TRANSLATIONS = {
         'anime.chapters': 'Chapters:',
         'anime.volumes': 'Volumes:',
         'anime.publisher': 'Publisher:',
+
+        // Lightbox
+        'lightbox.close': 'Close (Esc)',
+        'lightbox.prev': 'Previous (←)',
+        'lightbox.next': 'Next (→)',
+        'lightbox.zoom': 'Click to zoom',
+        'video.link': 'Video',
 
         // Manga modal
         'manga.loading': 'Loading manga information...',
@@ -442,6 +573,103 @@ const TRANSLATIONS = {
         'club.members': 'Members:',
         'club.type': 'Type:',
         'club.description': 'Club description',
+
+        // Player & Continue Watching
+        'player.continue_watching': 'Continue Watching',
+        'player.continue_desc': 'Pick up where you left off',
+        'player.ep_short': 'ep.',
+        'player.skip_intro': '+85 sec',
+        'player.next_ep': 'Next Episode',
+        'player.prev_ep': 'Prev Episode',
+        'player.mini_player': 'Mini Player',
+        'player.restore': 'Restore',
+        'player.close': 'Close',
+
+        // My List widget
+        'mylist.title': 'My List',
+        'mylist.not_in_list': 'Not in list',
+        'mylist.status': 'Status:',
+        'mylist.episodes': 'Episodes:',
+        'mylist.chapters': 'Chapters:',
+        'mylist.volumes': 'Volumes:',
+        'mylist.score': 'Score:',
+        'mylist.note': 'Note / Review:',
+        'mylist.note_placeholder': 'Write your personal note...',
+        'mylist.save': 'Save',
+        'mylist.saving': 'Saving...',
+        'mylist.saved': 'Successfully saved to Shikimori',
+        'mylist.delete': 'Remove from list',
+        'mylist.deleted': 'Removed from list',
+        'mylist.quick_inc': '+1',
+        'mylist.search_placeholder': 'Search your lists...',
+        'mylist.delete_confirm': 'Remove from list?',
+        'mylist.delete_error': 'Error removing item',
+        'mylist.save_error': 'Error saving item',
+        'mylist.update_error': 'Error updating',
+
+        // Airing Calendar
+        'calendar.title': 'Airing Schedule',
+        'calendar.today': 'Today',
+        'calendar.airing_soon': 'Airing soon',
+        'calendar.ep_next': 'ep.',
+        'calendar.empty_day': 'No scheduled releases on this day',
+        'calendar.mon': 'Mon',
+        'calendar.tue': 'Tue',
+        'calendar.wed': 'Wed',
+        'calendar.thu': 'Thu',
+        'calendar.fri': 'Fri',
+        'calendar.sat': 'Sat',
+        'calendar.sun': 'Sun',
+
+        // Catalog
+        'catalog.title': 'Anime Catalog',
+        'catalog.filter.genre': 'Genre',
+        'catalog.filter.all_genres': 'All genres',
+        'catalog.filter.season': 'Season / Year',
+        'catalog.filter.all_seasons': 'All seasons',
+        'catalog.season.summer_2026': 'Summer 2026',
+        'catalog.season.spring_2026': 'Spring 2026',
+        'catalog.season.winter_2026': 'Winter 2026',
+        'catalog.season.fall_2025': 'Fall 2025',
+        'catalog.season.y2026': '2026',
+        'catalog.season.y2025': '2025',
+        'catalog.season.y2024': '2024',
+        'catalog.filter.type': 'Type',
+        'catalog.filter.all_types': 'All types',
+        'catalog.kind.tv': 'TV Series',
+        'catalog.kind.movie': 'Movie',
+        'catalog.kind.ova': 'OVA',
+        'catalog.kind.ona': 'ONA',
+        'catalog.kind.special': 'Special',
+        'catalog.filter.status': 'Status',
+        'catalog.filter.all_statuses': 'All statuses',
+        'catalog.status.ongoing': 'Ongoing',
+        'catalog.status.released': 'Released',
+        'catalog.status.anons': 'Announced',
+        'catalog.filter.score': 'Min Score',
+        'catalog.filter.all_scores': 'Any',
+        'catalog.filter.sort': 'Sort',
+        'catalog.sort.ranked': 'By Rating',
+        'catalog.sort.popularity': 'By Popularity',
+        'catalog.sort.aired_on': 'By Release Date',
+        'catalog.sort.name': 'By Name',
+        'catalog.load_more': 'Load More',
+        'catalog.empty': 'No anime found matching selected filters',
+
+        // Randomizer & Recommendations
+        'random.title': 'Random Anime',
+        'random.btn': 'I\'m Feeling Lucky!',
+        'random.tooltip': 'Random Anime (I\'m Feeling Lucky!)',
+        'random.finding': 'Picking a random anime...',
+        'random.error': 'Could not find anime',
+        'recommendations.title': 'Recommended for You',
+
+        // PWA
+        'pwa.title': 'App (PWA)',
+        'pwa.desc': 'Install Shiki MX as a fast app on desktop or mobile.',
+        'pwa.install': 'Install Application',
+        'pwa.installed': 'App installed',
+        'pwa.offline_toast': 'You are currently offline',
     }
 };
 
@@ -467,7 +695,7 @@ function saveLanguage(lang) {
 function t(key) {
     const lang = getSavedLanguage();
     const dict = TRANSLATIONS[lang] || TRANSLATIONS['ru'];
-    return dict[key] || TRANSLATIONS['ru'][key] || key;
+    return (dict && dict[key]) || (TRANSLATIONS['ru'] && TRANSLATIONS['ru'][key]) || key;
 }
 
 function applyTranslations() {
@@ -491,6 +719,14 @@ function applyTranslations() {
         const translation = t(key);
         if (translation) {
             el.title = translation;
+        }
+    });
+
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.dataset.i18nPlaceholder;
+        const translation = t(key);
+        if (translation) {
+            el.placeholder = translation;
         }
     });
 }

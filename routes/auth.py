@@ -51,9 +51,9 @@ def login():
     if not CLIENT_ID:
         logger.error("OAuth login attempted without SHIKIMORI_CLIENT_ID")
         raise AppError("OAuth не настроен: отсутствует SHIKIMORI_CLIENT_ID", 500, logging.ERROR)
-    params = {"client_id": CLIENT_ID, "redirect_uri": REDIRECT_URI, "response_type": "code", "scope": ""}
+    params = {"client_id": CLIENT_ID, "redirect_uri": REDIRECT_URI, "response_type": "code", "scope": "user_rates"}
     req = requests.Request("GET", AUTH_URL, params=params).prepare()
-    logger.info("Redirecting user to Shikimori OAuth")
+    logger.info("Redirecting user to Shikimori OAuth with scope=user_rates")
     return redirect(req.url)
 
 @auth_bp.route("/auth/callback")

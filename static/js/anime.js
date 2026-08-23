@@ -211,23 +211,192 @@ async function toggleAnicliPlayer(title, episode = 1, animeId = 0) {
     }
 }
 
-function toggleCharacters() {
-    const scroll = document.getElementById('anime-characters-scroll');
-    const btn = document.getElementById('characters-toggle-btn');
-    if (!scroll || !btn) return;
+// ==================== SCREENSHOT LIGHTBOX ====================
+let currentScreenshots = [];
 
-    const cards = scroll.querySelectorAll('.character-card');
-    const isExpanded = btn.dataset.expanded === 'true';
+let currentScreenshotIndex = 0;
 
-    cards.forEach((card, idx) => {
-        card.style.display = (!isExpanded && idx >= 8) ? 'none' : '';
-    });
+function openScreenshotLightbox(index) {
+    if (!currentScreenshots || !currentScreenshots.length) return;
+    currentScreenshotIndex = index;
 
-    btn.dataset.expanded = (!isExpanded).toString();
-    btn.innerHTML = !isExpanded
-        ? `<i class="ti ti-chevron-up"></i> ${i18n('anime.hide_characters')}`
-        : `<i class="ti ti-chevron-down"></i> ${i18n('anime.show_all_characters')}`;
+    let lightbox = document.getElementById('screenshot-lightbox');
+    if (!lightbox) {
+        lightbox = document.createElement('div');
+        lightbox.id = 'screenshot-lightbox';
+        lightbox.className = 'screenshot-lightbox';
+        lightbox.innerHTML = `
+            <div class="lightbox-backdrop" onclick="closeScreenshotLightbox()"></div>
+            <button class="lightbox-close-btn" onclick="closeScreenshotLightbox()" title="${i18n('lightbox.close')}"><i class="ti ti-x"></i></button>
+            <button class="lightbox-nav-btn lightbox-prev-btn" onclick="prevScreenshot(event)" title="${i18n('lightbox.prev')}"><i class="ti ti-chevron-left"></i></button>
+            <div class="lightbox-content">
+                <img id="lightbox-img" src="" alt="Screenshot" />
+                <div id="lightbox-counter" class="lightbox-counter"></div>
+            </div>
+            <button class="lightbox-nav-btn lightbox-next-btn" onclick="nextScreenshot(event)" title="${i18n('lightbox.next')}"><i class="ti ti-chevron-right"></i></button>
+
+        `;
+        document.body.appendChild(lightbox);
+
+        document.addEventListener('keydown', (e) => {
+            const lb = document.getElementById('screenshot-lightbox');
+            if (!lb || !lb.classList.contains('active')) return;
+            if (e.key === 'Escape') closeScreenshotLightbox();
+            if (e.key === 'ArrowLeft') prevScreenshot();
+            if (e.key === 'ArrowRight') nextScreenshot();
+        });
+    }
+
+    updateLightbox();
+    lightbox.classList.add('active');
 }
+
+function updateLightbox() {
+    const img = document.getElementById('lightbox-img');
+    const counter = document.getElementById('lightbox-counter');
+    if (img && currentScreenshots[currentScreenshotIndex]) {
+        img.src = currentScreenshots[currentScreenshotIndex];
+    }
+    if (counter) {
+        counter.textContent = `${currentScreenshotIndex + 1} / ${currentScreenshots.length}`;
+    }
+}
+
+function closeScreenshotLightbox() {
+    const lightbox = document.getElementById('screenshot-lightbox');
+    if (lightbox) lightbox.classList.remove('active');
+}
+
+function prevScreenshot(e) {
+    if (e) e.stopPropagation();
+    if (currentScreenshotIndex > 0) {
+        currentScreenshotIndex--;
+    } else {
+        currentScreenshotIndex = currentScreenshots.length - 1;
+    }
+    updateLightbox();
+}
+
+function nextScreenshot(e) {
+    if (e) e.stopPropagation();
+    if (currentScreenshotIndex < currentScreenshots.length - 1) {
+        currentScreenshotIndex++;
+    } else {
+        currentScreenshotIndex = 0;
+    }
+    updateLightbox();
+}
+
+window.openScreenshotLightbox = openScreenshotLightbox;
+window.closeScreenshotLightbox = closeScreenshotLightbox;
+window.prevScreenshot = prevScreenshot;
+window.nextScreenshot = nextScreenshot;
+
+function saveWatchProgress(animeId, title, russian, poster, episode, translation, totalEpisodes) {
+
+    if (!animeId) return;
+    try {
+        let list = JSON.parse(localStorage.getItem('shikimx_continue_watching') || '[]');
+        list = list.filter(item => item.id != animeId);
+        list.unshift({
+            id: animeId,
+            title: title || '',
+            russian: russian || title || '',
+            image: poster || '',
+            episode: Number(episode) || 1,
+            translation: translation || '',
+            total_episodes: totalEpisodes || 0,
+            updated_at: new Date().toISOString()
+        });
+        list = list.slice(0, 20);
+        localStorage.setItem('shikimx_continue_watching', JSON.stringify(list));
+        if (typeof renderContinueWatching === 'function') {
+            renderContinueWatching();
+        }
+    } catch (e) {
+        console.warn('Failed to save watch progress:', e);
+    }
+}
+window.saveWatchProgress = saveWatchProgress;
+
+function stepAnicliEpisode(delta) {
+    const epSelect = document.getElementById('anicli-ep-select');
+    if (!epSelect) return;
+    const currentIdx = epSelect.selectedIndex;
+    const nextIdx = currentIdx + delta;
+    if (nextIdx >= 0 && nextIdx < epSelect.options.length) {
+        epSelect.selectedIndex = nextIdx;
+        onAnicliEpisodeChange();
+    }
+}
+window.stepAnicliEpisode = stepAnicliEpisode;
+
+function skipPlayerIntro() {
+    showToast(i18n('player.skip_intro') + ' ⏩', 'info', 1800);
+    const iframe = document.getElementById('anicli-iframe');
+    if (iframe && iframe.contentWindow) {
+        try {
+            iframe.contentWindow.postMessage({ event: 'seek', value: 85 }, '*');
+        } catch (e) {}
+    }
+}
+window.skipPlayerIntro = skipPlayerIntro;
+
+function toggleFloatingMiniPlayer() {
+    const iframe = document.getElementById('anicli-iframe') || document.querySelector('#watch-player-container iframe');
+    if (!iframe || !iframe.src) {
+        showToast(i18n('anime.no_players'), 'warning');
+        return;
+    }
+
+    let miniPlayer = document.getElementById('floating-mini-player');
+    if (!miniPlayer) {
+        miniPlayer = document.createElement('div');
+        miniPlayer.id = 'floating-mini-player';
+        miniPlayer.className = 'floating-mini-player';
+        document.body.appendChild(miniPlayer);
+    }
+
+    const currentSrc = iframe.src;
+    const animeTitle = window.currentPlayingTitle || document.querySelector('.anime-title')?.textContent || 'Anime';
+    const epSelect = document.getElementById('anicli-ep-select');
+    const epText = epSelect ? ` | ${i18n('anime.episode')} ${epSelect.value}` : '';
+
+    miniPlayer.innerHTML = `
+        <div class="mini-player-header">
+            <span class="mini-player-title" title="${animeTitle}">${animeTitle}${epText}</span>
+            <div class="mini-player-controls">
+                <button onclick="restoreFloatingMiniPlayer()" title="${i18n('player.restore')}"><i class="ti ti-arrows-maximize"></i></button>
+                <button onclick="closeFloatingMiniPlayer()" title="${i18n('player.close')}"><i class="ti ti-x"></i></button>
+            </div>
+        </div>
+        <div class="mini-player-body">
+            <iframe src="${currentSrc}" allowfullscreen allow="autoplay; fullscreen; picture-in-picture"></iframe>
+        </div>
+    `;
+
+    miniPlayer.classList.remove('hidden');
+    closeAnimeModal();
+    showToast(i18n('player.mini_player'), 'info');
+}
+window.toggleFloatingMiniPlayer = toggleFloatingMiniPlayer;
+
+function closeFloatingMiniPlayer() {
+    const miniPlayer = document.getElementById('floating-mini-player');
+    if (miniPlayer) {
+        miniPlayer.classList.add('hidden');
+        miniPlayer.innerHTML = '';
+    }
+}
+window.closeFloatingMiniPlayer = closeFloatingMiniPlayer;
+
+function restoreFloatingMiniPlayer() {
+    closeFloatingMiniPlayer();
+    if (window.currentPlayingAnimeId) {
+        openAnimeModal(window.currentPlayingAnimeId);
+    }
+}
+window.restoreFloatingMiniPlayer = restoreFloatingMiniPlayer;
 
 function initAnicliPlayerUI(container, initialEpisode = 1) {
     const episodes = window.anicliEpisodesData;
@@ -245,7 +414,7 @@ function initAnicliPlayerUI(container, initialEpisode = 1) {
             ${sourcesFound.length ? `
                 <div class="anicli-sources-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; font-size: 12px; color: var(--text-muted);">
                     <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                        <span><i class="ti ti-check-circle" style="color: var(--success);"></i> ${i18n('anime.sources')}</span>
+                        <span><i class="ti ti-circle-check" style="color: var(--success);"></i> ${i18n('anime.sources')}</span>
                         ${sourcesFound.map(s => `<span class="badge badge-watching" style="font-size: 10px; padding: 2px 8px;">${s}</span>`).join(' ')}
                     </div>
                 </div>
@@ -259,15 +428,33 @@ function initAnicliPlayerUI(container, initialEpisode = 1) {
                 </div>
 
                 <div style="display: flex; align-items: center; gap: 6px;">
-                    <span><i class="ti ti-headphone"></i> ${i18n('anime.translation')}</span>
+                    <span><i class="ti ti-headphones"></i> ${i18n('anime.translation')}</span>
                     <select id="anicli-trans-select" class="sort-select" onchange="onAnicliTranslationChange()"></select>
                 </div>
+
 
                 <div style="display: flex; align-items: center; gap: 6px;">
                     <span><i class="ti ti-video"></i> ${i18n('anime.player')}</span>
                     <select id="anicli-player-select" class="sort-select" onchange="updateAnicliIframe()"></select>
                 </div>
             </div>
+
+            <!-- Quick Player Actions Bar -->
+            <div class="player-quick-actions-bar">
+                <button type="button" class="btn-player-action" onclick="stepAnicliEpisode(-1)">
+                    <i class="ti ti-player-skip-back"></i> <span data-i18n="player.prev_ep">${i18n('player.prev_ep')}</span>
+                </button>
+                <button type="button" class="btn-player-action btn-skip-intro" onclick="skipPlayerIntro()">
+                    <i class="ti ti-player-track-next"></i> <span>${i18n('player.skip_intro')}</span>
+                </button>
+                <button type="button" class="btn-player-action" onclick="stepAnicliEpisode(1)">
+                    <i class="ti ti-player-skip-forward"></i> <span data-i18n="player.next_ep">${i18n('player.next_ep')}</span>
+                </button>
+                <button type="button" class="btn-player-action" onclick="toggleFloatingMiniPlayer()">
+                    <i class="ti ti-picture-in-picture-top"></i> <span data-i18n="player.mini_player">${i18n('player.mini_player')}</span>
+                </button>
+            </div>
+
             <div class="watch-player-crop-wrapper" style="height: 480px;">
                 <iframe 
                     id="anicli-iframe" 
@@ -312,6 +499,18 @@ function populateAnicliPlayers(epNum, transName, targetPlayerIdx = 0) {
     ).join('');
 
     updateAnicliIframe();
+
+    if (window.currentPlayingAnimeId) {
+        saveWatchProgress(
+            window.currentPlayingAnimeId,
+            window.currentPlayingTitle,
+            window.currentPlayingRussian,
+            window.currentPlayingPoster,
+            epNum,
+            transName,
+            window.currentPlayingTotalEpisodes
+        );
+    }
 }
 
 function onAnicliEpisodeChange() {
@@ -348,9 +547,217 @@ function updateAnicliIframe() {
     }
 }
 
+// User Rate Management helpers
+function stepRateCounter(targetId, delta, maxVal = 0) {
+    const input = document.getElementById(`rate-episodes-input-${targetId}`);
+    if (!input) return;
+    let val = (parseInt(input.value) || 0) + delta;
+    if (val < 0) val = 0;
+    if (maxVal > 0 && val > maxVal) val = maxVal;
+    input.value = val;
+}
+window.stepRateCounter = stepRateCounter;
+
+function setUserRateScore(targetId, score) {
+    const container = document.getElementById(`stars-container-${targetId}`);
+    const textEl = document.getElementById(`score-text-${targetId}`);
+    if (!container) return;
+
+    const current = parseInt(container.dataset.score) || 0;
+    const newScore = (current === score) ? 0 : score;
+    container.dataset.score = newScore;
+
+    container.querySelectorAll('.star-btn').forEach(btn => {
+        const starVal = parseInt(btn.dataset.star);
+        btn.classList.toggle('active', starVal <= newScore);
+    });
+
+    if (textEl) {
+        textEl.textContent = newScore ? `${newScore}/10` : '—';
+    }
+}
+window.setUserRateScore = setUserRateScore;
+
+function previewUserRateScore(targetId, score) {
+    const container = document.getElementById(`stars-container-${targetId}`);
+    if (!container) return;
+    container.querySelectorAll('.star-btn').forEach(btn => {
+        const starVal = parseInt(btn.dataset.star);
+        btn.classList.toggle('hover', starVal <= score);
+    });
+}
+window.previewUserRateScore = previewUserRateScore;
+
+function resetPreviewUserRateScore(targetId) {
+    const container = document.getElementById(`stars-container-${targetId}`);
+    if (!container) return;
+    container.querySelectorAll('.star-btn').forEach(btn => {
+        btn.classList.remove('hover');
+    });
+}
+window.resetPreviewUserRateScore = resetPreviewUserRateScore;
+
+async function submitUserRate(targetId, targetType, rateId, totalCount = 0) {
+    const statusSelect = document.getElementById(`rate-status-select-${targetId}`);
+    const epInput = document.getElementById(`rate-episodes-input-${targetId}`);
+    const starsContainer = document.getElementById(`stars-container-${targetId}`);
+    const noteInput = document.getElementById(`rate-note-input-${targetId}`);
+
+    if (!statusSelect) return;
+
+    const status = statusSelect.value;
+    const count = parseInt(epInput ? epInput.value : 0) || 0;
+    const score = parseInt(starsContainer ? starsContainer.dataset.score : 0) || 0;
+    const text = noteInput ? noteInput.value.trim() : '';
+
+    const payload = {
+        target_id: parseInt(targetId),
+        target_type: targetType,
+        status: status,
+        score: score,
+        text: text
+    };
+    if (rateId) payload.id = parseInt(rateId);
+
+    if (targetType === 'Anime') {
+        payload.episodes = count;
+    } else {
+        payload.chapters = count;
+    }
+
+    try {
+        const saveBtn = document.querySelector(`#user-rate-widget-${targetId} .btn-save-rate`);
+        if (saveBtn) {
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = `<i class="ti ti-loader animate-spin"></i> ${i18n('mylist.saving')}`;
+        }
+
+        const res = await fetch('/api/rate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = `<i class="ti ti-check"></i> ${i18n('mylist.save')}`;
+        }
+
+        if (res.ok && data.success) {
+            showToast(i18n('mylist.saved'), 'success');
+            tabLoaded['rates'] = false;
+        } else {
+            showToast(data.error || i18n('mylist.save_error'), 'error');
+        }
+    } catch (err) {
+        console.error('Ошибка сохранения оценки:', err);
+        showToast(err.message, 'error');
+    }
+}
+window.submitUserRate = submitUserRate;
+
+async function deleteUserRateAction(targetId, targetType, rateId) {
+    if (!confirm(i18n('mylist.delete_confirm'))) return;
+    try {
+        const res = await fetch(`/api/rate/${rateId}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (res.ok && data.success) {
+            showToast(i18n('mylist.deleted'), 'warning');
+            tabLoaded['rates'] = false;
+            if (targetType === 'Anime') openAnimeModal(targetId);
+            else openMangaModal(targetId);
+        } else {
+            showToast(data.error || i18n('mylist.delete_error'), 'error');
+        }
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
+window.deleteUserRateAction = deleteUserRateAction;
+
+function renderAnimeUserRateWidget(a) {
+    const rate = a.user_rate;
+    const currentStatus = rate ? rate.status : '';
+    const currentEpisodes = rate ? (rate.episodes || 0) : 0;
+    const currentScore = rate ? (rate.score || 0) : 0;
+    const currentText = rate ? (rate.text || '') : '';
+    const rateId = rate ? rate.id : '';
+    const totalEpisodes = a.episodes || 0;
+
+    const statusMap = typeof getStatusMap === 'function' ? getStatusMap() : {};
+
+    return `
+        <div class="user-rate-widget-card" id="user-rate-widget-${a.id}">
+            <div class="user-rate-widget-header">
+                <h4><i class="ti ti-bookmark"></i> ${i18n('mylist.title')}</h4>
+                ${currentStatus ? `<span class="badge badge-${currentStatus}">${statusMap[currentStatus] ? statusMap[currentStatus].anime : currentStatus}</span>` : `<span class="badge" style="background: rgba(255,255,255,0.08); color: var(--text-muted);">${i18n('mylist.not_in_list')}</span>`}
+            </div>
+            <div class="user-rate-widget-body">
+                <div class="user-rate-row">
+                    <label class="user-rate-label">${i18n('mylist.status')}</label>
+                    <select id="rate-status-select-${a.id}" class="sort-select user-rate-select">
+                        <option value="watching" ${currentStatus === 'watching' ? 'selected' : ''}>${i18n('rates.watching')}</option>
+                        <option value="completed" ${currentStatus === 'completed' ? 'selected' : ''}>${i18n('rates.completed')}</option>
+                        <option value="planned" ${currentStatus === 'planned' ? 'selected' : (!currentStatus ? 'selected' : '')}>${i18n('rates.planned')}</option>
+                        <option value="on_hold" ${currentStatus === 'on_hold' ? 'selected' : ''}>${i18n('rates.on_hold')}</option>
+                        <option value="dropped" ${currentStatus === 'dropped' ? 'selected' : ''}>${i18n('rates.dropped')}</option>
+                        <option value="rewatching" ${currentStatus === 'rewatching' ? 'selected' : ''}>${i18n('rates.rewatching')}</option>
+                    </select>
+                </div>
+
+                <div class="user-rate-row">
+                    <label class="user-rate-label">${i18n('mylist.episodes')}</label>
+                    <div class="episode-stepper">
+                        <button type="button" class="stepper-btn" onclick="stepRateCounter('${a.id}', -1)"><i class="ti ti-minus"></i></button>
+                        <input type="number" id="rate-episodes-input-${a.id}" class="stepper-input" min="0" max="${totalEpisodes || 9999}" value="${currentEpisodes}">
+                        <button type="button" class="stepper-btn" onclick="stepRateCounter('${a.id}', 1, ${totalEpisodes || 0})"><i class="ti ti-plus"></i></button>
+                        ${totalEpisodes ? `<span class="stepper-total">/ ${totalEpisodes}</span>` : ''}
+                    </div>
+                </div>
+
+                <div class="user-rate-row user-rate-score-row">
+                    <label class="user-rate-label">${i18n('mylist.score')}</label>
+                    <div class="stars-rating-container" id="stars-container-${a.id}" data-score="${currentScore}">
+                        ${[1,2,3,4,5,6,7,8,9,10].map(s => `
+                            <button type="button" class="star-btn ${s <= currentScore ? 'active' : ''}" data-star="${s}" onclick="setUserRateScore('${a.id}', ${s})" onmouseenter="previewUserRateScore('${a.id}', ${s})" onmouseleave="resetPreviewUserRateScore('${a.id}')" title="${s}/10">
+                                <i class="ti ti-star-filled"></i>
+                            </button>
+                        `).join('')}
+                        <span class="score-display-text" id="score-text-${a.id}">${currentScore ? `${currentScore}/10` : '—'}</span>
+                    </div>
+                </div>
+
+                <div class="user-rate-row" style="flex-direction: column; align-items: stretch; gap: 6px;">
+                    <label class="user-rate-label">${i18n('mylist.note')}</label>
+                    <textarea id="rate-note-input-${a.id}" class="user-rate-textarea" placeholder="${i18n('mylist.note_placeholder')}" rows="2">${currentText}</textarea>
+                </div>
+
+                <div class="user-rate-actions">
+                    <button type="button" class="btn btn-save-rate" onclick="submitUserRate('${a.id}', 'Anime', ${rateId ? `'${rateId}'` : 'null'}, ${totalEpisodes || 0})">
+                        <i class="ti ti-check"></i> <span>${i18n('mylist.save')}</span>
+                    </button>
+                    ${rateId ? `
+                        <button type="button" class="btn-secondary btn-delete-rate" onclick="deleteUserRateAction('${a.id}', 'Anime', '${rateId}')">
+                            <i class="ti ti-trash"></i> <span>${i18n('mylist.delete')}</span>
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
 function renderAnimeDetail(a) {
     const body = document.getElementById('anime-modal-body');
     if (!body) return;
+
+    window.currentPlayingAnimeId = a.id;
+    window.currentPlayingTitle = a.name;
+    window.currentPlayingRussian = a.russian || a.name;
+    window.currentPlayingPoster = a.image;
+    window.currentPlayingTotalEpisodes = a.episodes || 0;
 
     const title = a.russian || a.name;
     const origTitle = (a.russian && a.name !== a.russian) ? a.name : '';
@@ -368,6 +775,8 @@ function renderAnimeDetail(a) {
 
     const safeTitle = (a.russian || a.name).replace(/'/g, "\\'");
 
+    const userRateWidgetHTML = renderAnimeUserRateWidget(a);
+
     const relatedHTML = (a.related && a.related.length) ? `
         <div class="anime-related-section">
             <h3><i class="ti ti-link"></i> ${i18n('anime.related')}</h3>
@@ -384,7 +793,7 @@ function renderAnimeDetail(a) {
                 ${a.characters.map((c, idx) => c.url ? `
                     <a href="${c.url}" class="character-card" target="_blank">
                         <div class="character-avatar-wrapper">
-                            ${c.image ? `<img src="${c.image}" alt="${c.name}" class="character-avatar" loading="lazy">` : `<div class="character-avatar placeholder"><i class="ti ti-user"></i></div>`}
+                            ${c.image ? `<img src="${c.image}" alt="${c.name}" class="character-avatar" loading="lazy" decoding="async">` : `<div class="character-avatar placeholder"><i class="ti ti-user"></i></div>`}
                             <span class="character-role">${c.role || ''}</span>
                         </div>
                         <div class="character-name">${c.name}</div>
@@ -400,23 +809,31 @@ function renderAnimeDetail(a) {
         </div>
     ` : '';
 
+    currentScreenshots = a.screenshots || [];
     const screenshotsHTML = (a.screenshots && a.screenshots.length) ? `
         <div class="anime-screenshots-section">
-            <h3><i class="ti ti-photo"></i> ${i18n('anime.screenshots')}</h3>
+            <h3><i class="ti ti-photo"></i> ${i18n('anime.screenshots')} <span class="badge-count">(${a.screenshots.length})</span></h3>
             <div class="anime-screenshots-scroll">
-                ${a.screenshots.map(src => `<img src="${src}" class="anime-screenshot" loading="lazy" onclick="window.open('${src}', '_blank')">`).join('')}
+                ${a.screenshots.map((src, idx) => `
+                    <div class="anime-screenshot-card" onclick="openScreenshotLightbox(${idx})" title="${i18n('lightbox.zoom')}">
+                        <img src="${src}" class="anime-screenshot" loading="lazy" decoding="async" alt="Screenshot ${idx + 1}">
+                        <div class="screenshot-zoom-overlay"><i class="ti ti-zoom-in"></i></div>
+                    </div>
+                `).join('')}
             </div>
         </div>
     ` : '';
+
 
     const videosHTML = (a.video && a.video.length) ? `
         <div class="anime-videos-section">
             <h3><i class="ti ti-video"></i> ${i18n('anime.videos')}</h3>
             <div class="anime-videos-list">
-                ${a.video.map(v => `<a href="${v.url || v.player_url || '#'}" target="_blank" class="video-link" data-external="true"><i class="ti ti-player-play"></i> ${v.name || 'Видео'}</a>`).join('')}
+                ${a.video.map(v => `<a href="${v.url || v.player_url || '#'}" target="_blank" class="video-link" data-external="true"><i class="ti ti-player-play"></i> ${v.name || i18n('video.link')}</a>`).join('')}
             </div>
         </div>
     ` : '';
+
 
     const externalScoresHTML = (a.external_scores && a.external_scores.length) ? `
         <div class="anime-external-scores">
@@ -429,68 +846,101 @@ function renderAnimeDetail(a) {
     ` : '';
 
     const licensedByHTML = (a.licensed_by && a.licensed_by.length) ? `
-        <div class="info-item" style="grid-column: span 2;"><span class="label">${i18n('anime.licensed_by')}</span> <span>${a.licensed_by.join(', ')}</span></div>
+        <div class="info-item info-full-row"><span class="label">${i18n('anime.licensed_by')}</span> <span>${a.licensed_by.join(', ')}</span></div>
     ` : '';
 
     body.innerHTML = `
         <div class="anime-detail-container">
-            <div class="anime-detail-header">
-                <div class="anime-poster-wrapper">
-                    ${a.image ? `<img src="${a.image}" alt="${title}" class="anime-poster">` : `<div class="anime-poster placeholder"><i class="ti ti-movie"></i></div>`}
-                    ${a.score ? `<div class="anime-score-badge"><i class="ti ti-star-filled"></i> ${a.score}</div>` : ''}
-                </div>
-                <div class="anime-main-info">
-                    <h2 class="anime-title">${title}</h2>
-                    ${origTitle ? `<div class="anime-orig-title">${origTitle}</div>` : ''}
-                    ${a.scored_by ? `<div class="anime-scored-by">${i18n('anime.scored_by')} ${a.scored_by.toLocaleString()}</div>` : ''}
-                    
-                    <div class="anime-info-grid">
-                        <div class="info-item"><span class="label">${i18n('anime.type')}</span> <span>${a.kind || '—'}</span></div>
-                        <div class="info-item"><span class="label">${i18n('anime.status')}</span> <span>${a.status || '—'}</span></div>
-                        <div class="info-item"><span class="label">${i18n('anime.episodes')}</span> <span>${a.episodes_aired ? `${a.episodes_aired} / ` : ''}${a.episodes || '—'}</span></div>
-                        <div class="info-item"><span class="label">${i18n('anime.duration')}</span> <span>${a.duration ? `${a.duration} мин.` : '—'}</span></div>
-                        <div class="info-item"><span class="label">${i18n('anime.aired')}</span> <span>${a.aired_on || '—'}</span></div>
-                        <div class="info-item"><span class="label">${i18n('anime.rating')}</span> <span>${a.rating || '—'}</span></div>
-                        <div class="info-item"><span class="label">${i18n('anime.studios')}</span> <span>${a.studios && a.studios.length ? a.studios.join(', ') : '—'}</span></div>
-                        <div class="info-item"><span class="label">${i18n('anime.genres')}</span> <span>${a.genres && a.genres.length ? a.genres.join(', ') : '—'}</span></div>
-                        ${franchiseHTML}
-                        ${licensedByHTML}
+            <!-- Top Hero Section: Poster + Actions on Left, Title + Information Box on Right -->
+            <div class="anime-hero-section">
+                <!-- Left: Poster + Watch Buttons + My List -->
+                <div class="anime-hero-left">
+                    <div class="anime-poster-wrapper">
+                        ${a.image ? `<img src="${a.image}" alt="${title}" class="anime-poster" decoding="async">` : `<div class="anime-poster placeholder"><i class="ti ti-movie"></i></div>`}
+                        ${a.score ? `<div class="anime-score-badge"><i class="ti ti-star-filled"></i> ${a.score}</div>` : ''}
                     </div>
 
-                    <div class="anime-actions">
+                    <div class="anime-actions-panel">
                         ${a.shikimori_url ? `
                             <button id="watch-toggle-btn" class="btn-kodik-play" onclick="toggleWatchPlayer('${a.shikimori_url}', ${targetEpisode})">
-                                <i class="ti ti-player-play-filled"></i> ${i18n('anime.player_1')}
+                                <i class="ti ti-player-play"></i> <span>${i18n('anime.player_1')}</span>
                             </button>
                         ` : ''}
-                        <button id="anicli-toggle-btn" class="btn-secondary" onclick="toggleAnicliPlayer('${safeTitle}', ${targetEpisode}, ${a.id})">
-                            <i class="ti ti-device-tv"></i> ${i18n('anime.player_2')}
+
+                        <button id="anicli-toggle-btn" class="btn-secondary btn-anicli-play" onclick="toggleAnicliPlayer('${safeTitle}', ${targetEpisode}, ${a.id})">
+                            <i class="ti ti-device-tv"></i> <span>${i18n('anime.player_2')}</span>
                         </button>
-                        ${a.shikimori_url ? `<a href="${a.shikimori_url}" target="_blank" data-external="true" class="btn-secondary"><i class="ti ti-external-link"></i> Shikimori</a>` : ''}
+                        ${a.shikimori_url ? `
+                            <a href="${a.shikimori_url}" target="_blank" data-external="true" class="btn-secondary btn-shiki-link">
+                                <i class="ti ti-external-link"></i> <span>Shikimori</span>
+                            </a>
+                        ` : ''}
                     </div>
 
-                    ${relatedHTML}
+                    ${userRateWidgetHTML}
+                </div>
+
+                <!-- Right: Title + Video Player (Above Info!) + Information Box + Description + Characters + Screenshots + Related + Videos -->
+                <div class="anime-hero-right">
+                    <div class="anime-header-titles">
+                        <h2 class="anime-title">${title}</h2>
+                        ${origTitle ? `<div class="anime-orig-title">${origTitle}</div>` : ''}
+                        ${a.scored_by ? `<div class="anime-scored-by">${i18n('anime.scored_by')} ${a.scored_by.toLocaleString()}</div>` : ''}
+                    </div>
+
+                    <!-- Video Player (Appears directly ABOVE information when clicked!) -->
+                    <div id="watch-player-container" class="kodik-player-wrapper hidden"></div>
+
+                    <!-- ИНФОРМАЦИЯ Card: Beside poster, below player -->
+                    <div class="anime-meta-details-card">
+                        <h4><i class="ti ti-info-circle"></i> ${i18n('profile.info')}</h4>
+                        <div class="anime-info-grid">
+                            <div class="info-item"><span class="label">${i18n('anime.type')}</span> <span>${a.kind || '—'}</span></div>
+                            <div class="info-item"><span class="label">${i18n('anime.status')}</span> <span>${a.status || '—'}</span></div>
+                            <div class="info-item"><span class="label">${i18n('anime.episodes')}</span> <span>${a.episodes_aired ? `${a.episodes_aired} / ` : ''}${a.episodes || '—'}</span></div>
+                            <div class="info-item"><span class="label">${i18n('anime.duration')}</span> <span>${a.duration ? `${a.duration} ${i18n('anime.min')}` : '—'}</span></div>
+
+                            <div class="info-item"><span class="label">${i18n('anime.aired')}</span> <span>${a.aired_on || '—'}</span></div>
+                            <div class="info-item"><span class="label">${i18n('anime.rating')}</span> <span>${a.rating || '—'}</span></div>
+                            <div class="info-item info-full-row"><span class="label">${i18n('anime.studios')}</span> <span>${a.studios && a.studios.length ? a.studios.join(', ') : '—'}</span></div>
+                            <div class="info-item info-full-row"><span class="label">${i18n('anime.genres')}</span> <span>${a.genres && a.genres.length ? a.genres.join(', ') : '—'}</span></div>
+                            ${franchiseHTML}
+                            ${licensedByHTML}
+                        </div>
+                    </div>
+
+                    <!-- Description (Directly Below Information Card!) -->
+                    <div class="anime-description-section">
+                        <h3><i class="ti ti-file-text"></i> ${i18n('anime.description')}</h3>
+                        <div class="anime-description-content">${a.description}</div>
+                    </div>
+
+                    <!-- Characters (Below Description!) -->
+                    ${charactersHTML}
+
+                    <!-- Screenshots (Below Characters!) -->
                     ${screenshotsHTML}
+
+                    <!-- Related / Chronology -->
+                    ${relatedHTML}
+
+                    <!-- Videos -->
                     ${videosHTML}
+
                     ${externalScoresHTML}
                 </div>
             </div>
-
-            <div id="watch-player-container" class="kodik-player-wrapper hidden"></div>
-
-            <div class="anime-description-section">
-                <h3><i class="ti ti-file-text"></i> ${i18n('anime.description')}</h3>
-                <div class="anime-description-content">${a.description}</div>
-            </div>
-
-            ${charactersHTML}
         </div>
     `;
 }
 
-// ==================== UTILITY FUNCTIONS ====================
+
+
+
+
 
 async function getAnimeData(animeId, source = 'shikimori') {
+
     try {
         const response = await fetch(`/api/anime/${source}/${animeId}`);
         if (!response.ok) throw new Error('Failed to fetch anime data');
@@ -554,29 +1004,35 @@ function renderCharacterDetail(char) {
     const mangasHTML = (char.mangas || []).map(m => `<a href="https://shikimori.io/mangas/${m.id}" class="search-tag">${m.name}</a>`).join(' ');
 
     body.innerHTML = `
-        <div class="anime-detail-header">
-            <div class="anime-poster-wrapper">
-                ${poster ? `<img src="${poster}" alt="${char.russian}" class="anime-poster">` : `<div class="anime-poster placeholder"><i class="ti ti-user"></i></div>`}
+        <div class="anime-hero-section">
+            <div class="anime-hero-left">
+                <div class="anime-poster-wrapper">
+                    ${poster ? `<img src="${poster}" alt="${char.russian}" class="anime-poster" decoding="async">` : `<div class="anime-poster placeholder"><i class="ti ti-user"></i></div>`}
+                </div>
+                <div class="anime-actions-panel">
+                    ${char.shikimori_url ? `<a href="${char.shikimori_url}" target="_blank" data-external="true" class="btn-secondary"><i class="ti ti-external-link"></i> <span>${i18n('anime.open_shikimori')}</span></a>` : ''}
+                </div>
             </div>
 
-            <div class="anime-main-info">
-                <h2 class="anime-title">${char.russian}</h2>
-                <div class="anime-orig-title">${char.name} ${char.japanese ? `(${char.japanese})` : ''}</div>
-
-                <div class="anime-info-grid" style="margin-top:12px;">
-                    ${animesHTML ? `<div class="info-item" style="grid-column: span 2;"><span class="label">${i18n('character.anime')}</span><div class="search-item-tags" style="margin-top:4px;">${animesHTML}</div></div>` : ''}
-                    ${mangasHTML ? `<div class="info-item" style="grid-column: span 2; margin-top:8px;"><span class="label">${i18n('character.manga')}</span><div class="search-item-tags" style="margin-top:4px;">${mangasHTML}</div></div>` : ''}
+            <div class="anime-hero-right">
+                <div class="anime-header-titles">
+                    <h2 class="anime-title">${char.russian}</h2>
+                    <div class="anime-orig-title">${char.name} ${char.japanese ? `(${char.japanese})` : ''}</div>
                 </div>
 
-                <div class="anime-actions" style="margin-top:16px;">
-                    ${char.shikimori_url ? `<a href="${char.shikimori_url}" target="_blank" data-external="true" class="btn-secondary" style="display:inline-flex; align-items:center; gap:6px;"><i class="ti ti-external-link"></i> ${i18n('anime.open_shikimori')}</a>` : ''}
+                <div class="anime-meta-details-card">
+                    <h4><i class="ti ti-info-circle"></i> ${i18n('character.info')}</h4>
+                    <div class="anime-info-grid">
+                        ${animesHTML ? `<div class="info-item info-full-row"><span class="label">${i18n('character.anime')}</span><div class="search-item-tags" style="margin-top:4px;">${animesHTML}</div></div>` : ''}
+                        ${mangasHTML ? `<div class="info-item info-full-row"><span class="label">${i18n('character.manga')}</span><div class="search-item-tags" style="margin-top:4px;">${mangasHTML}</div></div>` : ''}
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="anime-description-section">
-            <h3><i class="ti ti-info-circle"></i> ${i18n('character.info')}</h3>
-            <div class="anime-description-content">${char.description}</div>
+            <h3><i class="ti ti-file-text"></i> ${i18n('character.info')}</h3>
+            <div class="anime-description-content">${char.description || '—'}</div>
         </div>
     `;
 }
@@ -610,28 +1066,34 @@ function renderClubDetail(club) {
     const logo = club.image || '';
 
     body.innerHTML = `
-        <div class="anime-detail-header">
-            <div class="anime-poster-wrapper">
-                ${logo ? `<img src="${logo}" alt="${club.name}" class="anime-poster">` : `<div class="anime-poster placeholder"><i class="ti ti-users"></i></div>`}
+        <div class="anime-hero-section">
+            <div class="anime-hero-left">
+                <div class="anime-poster-wrapper">
+                    ${logo ? `<img src="${logo}" alt="${club.name}" class="anime-poster" decoding="async">` : `<div class="anime-poster placeholder"><i class="ti ti-users"></i></div>`}
+                </div>
+                <div class="anime-actions-panel">
+                    ${club.shikimori_url ? `<a href="${club.shikimori_url}" target="_blank" data-external="true" class="btn-secondary"><i class="ti ti-external-link"></i> <span>${i18n('anime.open_shikimori')}</span></a>` : ''}
+                </div>
             </div>
 
-            <div class="anime-main-info">
-                <h2 class="anime-title">${club.name}</h2>
-
-                <div class="anime-info-grid" style="margin-top:12px;">
-                    <div class="info-item"><span class="label">${i18n('club.members')}</span> <b>${club.members_count}</b></div>
-                    <div class="info-item"><span class="label">${i18n('club.type')}</span> ${club.is_private ? i18n('friends.private_club') : i18n('friends.public_club')}</div>
+            <div class="anime-hero-right">
+                <div class="anime-header-titles">
+                    <h2 class="anime-title">${club.name}</h2>
                 </div>
 
-                <div class="anime-actions" style="margin-top:16px;">
-                    ${club.shikimori_url ? `<a href="${club.shikimori_url}" target="_blank" data-external="true" class="btn-secondary" style="display:inline-flex; align-items:center; gap:6px;"><i class="ti ti-external-link"></i> ${i18n('anime.open_shikimori')}</a>` : ''}
+                <div class="anime-meta-details-card">
+                    <h4><i class="ti ti-info-circle"></i> ${i18n('profile.info')}</h4>
+                    <div class="anime-info-grid">
+                        <div class="info-item"><span class="label">${i18n('club.members')}</span> <b>${club.members_count}</b></div>
+                        <div class="info-item"><span class="label">${i18n('club.type')}</span> <span>${club.is_private ? i18n('friends.private_club') : i18n('friends.public_club')}</span></div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="anime-description-section">
-            <h3><i class="ti ti-users"></i> ${i18n('club.description')}</h3>
-            <div class="anime-description-content">${club.description}</div>
+            <h3><i class="ti ti-file-text"></i> ${i18n('club.description')}</h3>
+            <div class="anime-description-content">${club.description || '—'}</div>
         </div>
     `;
-}
+}

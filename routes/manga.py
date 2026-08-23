@@ -40,12 +40,6 @@ def get_manga_details(manga_id):
     }
 
     user_rate = fetch_user_rate(manga_id, "Manga")
-    if user_rate:
-        user_rate = {
-            "status": user_rate.get("status"),
-            "chapters": user_rate.get("chapters", 0),
-            "volumes": user_rate.get("volumes", 0)
-        }
 
     logger.debug("Manga details loaded: manga_id=%s", manga_id)
     return jsonify({

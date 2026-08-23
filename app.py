@@ -44,6 +44,17 @@ app.register_blueprint(about_bp)
 app.register_blueprint(settings_bp)
 app.register_blueprint(auth_status_bp)
 
+@app.route('/manifest.json')
+def manifest():
+    return app.send_static_file('manifest.json')
+
+@app.route('/sw.js')
+def service_worker():
+    response = app.send_static_file('sw.js')
+    response.headers['Service-Worker-Allowed'] = '/'
+    response.headers['Content-Type'] = 'application/javascript'
+    return response
+
 if not os.getenv("DISABLE_CUSTOM_LOGGING"):
     setup_logging(debug=app.debug)
 register_error_handlers(app)

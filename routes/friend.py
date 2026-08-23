@@ -15,23 +15,18 @@ def tab_friends():
     if not user_id or not headers:
         raise AppError("Требуется авторизация", 401)
 
-    try:
-        r_friends = requests.get(f"{SHIKIMORI_BASE}/api/users/{user_id}/friends", headers=headers, timeout=10)
-        r_clubs = requests.get(f"{SHIKIMORI_BASE}/api/users/{user_id}/clubs", headers=headers, timeout=10)
-    except requests.RequestException as exc:
-        logger.error("Failed to fetch friends/clubs: %s", exc)
-        raise AppError("Не удалось загрузить друзей и клубы", 502, logging.ERROR)
+    friends_url = f"{SHIKIMORI_BASE}/api/users/{user_id}/friends"
+    clubs_url = f"{SHIKIMORI_BASE}/api/users/{user_id}/clubs"
 
-    friends = r_friends.json() if r_friends.status_code == 200 and isinstance(r_friends.json(), list) else []
-    clubs = r_clubs.json() if r_clubs.status_code == 200 and isinstance(r_clubs.json(), list) else []
+    friends_data = fetch_cached_api(friends_url, headers, ttl=300)
+    clubs_data = fetch_cached_api(clubs_url, headers, ttl=300)
 
-    if r_friends.status_code != 200:
-        logger.warning("Friends API returned %s", r_friends.status_code)
-    if r_clubs.status_code != 200:
-        logger.warning("Clubs API returned %s", r_clubs.status_code)
+    friends = friends_data if isinstance(friends_data, list) else []
+    clubs = clubs_data if isinstance(clubs_data, list) else []
 
-    logger.debug("Friends loaded: friends=%d clubs=%d", len(friends), len(clubs))
+    logger.debug("Friends loaded: user_id=%s friends=%d clubs=%d", user_id, len(friends), len(clubs))
     return jsonify({"friends": friends, "clubs": clubs})
+
 
 
 @friend_bp.route("/api/friend/<user_id>")

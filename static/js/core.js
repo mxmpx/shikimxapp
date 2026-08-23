@@ -35,12 +35,18 @@ function updateThemeIcon(theme) {
 
 function buildImgUrl(src) {
     if (!src) return '';
-    let path = typeof src === 'string' ? src : (src.original || src.x160 || src.preview || '');
+    if (typeof src === 'string') {
+        if (src.startsWith('/cache/img') || src.startsWith('data:')) return src;
+        if (src.includes('missing_original') || src.includes('missing_preview')) return '';
+    }
+    let path = typeof src === 'string' ? src : (src.original || src.x160 || src.preview || src.main || '');
     if (!path || path === 'None' || path === '{}') return '';
+    if (path.includes('missing_original') || path.includes('missing_preview')) return '';
     path = path.replace(/\/(x64|x32|preview)\//, '/original/');
     const fullUrl = path.startsWith('http') ? path : 'https://shikimori.io' + (path.startsWith('/') ? path : '/' + path);
     return `/cache/img?url=${encodeURIComponent(fullUrl)}`;
 }
+
 
 async function openTab(tabId) {
     localStorage.setItem('activeTab', tabId);
@@ -164,6 +170,79 @@ function closeAboutModal(event) {
     if (modal) modal.classList.add('hidden');
 }
 
+// Toast Notification System
+function showToast(message, type = 'info', duration = 3000) {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast-item toast-${type}`;
+    
+    let icon = 'ti-info-circle';
+    if (type === 'success') icon = 'ti-circle-check';
+    else if (type === 'error') icon = 'ti-alert-circle';
+    else if (type === 'warning') icon = 'ti-alert-triangle';
+
+    toast.innerHTML = `
+        <i class="ti ${icon} toast-icon"></i>
+        <span class="toast-message">${message}</span>
+    `;
+
+    container.appendChild(toast);
+    setTimeout(() => toast.classList.add('show'), 10);
+
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
+window.showToast = showToast;
+
+// PWA Service Worker & Install Prompt
+window.deferredPwaPrompt = null;
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('[PWA] Service Worker registered:', reg.scope))
+            .catch(err => console.warn('[PWA] Service Worker registration failed:', err));
+    });
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    window.deferredPwaPrompt = e;
+    const installBtns = document.querySelectorAll('.btn-pwa-install');
+    installBtns.forEach(btn => btn.classList.remove('hidden'));
+});
+
+window.addEventListener('appinstalled', () => {
+    window.deferredPwaPrompt = null;
+    showToast(i18n('pwa.installed'), 'success');
+    const installBtns = document.querySelectorAll('.btn-pwa-install');
+    installBtns.forEach(btn => btn.classList.add('hidden'));
+});
+
+function installPwaApp() {
+    if (!window.deferredPwaPrompt) {
+        showToast(i18n('pwa.install'), 'info');
+        return;
+    }
+    window.deferredPwaPrompt.prompt();
+    window.deferredPwaPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+            console.log('[PWA] User accepted install prompt');
+        }
+        window.deferredPwaPrompt = null;
+    });
+}
+window.installPwaApp = installPwaApp;
+
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     syncAppVersion();
@@ -200,4 +279,4 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Ошибка загрузки сетки:', err);
         }
     });
-});
+});

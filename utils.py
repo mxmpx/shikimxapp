@@ -87,15 +87,32 @@ def fetch_user_rate(target_id, target_type):
     try:
         rate_data = fetch_with_retry(rate_url, auth_headers)
         if rate_data and isinstance(rate_data, list) and len(rate_data) > 0:
+            item = rate_data[0]
             return {
-                "status": rate_data[0].get("status"),
-                "episodes": rate_data[0].get("episodes", 0),
-                "chapters": rate_data[0].get("chapters", 0),
-                "volumes": rate_data[0].get("volumes", 0)
+                "id": item.get("id"),
+                "status": item.get("status"),
+                "score": item.get("score", 0),
+                "episodes": item.get("episodes", 0),
+                "chapters": item.get("chapters", 0),
+                "volumes": item.get("volumes", 0),
+                "text": item.get("text", "") or "",
+                "rewatches": item.get("rewatches", 0)
             }
     except Exception as exc:
         logger.debug("Could not load user rate for %s %s: %s", target_type, target_id, exc)
     return None
+
+
+def invalidate_user_rates_cache():
+    """Clear cached rates when user modifies a rate."""
+    user_id = session.get("user_id")
+    if not user_id:
+        return
+    prefix = f"{SHIKIMORI_BASE}/api/v2/user_rates"
+    keys_to_del = [k for k in API_DATA_CACHE.keys() if prefix in k and str(user_id) in k]
+    for k in keys_to_del:
+        API_DATA_CACHE.pop(k, None)
+
 
 
 def get_auth_headers():
@@ -113,7 +130,7 @@ def fix_image_url(image_data):
         path = str(image_data)
         path = re.sub(r"/(x64|x32|preview)/", "/original/", path)
 
-    if not path or path == "None" or path == "{}":
+    if not path or path == "None" or path == "{}" or "missing_original" in path or "missing_preview" in path:
         return ""
     if not path.startswith("http://") and not path.startswith("https://"):
         if not path.startswith("/"):
@@ -121,6 +138,52 @@ def fix_image_url(image_data):
         path = f"https://shikimori.io{path}"
 
     return f"/cache/img?url={path}"
+
+
+def resolve_posters_graphql(anime_ids, headers=None):
+    """Query Shikimori GraphQL to resolve high-res webp poster URLs for anime IDs."""
+    if not anime_ids:
+        return {}
+    if headers is None:
+        headers = {"User-Agent": APP_NAME}
+
+    poster_map = {}
+    ids_list = [str(x) for x in anime_ids if str(x).isdigit()]
+    for i in range(0, len(ids_list), 50):
+        batch = ids_list[i:i + 50]
+        query = f"""
+        query {{
+          animes(ids: "{','.join(batch)}", limit: 50) {{
+            id
+            poster {{
+              mainUrl
+              originalUrl
+            }}
+          }}
+        }}
+        """
+        try:
+            r = requests.post(f"{SHIKIMORI_BASE}/api/graphql", json={"query": query}, headers=headers, timeout=6)
+            if r.status_code == 200:
+                for a in r.json().get("data", {}).get("animes", []):
+                    p = a.get("poster")
+                    if p:
+                        url = p.get("mainUrl") or p.get("originalUrl")
+                        if url:
+                            poster_map[str(a["id"])] = fix_image_url(url)
+        except Exception as exc:
+            logger.debug("Failed to resolve GraphQL posters: %s", exc)
+    return poster_map
+
+
+def resolve_single_anime_poster_graphql(anime_id, headers=None):
+    """Query Shikimori GraphQL for a single anime poster URL."""
+    if not anime_id:
+        return ""
+    posters = resolve_posters_graphql([str(anime_id)], headers)
+    return posters.get(str(anime_id), "")
+
+
 
 def parse_shikimori_bbcode(text):
     if not text:
