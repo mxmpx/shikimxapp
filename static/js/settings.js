@@ -1,7 +1,9 @@
-/* Настройки сайта: фон (цвет или фото) и видимость разделов */
+/* Настройки сайта: фон (цвет или фото), видимость разделов и вид навигации */
 
 const BG_SETTINGS_KEY = 'app_bg_settings';
 const SECTION_VISIBILITY_KEY = 'app_section_visibility';
+const NAVBAR_VIEW_KEY = 'app_navbar_view';
+const DEFAULT_NAVBAR_VIEW = 'full';
 let currentBgMode = 'color';
 let uploadedImageDataUrl = '';
 let isAuthenticated = false;
@@ -206,28 +208,13 @@ function openSettingsModal() {
     }
 
     loadSectionVisibilityToggles();
+    applyNavbarView(getSavedNavbarView());
 }
 
 function closeSettingsModal(event) {
     if (event && event.target !== event.currentTarget && !event.target.classList.contains('modal-close-btn') && !event.target.parentElement.classList.contains('modal-close-btn')) return;
     const modal = document.getElementById('settings-modal');
     if (modal) modal.classList.add('hidden');
-}
-
-async function unlinkGoogleAccount() {
-    if (!confirm(i18n('settings.google.unlink_confirm'))) return;
-
-    try {
-        const res = await fetch('/auth/google/unlink');
-        if (res.ok) {
-            window.location.reload();
-        } else {
-            alert(i18n('settings.google.unlink_error'));
-        }
-    } catch (err) {
-        console.error(i18n('settings.google.unlink_error'), err);
-        alert(i18n('settings.google.unlink_error_detail'));
-    }
 }
 
 /* ---- Видимость разделов ---- */
@@ -286,8 +273,54 @@ function loadSectionVisibilityToggles() {
     });
 }
 
+/* ---- Вид навигации ---- */
+
+function getSavedNavbarView() {
+    try {
+        const raw = localStorage.getItem(NAVBAR_VIEW_KEY);
+        return raw ? raw : DEFAULT_NAVBAR_VIEW;
+    } catch (err) {
+        console.error('Ошибка чтения настроек вида навигации:', err);
+        return DEFAULT_NAVBAR_VIEW;
+    }
+}
+
+function saveNavbarView(view) {
+    try {
+        localStorage.setItem(NAVBAR_VIEW_KEY, view);
+    } catch (err) {
+        console.error('Ошибка сохранения настроек вида навигации:', err);
+    }
+    if (isAuthenticated) {
+        saveSettingsToServer({ navbar_view: view });
+    }
+}
+
+function applyNavbarView(view) {
+    const header = document.querySelector('.app-header');
+    if (!header) return;
+
+    header.classList.remove('navbar-view-full', 'navbar-view-icons', 'navbar-view-titles');
+    if (view && view !== DEFAULT_NAVBAR_VIEW) {
+        header.classList.add(`navbar-view-${view}`);
+    }
+
+    const options = document.querySelectorAll('.navbar-view-option');
+    options.forEach(opt => {
+        const optView = opt.dataset.navbarView;
+        opt.classList.toggle('active', optView === view);
+    });
+}
+
+function setNavbarView(view) {
+    if (!view) return;
+    saveNavbarView(view);
+    applyNavbarView(view);
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     await checkAuthStatus();
     await applySavedBg();
     applySectionVisibility();
+    applyNavbarView(getSavedNavbarView());
 });

@@ -1,6 +1,6 @@
 import logging
 from flask import Blueprint, jsonify, session
-from utils import SHIKIMORI_BASE, APP_NAME, fetch_cached_api, fix_image_url, get_auth_headers, fetch_with_retry
+from utils import SHIKIMORI_BASE, APP_NAME, fetch_cached_api, fix_image_url, get_auth_headers, fetch_with_retry, fetch_user_rate
 from errors import AppError, api_route
 
 logger = logging.getLogger("shikimxapp.manga")
@@ -39,22 +39,13 @@ def get_manga_details(manga_id):
         'doujin': 'Додзинси'
     }
 
-    user_rate = None
-    try:
-        user_id = session.get("user_id")
-        auth_headers = get_auth_headers()
-        if user_id and auth_headers:
-            rate_url = f"{SHIKIMORI_BASE}/api/v2/user_rates?user_id={user_id}&target_id={manga_id}&target_type=Manga"
-            rate_data = fetch_with_retry(rate_url, auth_headers)
-            if rate_data and isinstance(rate_data, list) and len(rate_data) > 0:
-                user_rate = {
-                    "status": rate_data[0].get("status"),
-                    "chapters": rate_data[0].get("chapters", 0),
-                    "volumes": rate_data[0].get("volumes", 0)
-                }
-    except Exception as exc:
-        logger.debug("Could not load user rate for manga_id=%s: %s", manga_id, exc)
-        user_rate = None
+    user_rate = fetch_user_rate(manga_id, "Manga")
+    if user_rate:
+        user_rate = {
+            "status": user_rate.get("status"),
+            "chapters": user_rate.get("chapters", 0),
+            "volumes": user_rate.get("volumes", 0)
+        }
 
     logger.debug("Manga details loaded: manga_id=%s", manga_id)
     return jsonify({

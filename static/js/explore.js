@@ -236,7 +236,7 @@ function renderExplore(data) {
     const buildTopicRow = (item) => {
         const badgeKey = badgeMap[(item.tag || '').toLowerCase()] || 'explore.topic';
         return `
-        <a href="${item.url}" target="_blank" class="topic-row-item">
+        <a href="${item.url}" target="_blank" class="topic-row-item" title="${(item.title || '').replace(/"/g, '&quot;')}">
             <div class="topic-main">
                 <span class="topic-title-text">${item.title}</span>
                 <span class="topic-badge badge-${(item.tag || '').toLowerCase()}">${i18n(badgeKey)}</span>

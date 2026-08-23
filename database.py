@@ -45,6 +45,7 @@ def init_db():
             );
 
             CREATE INDEX IF NOT EXISTS idx_user_settings_user_id ON user_settings(user_id);
+            CREATE INDEX IF NOT EXISTS idx_user_settings_user_id_key ON user_settings(user_id, key);
             CREATE INDEX IF NOT EXISTS idx_users_shikimori_id ON users(shikimori_id);
             CREATE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id);
         """)
@@ -197,9 +198,28 @@ def set_user_setting(user_id, key, value):
 
 
 def set_user_settings(user_id, settings_dict):
-    """Set multiple settings for a user at once."""
-    for key, value in settings_dict.items():
-        set_user_setting(user_id, key, value)
+    """Set multiple settings for a user at once in a single transaction."""
+    if not settings_dict:
+        return
+    import json
+    conn = get_connection()
+    try:
+        now = datetime.utcnow().isoformat()
+        rows = []
+        for key, value in settings_dict.items():
+            value_str = json.dumps(value) if not isinstance(value, str) else value
+            rows.append((user_id, key, value_str, now))
+        conn.executemany(
+            """INSERT INTO user_settings (user_id, key, value, updated_at)
+               VALUES (?, ?, ?, ?)
+               ON CONFLICT(user_id, key) DO UPDATE SET
+                   value = excluded.value,
+                   updated_at = excluded.updated_at""",
+            rows
+        )
+        conn.commit()
+    finally:
+        conn.close()
 
 
 def delete_user_setting(user_id, key):

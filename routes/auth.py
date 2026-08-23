@@ -117,7 +117,6 @@ def callback():
 @auth_bp.route("/logout")
 def logout():
     user_id = session.get("user_id")
-    google_user = session.get("google_user")
     session.clear()
-    logger.info("User logged out (user_id=%s, google_user=%s)", user_id, bool(google_user))
+    logger.info("User logged out (user_id=%s)", user_id)
     return redirect(url_for("profile.index"))

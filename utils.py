@@ -22,6 +22,25 @@ TOKEN_URL = f"{SHIKIMORI_BASE}/oauth/token"
 WHOAMI_URL = f"{SHIKIMORI_BASE}/api/users/whoami"
 
 API_DATA_CACHE = {}
+API_CACHE_MAX_ENTRIES = 1000
+_API_CACHE_CLEANUP_INTERVAL = 300
+_last_api_cache_cleanup = 0
+
+
+def _cleanup_api_cache(force=False):
+    global _last_api_cache_cleanup
+    now = time.time()
+    if not force and now - _last_api_cache_cleanup < _API_CACHE_CLEANUP_INTERVAL:
+        return
+    _last_api_cache_cleanup = now
+    expired = [url for url, (_, expires) in API_DATA_CACHE.items() if now >= expires]
+    for url in expired:
+        del API_DATA_CACHE[url]
+    if len(API_DATA_CACHE) > API_CACHE_MAX_ENTRIES:
+        sorted_items = sorted(API_DATA_CACHE.items(), key=lambda x: x[1][1])
+        keep = dict(sorted_items[-API_CACHE_MAX_ENTRIES:])
+        API_DATA_CACHE.clear()
+        API_DATA_CACHE.update(keep)
 
 def fetch_with_retry(url, headers):
     last_status = None
@@ -43,11 +62,13 @@ def fetch_with_retry(url, headers):
     return None
 
 def fetch_cached_api(url, headers, ttl=1800):
+    _cleanup_api_cache()
     now = time.time()
     if url in API_DATA_CACHE:
         data, expires = API_DATA_CACHE[url]
         if now < expires:
             return data
+        del API_DATA_CACHE[url]
     data = fetch_with_retry(url, headers)
     if data is not None:
         API_DATA_CACHE[url] = (data, now + ttl)
@@ -55,6 +76,27 @@ def fetch_cached_api(url, headers, ttl=1800):
     else:
         logger.warning("Failed to fetch API data: %s", url)
     return data
+
+def fetch_user_rate(target_id, target_type):
+    """Fetch user rate for a given target (Anime/Manga). Returns dict or None."""
+    user_id = session.get("user_id")
+    auth_headers = get_auth_headers()
+    if not user_id or not auth_headers:
+        return None
+    rate_url = f"{SHIKIMORI_BASE}/api/v2/user_rates?user_id={user_id}&target_id={target_id}&target_type={target_type}"
+    try:
+        rate_data = fetch_with_retry(rate_url, auth_headers)
+        if rate_data and isinstance(rate_data, list) and len(rate_data) > 0:
+            return {
+                "status": rate_data[0].get("status"),
+                "episodes": rate_data[0].get("episodes", 0),
+                "chapters": rate_data[0].get("chapters", 0),
+                "volumes": rate_data[0].get("volumes", 0)
+            }
+    except Exception as exc:
+        logger.debug("Could not load user rate for %s %s: %s", target_type, target_id, exc)
+    return None
+
 
 def get_auth_headers():
     access_token = session.get("access_token")

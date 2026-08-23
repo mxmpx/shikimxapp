@@ -46,11 +46,13 @@ async function openTab(tabId) {
     localStorage.setItem('activeTab', tabId);
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.mobile-tab-btn').forEach(el => el.classList.remove('active'));
 
     const activeContent = document.getElementById(tabId);
     if (activeContent) activeContent.classList.add('active');
 
     document.querySelectorAll(`.tab-btn[onclick*="'${tabId}'"]`).forEach(btn => btn.classList.add('active'));
+    document.querySelectorAll(`.mobile-tab-btn[data-tab="${tabId}"]`).forEach(btn => btn.classList.add('active'));
 
     if (tabId === 'profile') {
         // Load explore data (news) when profile tab is opened

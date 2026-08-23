@@ -7,9 +7,10 @@ document.addEventListener('click', function (e) {
     if (link.dataset.external === 'true') return;
 
     const href = link.getAttribute('href');
-    if (!href) return;
+    if (!href || href === '#') return;
 
-    // Anime
+    if (!href.includes('shikimori') && !href.startsWith('/')) return;
+
     const animeMatch = href.match(/shikimori\.(?:io|one|me)?\/animes\/(?:z|a)?(\d+)/) || href.match(/\/animes\/(?:z|a)?(\d+)/);
     if (animeMatch && animeMatch[1]) {
         e.preventDefault();
@@ -17,7 +18,6 @@ document.addEventListener('click', function (e) {
         return;
     }
 
-    // Manga
     const mangaMatch = href.match(/shikimori\.(?:io|one|me)?\/mangas\/(?:z|a)?(\d+)/) || href.match(/\/mangas\/(?:z|a)?(\d+)/);
     if (mangaMatch && mangaMatch[1]) {
         e.preventDefault();
@@ -25,7 +25,6 @@ document.addEventListener('click', function (e) {
         return;
     }
 
-    // Character
     const charMatch = href.match(/shikimori\.(?:io|one|me)?\/characters\/(?:z|a)?(\d+)/) || href.match(/\/characters\/(?:z|a)?(\d+)/);
     if (charMatch && charMatch[1]) {
         e.preventDefault();
@@ -33,7 +32,6 @@ document.addEventListener('click', function (e) {
         return;
     }
 
-    // User / Friend (matches /users/{nick} or direct shikimori.io/{nick} from friends page)
     const userMatch = href.match(/shikimori\.(?:io|one|me)?\/users\/([^\/\?]+)/) || href.match(/\/users\/([^\/\?]+)/);
     const directUserMatch = !userMatch && href.match(/shikimori\.(?:io|one|me)\/([A-Za-z0-9_\-]+)\s*$/);
     const resolvedUser = userMatch || directUserMatch;
@@ -43,7 +41,6 @@ document.addEventListener('click', function (e) {
         return;
     }
 
-    // Club
     const clubMatch = href.match(/shikimori\.(?:io|one|me)?\/clubs\/(\d+)/) || href.match(/\/clubs\/(\d+)/);
     if (clubMatch && clubMatch[1]) {
         e.preventDefault();
@@ -51,6 +48,59 @@ document.addEventListener('click', function (e) {
         return;
     }
 });
+
+window.modalStack = [];
+
+function pushModalState() {
+    const body = document.getElementById('anime-modal-body');
+    if (body && body.innerHTML.trim()) {
+        window.modalStack.push(body.innerHTML);
+    }
+    updateBackButtonVisibility();
+}
+
+function popModalState() {
+    const body = document.getElementById('anime-modal-body');
+    if (body && window.modalStack.length > 0) {
+        body.innerHTML = window.modalStack.pop();
+        updateBackButtonVisibility();
+        return true;
+    }
+    return false;
+}
+
+function updateBackButtonVisibility() {
+    const backBtn = document.querySelector('.modal-back-btn');
+    if (backBtn) {
+        backBtn.classList.toggle('visible', window.modalStack.length > 0);
+    }
+}
+
+function handleModalBack() {
+    const animeModal = document.getElementById('anime-modal');
+    if (animeModal && !animeModal.classList.contains('hidden')) {
+        if (!popModalState()) {
+            closeAnimeModal({target: animeModal});
+        }
+        return;
+    }
+
+    const aboutModal = document.getElementById('about-modal');
+    if (aboutModal && !aboutModal.classList.contains('hidden')) {
+        aboutModal.classList.add('hidden');
+        document.body.style.overflow = '';
+        return;
+    }
+
+    const settingsModal = document.getElementById('settings-modal');
+    if (settingsModal && !settingsModal.classList.contains('hidden')) {
+        settingsModal.classList.add('hidden');
+        document.body.style.overflow = '';
+        return;
+    }
+}
+
+window.handleModalBack = handleModalBack;
 
 async function openAnimeModal(animeId) {
     const modal = document.getElementById('anime-modal');
@@ -80,15 +130,19 @@ function closeAnimeModal(e) {
         }
     }
     const modal = document.getElementById('anime-modal');
-    if (modal) {
-        modal.classList.add('hidden');
-        document.body.style.overflow = '';
-        const player = document.getElementById('watch-player-container');
-        if (player) {
-            player.classList.add('hidden');
-            player.innerHTML = '';
-            player.dataset.playerType = '';
-        }
+    if (!modal) return;
+
+    if (popModalState()) {
+        return;
+    }
+
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
+    const player = document.getElementById('watch-player-container');
+    if (player) {
+        player.classList.add('hidden');
+        player.innerHTML = '';
+        player.dataset.playerType = '';
     }
 }
 window.closeAnimeModal = closeAnimeModal;
@@ -155,6 +209,24 @@ async function toggleAnicliPlayer(title, episode = 1, animeId = 0) {
     } catch (err) {
         container.innerHTML = `<div class="anime-error"><i class="ti ti-alert-circle"></i> ${i18n('anime.playback_error')}: ${err.message}</div>`;
     }
+}
+
+function toggleCharacters() {
+    const scroll = document.getElementById('anime-characters-scroll');
+    const btn = document.getElementById('characters-toggle-btn');
+    if (!scroll || !btn) return;
+
+    const cards = scroll.querySelectorAll('.character-card');
+    const isExpanded = btn.dataset.expanded === 'true';
+
+    cards.forEach((card, idx) => {
+        card.style.display = (!isExpanded && idx >= 8) ? 'none' : '';
+    });
+
+    btn.dataset.expanded = (!isExpanded).toString();
+    btn.innerHTML = !isExpanded
+        ? `<i class="ti ti-chevron-up"></i> ${i18n('anime.hide_characters')}`
+        : `<i class="ti ti-chevron-down"></i> ${i18n('anime.show_all_characters')}`;
 }
 
 function initAnicliPlayerUI(container, initialEpisode = 1) {
@@ -296,6 +368,70 @@ function renderAnimeDetail(a) {
 
     const safeTitle = (a.russian || a.name).replace(/'/g, "\\'");
 
+    const relatedHTML = (a.related && a.related.length) ? `
+        <div class="anime-related-section">
+            <h3><i class="ti ti-link"></i> ${i18n('anime.related')}</h3>
+            <div class="anime-related-list">
+                ${a.related.map(r => r.url ? `<a href="${r.url}" class="related-item" data-external="true"><span class="related-kind">${r.kind || ''}</span> ${r.name}</a>` : '').join('')}
+            </div>
+        </div>
+    ` : '';
+
+    const charactersHTML = (a.characters && a.characters.length) ? `
+        <div class="anime-characters-section">
+            <h3><i class="ti ti-users"></i> ${i18n('anime.characters')}</h3>
+            <div class="anime-characters-scroll" id="anime-characters-scroll">
+                ${a.characters.map((c, idx) => c.url ? `
+                    <a href="${c.url}" class="character-card" target="_blank">
+                        <div class="character-avatar-wrapper">
+                            ${c.image ? `<img src="${c.image}" alt="${c.name}" class="character-avatar" loading="lazy">` : `<div class="character-avatar placeholder"><i class="ti ti-user"></i></div>`}
+                            <span class="character-role">${c.role || ''}</span>
+                        </div>
+                        <div class="character-name">${c.name}</div>
+                        ${c.japanese ? `<div class="character-japanese">${c.japanese}</div>` : ''}
+                    </a>
+                ` : '').join('')}
+            </div>
+            ${a.characters.length > 8 ? `
+                <button class="characters-toggle-btn" onclick="toggleCharacters()" id="characters-toggle-btn">
+                    <i class="ti ti-chevron-down"></i> ${i18n('anime.show_all_characters')}
+                </button>
+            ` : ''}
+        </div>
+    ` : '';
+
+    const screenshotsHTML = (a.screenshots && a.screenshots.length) ? `
+        <div class="anime-screenshots-section">
+            <h3><i class="ti ti-photo"></i> ${i18n('anime.screenshots')}</h3>
+            <div class="anime-screenshots-scroll">
+                ${a.screenshots.map(src => `<img src="${src}" class="anime-screenshot" loading="lazy" onclick="window.open('${src}', '_blank')">`).join('')}
+            </div>
+        </div>
+    ` : '';
+
+    const videosHTML = (a.video && a.video.length) ? `
+        <div class="anime-videos-section">
+            <h3><i class="ti ti-video"></i> ${i18n('anime.videos')}</h3>
+            <div class="anime-videos-list">
+                ${a.video.map(v => `<a href="${v.url || v.player_url || '#'}" target="_blank" class="video-link" data-external="true"><i class="ti ti-player-play"></i> ${v.name || 'Видео'}</a>`).join('')}
+            </div>
+        </div>
+    ` : '';
+
+    const externalScoresHTML = (a.external_scores && a.external_scores.length) ? `
+        <div class="anime-external-scores">
+            ${a.external_scores.map(s => `<span class="external-score-badge">${s.service || ''}: ${s.score || '—'}</span>`).join(' ')}
+        </div>
+    ` : '';
+
+    const franchiseHTML = a.franchise ? `
+        <div class="info-item"><span class="label">${i18n('anime.franchise')}</span> <span>${a.franchise}</span></div>
+    ` : '';
+
+    const licensedByHTML = (a.licensed_by && a.licensed_by.length) ? `
+        <div class="info-item" style="grid-column: span 2;"><span class="label">${i18n('anime.licensed_by')}</span> <span>${a.licensed_by.join(', ')}</span></div>
+    ` : '';
+
     body.innerHTML = `
         <div class="anime-detail-container">
             <div class="anime-detail-header">
@@ -306,6 +442,7 @@ function renderAnimeDetail(a) {
                 <div class="anime-main-info">
                     <h2 class="anime-title">${title}</h2>
                     ${origTitle ? `<div class="anime-orig-title">${origTitle}</div>` : ''}
+                    ${a.scored_by ? `<div class="anime-scored-by">${i18n('anime.scored_by')} ${a.scored_by.toLocaleString()}</div>` : ''}
                     
                     <div class="anime-info-grid">
                         <div class="info-item"><span class="label">${i18n('anime.type')}</span> <span>${a.kind || '—'}</span></div>
@@ -316,6 +453,8 @@ function renderAnimeDetail(a) {
                         <div class="info-item"><span class="label">${i18n('anime.rating')}</span> <span>${a.rating || '—'}</span></div>
                         <div class="info-item"><span class="label">${i18n('anime.studios')}</span> <span>${a.studios && a.studios.length ? a.studios.join(', ') : '—'}</span></div>
                         <div class="info-item"><span class="label">${i18n('anime.genres')}</span> <span>${a.genres && a.genres.length ? a.genres.join(', ') : '—'}</span></div>
+                        ${franchiseHTML}
+                        ${licensedByHTML}
                     </div>
 
                     <div class="anime-actions">
@@ -329,6 +468,11 @@ function renderAnimeDetail(a) {
                         </button>
                         ${a.shikimori_url ? `<a href="${a.shikimori_url}" target="_blank" data-external="true" class="btn-secondary"><i class="ti ti-external-link"></i> Shikimori</a>` : ''}
                     </div>
+
+                    ${relatedHTML}
+                    ${screenshotsHTML}
+                    ${videosHTML}
+                    ${externalScoresHTML}
                 </div>
             </div>
 
@@ -338,6 +482,8 @@ function renderAnimeDetail(a) {
                 <h3><i class="ti ti-file-text"></i> ${i18n('anime.description')}</h3>
                 <div class="anime-description-content">${a.description}</div>
             </div>
+
+            ${charactersHTML}
         </div>
     `;
 }
@@ -384,6 +530,7 @@ async function openCharacterModal(charId) {
     const body = document.getElementById('anime-modal-body');
     if (!modal || !body) return;
 
+    pushModalState();
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
     body.innerHTML = '<div class="anime-modal-loader"><i class="ti ti-loader animate-spin"></i> ' + i18n('character.loading') + '</div>';
@@ -441,6 +588,7 @@ async function openClubModal(clubId) {
     const body = document.getElementById('anime-modal-body');
     if (!modal || !body) return;
 
+    pushModalState();
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
     body.innerHTML = '<div class="anime-modal-loader"><i class="ti ti-loader animate-spin"></i> ' + i18n('club.loading') + '</div>';

@@ -12,6 +12,25 @@ load_dotenv()
 logger = logging.getLogger("shikimxapp.video")
 
 STREAM_CACHE = {}
+STREAM_CACHE_MAX_ENTRIES = 200
+_STREAM_CACHE_CLEANUP_INTERVAL = 300
+_last_stream_cache_cleanup = 0
+
+
+def _cleanup_stream_cache(force=False):
+    global _last_stream_cache_cleanup
+    now = time.time()
+    if not force and now - _last_stream_cache_cleanup < _STREAM_CACHE_CLEANUP_INTERVAL:
+        return
+    _last_stream_cache_cleanup = now
+    expired = [k for k, (_, exp) in STREAM_CACHE.items() if now >= exp]
+    for k in expired:
+        del STREAM_CACHE[k]
+    if len(STREAM_CACHE) > STREAM_CACHE_MAX_ENTRIES:
+        sorted_items = sorted(STREAM_CACHE.items(), key=lambda x: x[1][1])
+        keep = dict(sorted_items[-STREAM_CACHE_MAX_ENTRIES:])
+        STREAM_CACHE.clear()
+        STREAM_CACHE.update(keep)
 
 AVAILABLE_ANICLI_MODULES = [
     'animego',
@@ -489,6 +508,7 @@ class VideoAggregator:
     def get_aggregated_streams(self, anime_id: int, titles: list, expected_episodes: int = None) -> dict:
         cache_key = f"anime_stream_{anime_id}"
         now = time.time()
+        _cleanup_stream_cache()
 
         if cache_key in STREAM_CACHE:
             cached_data, expire = STREAM_CACHE[cache_key]
@@ -509,31 +529,34 @@ class VideoAggregator:
             for mod_name in self.extractors.keys():
                 tasks.append(executor.submit(self.fetch_single_anicli_source, mod_name, titles, expected_episodes))
 
-            for future in as_completed(tasks, timeout=12):
-                try:
-                    res = future.result()
-                    if not res or not res.get("episodes"):
-                        continue
+            try:
+                for future in as_completed(tasks, timeout=12):
+                    try:
+                        res = future.result(timeout=1)
+                        if not res or not res.get("episodes"):
+                            continue
 
-                    source_label = res.get("source_name", "Unknown")
-                    sources_found.add(source_label)
-                    max_episodes = max(max_episodes, res.get("total_episodes", 0))
+                        source_label = res.get("source_name", "Unknown")
+                        sources_found.add(source_label)
+                        max_episodes = max(max_episodes, res.get("total_episodes", 0))
 
-                    # Объединяем серии и переводы
-                    for ep_num, translations in res["episodes"].items():
-                        if ep_num not in merged_episodes:
-                            merged_episodes[ep_num] = {}
+                        # Объединяем серии и переводы
+                        for ep_num, translations in res["episodes"].items():
+                            if ep_num not in merged_episodes:
+                                merged_episodes[ep_num] = {}
 
-                        for trans_name, player_list in translations.items():
-                            if trans_name not in merged_episodes[ep_num]:
-                                merged_episodes[ep_num][trans_name] = []
+                            for trans_name, player_list in translations.items():
+                                if trans_name not in merged_episodes[ep_num]:
+                                    merged_episodes[ep_num][trans_name] = []
 
-                            for p in player_list:
-                                if not any(existing["url"] == p["url"] for existing in merged_episodes[ep_num][trans_name]):
-                                    merged_episodes[ep_num][trans_name].append(p)
+                                for p in player_list:
+                                    if not any(existing["url"] == p["url"] for existing in merged_episodes[ep_num][trans_name]):
+                                        merged_episodes[ep_num][trans_name].append(p)
 
-                except Exception as e:
-                    logger.warning("Video aggregation task failed: %s", e)
+                    except Exception as e:
+                        logger.warning("Video aggregation task failed: %s", e)
+            except Exception as e:
+                logger.warning("Video aggregation timeout or error: %s", e)
 
         # Сортировка зеркал: Kodik, Aksor TV, Sibnet, AnimeGo CDN всегда первыми
         priority_order = {"Kodik": 1, "Aksor TV": 2, "AnimeGo CDN": 3, "Sibnet": 4, "AniLibria": 5}

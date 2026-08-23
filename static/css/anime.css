@@ -37,6 +37,27 @@
     to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
+.modal-back-btn {
+    position: absolute;
+    top: 16px;
+    right: 56px;
+    background: var(--sub-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-main);
+    font-size: 18px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 2;
+}
+.modal-back-btn:hover { background: var(--primary-container); color: var(--on-primary-container); }
+.modal-back-btn.visible { display: flex; }
+
 .modal-close-btn {
     position: absolute;
     top: 16px;
@@ -192,4 +213,254 @@
     background: var(--sub-bg);
     color: var(--text-main);
     border: 1px solid var(--card-border);
+}
+
+.anime-scored-by {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: -6px;
+}
+
+.anime-related-section {
+    margin-top: 16px;
+}
+.anime-related-section h3 {
+    font-size: 14px;
+    margin: 0 0 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-main);
+}
+.anime-related-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.related-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--sub-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-pill);
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 13px;
+    transition: border-color 0.2s, background 0.2s;
+}
+.related-item:hover {
+    border-color: var(--primary);
+    background: var(--card-bg);
+}
+.related-kind {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: var(--card-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--card-border);
+}
+
+.anime-characters-section {
+    margin-top: 16px;
+}
+.anime-characters-section h3 {
+    font-size: 14px;
+    margin: 0 0 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-main);
+}
+.anime-characters-scroll {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 8px;
+    scrollbar-width: thin;
+    max-height: 220px;
+}
+.anime-characters-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+.anime-characters-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+.anime-characters-scroll::-webkit-scrollbar-thumb {
+    background: var(--card-border);
+    border-radius: 10px;
+}
+.anime-characters-scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+.character-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-main);
+    width: 90px;
+    flex-shrink: 0;
+}
+.character-avatar-wrapper {
+    position: relative;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid var(--card-border);
+    background: var(--sub-bg);
+}
+.character-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.character-avatar.placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: var(--text-muted);
+}
+.character-role {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    font-size: 9px;
+    text-transform: uppercase;
+    background: var(--primary);
+    color: var(--on-primary);
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+.character-name {
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-line-orient: vertical;
+    overflow: hidden;
+}
+.character-japanese {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-line-orient: vertical;
+    overflow: hidden;
+}
+
+.anime-screenshots-section {
+    margin-top: 16px;
+}
+.anime-screenshots-section h3 {
+    font-size: 14px;
+    margin: 0 0 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-main);
+}
+.anime-screenshots-scroll {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scrollbar-width: thin;
+}
+.anime-screenshot {
+    height: 140px;
+    border-radius: var(--radius-inner);
+    border: 1px solid var(--card-border);
+    cursor: pointer;
+    object-fit: cover;
+    transition: transform 0.2s;
+}
+.anime-screenshot:hover {
+    transform: scale(1.03);
+}
+
+.anime-videos-section {
+    margin-top: 16px;
+}
+.anime-videos-section h3 {
+    font-size: 14px;
+    margin: 0 0 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-main);
+}
+.anime-videos-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.video-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: var(--sub-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-inner);
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 13px;
+    transition: border-color 0.2s, background 0.2s;
+}
+.video-link:hover {
+    border-color: var(--primary);
+    background: var(--card-bg);
+}
+
+.anime-external-scores {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+.external-score-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: var(--sub-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    color: var(--text-main);
+}
+
+.characters-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    padding: 8px 14px;
+    background: var(--sub-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-inner);
+    color: var(--text-main);
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+.characters-toggle-btn:hover {
+    border-color: var(--primary);
+    background: var(--card-bg);
 }

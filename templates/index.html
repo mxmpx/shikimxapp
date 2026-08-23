@@ -38,7 +38,7 @@
     </div>
 
     <!-- Шапка -->
-    <header class="app-header">
+    <header class="app-header navbar-view-full">
         <div class="header-container">
             <div class="header-brand-container">
                 <div class="header-brand">
@@ -101,22 +101,8 @@
                             style="color: var(--danger); font-size: 11px; text-decoration: none;"><span data-i18n="logout">Выйти</span></a>
                     </div>
                 </div>
-                {% elif google_user %}
-                <div class="user-mini-info">
-                    <img src="{{ google_user.avatar }}" alt="{{ google_user.name }}" class="avatar-mini">
-                    <div>
-                        <div class="user-nickname">{{ google_user.name }}</div>
-                        <a href="/logout"
-                            style="color: var(--danger); font-size: 11px; text-decoration: none;"><span data-i18n="logout">Выйти</span></a>
-                    </div>
-                </div>
                 {% else %}
-                <div style="display: flex; gap: 8px;">
-                    <a href="/login" class="btn"><i class="ti ti-brand-shikimori"></i> <span data-i18n="login.shikimori">Войти</span></a>
-                    <a href="/login/google" class="btn" style="background: #4285F4; color: white; border: none;">
-                        <i class="ti ti-brand-google"></i> <span data-i18n="login.google">Google</span>
-                    </a>
-                </div>
+                <a href="/login" class="btn"><i class="ti ti-brand-shikimori"></i> <span data-i18n="login.shikimori">Войти</span></a>
                 {% endif %}
             </div>
         </div>
@@ -133,6 +119,30 @@
             <div id="explore-search-results" class="search-results-list hidden"></div>
         </div>
     </header>
+
+    <!-- Mobile bottom navigation -->
+    <nav class="mobile-bottom-nav">
+        <button class="mobile-tab-btn active" data-tab="profile" onclick="openTab('profile')">
+            <i class="ti ti-compass"></i>
+            <span data-i18n="tab.profile">Профиль</span>
+        </button>
+        <button class="mobile-tab-btn" data-tab="rates" onclick="openTab('rates')">
+            <i class="ti ti-list-check"></i>
+            <span data-i18n="tab.rates">Списки</span>
+        </button>
+        <button class="mobile-tab-btn" data-tab="favourites" onclick="openTab('favourites')">
+            <i class="ti ti-heart"></i>
+            <span data-i18n="tab.favourites">Избранное</span>
+        </button>
+        <button class="mobile-tab-btn" data-tab="friends" onclick="openTab('friends')">
+            <i class="ti ti-users"></i>
+            <span data-i18n="tab.friends">Друзья</span>
+        </button>
+        <button class="mobile-tab-btn" data-tab="history" onclick="openTab('history')">
+            <i class="ti ti-history"></i>
+            <span data-i18n="tab.history">История</span>
+        </button>
+    </nav>
 
     <!-- Основной контент -->
     <main class="container">
@@ -235,28 +245,16 @@
                 <div class="loader"><i class="ti ti-loader animate-spin"></i> <span data-i18n="explore.loading">Загрузка...</span></div>
             </div>
 
-            {% elif google_user %}
-            <div class="card" style="text-align: center; padding: 48px;">
-                <img src="{{ google_user.avatar }}" alt="{{ google_user.name }}" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 16px;">
-                <h2>{{ google_user.name }}</h2>
-                <p style="color: var(--text-muted); margin-bottom: 8px;">{{ google_user.email }}</p>
-                <p style="color: var(--text-muted); margin-bottom: 24px;" data-i18n="auth.google_only">Вы авторизованы через Google. Для доступа к
-                    спискам и обзору войдите через Shikimori.</p>
-                <a href="/login" class="btn" style="display: inline-flex;"><i class="ti ti-brand-shikimori"></i> <span data-i18n="login.via_shikimori">Войти
-                    через Shikimori</span></a>
-            </div>
             {% else %}
             <div class="card" style="text-align: center; padding: 48px;">
                 <i class="ti ti-user-x"
                     style="font-size: 48px; color: var(--primary); margin-bottom: 16px; display: block;"></i>
                 <h2 data-i18n="auth.not_authorized">Авторизация не выполнена</h2>
-                <p style="color: var(--text-muted); margin-bottom: 24px;" data-i18n="auth.not_authorized.desc">Войдите через Shikimori или Google, чтобы
+                <p style="color: var(--text-muted); margin-bottom: 24px;" data-i18n="auth.not_authorized.desc">Войдите через Shikimori, чтобы
                     просмотреть свой профиль, списки и обзор.</p>
                 <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
                     <a href="/login" class="btn" style="display: inline-flex;"><i class="ti ti-brand-shikimori"></i>
                         <span data-i18n="login.via_shikimori">Войти через Shikimori</span></a>
-                    <a href="/login/google" class="btn" style="display: inline-flex; background: #4285F4; color: white; border: none;">
-                        <i class="ti ti-brand-google"></i> <span data-i18n="login.via_google">Войти через Google</span></a>
                 </div>
             </div>
             {% endif %}
@@ -287,7 +285,8 @@
     <!-- Модальное окно Аниме -->
     <div id="anime-modal" class="modal-overlay hidden" onclick="closeAnimeModal(event)">
         <div class="modal-content anime-modal-content">
-            <button class="modal-close-btn" onclick="closeAnimeModal(event)"><i class="ti ti-x"></i></button>
+            <button class="modal-back-btn" onclick="event.stopPropagation(); handleModalBack()"><i class="ti ti-arrow-left"></i></button>
+            <button class="modal-close-btn" onclick="event.stopPropagation(); closeAnimeModal(event)"><i class="ti ti-x"></i></button>
             <div id="anime-modal-body"></div>
         </div>
     </div>
@@ -295,7 +294,8 @@
     <!-- Модальное окно О сайте -->
     <div id="about-modal" class="modal-overlay hidden" onclick="closeAboutModal(event)">
         <div class="modal-content anime-modal-content about-modal-card">
-            <button class="modal-close-btn" onclick="closeAboutModal(event)"><i class="ti ti-x"></i></button>
+            <button class="modal-back-btn" onclick="event.stopPropagation(); handleModalBack()"><i class="ti ti-arrow-left"></i></button>
+            <button class="modal-close-btn" onclick="event.stopPropagation(); closeAboutModal(event)"><i class="ti ti-x"></i></button>
             <div class="about-modal-body">
                 <div class="about-header-banner">
                     <i class="ti ti-brand-shikimori about-logo-icon"></i>
@@ -333,7 +333,8 @@
     <!-- Модальное окно Настройки -->
     <div id="settings-modal" class="modal-overlay hidden" onclick="closeSettingsModal(event)">
         <div class="modal-content anime-modal-content settings-modal-card">
-            <button class="modal-close-btn" onclick="closeSettingsModal(event)"><i class="ti ti-x"></i></button>
+            <button class="modal-back-btn" onclick="event.stopPropagation(); handleModalBack()"><i class="ti ti-arrow-left"></i></button>
+            <button class="modal-close-btn" onclick="event.stopPropagation(); closeSettingsModal(event)"><i class="ti ti-x"></i></button>
             <div class="settings-modal-body">
                 <div class="settings-header-banner">
                     <i class="ti ti-settings settings-logo-icon"></i>
@@ -435,28 +436,43 @@
                                 <span class="settings-toggle-slider"></span>
                             </label>
                         </div>
-        
-                        {% if profile and not google_user %}
-                        <div class="settings-section-block">
-                            <h4><i class="ti ti-brand-google"></i> <span data-i18n="settings.google_account">Google аккаунт</span></h4>
-                            <p class="settings-hint" data-i18n="settings.google.link_hint">Привяжите Google аккаунт для входа через Google.</p>
-                            <div class="settings-actions">
-                                <a href="/login/google" class="btn" style="background: #4285F4; color: white; border: none; display: inline-flex;">
-                                    <i class="ti ti-brand-google"></i> <span data-i18n="settings.google.add">Добавить аккаунт Google</span>
-                                </a>
+                    </div>
+                </div>
+
+                <div class="settings-section-block">
+                    <h4><i class="ti ti-layout-navbar"></i> <span data-i18n="settings.navbar_view">Вид навигации</span></h4>
+                    <p class="settings-hint" data-i18n="settings.navbar_view.hint">Выберите, как отображать элементы навигации.</p>
+                    <div class="navbar-view-options">
+                        <button class="navbar-view-option" data-navbar-view="full" onclick="setNavbarView('full')">
+                            <div class="navbar-view-preview navbar-view-preview-full">
+                                <div class="preview-brand"><i class="ti ti-device-tv"></i><span>Shiki</span></div>
+                                <div class="preview-tabs">
+                                    <div class="preview-tab"><i class="ti ti-compass"></i><span>Профиль</span></div>
+                                    <div class="preview-tab"><i class="ti ti-list-check"></i><span>Списки</span></div>
+                                </div>
                             </div>
-                        </div>
-                        {% elif profile and google_user %}
-                        <div class="settings-section-block">
-                            <h4><i class="ti ti-brand-google"></i> <span data-i18n="settings.google_account">Google аккаунт</span></h4>
-                            <p class="settings-hint" data-i18n="settings.google.linked">Google аккаунт привязан:</p>
-                            <div class="settings-actions">
-                                <button class="btn-danger" onclick="unlinkGoogleAccount()">
-                                    <i class="ti ti-link-off"></i> <span data-i18n="settings.google.unlink">Отвязать аккаунт Google</span>
-                                </button>
+                            <span class="navbar-view-label" data-i18n="settings.navbar_view.full">Иконка + название</span>
+                        </button>
+                        <button class="navbar-view-option" data-navbar-view="icons" onclick="setNavbarView('icons')">
+                            <div class="navbar-view-preview navbar-view-preview-icons">
+                                <div class="preview-brand"><i class="ti ti-device-tv"></i></div>
+                                <div class="preview-tabs">
+                                    <div class="preview-tab"><i class="ti ti-compass"></i></div>
+                                    <div class="preview-tab"><i class="ti ti-list-check"></i></div>
+                                </div>
                             </div>
-                        </div>
-                        {% endif %}
+                            <span class="navbar-view-label" data-i18n="settings.navbar_view.icons">Только иконки</span>
+                        </button>
+                        <button class="navbar-view-option" data-navbar-view="titles" onclick="setNavbarView('titles')">
+                            <div class="navbar-view-preview navbar-view-preview-titles">
+                                <div class="preview-brand"><span>Shiki</span></div>
+                                <div class="preview-tabs">
+                                    <div class="preview-tab"><span>Профиль</span></div>
+                                    <div class="preview-tab"><span>Списки</span></div>
+                                </div>
+                            </div>
+                            <span class="navbar-view-label" data-i18n="settings.navbar_view.titles">Только названия</span>
+                        </button>
                     </div>
                 </div>
             </div>

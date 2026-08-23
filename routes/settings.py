@@ -19,22 +19,11 @@ DEFAULT_SETTINGS = {
 def _get_current_user_id():
     """Get the current logged-in user's internal database ID from session."""
     shikimori_id = session.get("user_id")
-    google_user = session.get("google_user")
 
     if shikimori_id:
         # Find or create user by shikimori_id
         user = get_or_create_user(shikimori_id=shikimori_id)
         return user["id"]
-    elif google_user:
-        google_id = google_user.get("id")
-        if google_id:
-            user = get_or_create_user(
-                google_id=google_id,
-                email=google_user.get("email"),
-                name=google_user.get("name"),
-                avatar=google_user.get("avatar"),
-            )
-            return user["id"]
     return None
 
 

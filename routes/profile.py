@@ -21,13 +21,10 @@ def index():
     else:
         logger.debug("Rendering index for guest user")
 
-    google_user = session.get("google_user")
-
     app_info = load_app_info()
     return render_template(
         "index.html",
         profile=profile,
-        google_user=google_user,
         app_version=app_info.get("version", "1.0.0"),
         app_name=app_info.get("app_name", "Shiki MX App"),
         app_description=app_info.get("description", ""),

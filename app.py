@@ -18,7 +18,6 @@ from routes.anime import anime_bp
 from routes.manga import manga_bp
 from routes.about import about_bp
 from routes.settings import settings_bp
-from routes.google_auth import google_bp
 from routes.auth_status import auth_status_bp
 
 logger = logging.getLogger("shikimxapp")
@@ -43,7 +42,6 @@ app.register_blueprint(anime_bp)
 app.register_blueprint(manga_bp)
 app.register_blueprint(about_bp)
 app.register_blueprint(settings_bp)
-app.register_blueprint(google_bp)
 app.register_blueprint(auth_status_bp)
 
 if not os.getenv("DISABLE_CUSTOM_LOGGING"):

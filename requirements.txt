@@ -3,3 +3,4 @@ requests>=2.31.0
 python-dotenv>=1.0.0
 MarkupSafe>=2.1.0
 anicli-api>=0.11.0
+anime-api>=1.0.2
