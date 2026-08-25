@@ -95,19 +95,42 @@ function applyBgToPage(settings) {
     }
 }
 
-async function applySavedBg() {
+async function syncAndApplySettings() {
+    await checkAuthStatus();
+
     let bgSettings = null;
+    let navbarView = null;
+    let sectionVis = null;
+
     if (isAuthenticated) {
         const serverSettings = await loadSettingsFromServer();
-        if (serverSettings && serverSettings.background) {
-            bgSettings = serverSettings.background;
-            // Cache in localStorage for offline use
-            saveBgSettings(bgSettings);
+        if (serverSettings) {
+            if (serverSettings.background) {
+                bgSettings = serverSettings.background;
+                try { localStorage.setItem(BG_SETTINGS_KEY, JSON.stringify(bgSettings)); } catch (e) {}
+            }
+            if (serverSettings.navbar_view) {
+                navbarView = serverSettings.navbar_view;
+                try { localStorage.setItem(NAVBAR_VIEW_KEY, navbarView); } catch (e) {}
+            }
+            if (serverSettings.section_visibility) {
+                sectionVis = serverSettings.section_visibility;
+                try { localStorage.setItem(SECTION_VISIBILITY_KEY, JSON.stringify(sectionVis)); } catch (e) {}
+            }
         }
     }
-    if (!bgSettings) {
-        bgSettings = getSavedBgSettings();
-    }
+
+    if (!bgSettings) bgSettings = getSavedBgSettings();
+    if (!navbarView) navbarView = getSavedNavbarView();
+    if (!sectionVis) sectionVis = getSectionVisibility();
+
+    applyBgToPage(bgSettings);
+    applyNavbarView(navbarView);
+    applySectionVisibility();
+}
+
+async function applySavedBg() {
+    let bgSettings = getSavedBgSettings();
     applyBgToPage(bgSettings);
 }
 
@@ -318,9 +341,12 @@ function setNavbarView(view) {
     applyNavbarView(view);
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-    await checkAuthStatus();
-    await applySavedBg();
-    applySectionVisibility();
+document.addEventListener('DOMContentLoaded', () => {
+    // Immediate local apply to prevent layout shifts
+    applyBgToPage(getSavedBgSettings());
     applyNavbarView(getSavedNavbarView());
+    applySectionVisibility();
+
+    // Async server sync
+    syncAndApplySettings();
 });

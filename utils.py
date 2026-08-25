@@ -3,7 +3,9 @@ import re
 import time
 import logging
 import requests
+import json
 from flask import session
+from database import get_connection
 from dotenv import load_dotenv
 from markupsafe import Markup
 from concurrent.futures import ThreadPoolExecutor
@@ -21,8 +23,6 @@ AUTH_URL = f"{SHIKIMORI_BASE}/oauth/authorize"
 TOKEN_URL = f"{SHIKIMORI_BASE}/oauth/token"
 WHOAMI_URL = f"{SHIKIMORI_BASE}/api/users/whoami"
 
-API_DATA_CACHE = {}
-API_CACHE_MAX_ENTRIES = 1000
 _API_CACHE_CLEANUP_INTERVAL = 300
 _last_api_cache_cleanup = 0
 
@@ -33,14 +33,14 @@ def _cleanup_api_cache(force=False):
     if not force and now - _last_api_cache_cleanup < _API_CACHE_CLEANUP_INTERVAL:
         return
     _last_api_cache_cleanup = now
-    expired = [url for url, (_, expires) in API_DATA_CACHE.items() if now >= expires]
-    for url in expired:
-        del API_DATA_CACHE[url]
-    if len(API_DATA_CACHE) > API_CACHE_MAX_ENTRIES:
-        sorted_items = sorted(API_DATA_CACHE.items(), key=lambda x: x[1][1])
-        keep = dict(sorted_items[-API_CACHE_MAX_ENTRIES:])
-        API_DATA_CACHE.clear()
-        API_DATA_CACHE.update(keep)
+    
+    try:
+        conn = get_connection()
+        conn.execute("DELETE FROM api_cache WHERE expires_at <= ?", (now,))
+        conn.commit()
+        conn.close()
+    except Exception as exc:
+        logger.error("Error cleaning API cache: %s", exc)
 
 def fetch_with_retry(url, headers):
     last_status = None
@@ -64,17 +64,34 @@ def fetch_with_retry(url, headers):
 def fetch_cached_api(url, headers, ttl=1800):
     _cleanup_api_cache()
     now = time.time()
-    if url in API_DATA_CACHE:
-        data, expires = API_DATA_CACHE[url]
-        if now < expires:
-            return data
-        del API_DATA_CACHE[url]
+    
+    conn = None
+    try:
+        conn = get_connection()
+        row = conn.execute("SELECT data, expires_at FROM api_cache WHERE url = ?", (url,)).fetchone()
+        if row:
+            if now < row['expires_at']:
+                conn.close()
+                return json.loads(row['data'])
+            conn.execute("DELETE FROM api_cache WHERE url = ?", (url,))
+            conn.commit()
+    except Exception as exc:
+        logger.error("Error reading API cache: %s", exc)
+    
     data = fetch_with_retry(url, headers)
     if data is not None:
-        API_DATA_CACHE[url] = (data, now + ttl)
-        logger.debug("Cached API response: %s (ttl=%ss)", url, ttl)
+        try:
+            if conn is None:
+                conn = get_connection()
+            conn.execute("INSERT OR REPLACE INTO api_cache (url, data, expires_at) VALUES (?, ?, ?)", (url, json.dumps(data), now + ttl))
+            conn.commit()
+        except Exception as exc:
+            logger.error("Error writing API cache: %s", exc)
     else:
         logger.warning("Failed to fetch API data: %s", url)
+        
+    if conn:
+        conn.close()
     return data
 
 def fetch_user_rate(target_id, target_type):
@@ -109,9 +126,13 @@ def invalidate_user_rates_cache():
     if not user_id:
         return
     prefix = f"{SHIKIMORI_BASE}/api/v2/user_rates"
-    keys_to_del = [k for k in API_DATA_CACHE.keys() if prefix in k and str(user_id) in k]
-    for k in keys_to_del:
-        API_DATA_CACHE.pop(k, None)
+    try:
+        conn = get_connection()
+        conn.execute("DELETE FROM api_cache WHERE url LIKE ?", (f"{prefix}%{user_id}%",))
+        conn.commit()
+        conn.close()
+    except Exception as exc:
+        logger.error("Error invalidating API cache: %s", exc)
 
 
 
@@ -137,8 +158,7 @@ def fix_image_url(image_data):
             path = "/" + path
         path = f"https://shikimori.io{path}"
 
-    return f"/cache/img?url={path}"
-
+    return path
 
 def resolve_posters_graphql(anime_ids, headers=None):
     """Query Shikimori GraphQL to resolve high-res webp poster URLs for anime IDs."""

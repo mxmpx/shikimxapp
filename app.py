@@ -2,8 +2,10 @@ import os
 import logging
 
 from flask import Flask
+from flask_compress import Compress
 from utils import parse_shikimori_bbcode, fix_image_url
 from logging_config import setup_logging
+from build_assets import build_bundles
 from errors import register_error_handlers, register_request_logging
 from database import init_db
 
@@ -23,6 +25,7 @@ from routes.auth_status import auth_status_bp
 logger = logging.getLogger("shikimxapp")
 
 app = Flask(__name__)
+Compress(app)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "default-secret-key")
 
 if app.secret_key == "default-secret-key":
@@ -53,6 +56,9 @@ def service_worker():
     response = app.send_static_file('sw.js')
     response.headers['Service-Worker-Allowed'] = '/'
     response.headers['Content-Type'] = 'application/javascript'
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
     return response
 
 if not os.getenv("DISABLE_CUSTOM_LOGGING"):
@@ -62,6 +68,9 @@ register_request_logging(app)
 
 # Initialize database
 init_db()
+
+# Build asset bundles
+build_bundles(os.path.dirname(os.path.abspath(__file__)))
 
 if __name__ == "__main__":
     logger.info("Starting Shiki MX App on http://127.0.0.1:5000")

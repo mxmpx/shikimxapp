@@ -48,6 +48,11 @@ def init_db():
             CREATE INDEX IF NOT EXISTS idx_user_settings_user_id_key ON user_settings(user_id, key);
             CREATE INDEX IF NOT EXISTS idx_users_shikimori_id ON users(shikimori_id);
             CREATE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id);
+            CREATE TABLE IF NOT EXISTS api_cache (
+                url TEXT PRIMARY KEY,
+                data TEXT NOT NULL,
+                expires_at REAL NOT NULL
+            );
         """)
         conn.commit()
         logger.info("Database initialized successfully at %s", DB_PATH)

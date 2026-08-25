@@ -246,7 +246,7 @@ const TRANSLATIONS = {
         'player.skip_intro': '+85 сек',
         'player.next_ep': 'След. серия',
         'player.prev_ep': 'Пред. серия',
-        'player.mini_player': 'Мини-плеер',
+        'player.mini_player': 'PiP',
         'player.restore': 'Развернуть',
         'player.close': 'Закрыть',
 
@@ -581,7 +581,7 @@ const TRANSLATIONS = {
         'player.skip_intro': '+85 sec',
         'player.next_ep': 'Next Episode',
         'player.prev_ep': 'Prev Episode',
-        'player.mini_player': 'Mini Player',
+        'player.mini_player': 'PiP',
         'player.restore': 'Restore',
         'player.close': 'Close',
 

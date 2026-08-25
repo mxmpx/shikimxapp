@@ -36,7 +36,7 @@ function updateThemeIcon(theme) {
 function buildImgUrl(src) {
     if (!src) return '';
     if (typeof src === 'string') {
-        if (src.startsWith('/cache/img') || src.startsWith('data:')) return src;
+        if (src.startsWith('data:')) return src;
         if (src.includes('missing_original') || src.includes('missing_preview')) return '';
     }
     let path = typeof src === 'string' ? src : (src.original || src.x160 || src.preview || src.main || '');
@@ -44,7 +44,7 @@ function buildImgUrl(src) {
     if (path.includes('missing_original') || path.includes('missing_preview')) return '';
     path = path.replace(/\/(x64|x32|preview)\//, '/original/');
     const fullUrl = path.startsWith('http') ? path : 'https://shikimori.io' + (path.startsWith('/') ? path : '/' + path);
-    return `/cache/img?url=${encodeURIComponent(fullUrl)}`;
+    return fullUrl;
 }
 
 

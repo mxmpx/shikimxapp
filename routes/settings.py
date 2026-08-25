@@ -6,13 +6,14 @@ from database import get_or_create_user, get_user_settings, set_user_settings, g
 logger = logging.getLogger("shikimxapp.settings")
 settings_bp = Blueprint('settings', __name__)
 
-# Значения по умолчанию. Пользовательские настройки хранятся в браузере (localStorage)
 DEFAULT_SETTINGS = {
     "background": {
         "mode": "theme",  # theme — фон темы | color — свой цвет | image — своё фото
         "color": "",
         "image": "",
-    }
+    },
+    "navbar_view": "full",
+    "section_visibility": {}
 }
 
 

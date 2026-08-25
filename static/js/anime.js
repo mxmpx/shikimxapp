@@ -320,13 +320,77 @@ function saveWatchProgress(animeId, title, russian, poster, episode, translation
 window.saveWatchProgress = saveWatchProgress;
 
 function stepAnicliEpisode(delta) {
-    const epSelect = document.getElementById('anicli-ep-select');
-    if (!epSelect) return;
-    const currentIdx = epSelect.selectedIndex;
+    if (typeof window.currentAnicliEp !== 'number') return;
+    const availableEpNums = Object.keys(window.anicliEpisodesData || {}).map(Number).sort((a, b) => a - b);
+    const currentIdx = availableEpNums.indexOf(window.currentAnicliEp);
     const nextIdx = currentIdx + delta;
-    if (nextIdx >= 0 && nextIdx < epSelect.options.length) {
-        epSelect.selectedIndex = nextIdx;
-        onAnicliEpisodeChange();
+    if (nextIdx < 0 || nextIdx >= availableEpNums.length) {
+        showToast(delta > 0 ? 'Это последняя серия!' : 'Это первая серия!', 'info', 2000);
+        return;
+    }
+
+    const nextEp = availableEpNums[nextIdx];
+    const epData = window.anicliEpisodesData[nextEp.toString()];
+    if (!epData) {
+        onAnicliEpisodeChange(nextEp);
+        return;
+    }
+
+    const currentDub = window.currentAnicliTrans;
+    const currentPlayer = window.currentAnicliPlayerName;
+
+    // 1. Проверяем наличие текущей озвучки в новой серии
+    if (!currentDub || !epData[currentDub]) {
+        // Озвучка не найдена в новой серии -> открываем выбор озвучки (Шаг 2)
+        onAnicliEpisodeChange(nextEp);
+        if (currentDub) {
+            showToast(`Серия ${nextEp} не найдена в озвучке «${currentDub}». Выберите другую озвучку`, 'warning', 4000);
+        }
+        return;
+    }
+
+    // 2. Озвучка есть. Проверяем наличие того же источника (плеера)
+    const availablePlayers = epData[currentDub];
+    let matchedPlayer = null;
+
+    if (currentPlayer && availablePlayers && availablePlayers.length) {
+        // Точное совпадение
+        matchedPlayer = availablePlayers.find(p => p.player === currentPlayer);
+
+        // Если было Kodik #1, а в новой серии просто Kodik (или наоборот), сопоставляем по базовому имени
+        if (!matchedPlayer) {
+            const baseName = currentPlayer.replace(/\s*#\d+$/, '').trim().toLowerCase();
+            matchedPlayer = availablePlayers.find(p => p.player.replace(/\s*#\d+$/, '').trim().toLowerCase() === baseName);
+        }
+    }
+
+    // 3. Если источник найден -> сразу запускаем воспроизведение новой серии
+    if (matchedPlayer) {
+        window.currentAnicliEp = nextEp;
+        document.querySelectorAll('#anicli-ep-chips .anicli-chip').forEach(c => {
+            c.classList.toggle('active', parseInt(c.dataset.ep || c.innerText) === nextEp);
+        });
+        const epLbl = document.getElementById('wizard-ep-lbl');
+        if (epLbl) epLbl.innerText = `(Серия ${nextEp})`;
+        populateAnicliTranslations(nextEp);
+        const transLbl = document.getElementById('wizard-trans-lbl');
+        if (transLbl) transLbl.innerText = `(${currentDub})`;
+        populateAnicliPlayers(nextEp, currentDub);
+
+        onAnicliPlayerChange(matchedPlayer.url, null, matchedPlayer.player);
+        showToast(`Серия ${nextEp} • ${currentDub} • ${matchedPlayer.player}`, 'info', 2000);
+    } else {
+        // Источник не найден -> открываем выбор источника (Шаг 3)
+        window.currentAnicliEp = nextEp;
+        document.querySelectorAll('#anicli-ep-chips .anicli-chip').forEach(c => {
+            c.classList.toggle('active', parseInt(c.dataset.ep || c.innerText) === nextEp);
+        });
+        const epLbl = document.getElementById('wizard-ep-lbl');
+        if (epLbl) epLbl.innerText = `(Серия ${nextEp})`;
+        populateAnicliTranslations(nextEp);
+        onAnicliTranslationChange(currentDub);
+
+        showToast(`Источник «${currentPlayer || 'выбранный'}» не найден для ${nextEp} серии. Выберите другой источник`, 'warning', 4000);
     }
 }
 window.stepAnicliEpisode = stepAnicliEpisode;
@@ -342,13 +406,70 @@ function skipPlayerIntro() {
 }
 window.skipPlayerIntro = skipPlayerIntro;
 
-function toggleFloatingMiniPlayer() {
+async function toggleFloatingMiniPlayer() {
     const iframe = document.getElementById('anicli-iframe') || document.querySelector('#watch-player-container iframe');
     if (!iframe || !iframe.src) {
         showToast(i18n('anime.no_players'), 'warning');
         return;
     }
 
+    const currentSrc = iframe.src;
+    const animeTitle = window.currentPlayingTitle || document.querySelector('.anime-title')?.textContent || 'Anime';
+    const epNum = window.currentAnicliEp || '';
+    const epText = epNum ? ` | Серия ${epNum}` : '';
+
+    // 1. Настоящий системный PiP (Document Picture-in-Picture API) - виден поверх всех окон при свёрнутом браузере
+    if ('documentPictureInPicture' in window) {
+        try {
+            if (window.pipWindowInstance && !window.pipWindowInstance.closed) {
+                window.pipWindowInstance.close();
+            }
+
+            const pipWindow = await window.documentPictureInPicture.requestWindow({
+                width: 640,
+                height: 360
+            });
+            window.pipWindowInstance = pipWindow;
+
+            pipWindow.document.title = `${animeTitle}${epText} - PiP`;
+            pipWindow.document.body.style.margin = '0';
+            pipWindow.document.body.style.padding = '0';
+            pipWindow.document.body.style.background = '#000';
+            pipWindow.document.body.style.overflow = 'hidden';
+            pipWindow.document.body.style.width = '100vw';
+            pipWindow.document.body.style.height = '100vh';
+
+            const pipIframe = document.createElement('iframe');
+            pipIframe.src = currentSrc;
+            pipIframe.style.width = '100%';
+            pipIframe.style.height = '100%';
+            pipIframe.style.border = 'none';
+            pipIframe.allow = "autoplay; fullscreen; picture-in-picture";
+            pipIframe.setAttribute('allowfullscreen', 'true');
+            pipIframe.setAttribute('referrerpolicy', 'no-referrer');
+            
+            pipWindow.document.body.appendChild(pipIframe);
+
+            showToast('Настоящий PiP открыт поверх всех окон! 📺', 'success');
+            return;
+        } catch (e) {
+            console.warn('Document Picture-in-Picture failed:', e);
+        }
+    }
+
+    // 2. Резервный HTML5 Video PiP (если доступен)
+    try {
+        if (document.pictureInPictureEnabled) {
+            const video = iframe.contentDocument?.querySelector('video');
+            if (video) {
+                await video.requestPictureInPicture();
+                showToast('PiP активирован!', 'info');
+                return;
+            }
+        }
+    } catch (e) {}
+
+    // 3. Fallback: внутристраничный плавающий мини-плеер
     let miniPlayer = document.getElementById('floating-mini-player');
     if (!miniPlayer) {
         miniPlayer = document.createElement('div');
@@ -356,11 +477,6 @@ function toggleFloatingMiniPlayer() {
         miniPlayer.className = 'floating-mini-player';
         document.body.appendChild(miniPlayer);
     }
-
-    const currentSrc = iframe.src;
-    const animeTitle = window.currentPlayingTitle || document.querySelector('.anime-title')?.textContent || 'Anime';
-    const epSelect = document.getElementById('anicli-ep-select');
-    const epText = epSelect ? ` | ${i18n('anime.episode')} ${epSelect.value}` : '';
 
     miniPlayer.innerHTML = `
         <div class="mini-player-header">
@@ -398,6 +514,7 @@ function restoreFloatingMiniPlayer() {
 }
 window.restoreFloatingMiniPlayer = restoreFloatingMiniPlayer;
 
+
 function initAnicliPlayerUI(container, initialEpisode = 1) {
     const episodes = window.anicliEpisodesData;
     if (!episodes || !Object.keys(episodes).length) {
@@ -406,7 +523,8 @@ function initAnicliPlayerUI(container, initialEpisode = 1) {
     }
 
     const availableEpNums = Object.keys(episodes).map(Number).sort((a, b) => a - b);
-    let currentEp = availableEpNums.includes(initialEpisode) ? initialEpisode : availableEpNums[0];
+    window.currentAnicliEp = availableEpNums.includes(initialEpisode) ? initialEpisode : availableEpNums[0];
+    window.currentAnicliTrans = null;
     const sourcesFound = window.anicliSourcesFound || [];
 
     container.innerHTML = `
@@ -419,131 +537,196 @@ function initAnicliPlayerUI(container, initialEpisode = 1) {
                     </div>
                 </div>
             ` : ''}
-            <div class="anicli-controls-bar" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <span><i class="ti ti-list-numbers"></i> ${i18n('anime.episode')}:</span>
-                    <select id="anicli-ep-select" class="sort-select" onchange="onAnicliEpisodeChange()">
-                        ${availableEpNums.map(num => `<option value="${num}" ${num === currentEp ? 'selected' : ''}>${i18n('anime.episode')} ${num}</option>`).join('')}
-                    </select>
+            
+            <div id="anicli-wizard" class="anicli-wizard-container">
+                <!-- STEP 1: EPISODE -->
+                <div class="anicli-step-container" id="anicli-step-1">
+                    <div class="anicli-step-title"><i class="ti ti-list-numbers"></i> Шаг 1: Выберите серию</div>
+                    <div class="anicli-chip-list" id="anicli-ep-chips">
+                        ${availableEpNums.map(num => `<div class="anicli-chip" data-ep="${num}" onclick="onAnicliEpisodeChange(${num})">${num} серия</div>`).join('')}
+                    </div>
                 </div>
 
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <span><i class="ti ti-headphones"></i> ${i18n('anime.translation')}</span>
-                    <select id="anicli-trans-select" class="sort-select" onchange="onAnicliTranslationChange()"></select>
+                <!-- STEP 2: TRANSLATION -->
+                <div class="anicli-step-container hidden" id="anicli-step-2">
+                    <div class="anicli-step-title" style="justify-content: space-between;">
+                        <span><i class="ti ti-headphones"></i> Шаг 2: Выберите озвучку <span id="wizard-ep-lbl" style="opacity: 0.6; font-size: 12px; margin-left: 8px;"></span></span>
+                        <button class="btn-secondary" style="padding: 2px 8px; font-size: 12px;" onclick="goToAnicliStep(1)"><i class="ti ti-arrow-left"></i> Назад</button>
+                    </div>
+                    <div class="anicli-chip-list" id="anicli-trans-chips"></div>
                 </div>
 
-
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <span><i class="ti ti-video"></i> ${i18n('anime.player')}</span>
-                    <select id="anicli-player-select" class="sort-select" onchange="updateAnicliIframe()"></select>
+                <!-- STEP 3: PLAYER -->
+                <div class="anicli-step-container hidden" id="anicli-step-3">
+                    <div class="anicli-step-title" style="justify-content: space-between;">
+                        <span><i class="ti ti-video"></i> Шаг 3: Выберите источник <span id="wizard-trans-lbl" style="opacity: 0.6; font-size: 12px; margin-left: 8px;"></span></span>
+                        <button class="btn-secondary" style="padding: 2px 8px; font-size: 12px;" onclick="goToAnicliStep(2)"><i class="ti ti-arrow-left"></i> Назад</button>
+                    </div>
+                    <div class="anicli-chip-list" id="anicli-player-chips"></div>
                 </div>
             </div>
 
-            <!-- Quick Player Actions Bar -->
-            <div class="player-quick-actions-bar">
-                <button type="button" class="btn-player-action" onclick="stepAnicliEpisode(-1)">
-                    <i class="ti ti-player-skip-back"></i> <span data-i18n="player.prev_ep">${i18n('player.prev_ep')}</span>
-                </button>
-                <button type="button" class="btn-player-action btn-skip-intro" onclick="skipPlayerIntro()">
-                    <i class="ti ti-player-track-next"></i> <span>${i18n('player.skip_intro')}</span>
-                </button>
-                <button type="button" class="btn-player-action" onclick="stepAnicliEpisode(1)">
-                    <i class="ti ti-player-skip-forward"></i> <span data-i18n="player.next_ep">${i18n('player.next_ep')}</span>
-                </button>
-                <button type="button" class="btn-player-action" onclick="toggleFloatingMiniPlayer()">
-                    <i class="ti ti-picture-in-picture-top"></i> <span data-i18n="player.mini_player">${i18n('player.mini_player')}</span>
-                </button>
-            </div>
+            <!-- VIDEO VIEW (Hidden initially) -->
+            <div id="anicli-video-view" class="hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div style="color: var(--text-main); font-size: 13px; font-weight: 600;" id="video-active-info"></div>
+                    <button class="btn-secondary" style="padding: 4px 10px; font-size: 12px;" onclick="goToAnicliStep(1)"><i class="ti ti-settings"></i> Изменить</button>
+                </div>
 
-            <div class="watch-player-crop-wrapper" style="height: 480px;">
-                <iframe 
-                    id="anicli-iframe" 
-                    src="" 
-                    allowfullscreen 
-                    referrerpolicy="no-referrer"
-                    allow="autoplay; fullscreen; picture-in-picture"
-                    style="width: 100%; height: 100%; border: none; border-radius: 8px; background: #000;">
-                </iframe>
+                <div class="watch-player-crop-wrapper" style="height: 480px; margin-bottom: 12px;">
+                    <iframe 
+                        id="anicli-iframe" 
+                        src="" 
+                        allowfullscreen 
+                        referrerpolicy="no-referrer"
+                        allow="autoplay; fullscreen; picture-in-picture"
+                        style="width: 100%; height: 100%; border: none; border-radius: 8px; background: #000;">
+                    </iframe>
+                </div>
+
+                <div class="player-quick-actions-bar">
+                    <button type="button" class="btn-player-action" onclick="stepAnicliEpisode(-1)">
+                        <i class="ti ti-player-skip-back"></i> <span data-i18n="player.prev_ep">${i18n('player.prev_ep')}</span>
+                    </button>
+                    <button type="button" class="btn-player-action btn-skip-intro" onclick="skipPlayerIntro()">
+                        <i class="ti ti-player-track-next"></i> <span>${i18n('player.skip_intro')}</span>
+                    </button>
+                    <button type="button" class="btn-player-action" onclick="stepAnicliEpisode(1)">
+                        <i class="ti ti-player-skip-forward"></i> <span data-i18n="player.next_ep">${i18n('player.next_ep')}</span>
+                    </button>
+                    <button type="button" class="btn-player-action" onclick="toggleFloatingMiniPlayer()">
+                        <i class="ti ti-picture-in-picture-top"></i> <span data-i18n="player.mini_player">${i18n('player.mini_player')}</span>
+                    </button>
+                </div>
             </div>
         </div>
     `;
 
-    populateAnicliTranslations(currentEp);
+    // Initialize state
+    goToAnicliStep(1);
 }
 
-function populateAnicliTranslations(epNum, targetTrans = null, targetPlayerIdx = 0) {
+function goToAnicliStep(step) {
+    const s1 = document.getElementById('anicli-step-1');
+    const s2 = document.getElementById('anicli-step-2');
+    const s3 = document.getElementById('anicli-step-3');
+    const wizard = document.getElementById('anicli-wizard');
+    const video = document.getElementById('anicli-video-view');
+    const iframe = document.getElementById('anicli-iframe');
+
+    if (!s1) return;
+
+    wizard.classList.remove('hidden');
+    video.classList.add('hidden');
+    
+    if (step === 1) {
+        // Only show episodes
+        s1.classList.remove('hidden');
+        s2.classList.add('hidden');
+        s3.classList.add('hidden');
+        if (iframe) iframe.src = ""; // Stop video if going back to setup
+    } else if (step === 2) {
+        // Show translations
+        s1.classList.add('hidden');
+        s2.classList.remove('hidden');
+        s3.classList.add('hidden');
+    } else if (step === 3) {
+        // Show players
+        s1.classList.add('hidden');
+        s2.classList.add('hidden');
+        s3.classList.remove('hidden');
+    } else if (step === 4) {
+        // Show video
+        wizard.classList.add('hidden');
+        video.classList.remove('hidden');
+    }
+}
+
+function onAnicliEpisodeChange(epNum) {
+    window.currentAnicliEp = epNum;
+    
+    // Update active class on chips (visual feedback if they go back)
+    document.querySelectorAll('#anicli-ep-chips .anicli-chip').forEach(c => {
+        c.classList.toggle('active', parseInt(c.dataset.ep || c.innerText) === epNum);
+    });
+
+    document.getElementById('wizard-ep-lbl').innerText = `(Серия ${epNum})`;
+    populateAnicliTranslations(epNum);
+    goToAnicliStep(2);
+}
+
+function populateAnicliTranslations(epNum) {
     const epData = window.anicliEpisodesData[epNum.toString()];
-    const transSelect = document.getElementById('anicli-trans-select');
-    if (!epData || !transSelect) return;
+    const transChips = document.getElementById('anicli-trans-chips');
+    if (!epData || !transChips) return;
 
     const availableTrans = Object.keys(epData);
-    let selectedTrans = (targetTrans && availableTrans.includes(targetTrans)) ? targetTrans : availableTrans[0];
-
-    transSelect.innerHTML = availableTrans.map(tr => 
-        `<option value="${tr}" ${tr === selectedTrans ? 'selected' : ''}>${tr}</option>`
-    ).join('');
-
-    populateAnicliPlayers(epNum, selectedTrans, targetPlayerIdx);
+    
+    transChips.innerHTML = availableTrans.map(tr => {
+        return `<div class="anicli-chip" onclick="onAnicliTranslationChange('${tr.replace(/'/g, "\\'")}')">${tr}</div>`;
+    }).join('');
 }
 
-function populateAnicliPlayers(epNum, transName, targetPlayerIdx = 0) {
+function onAnicliTranslationChange(transName) {
+    window.currentAnicliTrans = transName;
+    
+    document.querySelectorAll('#anicli-trans-chips .anicli-chip').forEach(c => {
+        c.classList.toggle('active', c.innerText === transName);
+    });
+
+    document.getElementById('wizard-trans-lbl').innerText = `(${transName})`;
+    populateAnicliPlayers(window.currentAnicliEp, transName);
+    goToAnicliStep(3);
+}
+
+function populateAnicliPlayers(epNum, transName) {
     const epData = window.anicliEpisodesData[epNum.toString()];
-    const playerSelect = document.getElementById('anicli-player-select');
-    if (!epData || !epData[transName] || !playerSelect) return;
+    const playerChips = document.getElementById('anicli-player-chips');
+    if (!epData || !epData[transName] || !playerChips) return;
 
     const players = epData[transName];
-    if (targetPlayerIdx >= players.length) targetPlayerIdx = 0;
 
-    playerSelect.innerHTML = players.map((p, idx) => 
-        `<option value="${p.url}" ${idx === targetPlayerIdx ? 'selected' : ''}>${p.player} #${idx + 1} (${p.source || 'Stream'})</option>`
-    ).join('');
+    playerChips.innerHTML = players.map((p, idx) => {
+        return `<div class="anicli-chip" onclick="onAnicliPlayerChange('${p.url}', this, '${p.player}')">
+                    ${p.player}
+                </div>`;
+    }).join('');
+}
 
-    updateAnicliIframe();
+function onAnicliPlayerChange(url, element, playerName) {
+    window.currentAnicliPlayerName = playerName;
+    window.currentAnicliPlayerUrl = url;
 
+    // 1. Show video view
+    goToAnicliStep(4);
+    
+    // 2. Update info text
+    const info = document.getElementById('video-active-info');
+    if (info) {
+        info.innerHTML = `Серия ${window.currentAnicliEp} &bull; ${window.currentAnicliTrans} &bull; ${playerName}`;
+    }
+
+    // 3. Render iframe
+    updateAnicliIframe(url);
+
+    // 4. Save progress
     if (window.currentPlayingAnimeId) {
         saveWatchProgress(
             window.currentPlayingAnimeId,
             window.currentPlayingTitle,
             window.currentPlayingRussian,
             window.currentPlayingPoster,
-            epNum,
-            transName,
+            window.currentAnicliEp,
+            window.currentAnicliTrans,
             window.currentPlayingTotalEpisodes
         );
     }
 }
 
-function onAnicliEpisodeChange() {
-    const epSelect = document.getElementById('anicli-ep-select');
-    const transSelect = document.getElementById('anicli-trans-select');
-    const playerSelect = document.getElementById('anicli-player-select');
-
-    if (!epSelect) return;
-    const epNum = parseInt(epSelect.value);
-    const currentTrans = transSelect ? transSelect.value : null;
-    const currentPlayerIdx = playerSelect ? playerSelect.selectedIndex : 0;
-
-    populateAnicliTranslations(epNum, currentTrans, currentPlayerIdx);
-}
-
-function onAnicliTranslationChange() {
-    const epSelect = document.getElementById('anicli-ep-select');
-    const transSelect = document.getElementById('anicli-trans-select');
-    const playerSelect = document.getElementById('anicli-player-select');
-
-    if (!epSelect || !transSelect) return;
-    const epNum = parseInt(epSelect.value);
-    const selectedTrans = transSelect.value;
-    const currentPlayerIdx = playerSelect ? playerSelect.selectedIndex : 0;
-
-    populateAnicliPlayers(epNum, selectedTrans, currentPlayerIdx);
-}
-
-function updateAnicliIframe() {
-    const playerSelect = document.getElementById('anicli-player-select');
+function updateAnicliIframe(url) {
     const iframe = document.getElementById('anicli-iframe');
-    if (playerSelect && iframe && playerSelect.value) {
-        iframe.src = playerSelect.value;
+    if (iframe && url) {
+        iframe.src = url;
     }
 }
 
@@ -718,14 +901,16 @@ function renderAnimeUserRateWidget(a) {
                 </div>
 
                 <div class="user-rate-row user-rate-score-row">
-                    <label class="user-rate-label">${i18n('mylist.score')}</label>
+                    <div class="user-rate-score-header">
+                        <label class="user-rate-label">${i18n('mylist.score')}</label>
+                        <span class="score-display-text" id="score-text-${a.id}">${currentScore ? `${currentScore}/10` : '—'}</span>
+                    </div>
                     <div class="stars-rating-container" id="stars-container-${a.id}" data-score="${currentScore}">
                         ${[1,2,3,4,5,6,7,8,9,10].map(s => `
                             <button type="button" class="star-btn ${s <= currentScore ? 'active' : ''}" data-star="${s}" onclick="setUserRateScore('${a.id}', ${s})" onmouseenter="previewUserRateScore('${a.id}', ${s})" onmouseleave="resetPreviewUserRateScore('${a.id}')" title="${s}/10">
                                 <i class="ti ti-star-filled"></i>
                             </button>
                         `).join('')}
-                        <span class="score-display-text" id="score-text-${a.id}">${currentScore ? `${currentScore}/10` : '—'}</span>
                     </div>
                 </div>
 
@@ -856,7 +1041,7 @@ function renderAnimeDetail(a) {
                 <!-- Left: Poster + Watch Buttons + My List -->
                 <div class="anime-hero-left">
                     <div class="anime-poster-wrapper">
-                        ${a.image ? `<img src="${a.image}" alt="${title}" class="anime-poster" decoding="async">` : `<div class="anime-poster placeholder"><i class="ti ti-movie"></i></div>`}
+                        ${a.image ? `<img src="${a.image}" alt="${title}" class="anime-poster" loading="lazy" decoding="async">` : `<div class="anime-poster placeholder"><i class="ti ti-movie"></i></div>`}
                         ${a.score ? `<div class="anime-score-badge"><i class="ti ti-star-filled"></i> ${a.score}</div>` : ''}
                     </div>
 
@@ -1007,7 +1192,7 @@ function renderCharacterDetail(char) {
         <div class="anime-hero-section">
             <div class="anime-hero-left">
                 <div class="anime-poster-wrapper">
-                    ${poster ? `<img src="${poster}" alt="${char.russian}" class="anime-poster" decoding="async">` : `<div class="anime-poster placeholder"><i class="ti ti-user"></i></div>`}
+                    ${poster ? `<img src="${poster}" alt="${char.russian}" class="anime-poster" loading="lazy" decoding="async">` : `<div class="anime-poster placeholder"><i class="ti ti-user"></i></div>`}
                 </div>
                 <div class="anime-actions-panel">
                     ${char.shikimori_url ? `<a href="${char.shikimori_url}" target="_blank" data-external="true" class="btn-secondary"><i class="ti ti-external-link"></i> <span>${i18n('anime.open_shikimori')}</span></a>` : ''}
@@ -1069,7 +1254,7 @@ function renderClubDetail(club) {
         <div class="anime-hero-section">
             <div class="anime-hero-left">
                 <div class="anime-poster-wrapper">
-                    ${logo ? `<img src="${logo}" alt="${club.name}" class="anime-poster" decoding="async">` : `<div class="anime-poster placeholder"><i class="ti ti-users"></i></div>`}
+                    ${logo ? `<img src="${logo}" alt="${club.name}" class="anime-poster" loading="lazy" decoding="async">` : `<div class="anime-poster placeholder"><i class="ti ti-users"></i></div>`}
                 </div>
                 <div class="anime-actions-panel">
                     ${club.shikimori_url ? `<a href="${club.shikimori_url}" target="_blank" data-external="true" class="btn-secondary"><i class="ti ti-external-link"></i> <span>${i18n('anime.open_shikimori')}</span></a>` : ''}

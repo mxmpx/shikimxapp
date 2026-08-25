@@ -61,14 +61,16 @@ function renderMangaUserRateWidget(manga) {
                 </div>
 
                 <div class="user-rate-row user-rate-score-row">
-                    <label class="user-rate-label">${i18n('mylist.score')}</label>
+                    <div class="user-rate-score-header">
+                        <label class="user-rate-label">${i18n('mylist.score')}</label>
+                        <span class="score-display-text" id="score-text-${manga.id}">${currentScore ? `${currentScore}/10` : '—'}</span>
+                    </div>
                     <div class="stars-rating-container" id="stars-container-${manga.id}" data-score="${currentScore}">
                         ${[1,2,3,4,5,6,7,8,9,10].map(s => `
                             <button type="button" class="star-btn ${s <= currentScore ? 'active' : ''}" data-star="${s}" onclick="setUserRateScore('${manga.id}', ${s})" onmouseenter="previewUserRateScore('${manga.id}', ${s})" onmouseleave="resetPreviewUserRateScore('${manga.id}')" title="${s}/10">
                                 <i class="ti ti-star-filled"></i>
                             </button>
                         `).join('')}
-                        <span class="score-display-text" id="score-text-${manga.id}">${currentScore ? `${currentScore}/10` : '—'}</span>
                     </div>
                 </div>
 
@@ -109,7 +111,7 @@ function renderMangaDetail(manga) {
                 <!-- Left: Poster + Actions + My List -->
                 <div class="anime-hero-left">
                     <div class="anime-poster-wrapper manga-poster-wrapper">
-                        ${poster ? `<img src="${poster}" alt="${manga.russian}" class="anime-poster manga-poster-img" decoding="async">` : `<div class="anime-poster placeholder manga-poster-placeholder"><i class="ti ti-book"></i></div>`}
+                        ${poster ? `<img src="${poster}" alt="${manga.russian}" class="anime-poster manga-poster-img" loading="lazy" decoding="async">` : `<div class="anime-poster placeholder manga-poster-placeholder"><i class="ti ti-book"></i></div>`}
                         ${manga.score ? `<div class="anime-score-badge"><i class="ti ti-star-filled"></i> ${manga.score}</div>` : ''}
                     </div>
 

@@ -70,7 +70,7 @@
     --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.06);
     --overlay-bg: rgba(0, 0, 0, 0.75);
     --player-bg: #000;
-    --player-container-bg: #0d0d11;
+    --player-container-bg: var(--sub-bg);
     --thumb-placeholder-bg: #e5e5e5;
     --placeholder-text: #999;
     --score-color: #d97706;
@@ -141,12 +141,8 @@ button, input, select, textarea {
     line-height: 1;
 }
 
-/* Tabler Icon Compatibility Fallbacks */
-.ti-player-play-filled:before { content: "\ea1f"; }
-.ti-star-filled:before { content: "\eb31"; }
-.ti-check-circle:before { content: "\ea5d"; }
-.ti-headphone:before { content: "\eb02"; }
-.ti-circle-filled:before { content: "\ea58"; }
+/* Tabler Star Icon Compatibility */
+.ti-star-filled:before { content: "\eb2e"; }
 
 
 .app-loader {

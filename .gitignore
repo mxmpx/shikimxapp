@@ -1,5 +1,6 @@
 # Environment / secrets
 .env
+.env.*
 
 # Python
 __pycache__/
@@ -7,6 +8,7 @@ __pycache__/
 *.egg-info/
 .venv/
 venv/
+ENV/
 
 # Database
 *.db
@@ -20,23 +22,29 @@ static/img_cache/
 *.log
 server.log
 
-# Test files
+# Scratch & temporary scripts
+scratch/
 test_*.py
 test*.txt
 test*.deleted
+*.bak
+*.backup
 
 # OS
 .DS_Store
 Thumbs.db
 
-# IDE
+# IDE & Agents
 .vscode/
 .idea/
 *.swp
 *.swo
+.agents/
+.gemini/
+.claude/
+.continue
+.kilo
 
 # Misc
 sys_path.txt
 push.bat
-.continue
-.kilo

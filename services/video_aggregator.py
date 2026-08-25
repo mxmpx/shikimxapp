@@ -67,18 +67,32 @@ def clean_title(title: str) -> str:
     t = title.lower()
     # Раскрываем римские цифры
     t = re.sub(r'\b(ii|iii|iv|v|vi|vii|viii|ix|x)\b', lambda m: str(roman_to_int(m.group(1))), t)
-    # Убираем содержимое скобок
-    t = re.sub(r'\[.*?\]|\(.*?\)', ' ', t)
     # Нормализуем формы сезонов: "2nd Season", "2-й сезон" -> "сезон 2"
     t = re.sub(r'(\d+)(?:-й|-й|\s*nd|\s*rd|\s*th)\s*(?:season|сезон)?', r' сезон \1 ', t)
-    # Оставляем только буквы, цифры и пробелы
-    t = re.sub(r'[^a-zа-яё0-9\s]', ' ', t)
+    # Заменяем ё на е для лучшего сопоставления
+    t = t.replace('ё', 'е')
+    # Убираем только спец-скобки метаданных типа (TV), [BD], [2023]
+    t = re.sub(r'\[\s*(?:tv|bd|ova|ona|movie|фильм|сериал|\d{4})\s*\]|\(\s*(?:tv|bd|ova|ona|movie|фильм|сериал|\d{4})\s*\)', ' ', t)
+    # Оставляем буквы всех языков, цифры и пробелы
+    t = re.sub(r'[^\w\s]', ' ', t, flags=re.UNICODE)
     return ' '.join(t.split())
 
 def clean_translation_name(trans: str) -> str:
     if not trans:
         return "Основной перевод"
-    t = re.sub(r'^[^\w]+', '', str(trans), flags=re.UNICODE).strip()
+    t = str(trans).strip()
+
+    # Subtitles prefix: "Субтитры: ", "Субтитры ", "Русские субтитры " -> "Субтитры (Team)"
+    sub_match = re.match(r'^(?:русские\s+)?субтитры\s*[:\-–—]?\s*(.*)$', t, flags=re.IGNORECASE)
+    if sub_match:
+        sub_name = sub_match.group(1).strip(' ()[]"\'')
+        return f"Субтитры ({sub_name})" if sub_name else "Субтитры"
+
+    # Remove prefixes like "Озвучка ", "Озвучка: ", "Озвучка - ", "Русская озвучка "
+    t = re.sub(r'^(?:русская\s+)?озвучка\s*[:\-–—]?\s*', '', t, flags=re.IGNORECASE).strip()
+
+    # Remove leading non-word symbols and extra wrapping quotes/brackets
+    t = t.strip(' ()[]"\'')
     return t or str(trans).strip()
 
 def is_valid_embed_player_url(url_str: str) -> bool:
@@ -314,11 +328,14 @@ class VideoAggregator:
                         if trans_title not in episodes_map[ep_key]:
                             episodes_map[ep_key][trans_title] = []
                         
+                        mat_data = res.get("material_data") or {}
+                        quality_str = res.get("quality") or mat_data.get("anime_quality")
                         full_url = ep_link if ep_link.startswith("http") else f"https:{ep_link}"
                         episodes_map[ep_key][trans_title].append({
                             "player": "Kodik",
                             "url": full_url,
-                            "source": "kodik_api"
+                            "source": "kodik_api",
+                            "quality": quality_str
                         })
                         total_eps = max(total_eps, int(ep_num) if ep_num.isdigit() else 1)
             else:
@@ -331,11 +348,14 @@ class VideoAggregator:
                     if trans_title not in episodes_map[ep_key]:
                         episodes_map[ep_key][trans_title] = []
                     
+                    mat_data = res.get("material_data") or {}
+                    quality_str = res.get("quality") or mat_data.get("anime_quality")
                     full_url = link if link.startswith("http") else f"https:{link}"
                     episodes_map[ep_key][trans_title].append({
                         "player": "Kodik",
                         "url": full_url,
-                        "source": "kodik_api"
+                        "source": "kodik_api",
+                        "quality": quality_str
                     })
                     total_eps = max(total_eps, 1)
 
@@ -392,6 +412,14 @@ class VideoAggregator:
                 else:
                     player_name = mod_name.capitalize()
 
+                quality_match = re.search(r'/(360|480|720|1080|2160)p', u_lower)
+                if quality_match:
+                    quality_str = f"{quality_match.group(1)}p"
+                elif "4k" in u_lower or "2160" in u_lower or player_name == "AniLibria":
+                    quality_str = "4K"
+                else:
+                    quality_str = getattr(src, 'quality', None)
+
                 if ep_key not in episodes_map:
                     episodes_map[ep_key] = {}
                 if trans_title not in episodes_map[ep_key]:
@@ -402,7 +430,8 @@ class VideoAggregator:
                     episodes_map[ep_key][trans_title].append({
                         "player": player_name,
                         "url": url_str,
-                        "source": mod_name
+                        "source": mod_name,
+                        "quality": quality_str
                     })
 
         return {
@@ -411,7 +440,7 @@ class VideoAggregator:
             "total_episodes": len(episodes)
         }
 
-    def fetch_single_anicli_source(self, mod_name: str, titles: list, expected_episodes: int = None) -> dict:
+    def fetch_single_anicli_source(self, mod_name: str, titles: list, expected_episodes: int = None, anime_id: int = None) -> dict:
         extractor_cls = self.extractors.get(mod_name)
         if not extractor_cls:
             return {}
@@ -440,12 +469,28 @@ class VideoAggregator:
             if not search_results:
                 return {}
 
-            # Поиск лучшего совпадения через Fuzzy Matcher
+            # Поиск лучшего совпадения через Fuzzy Matcher + Remote IDs + Direct Search Relevance
             scored_candidates = []
-            for cand in search_results:
+            target_season = extract_season_num(titles[0]) if titles else 1
+
+            for idx, cand in enumerate(search_results):
                 cand_title = getattr(cand, "title", None) or getattr(cand, "name", None) or str(cand)
                 score = get_best_match_score(titles, cand_title)
-                if score >= 0.60:
+
+                # Проверяем прямые ID shikimori/myanimelist из метаданных источника
+                cand_data = getattr(cand, "data", {}) or {}
+                if isinstance(cand_data, dict):
+                    remote_ids = cand_data.get("remote_ids", {}) or {}
+                    shiki_remote = remote_ids.get("shikimori_id") or remote_ids.get("myanimelist_id")
+                    if shiki_remote and anime_id and str(shiki_remote) == str(anime_id):
+                        score = max(score, 1.0)
+
+                # Если сезон совпадает и это один из первых результатов поиска
+                cand_season = extract_season_num(cand_title)
+                if cand_season == target_season and idx < 3:
+                    score = max(score, 0.65)
+
+                if score >= 0.40:
                     scored_candidates.append((score, cand, cand_title))
 
             if not scored_candidates:
@@ -486,7 +531,7 @@ class VideoAggregator:
                             except (ValueError, TypeError):
                                 pass
 
-                    if best_score < 0.60:
+                    if best_score < 0.45:
                         logger.debug("Score too low after validation for %s: %.3f", mod_name, best_score)
                         continue
 
@@ -527,7 +572,7 @@ class VideoAggregator:
             
             # 2. Пул anicli парсеров с валидными iframe плеерами
             for mod_name in self.extractors.keys():
-                tasks.append(executor.submit(self.fetch_single_anicli_source, mod_name, titles, expected_episodes))
+                tasks.append(executor.submit(self.fetch_single_anicli_source, mod_name, titles, expected_episodes, anime_id))
 
             try:
                 for future in as_completed(tasks, timeout=12):
@@ -546,19 +591,20 @@ class VideoAggregator:
                                 merged_episodes[ep_num] = {}
 
                             for trans_name, player_list in translations.items():
-                                if trans_name not in merged_episodes[ep_num]:
-                                    merged_episodes[ep_num][trans_name] = []
+                                clean_trans = clean_translation_name(trans_name)
+                                if clean_trans not in merged_episodes[ep_num]:
+                                    merged_episodes[ep_num][clean_trans] = []
 
                                 for p in player_list:
-                                    if not any(existing["url"] == p["url"] for existing in merged_episodes[ep_num][trans_name]):
-                                        merged_episodes[ep_num][trans_name].append(p)
+                                    if not any(existing["url"] == p["url"] for existing in merged_episodes[ep_num][clean_trans]):
+                                        merged_episodes[ep_num][clean_trans].append(p)
 
                     except Exception as e:
                         logger.warning("Video aggregation task failed: %s", e)
             except Exception as e:
                 logger.warning("Video aggregation timeout or error: %s", e)
 
-        # Сортировка зеркал: Kodik, Aksor TV, Sibnet, AnimeGo CDN всегда первыми
+        # Сортировка зеркал: Kodik, Aksor TV, AnimeGo CDN, Sibnet, AniLibria всегда первыми
         priority_order = {"Kodik": 1, "Aksor TV": 2, "AnimeGo CDN": 3, "Sibnet": 4, "AniLibria": 5}
         
         sorted_episodes = {}
@@ -566,7 +612,26 @@ class VideoAggregator:
             sorted_episodes[ep_key] = {}
             for trans_name, players in merged_episodes[ep_key].items():
                 sorted_players = sorted(players, key=lambda p: priority_order.get(p.get("player"), 10))
-                sorted_episodes[ep_key][trans_name] = sorted_players
+                
+                # Подсчет одинаковых плееров внутри одного перевода
+                player_counts = {}
+                for p in sorted_players:
+                    p_name = p.get("player", "Player")
+                    player_counts[p_name] = player_counts.get(p_name, 0) + 1
+
+                # Присвоение номеров дублирующимся плеерам (например: Kodik #1, Kodik #2)
+                player_indices = {}
+                final_players = []
+                for p in sorted_players:
+                    p_copy = dict(p)
+                    base_name = p.get("player", "Player")
+                    if player_counts[base_name] > 1:
+                        idx = player_indices.get(base_name, 0) + 1
+                        player_indices[base_name] = idx
+                        p_copy["player"] = f"{base_name} #{idx}"
+                    final_players.append(p_copy)
+
+                sorted_episodes[ep_key][trans_name] = final_players
 
         payload = {
             "episodes": sorted_episodes,
