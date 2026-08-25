@@ -6,6 +6,7 @@ import logging
 logger = logging.getLogger("shikimxapp.assets")
 
 CSS_FILES = [
+    'css/tabler-icons.min.css',
     'css/main.css',
     'css/profile.css',
     'css/rates.css',

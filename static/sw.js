@@ -1,8 +1,9 @@
-const CACHE_NAME = 'shikimx-cache-74f1551a';
+const CACHE_NAME = 'shikimx-cache-21bc490f';
 const STATIC_ASSETS = [
   '/',
   '/static/bundle.css',
-  '/static/bundle.js'
+  '/static/bundle.js',
+  '/static/fonts/tabler-icons.woff2'
 ];
 
 self.addEventListener('install', event => {

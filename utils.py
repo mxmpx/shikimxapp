@@ -142,14 +142,18 @@ def get_auth_headers():
         return None
     return {"User-Agent": APP_NAME, "Authorization": f"Bearer {access_token}"}
 
-def fix_image_url(image_data):
+def fix_image_url(image_data, high_res=False):
     if not image_data:
         return ""
     if isinstance(image_data, dict):
-        path = image_data.get("original") or image_data.get("x160") or image_data.get("x148") or image_data.get("x96") or image_data.get("preview") or image_data.get("main") or ""
+        if high_res:
+            path = image_data.get("original") or image_data.get("x160") or image_data.get("preview") or image_data.get("main") or ""
+        else:
+            path = image_data.get("x160") or image_data.get("preview") or image_data.get("main") or image_data.get("original") or ""
     else:
         path = str(image_data)
-        path = re.sub(r"/(x64|x32|preview)/", "/original/", path)
+        if high_res:
+            path = re.sub(r"/(x64|x32|preview)/", "/original/", path)
 
     if not path or path == "None" or path == "{}" or "missing_original" in path or "missing_preview" in path:
         return ""
@@ -197,11 +201,35 @@ def resolve_posters_graphql(anime_ids, headers=None):
 
 
 def resolve_single_anime_poster_graphql(anime_id, headers=None):
-    """Query Shikimori GraphQL for a single anime poster URL."""
+    """Query Shikimori GraphQL for a single anime poster URL in high resolution."""
     if not anime_id:
         return ""
-    posters = resolve_posters_graphql([str(anime_id)], headers)
-    return posters.get(str(anime_id), "")
+    if headers is None:
+        headers = {"User-Agent": APP_NAME}
+    query = f"""
+    query {{
+      animes(ids: "{anime_id}", limit: 1) {{
+        id
+        poster {{
+          originalUrl
+          mainUrl
+        }}
+      }}
+    }}
+    """
+    try:
+        r = requests.post(f"{SHIKIMORI_BASE}/api/graphql", json={"query": query}, headers=headers, timeout=6)
+        if r.status_code == 200:
+            animes = r.json().get("data", {}).get("animes", [])
+            if animes:
+                p = animes[0].get("poster")
+                if p:
+                    url = p.get("originalUrl") or p.get("mainUrl")
+                    if url:
+                        return fix_image_url(url, high_res=True)
+    except Exception as exc:
+        logger.debug("Failed to resolve single GraphQL poster: %s", exc)
+    return ""
 
 
 

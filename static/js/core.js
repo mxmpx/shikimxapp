@@ -33,16 +33,29 @@ function updateThemeIcon(theme) {
     if (btn) btn.innerHTML = theme === 'dark' ? '<i class="ti ti-sun"></i>' : '<i class="ti ti-moon"></i>';
 }
 
-function buildImgUrl(src) {
+function buildImgUrl(src, highRes = false) {
     if (!src) return '';
     if (typeof src === 'string') {
         if (src.startsWith('data:')) return src;
         if (src.includes('missing_original') || src.includes('missing_preview')) return '';
     }
-    let path = typeof src === 'string' ? src : (src.original || src.x160 || src.preview || src.main || '');
+    let path = '';
+    if (typeof src === 'object' && src !== null) {
+        if (highRes) {
+            path = src.original || src.x160 || src.main || src.preview || '';
+        } else {
+            path = src.x160 || src.preview || src.main || src.original || '';
+        }
+    } else {
+        path = String(src);
+    }
     if (!path || path === 'None' || path === '{}') return '';
     if (path.includes('missing_original') || path.includes('missing_preview')) return '';
-    path = path.replace(/\/(x64|x32|preview)\//, '/original/');
+
+    if (highRes) {
+        path = path.replace(/\/(x64|x32|preview)\//, '/original/');
+    }
+
     const fullUrl = path.startsWith('http') ? path : 'https://shikimori.io' + (path.startsWith('/') ? path : '/' + path);
     return fullUrl;
 }

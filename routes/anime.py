@@ -19,7 +19,7 @@ except ImportError as exc:
 anime_bp = Blueprint('anime', __name__)
 
 def _build_anime_result(data, anime_id, characters_data=None):
-    poster = fix_image_url(data.get("image"))
+    poster = fix_image_url(data.get("image"), high_res=True)
     if not poster or "missing_" in poster:
         poster = resolve_single_anime_poster_graphql(anime_id)
 
@@ -88,7 +88,7 @@ def _build_anime_result(data, anime_id, characters_data=None):
             if r.get("anime") or r.get("manga")
         ],
         "characters": characters[:30],
-        "screenshots": [fix_image_url(s) for s in data.get("screenshots", []) if s],
+        "screenshots": [fix_image_url(s, high_res=True) for s in data.get("screenshots", []) if s],
         "external_scores": data.get("external_scores", []),
         "video": data.get("video") or data.get("video_trailers") or [],
         "licensed_by": [l.get("name") for l in data.get("licensed_by", []) if l.get("name")]

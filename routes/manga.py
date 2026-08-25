@@ -17,7 +17,7 @@ def get_manga_details(manga_id):
         logger.warning("Manga data unavailable for manga_id=%s", manga_id)
         raise AppError("Не удалось получить данные о манге", 502)
 
-    poster = fix_image_url(data.get("image"))
+    poster = fix_image_url(data.get("image"), high_res=True)
 
     genres = [g.get("russian") or g.get("name") for g in data.get("genres", [])]
     publishers = [p.get("name") for p in data.get("publishers", [])]

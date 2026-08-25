@@ -40,26 +40,40 @@ def tab_rates():
     manga_ids = list({str(item["target_id"]) for item in rates if item.get("target_type") == "Manga" and item.get("target_id")})
 
     anime_map = {}
-    if anime_ids:
-        poster_map = resolve_posters_graphql(anime_ids, headers)
-        for i in range(0, len(anime_ids), 50):
-            chunk = anime_ids[i:i + 50]
-            data = fetch_cached_api(f"{SHIKIMORI_BASE}/api/animes?ids={','.join(chunk)}&limit=100", headers, ttl=3600)
-            if isinstance(data, list):
-                for a in data:
-                    aid = str(a["id"])
-                    if aid in poster_map:
-                        a["image"] = poster_map[aid]
-                    anime_map[a["id"]] = a
-
     manga_map = {}
-    if manga_ids:
-        for i in range(0, len(manga_ids), 50):
-            chunk = manga_ids[i:i + 50]
-            data = fetch_cached_api(f"{SHIKIMORI_BASE}/api/mangas?ids={','.join(chunk)}&limit=100", headers, ttl=3600)
-            if isinstance(data, list):
-                for m in data:
-                    manga_map[m["id"]] = m
+
+    def fetch_anime_chunk(chunk):
+        return fetch_cached_api(f"{SHIKIMORI_BASE}/api/animes?ids={','.join(chunk)}&limit=100", headers, ttl=3600)
+
+    def fetch_manga_chunk(chunk):
+        return fetch_cached_api(f"{SHIKIMORI_BASE}/api/mangas?ids={','.join(chunk)}&limit=100", headers, ttl=3600)
+
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        # 1. Start poster resolution and anime chunk requests concurrently
+        poster_future = executor.submit(resolve_posters_graphql, anime_ids, headers) if anime_ids else None
+        
+        anime_chunks = [anime_ids[i:i + 50] for i in range(0, len(anime_ids), 50)]
+        manga_chunks = [manga_ids[i:i + 50] for i in range(0, len(manga_ids), 50)]
+
+        anime_results = list(executor.map(fetch_anime_chunk, anime_chunks))
+        manga_results = list(executor.map(fetch_manga_chunk, manga_chunks))
+        
+        poster_map = poster_future.result() if poster_future else {}
+
+    # Assemble anime map
+    for data in anime_results:
+        if isinstance(data, list):
+            for a in data:
+                aid = str(a["id"])
+                if aid in poster_map:
+                    a["image"] = poster_map[aid]
+                anime_map[a["id"]] = a
+
+    # Assemble manga map
+    for data in manga_results:
+        if isinstance(data, list):
+            for m in data:
+                manga_map[m["id"]] = m
 
     for rate in rates:
         t_id, t_type = rate.get("target_id"), rate.get("target_type")
@@ -68,7 +82,7 @@ def tab_rates():
         elif t_type == "Manga" and t_id in manga_map:
             rate["target_data"] = manga_map[t_id]
 
-    logger.info("Loaded %d rates for user_id=%s", len(rates), user_id)
+    logger.info("Loaded %d rates for user_id=%s (parallelized)", len(rates), user_id)
     return jsonify(rates)
 
 @rates_bp.route("/api/grid-data")

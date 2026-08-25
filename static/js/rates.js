@@ -204,6 +204,11 @@ function sortRatesList(rates, criterion) {
     });
 }
 
+const RATES_PAGE_SIZE = 28;
+let currentFilteredRates = [];
+let ratesRenderedCount = 0;
+let ratesObserver = null;
+
 function applyListFilters() {
     const byType = ratesDataCache.filter(r => r.target_type === currentTargetType);
     const cntAll = document.getElementById('cnt-all');
@@ -221,7 +226,70 @@ function applyListFilters() {
     }
 
     filtered = sortRatesList(filtered, currentSortFilter);
+    currentFilteredRates = filtered;
+    ratesRenderedCount = 0;
     renderListGrid(filtered);
+}
+
+function renderRateItemHtml(rate, viewMode) {
+    const targetObj = rate.target_data || rate.anime || rate.manga || {};
+    const isAnime = rate.target_type === 'Anime';
+    const targetUrl = targetObj.url
+        ? (targetObj.url.startsWith('http') ? targetObj.url : 'https://shikimori.io' + targetObj.url)
+        : `https://shikimori.io/${isAnime ? 'animes' : 'mangas'}/${rate.target_id}`;
+    const targetName = targetObj.russian || targetObj.name || `#${rate.target_id}`;
+    const statusInfo = getStatusMap()[rate.status] || { anime: rate.status, manga: rate.status, class: 'badge-planned' };
+    const totalCount = isAnime ? (targetObj.episodes || 0) : (targetObj.chapters || 0);
+    let progressText = isAnime ? `${rate.episodes ?? 0} / ${targetObj.episodes || '?'} ${i18n('rates.progress.anime')}` : `${rate.chapters ?? 0} / ${targetObj.chapters || '?'} ${i18n('rates.progress.manga')}`;
+    if (rate.rewatches > 0) progressText += ` (${i18n('rates.rewatches')} ${rate.rewatches})`;
+    const onclickAttr = isAnime ? `onclick="event.preventDefault(); openAnimeModal(${rate.target_id});"` : `onclick="event.preventDefault(); openMangaModal(${rate.target_id});"`;
+    const showQuickInc = rate.status === 'watching' || rate.status === 'rewatching';
+
+    if (viewMode === 'list') {
+        return `
+            <div class="rate-list-row">
+                <div class="rate-list-info">
+                    <a href="${targetUrl}" ${onclickAttr} class="rate-title" title="${targetName}">${targetName}</a>
+                    <span class="badge ${statusInfo.class}">${isAnime ? statusInfo.anime : statusInfo.manga}</span>
+                </div>
+                <div class="rate-list-meta">
+                    <span class="label">${i18n('rates.progress')}:</span> <b>${progressText}</b>
+                    ${showQuickInc ? `
+                        <button type="button" class="btn-quick-inc" onclick="quickIncrementRate('${rate.target_id}', '${rate.target_type}', ${totalCount}, event)" title="${i18n('mylist.quick_inc')}">
+                            <i class="ti ti-plus"></i> 1
+                        </button>
+                    ` : ''}
+                    <span class="label">${i18n('rates.score')}:</span> <span class="score-pill">${rate.score ? `<i class="ti ti-star-filled"></i> ${rate.score}/10` : '—'}</span>
+                </div>
+            </div>`;
+    } else {
+        const imgUrl = targetObj.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(targetObj.image) : targetObj.image) : '';
+        const posterClass = viewMode === 'large' ? 'rate-poster-large' : 'history-thumb';
+
+        return `
+            <div class="rate-card">
+                ${imgUrl ? `<a href="${targetUrl}" ${onclickAttr}><img src="${imgUrl}" alt="${targetName}" class="${posterClass}" loading="lazy" decoding="async"></a>` : `<div class="history-thumb-placeholder"></div>`}
+                <div class="rate-content">
+                    <div class="rate-header">
+                        <a href="${targetUrl}" ${onclickAttr} class="rate-title" title="${targetName}">${targetName}</a>
+                        <span class="badge ${statusInfo.class}">${isAnime ? statusInfo.anime : statusInfo.manga}</span>
+                    </div>
+                    <div class="info-row" style="padding: 2px 0;">
+                        <span class="label">${i18n('rates.progress')}:</span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span><b>${progressText}</b></span>
+                            ${showQuickInc ? `
+                                <button type="button" class="btn-quick-inc" onclick="quickIncrementRate('${rate.target_id}', '${rate.target_type}', ${totalCount}, event)" title="${i18n('mylist.quick_inc')}">
+                                    <i class="ti ti-plus"></i> 1
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="info-row" style="padding: 2px 0;"><span class="label">${i18n('rates.score')}:</span><span class="score-pill">${rate.score ? `<i class="ti ti-star-filled"></i> ${rate.score}/10` : '—'}</span></div>
+                    ${rate.text ? `<div style="font-size: 12px; color: var(--text-muted); font-style: italic; margin-top: 2px;">"${rate.text}"</div>` : ''}
+                </div>
+            </div>`;
+    }
 }
 
 function renderListGrid(items) {
@@ -229,86 +297,61 @@ function renderListGrid(items) {
     if (!grid) return;
     if (!items.length) {
         grid.innerHTML = '<p style="color: var(--text-muted); grid-column: 1 / -1;">' + i18n('rates.no_results') + '</p>';
+        const sentinel = document.getElementById('rates-scroll-sentinel');
+        if (sentinel) sentinel.remove();
         return;
     }
 
-    const viewMode = currentViewMode;
+    const firstChunk = items.slice(0, RATES_PAGE_SIZE);
+    ratesRenderedCount = firstChunk.length;
 
-    if (viewMode === 'list') {
-        grid.innerHTML = items.map(rate => {
-            const targetObj = rate.target_data || rate.anime || rate.manga || {};
-            const isAnime = rate.target_type === 'Anime';
-            const targetUrl = targetObj.url
-                ? (targetObj.url.startsWith('http') ? targetObj.url : 'https://shikimori.io' + targetObj.url)
-                : `https://shikimori.io/${isAnime ? 'animes' : 'mangas'}/${rate.target_id}`;
-            const targetName = targetObj.russian || targetObj.name || `#${rate.target_id}`;
-            const statusInfo = getStatusMap()[rate.status] || { anime: rate.status, manga: rate.status, class: 'badge-planned' };
-            const totalCount = isAnime ? (targetObj.episodes || 0) : (targetObj.chapters || 0);
-            let progressText = isAnime ? `${rate.episodes ?? 0} / ${targetObj.episodes || '?'} ${i18n('rates.progress.anime')}` : `${rate.chapters ?? 0} / ${targetObj.chapters || '?'} ${i18n('rates.progress.manga')}`;
-            if (rate.rewatches > 0) progressText += ` (${i18n('rates.rewatches')} ${rate.rewatches})`;
-            const onclickAttr = isAnime ? `onclick="event.preventDefault(); openAnimeModal(${rate.target_id});"` : `onclick="event.preventDefault(); openMangaModal(${rate.target_id});"`;
+    grid.innerHTML = firstChunk.map(r => renderRateItemHtml(r, currentViewMode)).join('');
+    setupRatesInfiniteScroll();
+}
 
-            const showQuickInc = rate.status === 'watching' || rate.status === 'rewatching';
+function loadMoreRatesChunk() {
+    const grid = document.getElementById('rates-grid-container');
+    if (!grid || ratesRenderedCount >= currentFilteredRates.length) return;
 
-            return `
-                <div class="rate-list-row">
-                    <div class="rate-list-info">
-                        <a href="${targetUrl}" ${onclickAttr} class="rate-title" title="${targetName}">${targetName}</a>
-                        <span class="badge ${statusInfo.class}">${isAnime ? statusInfo.anime : statusInfo.manga}</span>
-                    </div>
-                    <div class="rate-list-meta">
-                        <span class="label">${i18n('rates.progress')}:</span> <b>${progressText}</b>
-                        ${showQuickInc ? `
-                            <button type="button" class="btn-quick-inc" onclick="quickIncrementRate('${rate.target_id}', '${rate.target_type}', ${totalCount}, event)" title="${i18n('mylist.quick_inc')}">
-                                <i class="ti ti-plus"></i> 1
-                            </button>
-                        ` : ''}
-                        <span class="label">${i18n('rates.score')}:</span> <span class="score-pill">${rate.score ? `<i class="ti ti-star-filled"></i> ${rate.score}/10` : '—'}</span>
-                    </div>
-                </div>`;
-        }).join('');
-    } else {
-        grid.innerHTML = items.map(rate => {
-            const targetObj = rate.target_data || rate.anime || rate.manga || {};
-            const isAnime = rate.target_type === 'Anime';
-            const targetUrl = targetObj.url
-                ? (targetObj.url.startsWith('http') ? targetObj.url : 'https://shikimori.io' + targetObj.url)
-                : `https://shikimori.io/${isAnime ? 'animes' : 'mangas'}/${rate.target_id}`;
-            const targetName = targetObj.russian || targetObj.name || `#${rate.target_id}`;
-            const imgUrl = targetObj.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(targetObj.image) : targetObj.image) : '';
-            const statusInfo = getStatusMap()[rate.status] || { anime: rate.status, manga: rate.status, class: 'badge-planned' };
-            const totalCount = isAnime ? (targetObj.episodes || 0) : (targetObj.chapters || 0);
-            let progressText = isAnime ? `${rate.episodes ?? 0} / ${targetObj.episodes || '?'} ${i18n('rates.progress.anime')}` : `${rate.chapters ?? 0} / ${targetObj.chapters || '?'} ${i18n('rates.progress.manga')}`;
-            if (rate.rewatches > 0) progressText += ` (${i18n('rates.rewatches')} ${rate.rewatches})`;
-            const onclickAttr = isAnime ? `onclick="event.preventDefault(); openAnimeModal(${rate.target_id});"` : `onclick="event.preventDefault(); openMangaModal(${rate.target_id});"`;
-            const posterClass = viewMode === 'large' ? 'rate-poster-large' : 'history-thumb';
+    const nextChunk = currentFilteredRates.slice(ratesRenderedCount, ratesRenderedCount + RATES_PAGE_SIZE);
+    ratesRenderedCount += nextChunk.length;
 
-            const showQuickInc = rate.status === 'watching' || rate.status === 'rewatching';
-
-            return `
-                <div class="rate-card">
-                    ${imgUrl ? `<a href="${targetUrl}" ${onclickAttr}><img src="${imgUrl}" alt="${targetName}" class="${posterClass}" loading="lazy" decoding="async"></a>` : `<div class="history-thumb-placeholder"></div>`}
-                    <div class="rate-content">
-
-                        <div class="rate-header">
-                            <a href="${targetUrl}" ${onclickAttr} class="rate-title" title="${targetName}">${targetName}</a>
-                            <span class="badge ${statusInfo.class}">${isAnime ? statusInfo.anime : statusInfo.manga}</span>
-                        </div>
-                        <div class="info-row" style="padding: 2px 0;">
-                            <span class="label">${i18n('rates.progress')}:</span>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span><b>${progressText}</b></span>
-                                ${showQuickInc ? `
-                                    <button type="button" class="btn-quick-inc" onclick="quickIncrementRate('${rate.target_id}', '${rate.target_type}', ${totalCount}, event)" title="${i18n('mylist.quick_inc')}">
-                                        <i class="ti ti-plus"></i> 1
-                                    </button>
-                                ` : ''}
-                            </div>
-                        </div>
-                        <div class="info-row" style="padding: 2px 0;"><span class="label">${i18n('rates.score')}:</span><span class="score-pill">${rate.score ? `<i class="ti ti-star-filled"></i> ${rate.score}/10` : '—'}</span></div>
-                        ${rate.text ? `<div style="font-size: 12px; color: var(--text-muted); font-style: italic; margin-top: 2px;">"${rate.text}"</div>` : ''}
-                    </div>
-                </div>`;
-        }).join('');
+    const tempWrapper = document.createElement('div');
+    tempWrapper.innerHTML = nextChunk.map(r => renderRateItemHtml(r, currentViewMode)).join('');
+    while (tempWrapper.firstChild) {
+        grid.appendChild(tempWrapper.firstChild);
     }
+    setupRatesInfiniteScroll();
+}
+
+function setupRatesInfiniteScroll() {
+    let sentinel = document.getElementById('rates-scroll-sentinel');
+    if (ratesRenderedCount >= currentFilteredRates.length) {
+        if (sentinel) sentinel.remove();
+        return;
+    }
+
+    const grid = document.getElementById('rates-grid-container');
+    if (!grid) return;
+
+    if (!sentinel) {
+        sentinel = document.createElement('div');
+        sentinel.id = 'rates-scroll-sentinel';
+        sentinel.style.height = '40px';
+        sentinel.style.gridColumn = '1 / -1';
+        sentinel.style.display = 'flex';
+        sentinel.style.alignItems = 'center';
+        sentinel.style.justifyContent = 'center';
+        sentinel.innerHTML = '<span style="color: var(--text-muted); font-size: 12px;"><i class="ti ti-loader animate-spin"></i> Загрузка...</span>';
+        grid.after(sentinel);
+    }
+
+    if (ratesObserver) ratesObserver.disconnect();
+    ratesObserver = new IntersectionObserver((entries) => {
+        if (entries[0] && entries[0].isIntersecting) {
+            loadMoreRatesChunk();
+        }
+    }, { rootMargin: '400px' });
+
+    ratesObserver.observe(sentinel);
 }
