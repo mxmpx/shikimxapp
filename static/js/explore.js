@@ -30,6 +30,8 @@ function toggleNavbarSearch() {
     }
 }
 
+let searchAbortController = null;
+
 function handleExploreSearch(val) {
     const query = val.trim();
     const clearBtn = document.getElementById('search-clear-btn');
@@ -40,7 +42,13 @@ function handleExploreSearch(val) {
         else clearBtn.classList.add('hidden');
     }
 
+    if (searchAbortController) {
+        searchAbortController.abort();
+        searchAbortController = null;
+    }
+
     if (query.length < 2) {
+        clearTimeout(searchDebounceTimer);
         if (resultsContainer) {
             resultsContainer.innerHTML = '';
             resultsContainer.classList.add('hidden');
@@ -55,23 +63,32 @@ function handleExploreSearch(val) {
             resultsContainer.innerHTML = `<div class="search-loading"><i class="ti ti-loader animate-spin"></i> ${i18n('explore.searching')}</div>`;
         }
 
+        searchAbortController = new AbortController();
         try {
-            const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+            const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`, {
+                signal: searchAbortController.signal
+            });
             const data = await res.json();
             renderSearchResults(data);
         } catch (err) {
+            if (err.name === 'AbortError') return;
             if (resultsContainer) {
                 resultsContainer.innerHTML = `<div class="search-no-results" style="color: var(--danger);">${i18n('explore.search_error')}</div>`;
             }
         }
-    }, 250);
+    }, 350);
 }
 
 function clearExploreSearch() {
+    if (searchAbortController) {
+        searchAbortController.abort();
+        searchAbortController = null;
+    }
     const input = document.getElementById('explore-search-input');
     if (input) input.value = '';
     handleExploreSearch('');
 }
+
 
 function renderSearchResults(items) {
     const container = document.getElementById('explore-search-results');
@@ -630,17 +647,29 @@ async function pickRandomAnime() {
 window.pickRandomAnime = pickRandomAnime;
 
 async function initExploreExtraSections() {
+    // 1. Продолжить просмотр - локальные данные из localStorage (мгновенно)
     renderContinueWatching();
-    loadAiringCalendar();
-    
-    // Populate genres in catalog filter if catalog exists
-    const genreSelect = document.getElementById('cat-filter-genre');
-    if (genreSelect) {
-        const genres = await loadGenres();
-        genreSelect.innerHTML = `<option value="">${i18n('catalog.filter.all_genres')}</option>` +
-            genres.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
+
+    // 2. Расписание онгоингов - загрузка только при приближении к блоку
+    if (typeof setupSectionLazyLoader === 'function') {
+        setupSectionLazyLoader('calendar-section-container', () => {
+            loadAiringCalendar();
+        }, '300px');
+
+        // 3. Каталог и жанры - загрузка только при приближении к блоку
+        setupSectionLazyLoader('catalog-section-container', async () => {
+            const genreSelect = document.getElementById('cat-filter-genre');
+            if (genreSelect) {
+                const genres = await loadGenres();
+                genreSelect.innerHTML = `<option value="">${i18n('catalog.filter.all_genres')}</option>` +
+                    genres.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
+            }
+            loadCatalog(1, false);
+        }, '300px');
+    } else {
+        loadAiringCalendar();
+        loadCatalog(1, false);
     }
-    loadCatalog(1, false);
 }
 window.initExploreExtraSections = initExploreExtraSections;
 

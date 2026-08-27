@@ -1,8 +1,10 @@
 import logging
 import requests
 from flask import Blueprint, session, jsonify
-from utils import SHIKIMORI_BASE, get_auth_headers, fetch_cached_api
-from concurrent.futures import ThreadPoolExecutor
+from utils import (
+    SHIKIMORI_BASE, get_auth_headers, fetch_cached_api,
+    fetch_graphql, fix_image_url
+)
 from errors import AppError, api_route
 
 logger = logging.getLogger("shikimxapp.favourites")
@@ -12,35 +14,95 @@ def enrich_favourites(favs, headers):
     if not isinstance(favs, dict):
         return {"characters": [], "animes": [], "mangas": []}
 
-    for key, api_path in [("animes", "animes"), ("mangas", "mangas")]:
-        items = favs.get(key, [])
-        if isinstance(items, list) and items:
-            item_ids = [str(x["id"]) for x in items if isinstance(x, dict) and x.get("id")]
-            if item_ids:
-                full_data = fetch_cached_api(f"{SHIKIMORI_BASE}/api/{api_path}?ids={','.join(item_ids)}&limit=100", headers, ttl=3600)
-                if isinstance(full_data, list):
-                    item_map = {str(a["id"]): a for a in full_data}
-                    for item in items:
-                        if isinstance(item, dict) and str(item.get("id")) in item_map:
-                            t = item_map[str(item["id"])]
-                            item["image"], item["url"], item["russian"] = t.get("image"), t.get("url"), t.get("russian") or item.get("russian")
+    # Batch enrich animes
+    animes = favs.get("animes", [])
+    if isinstance(animes, list) and animes:
+        anime_ids = [str(x["id"]) for x in animes if isinstance(x, dict) and x.get("id")]
+        for i in range(0, len(anime_ids), 50):
+            chunk = anime_ids[i:i + 50]
+            query = """
+            query FavAnimes($ids: String!) {
+              animes(ids: $ids, limit: 50) {
+                id
+                name
+                russian
+                poster { mainUrl originalUrl }
+                url
+              }
+            }
+            """
+            data = fetch_graphql(query, {"ids": ",".join(chunk)}, ttl=3600)
+            if data and isinstance(data.get("animes"), list):
+                item_map = {str(a["id"]): a for a in data["animes"]}
+                for item in animes:
+                    aid = str(item.get("id"))
+                    if aid in item_map:
+                        t = item_map[aid]
+                        p = t.get("poster") or {}
+                        item["image"] = fix_image_url(p.get("mainUrl") or p.get("originalUrl"))
+                        item["url"] = t.get("url") or f"/animes/{aid}"
+                        item["russian"] = t.get("russian") or item.get("russian")
 
+    # Batch enrich mangas
+    mangas = favs.get("mangas", [])
+    if isinstance(mangas, list) and mangas:
+        manga_ids = [str(x["id"]) for x in mangas if isinstance(x, dict) and x.get("id")]
+        for i in range(0, len(manga_ids), 50):
+            chunk = manga_ids[i:i + 50]
+            query = """
+            query FavMangas($ids: String!) {
+              mangas(ids: $ids, limit: 50) {
+                id
+                name
+                russian
+                poster { mainUrl originalUrl }
+                url
+              }
+            }
+            """
+            data = fetch_graphql(query, {"ids": ",".join(chunk)}, ttl=3600)
+            if data and isinstance(data.get("mangas"), list):
+                item_map = {str(m["id"]): m for m in data["mangas"]}
+                for item in mangas:
+                    mid = str(item.get("id"))
+                    if mid in item_map:
+                        t = item_map[mid]
+                        p = t.get("poster") or {}
+                        item["image"] = fix_image_url(p.get("mainUrl") or p.get("originalUrl"))
+                        item["url"] = t.get("url") or f"/mangas/{mid}"
+                        item["russian"] = t.get("russian") or item.get("russian")
+
+    # Batch enrich characters via GraphQL in chunks of 50
     chars = favs.get("characters", [])
     if isinstance(chars, list) and chars:
-        def fetch_char(c):
-            if not isinstance(c, dict) or not c.get("id"):
-                return c
-            # If image or url is already present, skip extra API call
-            if c.get("image") and c.get("russian"):
-                return c
-            data = fetch_cached_api(f"{SHIKIMORI_BASE}/api/characters/{c['id']}", headers, ttl=86400)
-            if data and isinstance(data, dict):
-                c["image"], c["url"], c["russian"] = data.get("image") or c.get("image"), data.get("url") or c.get("url"), data.get("russian") or c.get("russian")
-            return c
-        with ThreadPoolExecutor(max_workers=2) as executor:
-            favs["characters"] = list(executor.map(fetch_char, chars))
+        char_ids = [str(c["id"]) for c in chars if isinstance(c, dict) and c.get("id")]
+        for i in range(0, len(char_ids), 50):
+            chunk = char_ids[i:i + 50]
+            query = """
+            query FavChars($ids: String!) {
+              characters(ids: $ids, limit: 50) {
+                id
+                name
+                russian
+                poster { mainUrl originalUrl }
+                url
+              }
+            }
+            """
+            data = fetch_graphql(query, {"ids": ",".join(chunk)}, ttl=86400)
+            if data and isinstance(data.get("characters"), list):
+                char_map = {str(c["id"]): c for c in data["characters"]}
+                for c in chars:
+                    cid = str(c.get("id"))
+                    if cid in char_map:
+                        t = char_map[cid]
+                        p = t.get("poster") or {}
+                        c["image"] = fix_image_url(p.get("mainUrl") or p.get("originalUrl"))
+                        c["url"] = t.get("url") or f"/characters/{cid}"
+                        c["russian"] = t.get("russian") or c.get("russian")
 
     return favs
+
 
 
 @favourites_bp.route("/api/tab/favourites")

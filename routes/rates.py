@@ -1,7 +1,10 @@
 import logging
 import requests
 from flask import Blueprint, session, jsonify, request
-from utils import SHIKIMORI_BASE, APP_NAME, get_auth_headers, fetch_cached_api, resolve_posters_graphql
+from utils import (
+    SHIKIMORI_BASE, APP_NAME, get_auth_headers, fetch_cached_api,
+    resolve_posters_graphql, fetch_graphql, fix_image_url
+)
 from concurrent.futures import ThreadPoolExecutor
 from errors import AppError, api_route
 
@@ -48,8 +51,7 @@ def tab_rates():
     def fetch_manga_chunk(chunk):
         return fetch_cached_api(f"{SHIKIMORI_BASE}/api/mangas?ids={','.join(chunk)}&limit=100", headers, ttl=3600)
 
-    with ThreadPoolExecutor(max_workers=8) as executor:
-        # 1. Start poster resolution and anime chunk requests concurrently
+    with ThreadPoolExecutor(max_workers=2) as executor:
         poster_future = executor.submit(resolve_posters_graphql, anime_ids, headers) if anime_ids else None
         
         anime_chunks = [anime_ids[i:i + 50] for i in range(0, len(anime_ids), 50)]
@@ -94,41 +96,78 @@ def grid_data():
         return jsonify([])
 
     ids_list = [i.strip() for i in raw_ids.split(",") if i.strip()]
-    headers = {"User-Agent": APP_NAME}
 
     if grid_type == "animes":
         items_dict = {}
-        poster_map = resolve_posters_graphql(ids_list, headers)
         for i in range(0, len(ids_list), 50):
             chunk = ids_list[i:i + 50]
-            data = fetch_cached_api(f"{SHIKIMORI_BASE}/api/animes?ids={','.join(chunk)}&limit=100", headers, ttl=3600)
-            if isinstance(data, list):
-                for item in data:
-                    aid = str(item["id"])
-                    if aid in poster_map:
-                        item["image"] = poster_map[aid]
-                    items_dict[aid] = item
-        logger.debug("Grid data loaded: type=animes, count=%d", len(items_dict))
+            query = """
+            query BatchAnimesGrid($ids: String!) {
+              animes(ids: $ids, limit: 50) {
+                id
+                name
+                russian
+                kind
+                score
+                poster {
+                  mainUrl
+                  originalUrl
+                }
+              }
+            }
+            """
+            data = fetch_graphql(query, {"ids": ",".join(chunk)}, ttl=3600)
+            if data and isinstance(data.get("animes"), list):
+                for item in data["animes"]:
+                    p = item.get("poster") or {}
+                    poster = p.get("mainUrl") or p.get("originalUrl") or ""
+                    items_dict[str(item["id"])] = {
+                        "id": item.get("id"),
+                        "name": item.get("name"),
+                        "russian": item.get("russian") or item.get("name"),
+                        "kind": item.get("kind"),
+                        "score": item.get("score"),
+                        "image": fix_image_url(poster)
+                    }
+        logger.debug("Grid data loaded via GraphQL: type=animes, count=%d", len(items_dict))
         return jsonify([items_dict[i] for i in ids_list if i in items_dict])
-
 
     if grid_type == "characters":
         items_dict = {}
-
-        def fetch_char(char_id):
-            data = fetch_cached_api(f"{SHIKIMORI_BASE}/api/characters/{char_id}", headers, ttl=86400)
-            return data if isinstance(data, dict) and "id" in data else None
-
-        with ThreadPoolExecutor(max_workers=2) as executor:
-            for item in executor.map(fetch_char, ids_list):
-                if item:
-                    items_dict[str(item["id"])] = item
-        logger.debug("Grid data loaded: type=characters, count=%d", len(items_dict))
+        for i in range(0, len(ids_list), 50):
+            chunk = ids_list[i:i + 50]
+            query = """
+            query BatchCharsGrid($ids: String!) {
+              characters(ids: $ids, limit: 50) {
+                id
+                name
+                russian
+                poster {
+                  mainUrl
+                  originalUrl
+                }
+                url
+              }
+            }
+            """
+            data = fetch_graphql(query, {"ids": ",".join(chunk)}, ttl=86400)
+            if data and isinstance(data.get("characters"), list):
+                for item in data["characters"]:
+                    p = item.get("poster") or {}
+                    poster = p.get("mainUrl") or p.get("originalUrl") or ""
+                    items_dict[str(item["id"])] = {
+                        "id": item.get("id"),
+                        "name": item.get("name"),
+                        "russian": item.get("russian") or item.get("name"),
+                        "image": fix_image_url(poster),
+                        "url": item.get("url") or f"/characters/{item.get('id')}"
+                    }
+        logger.debug("Grid data loaded via GraphQL: type=characters, count=%d", len(items_dict))
         return jsonify([items_dict[i] for i in ids_list if i in items_dict])
-
 
     logger.warning("Unknown grid type requested: %s", grid_type)
     return jsonify([])
+
 
 
 @rates_bp.route("/api/rate", methods=["POST"])

@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, session, request
 from utils import (
     SHIKIMORI_BASE, APP_NAME, fetch_cached_api, fix_image_url,
     get_auth_headers, fetch_with_retry, fetch_user_rate,
-    resolve_single_anime_poster_graphql
+    resolve_single_anime_poster_graphql, fetch_graphql
 )
 from errors import AppError, api_route
 
@@ -17,6 +17,104 @@ except ImportError as exc:
     logging.getLogger("shikimxapp.anime").warning("video_aggregator unavailable: %s", exc)
 
 anime_bp = Blueprint('anime', __name__)
+
+def _build_anime_from_graphql(a, anime_id):
+    """Построить структуру аниме из ответа GraphQL."""
+    poster_obj = a.get("poster") or {}
+    poster = poster_obj.get("originalUrl") or poster_obj.get("mainUrl") or ""
+
+    status_map = {'released': 'Вышло', 'ongoing': 'Онгоинг', 'anons': 'Анонс'}
+    kind_map = {'tv': 'ТВ Сериал', 'movie': 'Фильм', 'ova': 'OVA', 'ona': 'ONA', 'special': 'Спешл', 'music': 'Клип'}
+
+    genres = [g.get("russian") or g.get("name") for g in a.get("genres", []) if g]
+    studios = [s.get("name") for s in a.get("studios", []) if s and s.get("name")]
+
+    user_rate = fetch_user_rate(anime_id, "Anime")
+
+    characters = []
+    seen_ids = set()
+    for item in a.get("characterRoles", []) or []:
+        c = item.get("character") if isinstance(item, dict) else None
+        if not c or not c.get("id"):
+            continue
+        cid = str(c["id"])
+        if cid in seen_ids:
+            continue
+        seen_ids.add(cid)
+        c_poster = (c.get("poster") or {}).get("mainUrl") or (c.get("poster") or {}).get("originalUrl") or ""
+        roles = item.get("rolesRu") or item.get("rolesEn") or []
+        characters.append({
+            "id": c.get("id"),
+            "name": c.get("russian") or c.get("name"),
+            "japanese": "",
+            "image": fix_image_url(c_poster),
+            "role": ", ".join(roles) if isinstance(roles, list) else str(roles),
+            "url": f"https://shikimori.io{c.get('url')}" if c.get("url") else ""
+        })
+
+    related = []
+    for r in a.get("related", []) or []:
+        rel_ru = r.get("relationRu") or ""
+        target = r.get("anime") or r.get("manga")
+        if target:
+            is_anime = bool(r.get("anime"))
+            t_url = target.get("url") or (f"/animes/{target.get('id')}" if is_anime else f"/mangas/{target.get('id')}")
+            related.append({
+                "id": target.get("id"),
+                "name": target.get("russian") or target.get("name"),
+                "kind": rel_ru,
+                "url": f"https://shikimori.io{t_url}" if not t_url.startswith("http") else t_url
+            })
+
+    screenshots = [
+        fix_image_url(s.get("originalUrl") or s.get("x332Url"), high_res=True)
+        for s in a.get("screenshots", []) if s
+    ]
+
+    videos = [
+        {
+            "id": v.get("id"),
+            "url": v.get("url"),
+            "name": v.get("name"),
+            "kind": v.get("kind")
+        }
+        for v in a.get("videos", []) if v and v.get("url")
+    ]
+
+    aired_on = (a.get("airedOn") or {}).get("date") or str((a.get("airedOn") or {}).get("year") or "")
+    released_on = (a.get("releasedOn") or {}).get("date") or str((a.get("releasedOn") or {}).get("year") or "")
+
+    return {
+        "id": a.get("id"),
+        "name": a.get("name"),
+        "russian": a.get("russian") or a.get("name"),
+        "image": fix_image_url(poster, high_res=True),
+        "kind": kind_map.get(a.get("kind"), (a.get("kind") or "").upper()),
+        "score": a.get("score"),
+        "scored_by": None,
+        "status": status_map.get(a.get("status"), a.get("status")),
+        "episodes": a.get("episodes"),
+        "episodes_aired": a.get("episodes_aired"),
+        "duration": a.get("duration"),
+        "aired_on": aired_on,
+        "released_on": released_on,
+        "rating": (a.get("rating") or "").upper(),
+        "genres": genres,
+        "studios": studios,
+        "fandate": None,
+        "franchise": a.get("franchise"),
+        "description": a.get("descriptionHtml") or a.get("description") or "Описание отсутствует.",
+        "shikimori_url": f"https://shikimori.io{a.get('url')}" if a.get('url') else f"https://shikimori.io/animes/{anime_id}",
+        "user_rate": user_rate,
+        "synonyms": a.get("synonyms", []),
+        "japanese": [],
+        "related": related[:12],
+        "characters": characters[:30],
+        "screenshots": screenshots,
+        "external_scores": [],
+        "video": videos,
+        "licensed_by": []
+    }
 
 def _build_anime_result(data, anime_id, characters_data=None):
     poster = fix_image_url(data.get("image"), high_res=True)
@@ -97,6 +195,65 @@ def _build_anime_result(data, anime_id, characters_data=None):
 @anime_bp.route("/api/anime/<int:anime_id>")
 @api_route
 def get_anime_details(anime_id):
+    # 1. Попытка загрузки через единый GraphQL-запрос со всеми связями
+    query = """
+    query AnimeDetails($id: String!) {
+      animes(ids: $id, limit: 1) {
+        id
+        name
+        russian
+        kind
+        score
+        status
+        episodes
+        episodesAired
+        duration
+        rating
+        descriptionHtml
+        description
+        airedOn { year date }
+        releasedOn { year date }
+        poster { originalUrl mainUrl }
+        genres { id name russian }
+        studios { id name }
+        synonyms
+        franchise
+        url
+        screenshots { id originalUrl x332Url }
+        characterRoles {
+          rolesRu
+          rolesEn
+          character {
+            id
+            name
+            russian
+            poster { mainUrl originalUrl }
+            url
+          }
+        }
+        related {
+          relationRu
+          anime { id name russian poster { mainUrl originalUrl } url }
+          manga { id name russian poster { mainUrl originalUrl } url }
+        }
+        videos {
+          id
+          name
+          url
+          kind
+        }
+      }
+    }
+    """
+    try:
+        gql_data = fetch_graphql(query, {"id": str(anime_id)}, ttl=3600)
+        if gql_data and isinstance(gql_data.get("animes"), list) and len(gql_data["animes"]) > 0:
+            logger.debug("Anime details loaded via GraphQL for anime_id=%s", anime_id)
+            return jsonify(_build_anime_from_graphql(gql_data["animes"][0], anime_id))
+    except Exception as exc:
+        logger.warning("GraphQL anime details failed for %s, fallback to REST: %s", anime_id, exc)
+
+    # 2. Резервный REST путь, если GraphQL недоступен
     headers = {"User-Agent": APP_NAME}
     anime_url = f"{SHIKIMORI_BASE}/api/animes/{anime_id}"
 
@@ -105,7 +262,6 @@ def get_anime_details(anime_id):
         logger.warning("Anime data unavailable for anime_id=%s", anime_id)
         raise AppError("Не удалось получить данные с Shikimori", 502)
 
-    # Fetch full screenshots list (returns 30-50+ screenshots instead of only 4)
     screenshots_url = f"{SHIKIMORI_BASE}/api/animes/{anime_id}/screenshots"
     screenshots_data = fetch_cached_api(screenshots_url, headers, ttl=3600)
     if isinstance(screenshots_data, list) and screenshots_data:
@@ -114,8 +270,9 @@ def get_anime_details(anime_id):
     roles_url = f"{SHIKIMORI_BASE}/api/animes/{anime_id}/roles"
     roles_data = fetch_cached_api(roles_url, headers, ttl=3600)
 
-    logger.debug("Anime details loaded: anime_id=%s roles=%s screenshots=%s", anime_id, len(roles_data) if isinstance(roles_data, list) else 0, len(data.get("screenshots", [])))
+    logger.debug("Anime details loaded via REST fallback: anime_id=%s", anime_id)
     return jsonify(_build_anime_result(data, anime_id, characters_data=roles_data))
+
 
 
 

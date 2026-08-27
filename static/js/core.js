@@ -61,6 +61,32 @@ function buildImgUrl(src, highRes = false) {
 }
 
 
+function setupSectionLazyLoader(target, callback, rootMargin = '250px') {
+    const el = typeof target === 'string' ? document.getElementById(target) : target;
+    if (!el) return;
+
+    if (el.classList.contains('hidden') || el.style.display === 'none') {
+        return;
+    }
+
+    if (!('IntersectionObserver' in window)) {
+        callback();
+        return;
+    }
+
+    const observer = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                obs.unobserve(entry.target);
+                callback();
+            }
+        });
+    }, { rootMargin });
+
+    observer.observe(el);
+}
+window.setupSectionLazyLoader = setupSectionLazyLoader;
+
 async function openTab(tabId) {
     localStorage.setItem('activeTab', tabId);
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -74,20 +100,19 @@ async function openTab(tabId) {
     document.querySelectorAll(`.mobile-tab-btn[data-tab="${tabId}"]`).forEach(btn => btn.classList.add('active'));
 
     if (tabId === 'profile') {
-        // Load explore data (news) when profile tab is opened
-        if (!tabLoaded['explore']) {
-            showLoader();
-            try {
-                const res = await fetch(`/api/tab/explore`);
-                const data = await res.json();
-                tabLoaded['explore'] = true;
-                renderExplore(data);
-            } catch (err) {
-                console.error('Ошибка загрузки новостей:', err);
-            } finally {
-                hideLoader();
+        // Ленивая подгрузка новостей только при приближении к области видимости
+        setupSectionLazyLoader('explore-news-container', async () => {
+            if (!tabLoaded['explore']) {
+                try {
+                    const res = await fetch(`/api/tab/explore`);
+                    const data = await res.json();
+                    tabLoaded['explore'] = true;
+                    renderExplore(data);
+                } catch (err) {
+                    console.error('Ошибка загрузки новостей:', err);
+                }
             }
-        }
+        }, '300px');
         return;
     }
     if (tabId === 'history' && cachedHistoryData) {
@@ -108,11 +133,14 @@ async function openTab(tabId) {
         else if (tabId === 'history') { cachedHistoryData = data; renderHistory(data); }
         else if (tabId === 'rates') { ratesDataCache = data; renderRatesView(); }
     } catch (err) {
+        console.error(`Ошибка загрузки вкладки ${tabId}:`, err);
         if (activeContent) activeContent.innerHTML = `<p style="color: var(--danger);">Ошибка загрузки: ${err.message}</p>`;
     } finally {
         hideLoader();
     }
 }
+window.openTab = openTab;
+
 
 async function syncAppVersion() {
     try {
@@ -259,37 +287,47 @@ window.installPwaApp = installPwaApp;
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     syncAppVersion();
-    loadRecentHistory();
-    loadProfileFriendsClubs();
 
     const savedTab = localStorage.getItem('activeTab') || 'profile';
     openTab(savedTab);
 
+    // Ленивая загрузка карточек профиля только при попадании во вьюпорт
+    setupSectionLazyLoader('recent-history-list', () => {
+        if (typeof loadRecentHistory === 'function') loadRecentHistory();
+    }, '250px');
+
+    setupSectionLazyLoader('profile-friends-clubs-preview', () => {
+        if (typeof loadProfileFriendsClubs === 'function') loadProfileFriendsClubs();
+    }, '250px');
+
     if (typeof applyTranslations === 'function') applyTranslations();
     if (typeof updateLanguageButton === 'function') updateLanguageButton();
 
-    document.querySelectorAll('.shiki-grid').forEach(async (grid) => {
-        const type = grid.dataset.type;
-        const ids = grid.dataset.ids;
-        if (!ids) return;
+    // Ленивая подгрузка BBCode сеток (shiki-grid) только при скролле к ним
+    document.querySelectorAll('.shiki-grid').forEach((grid) => {
+        setupSectionLazyLoader(grid, async () => {
+            const type = grid.dataset.type;
+            const ids = grid.dataset.ids;
+            if (!ids) return;
 
-        try {
-            const res = await fetch(`/api/grid-data?type=${type}&ids=${ids}`);
-            const items = await res.json();
-            if (!Array.isArray(items)) return;
+            try {
+                const res = await fetch(`/api/grid-data?type=${type}&ids=${ids}`);
+                const items = await res.json();
+                if (!Array.isArray(items)) return;
 
-            grid.innerHTML = items.map(item => {
-                const title = item.russian || item.name || '';
-                const imgUrl = buildImgUrl(item.image);
-                const itemUrl = item.url ? `https://shikimori.io${item.url}` : `https://shikimori.io/${type}/${item.id}`;
-                return `
-                    <a href="${itemUrl}" target="_blank" class="shiki-grid-item" title="${title}">
-                        <img src="${imgUrl}" alt="${title}" loading="lazy">
-                        <div class="item-title">${title}</div>
-                    </a>`;
-            }).join('');
-        } catch (err) {
-            console.error('Ошибка загрузки сетки:', err);
-        }
+                grid.innerHTML = items.map(item => {
+                    const title = item.russian || item.name || '';
+                    const imgUrl = buildImgUrl(item.image);
+                    const itemUrl = item.url ? `https://shikimori.io${item.url}` : `https://shikimori.io/${type}/${item.id}`;
+                    return `
+                        <a href="${itemUrl}" target="_blank" class="shiki-grid-item" title="${title}">
+                            <img src="${imgUrl}" alt="${title}" loading="lazy" decoding="async">
+                            <div class="item-title">${title}</div>
+                        </a>`;
+                }).join('');
+            } catch (err) {
+                console.error('Ошибка загрузки сетки:', err);
+            }
+        }, '250px');
     });
 });

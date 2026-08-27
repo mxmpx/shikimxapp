@@ -4,6 +4,9 @@ import time
 import logging
 import requests
 import json
+import threading
+import random
+import hashlib
 from flask import session
 from database import get_connection
 from dotenv import load_dotenv
@@ -27,6 +30,54 @@ _API_CACHE_CLEANUP_INTERVAL = 300
 _last_api_cache_cleanup = 0
 
 
+class ShikimoriRateLimiter:
+    """
+    Потокобезопасный ограничитель частоты запросов (Rate Limiter) к API Shikimori.
+    - Максимальная частота: ~3.5 RPS (ниже системного лимита Shikimori 5 RPS).
+    - Гарантированная пауза между запросами: не менее 280 мс.
+    - Общая блокировка всех потоков при ответе 429 (Too Many Requests).
+    """
+    def __init__(self, min_interval=0.28):
+        self.min_interval = min_interval
+        self.last_request_time = 0.0
+        self.paused_until = 0.0
+        self.lock = threading.Lock()
+
+    def wait(self):
+        with self.lock:
+            now = time.time()
+            # Если активна общая пауза после 429 ошибки
+            if now < self.paused_until:
+                sleep_time = self.paused_until - now
+                logger.warning("RateLimiter: глобальная пауза 429, ожидание %.2f с", sleep_time)
+                time.sleep(sleep_time)
+                now = time.time()
+
+            # Соблюдение минимального интервала между любыми запросами
+            elapsed = now - self.last_request_time
+            if elapsed < self.min_interval:
+                time.sleep(self.min_interval - elapsed)
+
+            self.last_request_time = time.time()
+
+    def report_429(self, retry_after=None):
+        with self.lock:
+            now = time.time()
+            if retry_after is not None:
+                try:
+                    pause_duration = float(retry_after)
+                except (ValueError, TypeError):
+                    pause_duration = 3.0
+            else:
+                pause_duration = 2.5
+            pause_duration += random.uniform(0.2, 0.5)
+            self.paused_until = max(self.paused_until, now + pause_duration)
+            logger.warning("RateLimiter: пауза на %.2f с из-за ответа 429 от Shikimori", pause_duration)
+
+
+shiki_rate_limiter = ShikimoriRateLimiter(min_interval=0.28)
+
+
 def _cleanup_api_cache(force=False):
     global _last_api_cache_cleanup
     now = time.time()
@@ -42,24 +93,131 @@ def _cleanup_api_cache(force=False):
     except Exception as exc:
         logger.error("Error cleaning API cache: %s", exc)
 
+
 def fetch_with_retry(url, headers):
+    """Выполнить GET запрос с защитой от 429, уважением Retry-After и экспоненциальным backoff."""
     last_status = None
-    for attempt in range(4):
+    for attempt in range(5):
+        shiki_rate_limiter.wait()
         try:
-            r = requests.get(url, headers=headers, timeout=5)
+            r = requests.get(url, headers=headers, timeout=6)
             if r.status_code == 200:
                 return r.json()
             last_status = r.status_code
             if r.status_code == 429:
-                logger.warning("Rate limit 429 for %s (attempt %d/4)", url, attempt + 1)
-                time.sleep(0.3 * (attempt + 1))
+                retry_after = r.headers.get("Retry-After")
+                shiki_rate_limiter.report_429(retry_after)
+                wait_sec = float(retry_after) if retry_after else (1.2 * (2 ** attempt) + random.uniform(0.1, 0.4))
+                logger.warning("Rate limit 429 для %s (попытка %d/5), ожидание %.2f с", url, attempt + 1, wait_sec)
+                time.sleep(wait_sec)
             else:
-                logger.warning("API %s returned %s (attempt %d/4)", url, r.status_code, attempt + 1)
+                logger.warning("API %s вернул статус %s (попытка %d/5)", url, r.status_code, attempt + 1)
+                time.sleep(0.4 * (attempt + 1))
         except requests.RequestException as exc:
-            logger.warning("Request failed for %s (attempt %d/4): %s", url, attempt + 1, exc)
-            time.sleep(0.2)
-    logger.error("All retry attempts failed for %s (last status: %s)", url, last_status)
+            logger.warning("Сетевая ошибка для %s (попытка %d/5): %s", url, attempt + 1, exc)
+            time.sleep(0.5)
+
+    logger.error("Все попытки исчерпаны для %s (последний статус: %s)", url, last_status)
+
+    # Резервный возврат устаревших данных из кэша, если есть (stale-while-error)
+    try:
+        conn = get_connection()
+        row = conn.execute("SELECT data FROM api_cache WHERE url = ?", (url,)).fetchone()
+        conn.close()
+        if row:
+            logger.warning("Возврат устаревшего кэша для %s после ошибки 429/сбоя", url)
+            return json.loads(row['data'])
+    except Exception:
+        pass
+
     return None
+
+
+def fetch_graphql(query, variables=None, headers=None, ttl=1800):
+    """Централизованный запуск GraphQL запроса к Shikimori с кэшированием и rate limiter'ом."""
+    _cleanup_api_cache()
+    now = time.time()
+
+    req_headers = {"User-Agent": APP_NAME, "Content-Type": "application/json"}
+    if headers:
+        for k, v in headers.items():
+            req_headers[k] = v
+
+    cache_payload = json.dumps({"query": query.strip(), "variables": variables or {}}, sort_keys=True)
+    cache_key = f"graphql:{hashlib.md5(cache_payload.encode('utf-8')).hexdigest()}"
+
+    conn = None
+    try:
+        conn = get_connection()
+        row = conn.execute("SELECT data, expires_at FROM api_cache WHERE url = ?", (cache_key,)).fetchone()
+        if row:
+            if now < row['expires_at']:
+                conn.close()
+                return json.loads(row['data'])
+            conn.execute("DELETE FROM api_cache WHERE url = ?", (cache_key,))
+            conn.commit()
+    except Exception as exc:
+        logger.error("Ошибка чтения GraphQL кэша: %s", exc)
+
+    endpoint = f"{SHIKIMORI_BASE}/api/graphql"
+    last_status = None
+    data = None
+
+    for attempt in range(5):
+        shiki_rate_limiter.wait()
+        try:
+            r = requests.post(
+                endpoint,
+                json={"query": query, "variables": variables or {}},
+                headers=req_headers,
+                timeout=8
+            )
+            if r.status_code == 200:
+                resp_json = r.json()
+                data = resp_json.get("data")
+                break
+            last_status = r.status_code
+            if r.status_code == 429:
+                retry_after = r.headers.get("Retry-After")
+                shiki_rate_limiter.report_429(retry_after)
+                wait_sec = float(retry_after) if retry_after else (1.2 * (2 ** attempt) + random.uniform(0.1, 0.4))
+                logger.warning("GraphQL 429 rate limit (попытка %d/5), ожидание %.2f с", attempt + 1, wait_sec)
+                time.sleep(wait_sec)
+            else:
+                logger.warning("GraphQL вернул %s (попытка %d/5): %s", r.status_code, attempt + 1, r.text[:150])
+                time.sleep(0.4 * (attempt + 1))
+        except requests.RequestException as exc:
+            logger.warning("GraphQL ошибка сети (попытка %d/5): %s", attempt + 1, exc)
+            time.sleep(0.5)
+
+    if data is not None:
+        try:
+            if conn is None:
+                conn = get_connection()
+            conn.execute(
+                "INSERT OR REPLACE INTO api_cache (url, data, expires_at) VALUES (?, ?, ?)",
+                (cache_key, json.dumps(data), now + ttl)
+            )
+            conn.commit()
+        except Exception as exc:
+            logger.error("Ошибка записи GraphQL кэша: %s", exc)
+    else:
+        # Резервный возврат устаревших данных
+        try:
+            if conn is None:
+                conn = get_connection()
+            row = conn.execute("SELECT data FROM api_cache WHERE url = ?", (cache_key,)).fetchone()
+            if row:
+                logger.warning("Возврат устаревшего GraphQL кэша после сбоя")
+                data = json.loads(row['data'])
+        except Exception:
+            pass
+
+    if conn:
+        conn.close()
+
+    return data
+
 
 def fetch_cached_api(url, headers, ttl=1800):
     _cleanup_api_cache()
@@ -168,28 +326,26 @@ def resolve_posters_graphql(anime_ids, headers=None):
     """Query Shikimori GraphQL to resolve high-res webp poster URLs for anime IDs."""
     if not anime_ids:
         return {}
-    if headers is None:
-        headers = {"User-Agent": APP_NAME}
 
     poster_map = {}
     ids_list = [str(x) for x in anime_ids if str(x).isdigit()]
     for i in range(0, len(ids_list), 50):
         batch = ids_list[i:i + 50]
-        query = f"""
-        query {{
-          animes(ids: "{','.join(batch)}", limit: 50) {{
+        query = """
+        query BatchPosters($ids: String!) {
+          animes(ids: $ids, limit: 50) {
             id
-            poster {{
+            poster {
               mainUrl
               originalUrl
-            }}
-          }}
-        }}
+            }
+          }
+        }
         """
         try:
-            r = requests.post(f"{SHIKIMORI_BASE}/api/graphql", json={"query": query}, headers=headers, timeout=6)
-            if r.status_code == 200:
-                for a in r.json().get("data", {}).get("animes", []):
+            data = fetch_graphql(query, {"ids": ",".join(batch)}, headers=headers, ttl=3600)
+            if data and isinstance(data.get("animes"), list):
+                for a in data["animes"]:
                     p = a.get("poster")
                     if p:
                         url = p.get("mainUrl") or p.get("originalUrl")
@@ -204,29 +360,25 @@ def resolve_single_anime_poster_graphql(anime_id, headers=None):
     """Query Shikimori GraphQL for a single anime poster URL in high resolution."""
     if not anime_id:
         return ""
-    if headers is None:
-        headers = {"User-Agent": APP_NAME}
-    query = f"""
-    query {{
-      animes(ids: "{anime_id}", limit: 1) {{
+    query = """
+    query SinglePoster($id: String!) {
+      animes(ids: $id, limit: 1) {
         id
-        poster {{
+        poster {
           originalUrl
           mainUrl
-        }}
-      }}
-    }}
+        }
+      }
+    }
     """
     try:
-        r = requests.post(f"{SHIKIMORI_BASE}/api/graphql", json={"query": query}, headers=headers, timeout=6)
-        if r.status_code == 200:
-            animes = r.json().get("data", {}).get("animes", [])
-            if animes:
-                p = animes[0].get("poster")
-                if p:
-                    url = p.get("originalUrl") or p.get("mainUrl")
-                    if url:
-                        return fix_image_url(url, high_res=True)
+        data = fetch_graphql(query, {"id": str(anime_id)}, headers=headers, ttl=3600)
+        if data and isinstance(data.get("animes"), list) and len(data["animes"]) > 0:
+            p = data["animes"][0].get("poster")
+            if p:
+                url = p.get("originalUrl") or p.get("mainUrl")
+                if url:
+                    return fix_image_url(url, high_res=True)
     except Exception as exc:
         logger.debug("Failed to resolve single GraphQL poster: %s", exc)
     return ""

@@ -1,8 +1,12 @@
 import re
 import logging
+import random
 import requests
 from flask import Blueprint, jsonify, request
-from utils import SHIKIMORI_BASE, APP_NAME, fetch_cached_api, fix_image_url
+from utils import (
+    SHIKIMORI_BASE, APP_NAME, fetch_cached_api, fix_image_url,
+    fetch_graphql, resolve_posters_graphql
+)
 from concurrent.futures import ThreadPoolExecutor
 from errors import AppError, api_route
 
@@ -93,49 +97,122 @@ def search():
     if not q or len(q) < 2:
         return jsonify([])
 
-    headers = {"User-Agent": APP_NAME}
-    anime_url = f"{SHIKIMORI_BASE}/api/animes?search={requests.utils.quote(q)}&limit=8"
-    manga_url = f"{SHIKIMORI_BASE}/api/mangas?search={requests.utils.quote(q)}&limit=8"
-
-    anime_data = fetch_cached_api(anime_url, headers, ttl=300) or []
-    manga_data = fetch_cached_api(manga_url, headers, ttl=300) or []
-
-    combined = []
-    if isinstance(anime_data, list):
-        for item in anime_data:
-            item["content_type"] = "anime"
-            combined.append(item)
-    if isinstance(manga_data, list):
-        for item in manga_data:
-            item["content_type"] = "manga"
-            combined.append(item)
-
-    anime_ids = [str(item["id"]) for item in combined if item.get("content_type") == "anime" and item.get("id")]
-    poster_map = resolve_posters_graphql(anime_ids, headers)
-
+    query = """
+    query GlobalSearch($search: String!) {
+      animes(search: $search, limit: 8) {
+        id
+        name
+        russian
+        kind
+        score
+        status
+        airedOn { year }
+        poster {
+          mainUrl
+          originalUrl
+        }
+        genres {
+          name
+          russian
+        }
+      }
+      mangas(search: $search, limit: 8) {
+        id
+        name
+        russian
+        kind
+        score
+        status
+        airedOn { year }
+        poster {
+          mainUrl
+          originalUrl
+        }
+        genres {
+          name
+          russian
+        }
+      }
+    }
+    """
+    gql_data = fetch_graphql(query, {"search": q}, ttl=300)
     formatted = []
-    for item in combined:
-        aid = str(item.get("id"))
-        poster = poster_map.get(aid) if item.get("content_type") == "anime" else None
-        if not poster:
-            poster = fix_image_url(item.get("image"))
 
-        genres = [g.get("russian") or g.get("name") for g in item.get("genres", [])]
-        formatted.append({
-            "id": item.get("id"),
-            "content_type": item.get("content_type"),
-            "name": item.get("name", ""),
-            "russian": item.get("russian") or item.get("name", ""),
-            "kind": (item.get("kind") or "").upper(),
-            "year": (item.get("aired_on") or "")[:4],
-            "status": item.get("status", ""),
-            "genres": genres,
-            "image": poster,
-            "url": f"https://shikimori.io{item.get('url')}" if item.get("url") else f"https://shikimori.io/{item.get('content_type')}s/{item.get('id')}"
-        })
+    if gql_data and isinstance(gql_data, dict):
+        for item in gql_data.get("animes", []) or []:
+            p = item.get("poster") or {}
+            poster_url = p.get("mainUrl") or p.get("originalUrl") or ""
+            genres = [g.get("russian") or g.get("name") for g in item.get("genres", []) if g]
+            year = str(item.get("airedOn", {}).get("year") or "") if isinstance(item.get("airedOn"), dict) else ""
+            formatted.append({
+                "id": item.get("id"),
+                "content_type": "anime",
+                "name": item.get("name", ""),
+                "russian": item.get("russian") or item.get("name", ""),
+                "kind": (item.get("kind") or "").upper(),
+                "year": year,
+                "status": item.get("status", ""),
+                "genres": genres,
+                "image": fix_image_url(poster_url),
+                "url": f"https://shikimori.io/animes/{item.get('id')}"
+            })
 
-    logger.debug("Search q=%r returned %d results", q, len(formatted))
+        for item in gql_data.get("mangas", []) or []:
+            p = item.get("poster") or {}
+            poster_url = p.get("mainUrl") or p.get("originalUrl") or ""
+            genres = [g.get("russian") or g.get("name") for g in item.get("genres", []) if g]
+            year = str(item.get("airedOn", {}).get("year") or "") if isinstance(item.get("airedOn"), dict) else ""
+            formatted.append({
+                "id": item.get("id"),
+                "content_type": "manga",
+                "name": item.get("name", ""),
+                "russian": item.get("russian") or item.get("name", ""),
+                "kind": (item.get("kind") or "").upper(),
+                "year": year,
+                "status": item.get("status", ""),
+                "genres": genres,
+                "image": fix_image_url(poster_url),
+                "url": f"https://shikimori.io/mangas/{item.get('id')}"
+            })
+    else:
+        # Fallback to REST if GraphQL returned nothing
+        headers = {"User-Agent": APP_NAME}
+        anime_url = f"{SHIKIMORI_BASE}/api/animes?search={requests.utils.quote(q)}&limit=8"
+        manga_url = f"{SHIKIMORI_BASE}/api/mangas?search={requests.utils.quote(q)}&limit=8"
+        anime_data = fetch_cached_api(anime_url, headers, ttl=300) or []
+        manga_data = fetch_cached_api(manga_url, headers, ttl=300) or []
+        combined = []
+        if isinstance(anime_data, list):
+            for item in anime_data:
+                item["content_type"] = "anime"
+                combined.append(item)
+        if isinstance(manga_data, list):
+            for item in manga_data:
+                item["content_type"] = "manga"
+                combined.append(item)
+
+        anime_ids = [str(item["id"]) for item in combined if item.get("content_type") == "anime" and item.get("id")]
+        poster_map = resolve_posters_graphql(anime_ids, headers)
+        for item in combined:
+            aid = str(item.get("id"))
+            poster = poster_map.get(aid) if item.get("content_type") == "anime" else fix_image_url(item.get("image"))
+            genres = [g.get("russian") or g.get("name") for g in item.get("genres", [])]
+            formatted.append({
+                "id": item.get("id"),
+                "content_type": item.get("content_type"),
+                "name": item.get("name", ""),
+                "russian": item.get("russian") or item.get("name", ""),
+                "kind": (item.get("kind") or "").upper(),
+                "year": (item.get("aired_on") or "")[:4],
+                "status": item.get("status", ""),
+                "genres": genres,
+                "image": poster,
+                "url": f"https://shikimori.io/{item.get('content_type')}s/{item.get('id')}"
+            })
+
+    logger.debug("Search q=%r returned %d results via GraphQL", q, len(formatted))
     return jsonify(formatted)
+
 
 
 @explore_bp.route("/api/news")
@@ -199,7 +276,7 @@ def tab_explore():
         key, url = key_url
         return key, fetch_cached_api(url, headers, ttl=900)
 
-    with ThreadPoolExecutor(max_workers=5) as executor:
+    with ThreadPoolExecutor(max_workers=2) as executor:
         for k, data in executor.map(fetch_url, urls.items()):
             results[k] = data if isinstance(data, list) else []
             if not isinstance(data, list):
@@ -229,39 +306,6 @@ def tab_explore():
         "latest": parsed_news[:3],
         "other": parsed_news[3:]
     })
-
-
-def resolve_posters_graphql(anime_ids, headers):
-    """Query Shikimori GraphQL to resolve high-res webp poster URLs for anime IDs."""
-    if not anime_ids:
-        return {}
-    poster_map = {}
-    ids_list = [str(x) for x in anime_ids if str(x).isdigit()]
-    for i in range(0, len(ids_list), 50):
-        batch = ids_list[i:i + 50]
-        query = f"""
-        query {{
-          animes(ids: "{','.join(batch)}", limit: 50) {{
-            id
-            poster {{
-              mainUrl
-              originalUrl
-            }}
-          }}
-        }}
-        """
-        try:
-            r = requests.post(f"{SHIKIMORI_BASE}/api/graphql", json={"query": query}, headers=headers, timeout=6)
-            if r.status_code == 200:
-                for a in r.json().get("data", {}).get("animes", []):
-                    p = a.get("poster")
-                    if p:
-                        url = p.get("mainUrl") or p.get("originalUrl")
-                        if url:
-                            poster_map[str(a["id"])] = fix_image_url(url)
-        except Exception as exc:
-            logger.debug("Failed to resolve GraphQL posters: %s", exc)
-    return poster_map
 
 
 @explore_bp.route("/api/calendar")
@@ -330,7 +374,7 @@ def get_airing_calendar():
 @explore_bp.route("/api/catalog")
 @api_route
 def get_catalog():
-    """Advanced catalog search with filtering by genre, season, status, kind, score, order."""
+    """Advanced catalog search with filtering via GraphQL."""
     page = request.args.get("page", 1, type=int)
     limit = min(request.args.get("limit", 24, type=int), 50)
     order = request.args.get("order", "ranked")
@@ -341,11 +385,82 @@ def get_catalog():
     genre = request.args.get("genre", "")
     search_q = request.args.get("search", "").strip()
 
-    params = {
+    query = """
+    query CatalogQuery(
+      $page: Int,
+      $limit: Int,
+      $order: OrderEnum,
+      $kind: AnimeKindString,
+      $status: AnimeStatusString,
+      $season: SeasonString,
+      $score: Int,
+      $genre: String,
+      $search: String
+    ) {
+      animes(
+        page: $page,
+        limit: $limit,
+        order: $order,
+        kind: $kind,
+        status: $status,
+        season: $season,
+        score: $score,
+        genre: $genre,
+        search: $search
+      ) {
+        id
+        name
+        russian
+        score
+        kind
+        status
+        episodes
+        episodesAired
+        airedOn { year }
+        poster { mainUrl originalUrl }
+        genres { id name russian }
+      }
+    }
+    """
+    gql_vars = {
         "page": page,
         "limit": limit,
-        "order": order,
+        "order": order if order else "ranked"
     }
+    if kind: gql_vars["kind"] = kind
+    if status: gql_vars["status"] = status
+    if season: gql_vars["season"] = season
+    if score and str(score).isdigit(): gql_vars["score"] = int(score)
+    if genre: gql_vars["genre"] = str(genre)
+    if search_q: gql_vars["search"] = search_q
+
+    gql_data = fetch_graphql(query, gql_vars, ttl=600)
+    if gql_data and isinstance(gql_data.get("animes"), list):
+        results = []
+        for item in gql_data["animes"]:
+            p = item.get("poster") or {}
+            poster = p.get("mainUrl") or p.get("originalUrl") or ""
+            genres = [g.get("russian") or g.get("name") for g in item.get("genres", []) if g]
+            year = str(item.get("airedOn", {}).get("year") or "") if isinstance(item.get("airedOn"), dict) else ""
+            results.append({
+                "id": item.get("id"),
+                "name": item.get("name"),
+                "russian": item.get("russian") or item.get("name"),
+                "image": fix_image_url(poster),
+                "score": item.get("score"),
+                "kind": (item.get("kind") or "").upper(),
+                "status": item.get("status"),
+                "episodes": item.get("episodes"),
+                "episodes_aired": item.get("episodes_aired"),
+                "year": year,
+                "genres": genres,
+            })
+        logger.debug("Catalog page=%s returned %d items via GraphQL", page, len(results))
+        return jsonify(results)
+
+    # Fallback to REST API if GraphQL returned nothing
+    headers = {"User-Agent": APP_NAME}
+    params = {"page": page, "limit": limit, "order": order}
     if kind: params["kind"] = kind
     if status: params["status"] = status
     if season: params["season"] = season
@@ -355,11 +470,9 @@ def get_catalog():
 
     query_str = "&".join(f"{k}={requests.utils.quote(str(v))}" for k, v in params.items())
     url = f"{SHIKIMORI_BASE}/api/animes?{query_str}"
-    headers = {"User-Agent": APP_NAME}
-
     data = fetch_cached_api(url, headers, ttl=600) or []
     if not isinstance(data, list):
-        logger.warning("Catalog API returned non-list")
+        logger.warning("Catalog REST fallback returned non-list")
         return jsonify([])
 
     anime_ids = [str(item["id"]) for item in data if item.get("id")]
@@ -384,63 +497,83 @@ def get_catalog():
             "genres": genres,
         })
 
-    logger.debug("Catalog page=%s returned %d items", page, len(results))
+    logger.debug("Catalog page=%s returned %d items via REST fallback", page, len(results))
     return jsonify(results)
 
 
 @explore_bp.route("/api/random")
 @api_route
 def get_random_anime():
-    """Get a random high-rated anime."""
-    import random
-    headers = {"User-Agent": APP_NAME}
-    
-    # Pick a random page from top rated / popular titles
-    page = random.randint(1, 12)
-    url = f"{SHIKIMORI_BASE}/api/animes?order=popularity&score=7&limit=50&page={page}&kind=tv,movie"
-    data = fetch_cached_api(url, headers, ttl=1800) or []
+    """Get a random high-rated anime via GraphQL."""
+    page = random.randint(1, 10)
+    query = """
+    query RandomAnime($page: Int) {
+      animes(order: popularity, score: 7, limit: 50, page: $page, kind: "tv,movie") {
+        id
+        name
+        russian
+        score
+        kind
+        airedOn { year }
+        poster { mainUrl originalUrl }
+      }
+    }
+    """
+    data = fetch_graphql(query, {"page": page}, ttl=1800)
+    animes = data.get("animes", []) if data else []
+    if not animes:
+        data = fetch_graphql(query, {"page": 1}, ttl=1800)
+        animes = data.get("animes", []) if data else []
 
-    if not isinstance(data, list) or not data:
-        url = f"{SHIKIMORI_BASE}/api/animes?order=ranked&score=7&limit=50&page=1&kind=tv,movie"
-        data = fetch_cached_api(url, headers, ttl=1800) or []
-
-    if data and isinstance(data, list):
-        chosen = random.choice(data)
-        aid = str(chosen.get("id"))
-        poster_map = resolve_posters_graphql([aid], headers)
-        poster = poster_map.get(aid) or fix_image_url(chosen.get("image"))
+    if animes:
+        chosen = random.choice(animes)
+        p = chosen.get("poster") or {}
+        poster = p.get("mainUrl") or p.get("originalUrl") or ""
+        year = str(chosen.get("airedOn", {}).get("year") or "") if isinstance(chosen.get("airedOn"), dict) else ""
         return jsonify({
             "id": chosen.get("id"),
             "name": chosen.get("name"),
             "russian": chosen.get("russian") or chosen.get("name"),
-            "image": poster,
+            "image": fix_image_url(poster),
             "score": chosen.get("score"),
             "kind": (chosen.get("kind") or "").upper(),
-            "year": (chosen.get("aired_on") or "")[:4],
+            "year": year,
         })
 
     raise AppError("Не удалось подобрать случайное аниме", 502)
 
 
-
-
 @explore_bp.route("/api/genres")
 @api_route
 def get_genres():
-    """Get list of anime genres."""
+    """Get list of anime genres via GraphQL."""
+    query = """
+    query {
+      genres(entryType: Anime) {
+        id
+        name
+        russian
+        kind
+      }
+    }
+    """
+    data = fetch_graphql(query, ttl=86400)
+    if data and isinstance(data.get("genres"), list) and data["genres"]:
+        return jsonify(data["genres"])
+
+    # Fallback to REST if GraphQL empty
     headers = {"User-Agent": APP_NAME}
     url = f"{SHIKIMORI_BASE}/api/genres"
-    data = fetch_cached_api(url, headers, ttl=86400) or []
+    rest_data = fetch_cached_api(url, headers, ttl=86400) or []
+    if isinstance(rest_data, list):
+        anime_genres = [
+            {"id": g["id"], "name": g.get("russian") or g.get("name"), "kind": g.get("kind")}
+            for g in rest_data
+            if isinstance(g, dict) and g.get("entry_type") == "Anime"
+        ]
+        return jsonify(anime_genres)
 
-    if not isinstance(data, list):
-        return jsonify([])
-
-    anime_genres = [
-        {"id": g["id"], "name": g.get("russian") or g.get("name"), "kind": g.get("kind")}
-        for g in data
-        if isinstance(g, dict) and g.get("entry_type") == "Anime"
-    ]
-    return jsonify(anime_genres)
+    return jsonify([])
 
 
 @explore_bp.route("/api/recommendations")
