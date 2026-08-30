@@ -1,6 +1,7 @@
 import os
 import re
 import time
+import json
 import difflib
 import logging
 import requests
@@ -190,18 +191,23 @@ def match_score(target_title: str, candidate_title: str) -> float:
     union = t_tokens | c_tokens
     jaccard = len(intersection) / len(union) if union else 0.0
 
-    # Coverage of the smaller title
-    min_tokens = min(len(t_tokens), len(c_tokens))
-    coverage = len(intersection) / min_tokens if min_tokens else 0.0
+    # Coverage of target tokens in candidate and candidate in target
+    target_coverage = len(intersection) / len(t_tokens) if t_tokens else 0.0
+    cand_coverage = len(intersection) / len(c_tokens) if c_tokens else 0.0
 
     # Character-level similarity
     char_sim = difflib.SequenceMatcher(None, c_target, c_cand).ratio()
 
-    # Weighted score: coverage (subset match) and Jaccard are most important
-    score = 0.35 * jaccard + 0.40 * coverage + 0.25 * char_sim
+    # Weighted score: target coverage (how much of requested anime is present) and Jaccard are key
+    score = 0.35 * jaccard + 0.40 * target_coverage + 0.25 * char_sim
 
-    # Boost for abbreviations / short forms: candidate fully contained in target
-    if coverage >= 0.999 and len(c_tokens) <= len(t_tokens):
+    # Subtitle penalty: if target has a distinctive subtitle/movie title (e.g. "Письмо от поклонника")
+    # but candidate is just the franchise parent (e.g. "Ван-Пис"), heavily penalize!
+    if target_coverage < 0.75 and len(t_tokens) >= 3 and len(c_tokens) < len(t_tokens):
+        score *= 0.45
+
+    # Boost for abbreviations / short forms ONLY when candidate genuinely covers the target
+    if cand_coverage >= 0.999 and target_coverage >= 0.80:
         score = max(score, 0.60 + 0.40 * jaccard)
 
     # Prefix + suffix anchor match with enough shared tokens
@@ -233,12 +239,12 @@ def match_score(target_title: str, candidate_title: str) -> float:
     # Length penalty: mild, less strict for valid abbreviations
     max_len = max(len(c_target), len(c_cand))
     len_ratio = min(len(c_target), len(c_cand)) / max_len if max_len else 0
-    if coverage >= 0.85:
+    if target_coverage >= 0.85 and cand_coverage >= 0.85:
         score *= (0.90 + 0.10 * len_ratio)
-    elif coverage >= 0.5:
-        score *= (0.85 + 0.15 * len_ratio)
+    elif target_coverage >= 0.5:
+        score *= (0.80 + 0.20 * len_ratio)
     else:
-        score *= (0.70 + 0.30 * len_ratio)
+        score *= (0.60 + 0.40 * len_ratio)
 
     return max(0.0, score - season_penalty)
 
@@ -370,14 +376,20 @@ class VideoAggregator:
         if not episodes:
             return {}
 
-        episodes_map = {}
-        for ep_idx, ep in enumerate(episodes, start=1):
-            ep_key = str(ep_idx)
+        def fetch_ep_sources(item):
+            ep_idx, ep = item
             try:
-                sources = ep.get_sources()
+                return ep_idx, ep.get_sources()
             except Exception:
-                continue
+                return ep_idx, []
 
+        # Параллельный сбор источников для всех серий тайтла
+        with ThreadPoolExecutor(max_workers=8) as ep_executor:
+            raw_ep_results = list(ep_executor.map(fetch_ep_sources, enumerate(episodes, start=1)))
+
+        episodes_map = {}
+        for ep_idx, sources in raw_ep_results:
+            ep_key = str(ep_idx)
             for src in sources:
                 url = getattr(src, 'url', None) or getattr(src, 'player', None)
                 url_str = str(url).strip() if url else ""
@@ -450,10 +462,9 @@ class VideoAggregator:
             search_results = []
             seen_titles = set()
 
-            # Поиск по всем доступным названиям, собираем все уникальные результаты
-            for query in titles:
-                if not query or len(query.strip()) < 2:
-                    continue
+            # Поиск только по ключевым названиям (максимум 3 запроса), ранний выход при хорошем совпадении
+            search_queries = [t for t in titles if t and len(t.strip()) > 1][:3]
+            for query in search_queries:
                 try:
                     res = extractor.search(query.strip())
                     if not res:
@@ -463,13 +474,17 @@ class VideoAggregator:
                         if cand_title and cand_title not in seen_titles:
                             seen_titles.add(cand_title)
                             search_results.append(cand)
+
+                    # Если уже нашли кандидата с совпадением >= 0.88, не делаем лишние сетевые запросы
+                    if any(get_best_match_score(titles, getattr(c, "title", None) or getattr(c, "name", None) or str(c)) >= 0.88 for c in search_results):
+                        break
                 except Exception:
                     continue
 
             if not search_results:
                 return {}
 
-            # Поиск лучшего совпадения через Fuzzy Matcher + Remote IDs + Direct Search Relevance
+            # Поиск лучшего совпадения через Fuzzy Matcher + Remote IDs
             scored_candidates = []
             target_season = extract_season_num(titles[0]) if titles else 1
 
@@ -477,7 +492,6 @@ class VideoAggregator:
                 cand_title = getattr(cand, "title", None) or getattr(cand, "name", None) or str(cand)
                 score = get_best_match_score(titles, cand_title)
 
-                # Проверяем прямые ID shikimori/myanimelist из метаданных источника
                 cand_data = getattr(cand, "data", {}) or {}
                 if isinstance(cand_data, dict):
                     remote_ids = cand_data.get("remote_ids", {}) or {}
@@ -485,7 +499,6 @@ class VideoAggregator:
                     if shiki_remote and anime_id and str(shiki_remote) == str(anime_id):
                         score = max(score, 1.0)
 
-                # Если сезон совпадает и это один из первых результатов поиска
                 cand_season = extract_season_num(cand_title)
                 if cand_season == target_season and idx < 3:
                     score = max(score, 0.65)
@@ -499,13 +512,12 @@ class VideoAggregator:
 
             scored_candidates.sort(key=lambda x: x[0], reverse=True)
 
-            # Пробуем кандидатов по порядку, проверяя episode count и alternateName
-            for best_score, best_cand, best_title in scored_candidates:
+            # Пробуем до 5 лучших кандидатов
+            for best_score, best_cand, best_title in scored_candidates[:5]:
                 try:
                     anime = best_cand.get_anime()
                     raw_json = getattr(anime, "raw_json", None)
 
-                    # Проверка по alternateName и name из raw_json
                     if isinstance(raw_json, dict):
                         for field in ("alternateName", "name"):
                             alt_name = raw_json.get(field)
@@ -513,9 +525,7 @@ class VideoAggregator:
                                 alt_score = get_best_match_score(titles, alt_name)
                                 if alt_score > best_score:
                                     best_score = alt_score
-                                    logger.debug("Re-scored %s via %s: %.3f", mod_name, field, alt_score)
 
-                    # Проверка episode count
                     if expected_episodes and isinstance(raw_json, dict):
                         candidate_eps = raw_json.get("numberOfEpisodes")
                         if candidate_eps is not None:
@@ -523,42 +533,75 @@ class VideoAggregator:
                                 cand_eps = int(candidate_eps)
                                 exp_eps = int(expected_episodes)
                                 if exp_eps > 0 and abs(cand_eps - exp_eps) > max(2, int(exp_eps * 0.2)):
-                                    logger.debug(
-                                        "Episode count mismatch for %s: expected %s, got %s ('%s')",
-                                        mod_name, exp_eps, cand_eps, best_title
-                                    )
                                     continue
                             except (ValueError, TypeError):
                                 pass
 
                     if best_score < 0.45:
-                        logger.debug("Score too low after validation for %s: %.3f", mod_name, best_score)
                         continue
 
-                    logger.info("Best fuzzy match for %s: '%s' score=%.3f", mod_name, best_title, best_score)
-
                     result = self._process_episodes(mod_name, anime)
-                    if result:
-                        return result
+                    if not result or not result.get("episodes"):
+                        continue
+
+                    # Проверка на соответствие количества эпизодов
+                    cand_total_eps = result.get("total_episodes", len(result["episodes"]))
+                    if expected_episodes is not None and int(expected_episodes) > 0:
+                        exp_eps = int(expected_episodes)
+                        # Если ожидается 1 серия (спешл или фильм), а у кандидата больше 3 серий - это явно не тот тайтл!
+                        if exp_eps == 1 and cand_total_eps > 3:
+                            logger.warning(
+                                "Rejecting '%s' for %s: expected 1 episode (special/movie), but candidate has %d episodes",
+                                best_title, mod_name, cand_total_eps
+                            )
+                            continue
+                        if cand_total_eps > 0 and abs(cand_total_eps - exp_eps) > max(3, int(exp_eps * 0.35)):
+                            logger.warning(
+                                "Rejecting '%s' for %s: episode count mismatch (expected %d, got %d)",
+                                best_title, mod_name, exp_eps, cand_total_eps
+                            )
+                            continue
+
+                    logger.info("Best fuzzy match for %s: '%s' score=%.3f (eps=%d)", mod_name, best_title, best_score, cand_total_eps)
+                    return result
                 except Exception as e:
                     logger.debug("Error validating candidate '%s' for %s: %s", best_title, mod_name, e)
                     continue
 
-            logger.debug("No valid candidate passed validation for %s", mod_name)
             return {}
         except Exception as e:
             logger.warning("Error in anicli extractor %s: %s", mod_name, e)
             return {}
 
     def get_aggregated_streams(self, anime_id: int, titles: list, expected_episodes: int = None) -> dict:
-        cache_key = f"anime_stream_{anime_id}"
         now = time.time()
+        cache_key = f"stream:{anime_id}"
         _cleanup_stream_cache()
 
+        # 1. Быстрая проверка в RAM кэше
         if cache_key in STREAM_CACHE:
             cached_data, expire = STREAM_CACHE[cache_key]
             if now < expire:
+                logger.debug("Stream RAM cache hit for anime_id=%s", anime_id)
                 return cached_data
+
+        # 2. Быстрая проверка в постоянном SQLite кэше
+        try:
+            from database import get_connection
+            conn = get_connection()
+            row = conn.execute("SELECT data, expires_at FROM api_cache WHERE url = ?", (cache_key,)).fetchone()
+            if row:
+                if now < row['expires_at']:
+                    conn.close()
+                    data = json.loads(row['data'])
+                    STREAM_CACHE[cache_key] = (data, now + 14400)
+                    logger.info("Stream SQLite cache hit for anime_id=%s (instant load)", anime_id)
+                    return data
+                conn.execute("DELETE FROM api_cache WHERE url = ?", (cache_key,))
+                conn.commit()
+            conn.close()
+        except Exception as exc:
+            logger.debug("Stream cache SQLite check failed: %s", exc)
 
         merged_episodes = {}
         sources_found = set()
@@ -566,18 +609,17 @@ class VideoAggregator:
 
         # Пул параллельных задач
         tasks = []
-        with ThreadPoolExecutor(max_workers=6) as executor:
-            # 1. Kodik Direct
-            tasks.append(executor.submit(self.fetch_kodik_direct, anime_id, titles))
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            if self.kodik_token or os.getenv("KODIK_API_KEY"):
+                tasks.append(executor.submit(self.fetch_kodik_direct, anime_id, titles))
             
-            # 2. Пул anicli парсеров с валидными iframe плеерами
             for mod_name in self.extractors.keys():
                 tasks.append(executor.submit(self.fetch_single_anicli_source, mod_name, titles, expected_episodes, anime_id))
 
             try:
-                for future in as_completed(tasks, timeout=12):
+                for future in as_completed(tasks, timeout=7):
                     try:
-                        res = future.result(timeout=1)
+                        res = future.result(timeout=0.5)
                         if not res or not res.get("episodes"):
                             continue
 
@@ -585,7 +627,6 @@ class VideoAggregator:
                         sources_found.add(source_label)
                         max_episodes = max(max_episodes, res.get("total_episodes", 0))
 
-                        # Объединяем серии и переводы
                         for ep_num, translations in res["episodes"].items():
                             if ep_num not in merged_episodes:
                                 merged_episodes[ep_num] = {}
@@ -613,13 +654,11 @@ class VideoAggregator:
             for trans_name, players in merged_episodes[ep_key].items():
                 sorted_players = sorted(players, key=lambda p: priority_order.get(p.get("player"), 10))
                 
-                # Подсчет одинаковых плееров внутри одного перевода
                 player_counts = {}
                 for p in sorted_players:
                     p_name = p.get("player", "Player")
                     player_counts[p_name] = player_counts.get(p_name, 0) + 1
 
-                # Присвоение номеров дублирующимся плеерам (например: Kodik #1, Kodik #2)
                 player_indices = {}
                 final_players = []
                 for p in sorted_players:
@@ -640,9 +679,22 @@ class VideoAggregator:
         }
 
         if sorted_episodes:
-            STREAM_CACHE[cache_key] = (payload, now + 14400) # 4 часа TTL
+            STREAM_CACHE[cache_key] = (payload, now + 14400)
+            # Сохранение в постоянный SQLite кэш на 24 часа
+            try:
+                from database import get_connection
+                conn = get_connection()
+                conn.execute(
+                    "INSERT OR REPLACE INTO api_cache (url, data, expires_at) VALUES (?, ?, ?)",
+                    (cache_key, json.dumps(payload), now + 86400)
+                )
+                conn.commit()
+                conn.close()
+            except Exception as exc:
+                logger.error("Error writing stream SQLite cache: %s", exc)
 
         return payload
 
 
 video_aggregator = VideoAggregator()
+

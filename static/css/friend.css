@@ -12,14 +12,6 @@
     align-items: flex-start;
 }
 
-@media (max-width: 650px) {
-    .friend-detail-header {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-}
-
 .friend-avatar-wrapper {
     position: relative;
     width: 170px;
@@ -109,12 +101,6 @@
     grid-template-columns: 1fr 1fr;
     gap: 12px;
     margin-top: 6px;
-}
-
-@media (max-width: 500px) {
-    .friend-stats-summary {
-        grid-template-columns: 1fr;
-    }
 }
 
 .friend-stat-box {

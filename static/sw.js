@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shikimx-cache-af006b71';
+const CACHE_NAME = 'shikimx-cache-525384c7';
 const STATIC_ASSETS = [
   '/',
   '/static/bundle.css',

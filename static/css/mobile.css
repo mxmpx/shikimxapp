@@ -1,0 +1,5424 @@
+/* ==========================================================================
+   SHIKI MX APP — MOBILE STYLES (START FROM SCRATCH)
+   ========================================================================== */
+
+/* Сброс параметров десктопа для мобильного экрана */
+html, body {
+    min-width: 0 !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Скрываем элементы страницы по умолчанию */
+body > * {
+    display: none !important;
+}
+
+/* Мобильный верхний хедер-бар */
+body > .mobile-top-header {
+    display: flex !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: 54px !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 16px !important;
+    box-sizing: border-box !important;
+    background: var(--header-bg) !important;
+    border-bottom: 1px solid var(--card-border) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    z-index: 1000 !important;
+}
+
+.mobile-header-brand {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+.mobile-brand-logo {
+    font-size: 22px !important;
+    color: var(--primary) !important;
+    filter: drop-shadow(0 0 8px var(--primary-glow)) !important;
+}
+
+.mobile-brand-title {
+    font-size: 16px !important;
+    font-weight: 800 !important;
+    color: var(--text-main) !important;
+    letter-spacing: -0.3px !important;
+}
+
+.mobile-header-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    position: relative !important;
+}
+
+.mobile-header-btn {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: var(--radius-pill) !important;
+    background: var(--hover-bg-alpha) !important;
+    border: 1px solid var(--border-sub) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: var(--text-main) !important;
+    font-size: 19px !important;
+    cursor: pointer !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    padding: 0 !important;
+}
+
+.mobile-header-btn:active {
+    transform: scale(0.94) !important;
+    background: var(--primary-container) !important;
+    color: var(--on-primary-container) !important;
+}
+
+.mobile-header-avatar {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    border: 1px solid var(--card-border) !important;
+}
+
+/* Элементы поиска в мобильном хедере */
+.mobile-header-main {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+}
+
+.mobile-header-main.hidden {
+    display: none !important;
+}
+
+.mobile-header-search {
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    gap: 8px !important;
+}
+
+.mobile-header-search.hidden {
+    display: none !important;
+}
+
+.mobile-search-back-btn {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: var(--radius-pill) !important;
+    background: var(--hover-bg-alpha) !important;
+    border: 1px solid var(--border-sub) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: var(--text-main) !important;
+    font-size: 19px !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
+    padding: 0 !important;
+}
+
+.mobile-search-back-btn:active {
+    transform: scale(0.92) !important;
+    background: var(--primary-container) !important;
+}
+
+.mobile-search-input-wrap {
+    flex: 1 !important;
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.mobile-search-icon {
+    position: absolute !important;
+    left: 12px !important;
+    font-size: 17px !important;
+    color: var(--text-muted) !important;
+    pointer-events: none !important;
+}
+
+#mobile-search-input {
+    width: 100% !important;
+    height: 38px !important;
+    border-radius: var(--radius-pill) !important;
+    background: var(--sub-bg) !important;
+    border: 1px solid var(--primary) !important;
+    color: var(--text-main) !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    padding: 0 36px 0 38px !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+}
+
+.mobile-search-clear-btn {
+    position: absolute !important;
+    right: 8px !important;
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 50% !important;
+    background: var(--hover-bg-alpha) !important;
+    border: none !important;
+    color: var(--text-muted) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    font-size: 13px !important;
+}
+
+.mobile-search-clear-btn.hidden {
+    display: none !important;
+}
+
+/* Оверлей поиска на весь экран под хедером */
+html body #mobile-search-overlay:not(.hidden) {
+    display: block !important;
+    position: fixed !important;
+    top: 54px !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: calc(100vh - 54px) !important;
+    background: rgba(0, 0, 0, 0.75) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    z-index: 2400 !important;
+    padding: 12px !important;
+    box-sizing: border-box !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+html body #mobile-search-overlay.hidden {
+    display: none !important;
+}
+
+.mobile-search-dropdown {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 18px !important;
+    overflow: hidden !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    max-height: calc(100vh - 80px) !important;
+    overflow-y: auto !important;
+}
+
+.mobile-search-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 10px 14px !important;
+    border-bottom: 1px solid var(--border-sub) !important;
+    cursor: pointer !important;
+    transition: background 0.15s ease !important;
+}
+
+.mobile-search-item:last-child {
+    border-bottom: none !important;
+}
+
+.mobile-search-item:active {
+    background: var(--hover-bg-alpha) !important;
+}
+
+.mobile-search-thumb {
+    width: 44px !important;
+    height: 62px !important;
+    border-radius: 8px !important;
+    object-fit: cover !important;
+    flex-shrink: 0 !important;
+    background: var(--thumb-placeholder-bg) !important;
+}
+
+.mobile-search-thumb.placeholder {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 22px !important;
+    color: var(--placeholder-text) !important;
+}
+
+.mobile-search-info {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 3px !important;
+    overflow: hidden !important;
+    flex: 1 !important;
+}
+
+.mobile-search-title {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    color: var(--text-main) !important;
+    line-height: 1.25 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.mobile-search-orig {
+    font-size: 11px !important;
+    color: var(--text-muted) !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.mobile-search-tags {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 5px !important;
+    margin-top: 3px !important;
+}
+
+.mobile-search-score {
+    color: #ffd700 !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+}
+
+.mobile-search-tag {
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    color: var(--text-muted) !important;
+    background: var(--sub-bg) !important;
+    padding: 2px 6px !important;
+    border-radius: 6px !important;
+    border: 1px solid var(--border-sub) !important;
+}
+
+.mobile-search-tag.status {
+    color: var(--primary) !important;
+    border-color: var(--primary-alpha) !important;
+}
+
+.mobile-search-loading,
+.mobile-search-no-results {
+    padding: 24px 16px !important;
+    text-align: center !important;
+    font-size: 14px !important;
+    color: var(--text-muted) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+}
+
+.mobile-profile-dropdown {
+    position: absolute !important;
+    top: 46px !important;
+    right: 0 !important;
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 14px !important;
+    padding: 10px 14px !important;
+    min-width: 160px !important;
+    box-shadow: var(--shadow-lg) !important;
+    z-index: 1001 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+}
+
+.mobile-profile-dropdown.hidden {
+    display: none !important;
+}
+
+.mobile-dropdown-user {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.mobile-dropdown-name {
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    color: var(--text-main) !important;
+}
+
+.mobile-dropdown-logout {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    color: var(--danger) !important;
+    text-decoration: none !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+}
+
+/* Показываем основной контейнер с контентом с отступами сверху под хедер и снизу под навбар */
+body > main.container {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 58px 8px 80px 8px !important;
+    box-sizing: border-box !important;
+    min-height: calc(100vh - 80px) !important;
+}
+
+/* Скрываем всё остальное: другие вкладки, новости, профиль, сторонние модалки */
+#profile.tab-content > *:not(.card):not(#catalog-section-container),
+.profile-grid,
+.continue-watching-wrapper,
+#continue-watching-container,
+#explore-news-container,
+#friends,
+.modal-overlay:not(#settings-modal):not(#mobile-profile-modal):not(#mobile-sections-modal):not(#mobile-friends-modal):not(#mobile-stats-modal):not(#about-modal):not(#friend-modal):not(#anime-modal),
+.floating-mini-player,
+#app-loader {
+    display: none !important;
+}
+
+html body #settings-modal.hidden,
+html body #mobile-profile-modal.hidden,
+html body #mobile-sections-modal.hidden,
+html body #mobile-friends-modal.hidden,
+html body #mobile-stats-modal.hidden,
+html body #about-modal.hidden,
+html body #anime-modal.hidden,
+html body #friend-modal.hidden {
+    display: none !important;
+}
+
+/* Модальное окно аниме на мобильном */
+html body #anime-modal:not(.hidden) {
+    display: block !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 99999 !important;
+    background: #0e0e0e !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+html body #anime-modal .modal-content.anime-modal-content {
+    background: #0e0e0e !important;
+    border: none !important;
+    border-radius: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 0 0 60px 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    box-shadow: none !important;
+}
+
+html body #anime-modal .modal-back-btn,
+html body #anime-modal .modal-close-btn,
+html body #anime-modal .anime-detail-desktop {
+    display: none !important;
+}
+
+html body #anime-modal .anime-detail-mobile {
+    display: block !important;
+    width: 100% !important;
+    position: relative !important;
+    color: #e0e0e0 !important;
+    background: #0e0e0e !important;
+}
+
+/* 1. Верхний фиксированный навбар */
+.mobile-anime-top-bar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 56px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 16px !important;
+    z-index: 1000 !important;
+    transition: background 0.25s ease, backdrop-filter 0.25s ease, border-color 0.25s ease !important;
+}
+
+.mobile-anime-top-bar.scrolled {
+    background: rgba(14, 14, 14, 0.92) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.mobile-anime-top-btn {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 50% !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
+    font-size: 19px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    transition: transform 0.15s ease, background 0.15s ease !important;
+}
+
+.mobile-anime-top-btn:active {
+    transform: scale(0.92) !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.mobile-anime-top-title {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 65% !important;
+    opacity: 0 !important;
+    transition: opacity 0.25s ease !important;
+    text-align: center !important;
+}
+
+/* 2. Hero Section (Большой постер и инфо) */
+.mobile-anime-hero {
+    position: relative !important;
+    width: 100% !important;
+    height: 56vh !important;
+    min-height: 380px !important;
+    max-height: 480px !important;
+    overflow: hidden !important;
+}
+
+.mobile-anime-hero-img-wrap {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.mobile-anime-hero-img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center top !important;
+    display: block !important;
+}
+
+.mobile-anime-hero-placeholder {
+    width: 100% !important;
+    height: 100% !important;
+    background: #181818 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 48px !important;
+    color: #444 !important;
+}
+
+.mobile-anime-hero-gradient {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: linear-gradient(180deg, rgba(14, 14, 14, 0.2) 0%, rgba(14, 14, 14, 0) 30%, rgba(14, 14, 14, 0.75) 70%, #0e0e0e 100%) !important;
+}
+
+.mobile-anime-hero-content {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    padding: 0 16px 14px 16px !important;
+    z-index: 2 !important;
+}
+
+.mobile-anime-hero-stars-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-bottom: 6px !important;
+}
+
+.mobile-hero-stars-outer {
+    position: relative !important;
+    display: inline-block !important;
+    font-size: 15px !important;
+    line-height: 1 !important;
+    user-select: none !important;
+    letter-spacing: 2px !important;
+}
+
+.mobile-hero-stars-bg {
+    color: rgba(255, 255, 255, 0.22) !important;
+}
+
+.mobile-hero-stars-fill {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    color: #f59e0b !important;
+    text-shadow: 0 0 10px rgba(245, 158, 11, 0.5) !important;
+}
+
+.mobile-hero-score {
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    margin-left: 2px !important;
+}
+
+.mobile-hero-secondary-score {
+    font-size: 12px !important;
+    color: #999999 !important;
+}
+
+.mobile-anime-hero-title {
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    line-height: 1.25 !important;
+    margin: 0 0 12px 0 !important;
+    letter-spacing: -0.3px !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6) !important;
+}
+
+.mobile-anime-meta-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 8px !important;
+    background: rgba(0, 0, 0, 0.35) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    border-radius: 12px !important;
+    padding: 8px 6px !important;
+}
+
+.mobile-anime-meta-col {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+}
+
+.mobile-anime-meta-col .meta-label {
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    color: #d4a359 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.mobile-anime-meta-col .meta-val {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: #f0f0f0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* Тело под Hero */
+.mobile-anime-body-wrap {
+    padding: 0 16px !important;
+    margin-top: 8px !important;
+}
+
+/* 3. Кнопки действий */
+.mobile-anime-actions-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    margin-bottom: 16px !important;
+}
+
+.mobile-anime-status-btn {
+    flex: 1 !important;
+    height: 48px !important;
+    border-radius: var(--radius-pill) !important;
+    background: #cbb67c !important;
+    border: none !important;
+    color: #1e1910 !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    cursor: pointer !important;
+    transition: transform 0.15s ease, background 0.15s ease !important;
+    padding: 0 16px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+.mobile-anime-status-btn.active {
+    background: #d4be88 !important;
+}
+
+.mobile-anime-status-btn:active {
+    transform: scale(0.96) !important;
+    background: #bfa86c !important;
+}
+
+.mobile-anime-play-btn {
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 50% !important;
+    background: #b4cc90 !important;
+    border: none !important;
+    color: #1b2612 !important;
+    font-size: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
+    transition: transform 0.15s ease, background 0.15s ease !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+    padding: 0 !important;
+}
+
+.mobile-anime-play-btn:active {
+    transform: scale(0.94) !important;
+    background: #a4bc80 !important;
+}
+
+.mobile-anime-status-btn svg,
+.mobile-btn-icon {
+    flex-shrink: 0 !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+}
+
+.mobile-anime-play-btn svg {
+    flex-shrink: 0 !important;
+    display: block !important;
+}
+
+/* Полноэкранный мобильный плеер 2 (Anicli) */
+html body #mobile-watch-player-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 100010 !important;
+    background: #0b0a08 !important;
+    border-radius: 0 !important;
+    border: none !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+}
+
+html body #mobile-watch-player-container.hidden {
+    display: none !important;
+}
+
+.mobile-player-fullscreen-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 100 !important;
+    height: 56px !important;
+    background: #141210 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 16px !important;
+    flex-shrink: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.mobile-player-close-btn {
+    position: relative !important;
+    z-index: 2 !important;
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: none !important;
+    color: #ffffff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+}
+
+#mobile-player-filter-btn {
+    margin-left: auto !important;
+}
+
+.mobile-player-close-btn.hidden,
+#mobile-player-filter-btn.hidden {
+    display: none !important;
+}
+
+.mobile-player-close-btn:active {
+    background: rgba(255, 255, 255, 0.2) !important;
+    transform: scale(0.92) !important;
+}
+
+.mobile-player-fullscreen-title {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    overflow: hidden !important;
+    max-width: calc(100% - 120px) !important;
+    width: auto !important;
+    pointer-events: none !important;
+    z-index: 1 !important;
+}
+
+.mobile-player-fullscreen-title .p-title {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+    text-align: center !important;
+}
+
+.mobile-player-fullscreen-title .p-sub {
+    font-size: 11.5px !important;
+    color: #b4cc90 !important;
+    font-weight: 600 !important;
+    margin-top: 1px !important;
+    text-align: center !important;
+}
+
+.mobile-player-inner-content {
+    flex: 1 !important;
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 16px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.mobile-player-inner-content .anicli-player-wrapper {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+
+.mobile-player-inner-content .watch-player-crop-wrapper {
+    height: 56vw !important;
+    max-height: 340px !important;
+    min-height: 220px !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    background: #000 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.mobile-player-inner-content .anicli-chip {
+    padding: 8px 14px !important;
+    font-size: 13px !important;
+}
+
+/* Шаг 4: Видеоплеер на отдельном экране */
+#anicli-step-4 {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    flex: 1 !important;
+}
+
+#anicli-step-4.hidden {
+    display: none !important;
+}
+
+.mobile-player-inner-content #anicli-step-4 #anicli-video-view {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    flex: 1 !important;
+}
+
+.mobile-player-inner-content .player-quick-actions-bar {
+    display: flex !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+    margin-top: 14px !important;
+    justify-content: center !important;
+}
+
+.mobile-player-inner-content .btn-player-action {
+    background: #1f1a14 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #e0e0e0 !important;
+    padding: 9px 14px !important;
+    border-radius: 12px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    cursor: pointer !important;
+    transition: transform 0.12s ease !important;
+}
+
+.mobile-player-inner-content .btn-player-action:active {
+    transform: scale(0.95) !important;
+    background: #2a221a !important;
+}
+
+/* Список серий в полноэкранном мобильном плеере (Скриншот 2 и 3) */
+.mobile-episodes-list-container {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0 4px 30px 4px !important;
+    background: transparent !important;
+}
+
+.mobile-ep-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 16px 12px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    transition: background 0.15s ease !important;
+}
+
+.mobile-ep-row:active {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-radius: 12px !important;
+}
+
+.mobile-ep-row.current-playing .mobile-ep-title {
+    color: #e5a960 !important;
+    font-weight: 700 !important;
+}
+
+.mobile-ep-info {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+}
+
+.mobile-ep-title {
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    color: #ffffff !important;
+    line-height: 1.25 !important;
+}
+
+.mobile-ep-sub {
+    font-size: 13px !important;
+    color: #8c8c8c !important;
+    margin-top: 3px !important;
+    font-weight: 400 !important;
+}
+
+.mobile-ep-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 22px !important;
+}
+
+.mobile-ep-check {
+    width: 22px !important;
+    height: 22px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+}
+
+.mobile-ep-check.watched {
+    background: #f7a863 !important;
+}
+
+.mobile-ep-check:not(.watched) {
+    visibility: hidden !important;
+}
+
+.mobile-ep-btn {
+    width: 32px !important;
+    height: 32px !important;
+    background: transparent !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    transition: transform 0.12s ease !important;
+}
+
+.mobile-ep-btn:active {
+    transform: scale(0.85) !important;
+}
+
+.mobile-ep-btn svg {
+    display: block !important;
+}
+
+.mobile-player-inner-content #anicli-step-1 .anicli-step-title {
+    display: none !important;
+}
+
+/* 4. Описание */
+.mobile-anime-desc-card {
+    background: #1c1815 !important;
+    border-radius: 18px !important;
+    padding: 16px !important;
+    margin-bottom: 16px !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.mobile-anime-desc-heading {
+    font-size: 16px !important;
+    font-weight: 800 !important;
+    color: #e5a960 !important;
+    margin-bottom: 8px !important;
+}
+
+.mobile-anime-desc-body {
+    font-size: 14px !important;
+    line-height: 1.55 !important;
+    color: #d6cac0 !important;
+    position: relative !important;
+}
+
+.mobile-anime-desc-body.collapsed {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 5 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+}
+
+.mobile-anime-desc-toggle {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    color: #e5a960 !important;
+    margin-top: 8px !important;
+    cursor: pointer !important;
+    display: inline-block !important;
+}
+
+/* 5. Жанры */
+.mobile-anime-genres-scroll {
+    display: flex !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    padding-bottom: 16px !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+}
+
+.mobile-anime-genres-scroll::-webkit-scrollbar {
+    display: none !important;
+}
+
+.mobile-anime-genre-pill {
+    background: #2a231d !important;
+    color: #d0c0b0 !important;
+    padding: 8px 16px !important;
+    border-radius: 12px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Общие секции */
+.mobile-anime-section {
+    margin-bottom: 22px !important;
+}
+
+.mobile-anime-section-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 12px !important;
+}
+
+.mobile-anime-section-title {
+    font-size: 17px !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+}
+
+.mobile-count-pill {
+    background: #ffffff !important;
+    color: #111111 !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    padding: 2px 7px !important;
+    border-radius: 10px !important;
+}
+
+.mobile-chronology-badge {
+    background: #4a3418 !important;
+    color: #e5a960 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    padding: 3px 8px !important;
+    border-radius: 8px !important;
+}
+
+.section-chevron {
+    color: #888888 !important;
+    font-size: 18px !important;
+}
+
+/* 6. В списках */
+.mobile-in-lists-bar {
+    display: flex !important;
+    height: 8px !important;
+    border-radius: 4px !important;
+    overflow: hidden !important;
+    width: 100% !important;
+    margin-bottom: 12px !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.bar-seg.seg-planned { background: #eab308 !important; }
+.bar-seg.seg-completed { background: #22c55e !important; }
+.bar-seg.seg-watching { background: #a855f7 !important; }
+.bar-seg.seg-dropped { background: #ef4444 !important; }
+.bar-seg.seg-onhold { background: #3b82f6 !important; }
+
+.mobile-in-lists-legend {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 10px 16px !important;
+}
+
+.legend-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    font-size: 13px !important;
+}
+
+.legend-item .dot {
+    width: 8px !important;
+    height: 8px !important;
+    border-radius: 50% !important;
+}
+
+.dot-planned { background: #eab308 !important; }
+.dot-completed { background: #22c55e !important; }
+.dot-watching { background: #a855f7 !important; }
+.dot-dropped { background: #ef4444 !important; }
+.dot-onhold { background: #3b82f6 !important; }
+
+.legend-item .label {
+    color: #999999 !important;
+}
+
+.legend-item .val {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+/* 7. Персонажи */
+.mobile-characters-scroll {
+    display: flex !important;
+    gap: 14px !important;
+    overflow-x: auto !important;
+    padding-bottom: 8px !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+}
+
+.mobile-characters-scroll::-webkit-scrollbar {
+    display: none !important;
+}
+
+.mobile-character-card {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    width: 84px !important;
+    flex-shrink: 0 !important;
+    cursor: pointer !important;
+}
+
+.mobile-character-avatar-wrap {
+    width: 82px !important;
+    height: 114px !important;
+    border-radius: 38px !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background: #1a1a1a !important;
+    margin-bottom: 6px !important;
+}
+
+.mobile-character-avatar {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+.mobile-character-name {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #e0e0e0 !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    width: 100% !important;
+}
+
+/* 8. Связанное */
+.mobile-related-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+}
+
+.mobile-related-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    cursor: pointer !important;
+    padding: 6px 0 !important;
+}
+
+.mobile-related-thumb-wrap {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    flex-shrink: 0 !important;
+    background: #1a1a1a !important;
+}
+
+.mobile-related-thumb {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+.mobile-related-info {
+    flex: 1 !important;
+    overflow: hidden !important;
+}
+
+.mobile-related-title {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.3 !important;
+}
+
+.mobile-related-kind {
+    font-size: 12px !important;
+    color: #888888 !important;
+    margin-top: 2px !important;
+}
+
+.mobile-related-action {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 14px !important;
+    background: #6b4088 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #ffffff !important;
+    font-size: 17px !important;
+    flex-shrink: 0 !important;
+}
+
+/* 9. Кадры */
+.mobile-screenshots-scroll {
+    display: flex !important;
+    gap: 12px !important;
+    overflow-x: auto !important;
+    padding-bottom: 8px !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+}
+
+.mobile-screenshots-scroll::-webkit-scrollbar {
+    display: none !important;
+}
+
+.mobile-screenshot-card {
+    width: 220px !important;
+    height: 130px !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+    flex-shrink: 0 !important;
+    cursor: pointer !important;
+    background: #181818 !important;
+}
+
+.mobile-screenshot-img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+/* 10. Детали */
+.mobile-details-section {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+}
+
+.mobile-detail-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+}
+
+.mobile-detail-row .detail-label {
+    color: #888888 !important;
+    font-weight: 500 !important;
+}
+
+.mobile-detail-row .detail-val {
+    color: #e0e0e0 !important;
+    font-weight: 600 !important;
+    text-align: right !important;
+}
+
+.studio-badge {
+    background: #2c251e !important;
+    color: #d4c4b4 !important;
+    padding: 4px 12px !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    display: inline-block !important;
+}
+
+.mobile-detail-separator {
+    height: 1px !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    margin: 6px 0 !important;
+    width: 100% !important;
+}
+
+/* 11. Навигационные пункты */
+.mobile-anime-nav-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+    margin-top: 10px !important;
+    padding-bottom: 24px !important;
+}
+
+.mobile-nav-link-item {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 8px 0 !important;
+    cursor: pointer !important;
+    color: #cccccc !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+}
+
+.mobile-nav-link-item:active {
+    color: #ffffff !important;
+}
+
+.mobile-nav-link-left {
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+    font-size: 15px !important;
+}
+
+.mobile-nav-link-left i {
+    font-size: 20px !important;
+    color: #999999 !important;
+}
+
+/* 12. Всплывающий боттом-шит прогресса (Скриншот 2) */
+.mobile-rate-sheet {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: rgba(0, 0, 0, 0.65) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    z-index: 100002 !important;
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+}
+
+.mobile-rate-sheet.hidden {
+    display: none !important;
+}
+
+.mobile-rate-sheet-card {
+    background: #0e0d0b !important;
+    border-top-left-radius: 28px !important;
+    border-top-right-radius: 28px !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+    width: 100% !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    padding: 20px 18px 16px 18px !important;
+    box-sizing: border-box !important;
+    animation: slideUpSheet 0.26s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+@keyframes slideUpSheet {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+/* Header */
+.rate-sheet-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 18px !important;
+}
+
+.rate-sheet-header-left {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    overflow: hidden !important;
+}
+
+.rate-sheet-poster-wrap {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    flex-shrink: 0 !important;
+    background: #1a1a1a !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.rate-sheet-poster {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+.rate-sheet-header-text {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+    overflow: hidden !important;
+}
+
+.rate-sheet-main-title {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    line-height: 1.2 !important;
+}
+
+.rate-sheet-sub-title {
+    font-size: 13px !important;
+    color: #888888 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 240px !important;
+}
+
+.rate-sheet-delete-btn {
+    background: transparent !important;
+    border: none !important;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+}
+
+.rate-sheet-delete-btn:active {
+    background: rgba(224, 122, 104, 0.15) !important;
+    transform: scale(0.92) !important;
+}
+
+/* Статусы */
+.rate-sheet-statuses-scroll {
+    display: flex !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    padding-bottom: 16px !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+.rate-sheet-statuses-scroll::-webkit-scrollbar {
+    display: none !important;
+}
+
+.mobile-status-pill {
+    background: transparent !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    color: #d0c8be !important;
+    height: 40px !important;
+    padding: 0 16px !important;
+    border-radius: 12px !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    transition: all 0.15s ease !important;
+}
+
+.mobile-status-pill .pill-icon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.mobile-status-pill.active {
+    background: #5c4125 !important;
+    border-color: #5c4125 !important;
+    color: #f2dec5 !important;
+}
+
+.mobile-status-pill:active {
+    transform: scale(0.96) !important;
+}
+
+/* Счетчики (Эпизоды и Повторения) */
+.rate-sheet-counters-row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+    margin-bottom: 18px !important;
+}
+
+.rate-counter-card {
+    background: transparent !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    border-radius: 16px !important;
+    padding: 14px 14px 12px 16px !important;
+    position: relative !important;
+    min-height: 106px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+}
+
+.rate-counter-label {
+    font-size: 14px !important;
+    color: #e6ded6 !important;
+    font-weight: 500 !important;
+}
+
+.rate-counter-val {
+    font-size: 32px !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    line-height: 1.1 !important;
+    margin-top: 4px !important;
+}
+
+.rate-counter-btns {
+    position: absolute !important;
+    right: 12px !important;
+    bottom: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.rate-counter-btn {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    background: #34281c !important;
+    border: none !important;
+    color: #e5b378 !important;
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    transition: transform 0.12s ease, background 0.12s ease !important;
+}
+
+.rate-counter-btn:active {
+    transform: scale(0.9) !important;
+    background: #4a3a28 !important;
+}
+
+/* Оценка со слайдером */
+.rate-sheet-score-section {
+    margin-bottom: 18px !important;
+}
+
+.rate-sheet-section-title {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #e6ded6 !important;
+    margin-bottom: 10px !important;
+}
+
+.rate-sheet-slider-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+}
+
+.rate-sheet-slider-wrap {
+    flex: 1 !important;
+    position: relative !important;
+    height: 24px !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.rate-sheet-slider {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    width: 100% !important;
+    background: transparent !important;
+    outline: none !important;
+    margin: 0 !important;
+    position: relative !important;
+    z-index: 5 !important;
+    cursor: pointer !important;
+}
+
+.rate-sheet-slider::-webkit-slider-runnable-track {
+    background: transparent !important;
+}
+.rate-sheet-slider::-moz-range-track {
+    background: transparent !important;
+}
+
+.rate-sheet-slider::-webkit-slider-thumb {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    width: 22px !important;
+    height: 22px !important;
+    border-radius: 50% !important;
+    background: #f5af64 !important;
+    cursor: pointer !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5) !important;
+}
+
+.rate-sheet-slider::-moz-range-thumb {
+    width: 22px !important;
+    height: 22px !important;
+    border-radius: 50% !important;
+    background: #f5af64 !important;
+    cursor: pointer !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5) !important;
+    border: none !important;
+}
+
+.rate-sheet-slider-dots {
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 4px !important;
+    background: #2b231a !important;
+    border-radius: 2px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 4px !important;
+    box-sizing: border-box !important;
+}
+
+.rate-sheet-slider-track {
+    position: absolute !important;
+    left: 0 !important;
+    height: 4px !important;
+    background: #f5af64 !important;
+    border-radius: 2px !important;
+    pointer-events: none !important;
+    z-index: 2 !important;
+}
+
+.slider-dot {
+    width: 4px !important;
+    height: 4px !important;
+    border-radius: 50% !important;
+    background: #504233 !important;
+    z-index: 3 !important;
+}
+
+.slider-dot.active {
+    background: #f7d4a4 !important;
+}
+
+.rate-sheet-score-val {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    min-width: 24px !important;
+    text-align: right !important;
+}
+
+/* Заметка */
+.rate-sheet-note-section {
+    margin-bottom: 18px !important;
+}
+
+.rate-sheet-note-input {
+    width: 100% !important;
+    background: #161412 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 14px !important;
+    padding: 12px 14px !important;
+    color: #e0e0e0 !important;
+    font-size: 14px !important;
+    font-family: inherit !important;
+    resize: none !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+}
+
+.rate-sheet-note-input:focus {
+    border-color: #e5a960 !important;
+}
+
+/* Футер */
+.rate-sheet-footer {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding-top: 4px !important;
+    margin-bottom: 12px !important;
+}
+
+.rate-sheet-timestamps {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    font-size: 12px !important;
+    color: #888888 !important;
+}
+
+.rate-timestamp-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+.rate-timestamp-item .t-icon {
+    color: #777777 !important;
+    font-size: 13px !important;
+}
+
+.rate-sheet-save-btn {
+    width: 56px !important;
+    height: 56px !important;
+    border-radius: 18px !important;
+    background: #874606 !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 18px rgba(135, 70, 6, 0.4) !important;
+    transition: transform 0.15s ease, background 0.15s ease !important;
+}
+
+.rate-sheet-save-btn:active {
+    transform: scale(0.92) !important;
+    background: #a05307 !important;
+}
+
+.rate-sheet-home-bar {
+    width: 134px !important;
+    height: 4px !important;
+    border-radius: 2px !important;
+    background: rgba(255, 255, 255, 0.3) !important;
+    margin: 8px auto 0 auto !important;
+}
+
+/* Мобильное окно О сайте (Bottom Sheet — 1 в 1 как Профиль, Настройки, Друзья) */
+html body #about-modal:not(.hidden) {
+    display: flex !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0, 0, 0, 0.75) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    z-index: 5200 !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+}
+
+#about-modal .modal-content.about-modal-card {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 94vh !important;
+    max-height: 94vh !important;
+    background: var(--bg-color) !important;
+    border: 1px solid var(--card-border) !important;
+    border-bottom: none !important;
+    border-radius: 24px 24px 0 0 !important;
+    padding: 0 !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4) !important;
+    overflow: hidden !important;
+}
+
+/* Фиксированная шапка окна О сайте строго 60px */
+#about-modal .about-header-banner {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: 60px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    padding: 0 54px 0 16px !important;
+    border-bottom: 1px solid var(--border-sub) !important;
+    background: var(--card-bg) !important;
+    border-radius: 24px 24px 0 0 !important;
+    z-index: 50 !important;
+}
+
+#about-modal .about-logo-icon {
+    font-size: 22px !important;
+    color: var(--primary) !important;
+    filter: drop-shadow(0 0 8px var(--primary-glow)) !important;
+    margin: 0 !important;
+}
+
+#about-modal .about-app-title {
+    font-size: 17px !important;
+    font-weight: 800 !important;
+    color: var(--text-main) !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+}
+
+#about-modal .modal-close-btn {
+    position: absolute !important;
+    top: 12px !important;
+    right: 14px !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: var(--radius-pill) !important;
+    background: var(--hover-bg-alpha) !important;
+    border: 1px solid var(--border-sub) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: var(--text-main) !important;
+    font-size: 18px !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    z-index: 60 !important;
+}
+
+#about-modal .modal-close-btn:active {
+    background: var(--primary-container) !important;
+    transform: scale(0.92) !important;
+}
+
+#about-modal .modal-back-btn {
+    display: none !important;
+}
+
+/* Скроллируемое тело окна О сайте */
+#about-modal .about-modal-body {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 60px !important;
+    height: calc(100% - 60px) !important;
+    padding: 16px 16px 50px 16px !important;
+    gap: 16px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    box-sizing: border-box !important;
+}
+
+#about-modal .about-section-block {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 18px !important;
+    padding: 16px !important;
+    box-sizing: border-box !important;
+}
+
+/* Кнопка О сайте внизу настроек */
+html body #settings-modal .settings-about-btn-wrap {
+    display: block !important;
+    width: 100% !important;
+    margin-top: 4px !important;
+    margin-bottom: 24px !important;
+    box-sizing: border-box !important;
+}
+
+/* Мобильное окно Статистика (Bottom Sheet — 1 в 1 как Профиль, Настройки, Друзья) */
+html body #mobile-stats-modal:not(.hidden) {
+    display: flex !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0, 0, 0, 0.75) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    z-index: 5200 !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+}
+
+#mobile-stats-modal .modal-content.mobile-stats-modal-card {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 94vh !important;
+    max-height: 94vh !important;
+    background: var(--bg-color) !important;
+    border: 1px solid var(--card-border) !important;
+    border-bottom: none !important;
+    border-radius: 24px 24px 0 0 !important;
+    padding: 0 !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4) !important;
+    overflow: hidden !important;
+}
+
+/* Фиксированная шапка меню Статистика строго 60px */
+#mobile-stats-modal .mobile-stats-header {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: 60px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    padding: 0 54px 0 16px !important;
+    border-bottom: 1px solid var(--border-sub) !important;
+    background: var(--card-bg) !important;
+    border-radius: 24px 24px 0 0 !important;
+    z-index: 50 !important;
+}
+
+#mobile-stats-modal .settings-logo-icon {
+    font-size: 22px !important;
+    color: var(--primary) !important;
+    filter: drop-shadow(0 0 8px var(--primary-glow)) !important;
+    margin: 0 !important;
+}
+
+#mobile-stats-modal .settings-title {
+    font-size: 17px !important;
+    font-weight: 800 !important;
+    color: var(--text-main) !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+}
+
+#mobile-stats-modal .modal-close-btn {
+    position: absolute !important;
+    top: 12px !important;
+    right: 14px !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: var(--radius-pill) !important;
+    background: var(--hover-bg-alpha) !important;
+    border: 1px solid var(--border-sub) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: var(--text-main) !important;
+    font-size: 18px !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    z-index: 60 !important;
+}
+
+#mobile-stats-modal .modal-close-btn:active {
+    background: var(--primary-container) !important;
+    transform: scale(0.92) !important;
+}
+
+/* Скроллируемое тело статистики */
+#mobile-stats-modal .mobile-stats-body {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 60px !important;
+    height: calc(100% - 60px) !important;
+    padding: 16px 16px 50px 16px !important;
+    gap: 16px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    box-sizing: border-box !important;
+}
+
+.mobile-stats-card-box {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+}
+
+.mobile-stats-card-box .info-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 14px 16px !important;
+    background: var(--sub-bg) !important;
+    border: 1px solid var(--border-sub) !important;
+    border-radius: 14px !important;
+}
+
+.mobile-stats-card-box .info-row .label {
+    color: var(--text-muted) !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+
+.mobile-stats-card-box .info-row .value {
+    color: var(--text-main) !important;
+    font-size: 16px !important;
+    font-weight: 800 !important;
+}
+
+.stat-icon {
+    font-size: 16px !important;
+    margin-right: 6px !important;
+    vertical-align: -2px !important;
+}
+
+.stat-icon.icon-watching {
+    color: #48bb78 !important;
+}
+
+.stat-icon.icon-completed {
+    color: var(--primary) !important;
+}
+
+.stat-icon.icon-planned {
+    color: #4299e1 !important;
+}
+
+.stat-icon.icon-on-hold {
+    color: #ed8936 !important;
+}
+
+.stat-icon.icon-dropped {
+    color: #f56565 !important;
+}
+
+.stat-icon.icon-rewatching {
+    color: #9f7aea !important;
+}
+
+/* Мобильное окно Друзья и клубы (Bottom Sheet — 1 в 1 как Профиль и Настройки) */
+html body #mobile-friends-modal:not(.hidden) {
+    display: flex !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0, 0, 0, 0.75) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    z-index: 5200 !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+}
+
+#mobile-friends-modal .modal-content.mobile-friends-modal-card {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 94vh !important;
+    max-height: 94vh !important;
+    background: var(--bg-color) !important;
+    border: 1px solid var(--card-border) !important;
+    border-bottom: none !important;
+    border-radius: 24px 24px 0 0 !important;
+    padding: 0 !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4) !important;
+    overflow: hidden !important;
+}
+
+/* Фиксированная шапка меню Друзья и клубы строго 60px */
+#mobile-friends-modal .mobile-friends-header {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: 60px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    padding: 0 54px 0 16px !important;
+    border-bottom: 1px solid var(--border-sub) !important;
+    background: var(--card-bg) !important;
+    border-radius: 24px 24px 0 0 !important;
+    z-index: 50 !important;
+}
+
+#mobile-friends-modal .settings-logo-icon {
+    font-size: 22px !important;
+    color: var(--primary) !important;
+    filter: drop-shadow(0 0 8px var(--primary-glow)) !important;
+    margin: 0 !important;
+}
+
+#mobile-friends-modal .settings-title {
+    font-size: 17px !important;
+    font-weight: 800 !important;
+    color: var(--text-main) !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+}
+
+#mobile-friends-modal .modal-close-btn {
+    position: absolute !important;
+    top: 12px !important;
+    right: 14px !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: var(--radius-pill) !important;
+    background: var(--hover-bg-alpha) !important;
+    border: 1px solid var(--border-sub) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: var(--text-main) !important;
+    font-size: 18px !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    z-index: 60 !important;
+}
+
+#mobile-friends-modal .modal-close-btn:active {
+    background: var(--primary-container) !important;
+    transform: scale(0.92) !important;
+}
+
+/* Скроллируемое тело со списками друзей и клубов */
+#mobile-friends-modal .mobile-friends-body {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 60px !important;
+    height: calc(100% - 60px) !important;
+    padding: 16px 16px 50px 16px !important;
+    gap: 16px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    box-sizing: border-box !important;
+}
+
+.mobile-friends-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 12px !important;
+}
+
+.mobile-friend-card {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 6px !important;
+    padding: 10px 6px !important;
+    border-radius: 14px !important;
+    background: var(--sub-bg) !important;
+    border: 1px solid var(--border-sub) !important;
+    cursor: pointer !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.mobile-friend-card:active {
+    transform: scale(0.95) !important;
+    background: var(--primary-container) !important;
+}
+
+.mobile-friend-avatar {
+    width: 56px !important;
+    height: 56px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    border: 2px solid var(--primary) !important;
+}
+
+.mobile-friend-avatar.club {
+    border-radius: 14px !important;
+}
+
+.mobile-friend-name {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    color: var(--text-main) !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 84px !important;
+}
+
+/* Мобильное меню профиля (Bottom Sheet) */
+html body #mobile-profile-modal:not(.hidden) {
+    display: flex !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0, 0, 0, 0.75) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    z-index: 5000 !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+}
+
+#mobile-profile-modal .modal-content.mobile-profile-modal-card {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 94vh !important;
+    max-height: 94vh !important;
+    background: var(--bg-color) !important;
+    border: 1px solid var(--card-border) !important;
+    border-bottom: none !important;
+    border-radius: 24px 24px 0 0 !important;
+    padding: 0 !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4) !important;
+    overflow: hidden !important;
+}
+
+/* Фиксированная шапка меню профиля */
+.mobile-profile-menu-header {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: 60px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 54px 0 16px !important;
+    background: var(--card-bg) !important;
+    border-bottom: 1px solid var(--border-sub) !important;
+    border-radius: 24px 24px 0 0 !important;
+    z-index: 50 !important;
+}
+
+.mobile-profile-header-user {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+}
+
+.mobile-profile-menu-avatar {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    border: 2px solid var(--primary) !important;
+}
+
+.mobile-profile-guest-avatar {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 50% !important;
+    background: var(--hover-bg-alpha) !important;
+    border: 1px solid var(--border-sub) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 20px !important;
+    color: var(--text-main) !important;
+}
+
+.mobile-profile-header-meta {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+}
+
+.mobile-profile-menu-nickname {
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    color: var(--text-main) !important;
+}
+
+.mobile-profile-menu-logout {
+    color: var(--danger) !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+}
+
+.mobile-profile-menu-login {
+    color: var(--primary) !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+}
+
+#mobile-profile-modal .modal-close-btn {
+    position: absolute !important;
+    top: 12px !important;
+    right: 14px !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: var(--radius-pill) !important;
+    background: var(--hover-bg-alpha) !important;
+    border: 1px solid var(--border-sub) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: var(--text-main) !important;
+    font-size: 18px !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    z-index: 60 !important;
+}
+
+#mobile-profile-modal .modal-close-btn:active {
+    background: var(--primary-container) !important;
+    transform: scale(0.92) !important;
+}
+
+/* Скроллируемое тело меню профиля */
+.mobile-profile-menu-body {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 60px !important;
+    height: calc(100% - 60px) !important;
+    padding: 16px 16px 50px 16px !important;
+    gap: 16px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    box-sizing: border-box !important;
+}
+
+/* Секции внутри меню */
+.mobile-profile-section {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 18px !important;
+    padding: 16px !important;
+    box-sizing: border-box !important;
+}
+
+.mobile-section-title {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    color: var(--text-main) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.mobile-section-title i {
+    color: var(--primary) !important;
+}
+
+/* Список информации (из десктоп мода) */
+.mobile-info-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+}
+
+.mobile-info-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 6px 0 !important;
+    border-bottom: 1px solid var(--border-sub) !important;
+    font-size: 13px !important;
+}
+
+.mobile-info-row:last-child {
+    border-bottom: none !important;
+}
+
+.mobile-info-row .label {
+    color: var(--text-muted) !important;
+    font-weight: 500 !important;
+}
+
+.mobile-info-row .value {
+    color: var(--text-main) !important;
+    font-weight: 700 !important;
+}
+
+/* Кнопки действий и навигации */
+.mobile-menu-links-group {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+}
+
+.mobile-menu-action-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    padding: 12px 14px !important;
+    background: var(--sub-bg) !important;
+    border: 1px solid var(--border-sub) !important;
+    border-radius: 14px !important;
+    color: var(--text-main) !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-sizing: border-box !important;
+}
+
+.mobile-menu-action-btn:active {
+    background: var(--primary-container) !important;
+    color: var(--on-primary-container) !important;
+    transform: scale(0.98) !important;
+}
+
+.mobile-action-left {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+}
+
+.mobile-action-left .action-icon {
+    font-size: 18px !important;
+    color: var(--primary) !important;
+}
+
+.mobile-action-arrow {
+    font-size: 16px !important;
+    color: var(--text-muted) !important;
+}
+
+.mobile-action-badge {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-sub) !important;
+    padding: 4px 10px !important;
+    border-radius: var(--radius-pill) !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    color: var(--primary) !important;
+}
+
+/* Стили для открытой вкладки Друзья на мобильном */
+#friends.tab-content.active {
+    display: block !important;
+    width: 100% !important;
+}
+
+#friends.tab-content.active .card {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 18px !important;
+    padding: 16px !important;
+    margin-bottom: 16px !important;
+}
+
+#friends.tab-content.active .media-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 12px !important;
+}
+
+#friends.tab-content.active .media-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    color: var(--text-main) !important;
+    gap: 6px !important;
+}
+
+#friends.tab-content.active .friend-grid-avatar,
+#friends.tab-content.active .club-grid-logo {
+    width: 64px !important;
+    height: 64px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    border: 2px solid var(--primary) !important;
+}
+
+#friends.tab-content.active .media-title {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 90px !important;
+}
+
+/* Мобильное окно настроек (Bottom Sheet) */
+body > #settings-modal:not(.hidden) {
+    display: flex !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0, 0, 0, 0.75) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    z-index: 5000 !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+}
+
+#settings-modal .modal-content.settings-modal-card {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 94vh !important;
+    max-height: 94vh !important;
+    background: var(--bg-color) !important;
+    border: 1px solid var(--card-border) !important;
+    border-bottom: none !important;
+    border-radius: 24px 24px 0 0 !important;
+    padding: 0 !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4) !important;
+    overflow: hidden !important;
+}
+
+/* Фиксированная шапка модалки строго на самом верху */
+#settings-modal .settings-header-banner {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: 60px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    padding: 0 54px 0 16px !important;
+    border-bottom: 1px solid var(--border-sub) !important;
+    background: var(--card-bg) !important;
+    border-radius: 24px 24px 0 0 !important;
+    z-index: 50 !important;
+}
+
+#settings-modal .settings-logo-icon {
+    font-size: 22px !important;
+    color: var(--primary) !important;
+    filter: drop-shadow(0 0 8px var(--primary-glow)) !important;
+    margin: 0 !important;
+}
+
+#settings-modal .settings-title {
+    font-size: 17px !important;
+    font-weight: 800 !important;
+    color: var(--text-main) !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+}
+
+/* Кнопка закрытия (крестик) закреплена в шапке справа */
+#settings-modal .modal-close-btn {
+    display: flex !important;
+    position: absolute !important;
+    top: 12px !important;
+    right: 14px !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: var(--radius-pill) !important;
+    background: var(--hover-bg-alpha) !important;
+    border: 1px solid var(--border-sub) !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: var(--text-main) !important;
+    font-size: 18px !important;
+    cursor: pointer !important;
+    z-index: 60 !important;
+    padding: 0 !important;
+}
+
+#settings-modal .modal-close-btn:active {
+    background: var(--primary-container) !important;
+    transform: scale(0.92) !important;
+}
+
+#settings-modal .modal-back-btn {
+    display: none !important;
+}
+
+/* Скроллируемое тело настроек — начинается СТРОГО под закрепленной шапкой */
+#settings-modal .settings-modal-body {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 60px !important;
+    height: calc(100% - 60px) !important;
+    padding: 16px 16px 50px 16px !important;
+    gap: 16px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    box-sizing: border-box !important;
+}
+
+/* Блоки настроек */
+html body #settings-modal .settings-theme-lang-block {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin-bottom: 0 !important;
+}
+
+#settings-modal .settings-section-block {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 18px !important;
+    padding: 16px !important;
+    box-sizing: border-box !important;
+}
+
+#settings-modal .settings-section-block h4 {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: var(--text-main) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin: 0 !important;
+}
+
+#settings-modal .settings-hint {
+    font-size: 12px !important;
+    color: var(--text-muted) !important;
+    line-height: 1.4 !important;
+    margin: 0 !important;
+}
+
+/* Вкладки Цвет / Фото */
+#settings-modal .settings-mode-tabs {
+    display: flex !important;
+    gap: 8px !important;
+    width: 100% !important;
+}
+
+#settings-modal .settings-mode-btn {
+    flex: 1 1 0 !important;
+    padding: 10px 14px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    border-radius: var(--radius-pill) !important;
+    background: var(--sub-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    color: var(--text-muted) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+}
+
+#settings-modal .settings-mode-btn.active {
+    background: var(--primary-container) !important;
+    border-color: var(--primary) !important;
+    color: var(--on-primary-container) !important;
+}
+
+#settings-modal .settings-panel {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    background: var(--sub-bg) !important;
+    border: 1px solid var(--border-sub) !important;
+    border-radius: 14px !important;
+    padding: 14px !important;
+    box-sizing: border-box !important;
+}
+
+#settings-modal .settings-panel.hidden {
+    display: none !important;
+}
+
+/* Строка выбора цвета */
+#settings-modal .settings-color-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+}
+
+#settings-modal .settings-color-row input[type="color"] {
+    width: 52px !important;
+    height: 40px !important;
+    border-radius: 10px !important;
+    border: 1px solid var(--card-border) !important;
+    cursor: pointer !important;
+    background: transparent !important;
+}
+
+#settings-modal .settings-color-value {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    color: var(--text-main) !important;
+}
+
+#settings-modal .settings-input {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 11px 14px !important;
+    border-radius: 12px !important;
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    color: var(--text-main) !important;
+    font-size: 13px !important;
+}
+
+#settings-modal .settings-actions {
+    display: flex !important;
+    justify-content: flex-end !important;
+    margin-top: 4px !important;
+}
+
+#settings-modal .settings-actions .btn-secondary {
+    padding: 8px 18px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    border-radius: var(--radius-pill) !important;
+}
+
+/* Тумблеры разделов */
+#settings-modal .settings-toggle-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 11px 0 !important;
+    border-bottom: 1px solid var(--border-sub) !important;
+    min-height: 44px !important;
+    box-sizing: border-box !important;
+}
+
+#settings-modal .settings-toggle-row:last-child {
+    border-bottom: none !important;
+}
+
+#settings-modal .settings-toggle-label {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: var(--text-main) !important;
+}
+
+/* Тумблер-слайдер iOS style */
+#settings-modal .settings-toggle {
+    position: relative !important;
+    display: inline-block !important;
+    width: 48px !important;
+    height: 28px !important;
+    flex-shrink: 0 !important;
+}
+
+#settings-modal .settings-toggle input {
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+#settings-modal .settings-toggle-slider {
+    position: absolute !important;
+    cursor: pointer !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background-color: var(--hover-bg-alpha) !important;
+    border: 1px solid var(--border-sub) !important;
+    transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border-radius: 28px !important;
+}
+
+#settings-modal .settings-toggle-slider:before {
+    position: absolute !important;
+    content: "" !important;
+    height: 22px !important;
+    width: 22px !important;
+    left: 2px !important;
+    bottom: 2px !important;
+    background-color: white !important;
+    transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border-radius: 50% !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+#settings-modal .settings-toggle input:checked + .settings-toggle-slider {
+    background-color: var(--primary) !important;
+    border-color: var(--primary) !important;
+}
+
+#settings-modal .settings-toggle input:checked + .settings-toggle-slider:before {
+    transform: translateX(20px) !important;
+}
+
+/* Блок вида навигации скрываем на мобильном (он только для десктопа) */
+html body #settings-modal .settings-navbar-view-section,
+html body #settings-modal .settings-section-block:has(.navbar-view-options),
+html body #settings-modal .navbar-view-options {
+    display: none !important;
+}
+
+
+/* Вкладки: активная отображается, неактивная скрывается */
+.tab-content:not(.active) {
+    display: none !important;
+}
+
+#profile.tab-content.active {
+    display: block !important;
+    width: 100% !important;
+}
+
+/* ==================== Вкладка Избранное (перенос десктопного вида без изменений) ==================== */
+#favourites.tab-content.active {
+    display: block !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    padding: 0 0 90px 0 !important;
+    background: transparent !important;
+    box-sizing: border-box !important;
+}
+
+#favourites.tab-content.active .card.media-section {
+    display: block !important;
+    width: 100% !important;
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 20px !important;
+    padding: 16px !important;
+    margin-bottom: 16px !important;
+    box-sizing: border-box !important;
+}
+
+#favourites.tab-content.active .card.media-section h3 {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: var(--primary) !important;
+    margin: 0 0 14px 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+#favourites.tab-content.active .media-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 12px 10px !important;
+}
+
+#favourites.tab-content.active .media-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+}
+
+#favourites.tab-content.active .media-item img {
+    width: 100% !important;
+    aspect-ratio: 2 / 3 !important;
+    object-fit: cover !important;
+    border-radius: 14px !important;
+    border: 1px solid var(--card-border) !important;
+    margin-bottom: 6px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+#favourites.tab-content.active .media-title {
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    line-height: 1.25 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    background: var(--sub-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 8px !important;
+    padding: 4px 6px !important;
+    color: var(--text-main) !important;
+    text-align: center !important;
+}
+
+/* ==================== MOBILE HISTORY SCREEN (SCREENSHOT STYLE) ==================== */
+#history.tab-content.active {
+    display: block !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-sizing: border-box !important;
+}
+
+.mobile-history-container {
+    padding: 14px 12px 90px 12px !important;
+    background: #000000 !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 22px !important;
+    overflow: hidden !important;
+    min-height: calc(100vh - 150px) !important;
+    box-sizing: border-box !important;
+    max-width: 600px !important;
+    margin: 0 auto !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+.mobile-history-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    margin-top: 12px !important;
+}
+
+.mobile-history-item {
+    display: flex !important;
+    gap: 14px !important;
+    align-items: flex-start !important;
+    cursor: pointer !important;
+    padding: 4px !important;
+    border-radius: 14px !important;
+    transition: background 0.18s ease, transform 0.18s ease !important;
+}
+
+.mobile-history-item:active {
+    transform: scale(0.98) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.mobile-history-poster-wrap {
+    width: 88px !important;
+    min-width: 88px !important;
+    max-width: 88px !important;
+    aspect-ratio: 3 / 4.4 !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    background: #18181b !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45) !important;
+    position: relative !important;
+    flex-shrink: 0 !important;
+}
+
+.mobile-history-poster {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+.mobile-history-poster.placeholder {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #52525b !important;
+    font-size: 28px !important;
+}
+
+.mobile-history-info {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    padding-top: 2px !important;
+}
+
+.mobile-history-title {
+    font-size: 14.5px !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    line-height: 1.28 !important;
+    margin-bottom: 5px !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    word-break: break-word !important;
+}
+
+.mobile-history-meta {
+    font-size: 12.5px !important;
+    font-weight: 400 !important;
+    color: #ffffff !important;
+    line-height: 1.3 !important;
+    margin-bottom: 3px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.mobile-history-status {
+    font-size: 12.5px !important;
+    color: #a1a1aa !important;
+    line-height: 1.3 !important;
+    margin-bottom: 6px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.mobile-history-date {
+    font-size: 12px !important;
+    color: #71717a !important;
+    line-height: 1.2 !important;
+}
+
+/* ==================== MOBILE RATES SCREEN (SCREENSHOT STYLE) ==================== */
+#rates.tab-content.active {
+    display: block !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-sizing: border-box !important;
+}
+
+.mobile-rates-container {
+    padding: 14px 12px 90px 12px !important;
+    background: #000000 !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 22px !important;
+    overflow: hidden !important;
+    min-height: calc(100vh - 150px) !important;
+    box-sizing: border-box !important;
+    max-width: 600px !important;
+    margin: 0 auto !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* 1. Top bar: Type pill & search */
+.mobile-rates-top-bar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 4px 4px 10px 4px !important;
+}
+
+.mobile-rates-type-pill {
+    display: inline-flex !important;
+    background: #18181c !important;
+    border-radius: 12px !important;
+    padding: 3px !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.mobile-rates-type-btn {
+    background: transparent !important;
+    border: none !important;
+    color: #a1a1aa !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    padding: 6px 16px !important;
+    border-radius: 9px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.mobile-rates-type-btn.active {
+    background: #27272a !important;
+    color: #ffffff !important;
+}
+
+.mobile-rates-action-icon {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 50% !important;
+    background: #18181c !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+    font-size: 18px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+}
+
+/* Search input wrap */
+.mobile-rates-search-wrap {
+    padding: 0 4px 10px 4px !important;
+}
+
+.mobile-rates-search-wrap.hidden {
+    display: none !important;
+}
+
+.mobile-rates-search-box {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.mobile-rates-search-box input {
+    width: 100% !important;
+    background: #18181c !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 12px !important;
+    padding: 9px 36px 9px 36px !important;
+    color: #ffffff !important;
+    font-size: 14px !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+}
+
+.mobile-rates-search-box .search-icon {
+    position: absolute !important;
+    left: 12px !important;
+    color: #71717a !important;
+    font-size: 16px !important;
+    pointer-events: none !important;
+}
+
+/* 2. Status Underline Tabs (exact match to screenshot) */
+.mobile-rates-status-tabs {
+    display: flex !important;
+    gap: 22px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    padding: 6px 4px 0 4px !important;
+    margin-bottom: 14px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.mobile-rates-status-tabs::-webkit-scrollbar {
+    display: none !important;
+}
+
+.mobile-rates-status-tab {
+    background: transparent !important;
+    border: none !important;
+    color: #ffffff !important;
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    padding: 0 0 10px 0 !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    position: relative !important;
+    flex-shrink: 0 !important;
+    transition: color 0.18s ease !important;
+}
+
+.mobile-rates-status-tab.active {
+    color: #e5a543 !important;
+    font-weight: 700 !important;
+}
+
+.mobile-rates-status-tab.active::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: -1px !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 3.5px !important;
+    background: #e5a543 !important;
+    border-radius: 4px 4px 0 0 !important;
+}
+
+/* 3. 3-Column Grid (exact match to screenshot) */
+.mobile-rates-3col-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 14px 10px !important;
+    padding: 0 !important;
+}
+
+.mobile-rate-card {
+    display: flex !important;
+    flex-direction: column !important;
+    cursor: pointer !important;
+    min-width: 0 !important;
+    transition: transform 0.18s ease !important;
+}
+
+.mobile-rate-card:active {
+    transform: scale(0.96) !important;
+}
+
+.mobile-rate-poster-wrap {
+    width: 100% !important;
+    aspect-ratio: 3 / 4.4 !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    background: #18181b !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45) !important;
+    position: relative !important;
+}
+
+.mobile-rate-poster {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+.mobile-rate-poster.placeholder {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #52525b !important;
+    font-size: 32px !important;
+}
+
+.mobile-rate-title {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    line-height: 1.25 !important;
+    margin-top: 6px !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    min-height: 32px !important;
+    word-break: break-word !important;
+}
+
+.mobile-rate-progress {
+    font-size: 11.5px !important;
+    color: #a1a1aa !important;
+    margin-top: 2px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* Блок авторизации — единственный видимый элемент на странице */
+#profile > .card {
+    display: block !important;
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 20px !important;
+    padding: 36px 20px !important;
+    margin: 30px auto !important;
+    max-width: 440px !important;
+    text-align: center !important;
+    box-shadow: var(--shadow-md) !important;
+    box-sizing: border-box !important;
+}
+
+.tab-content > .card h2 {
+    font-size: 20px !important;
+    margin: 0 0 10px 0 !important;
+    color: var(--text-main) !important;
+}
+
+.tab-content > .card p {
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    color: var(--text-muted) !important;
+    margin: 0 0 24px 0 !important;
+}
+
+.tab-content a.btn[href="/login"] {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    padding: 12px 24px !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    border-radius: var(--radius-pill) !important;
+    text-decoration: none !important;
+    background: var(--primary) !important;
+    color: var(--on-primary) !important;
+    box-shadow: var(--shadow-glow) !important;
+    transition: transform 0.2s, box-shadow 0.2s !important;
+}
+
+/* ==========================================================================
+   Адаптивный Каталог для мобильного Обзора
+   ========================================================================== */
+html body #catalog-section-container {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin-top: 2px !important;
+    margin-bottom: 16px !important;
+    box-sizing: border-box !important;
+}
+
+html body #catalog-section-container .catalog-header-card {
+    display: flex !important;
+    flex-direction: column !important;
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 16px !important;
+    padding: 12px 10px !important;
+    margin-bottom: 8px !important;
+    box-sizing: border-box !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+html body #catalog-section-container .card-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    margin-bottom: 2px !important;
+}
+
+html body #catalog-section-container .card-header h3 {
+    font-size: 15.5px !important;
+    font-weight: 800 !important;
+    color: var(--text-main) !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+html body #catalog-section-container .card-header h3 i {
+    color: var(--primary) !important;
+}
+
+html body #catalog-section-container #btn-random-anime-inline {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    border-radius: var(--radius-pill) !important;
+    background: var(--primary-container) !important;
+    color: var(--on-primary-container) !important;
+    border: 1px solid var(--primary) !important;
+}
+
+html body #catalog-section-container .catalog-filters-bar {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    margin-top: 10px !important;
+    padding-top: 10px !important;
+    border-top: 1px solid var(--border-sub) !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+html body #catalog-section-container .catalog-filter-item {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+html body #catalog-section-container .catalog-filter-item label {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: var(--text-muted) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+html body #catalog-section-container .catalog-filter-item select {
+    width: 100% !important;
+    height: 38px !important;
+    border-radius: 12px !important;
+    background: var(--sub-bg) !important;
+    border: 1px solid var(--border-sub) !important;
+    color: var(--text-main) !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    padding: 0 10px !important;
+    box-sizing: border-box !important;
+    outline: none !important;
+}
+
+html body #catalog-grid-container.catalog-cards-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-bottom: 16px !important;
+    box-sizing: border-box !important;
+}
+
+html body .catalog-anime-card {
+    display: flex !important;
+    flex-direction: column !important;
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+    transition: transform 0.15s ease, border-color 0.15s ease !important;
+    content-visibility: auto !important;
+    contain-intrinsic-size: 160px 270px !important;
+}
+
+html body .catalog-anime-card:active {
+    transform: scale(0.97) !important;
+    border-color: var(--primary) !important;
+}
+
+html body .catalog-poster-wrap {
+    position: relative !important;
+    width: 100% !important;
+    aspect-ratio: 2 / 2.9 !important;
+    background: var(--thumb-placeholder-bg) !important;
+    overflow: hidden !important;
+}
+
+html body .catalog-poster-img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+html body .catalog-score-badge {
+    position: absolute !important;
+    top: 6px !important;
+    left: 6px !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: auto !important;
+    max-width: max-content !important;
+    background: rgba(13, 4, 20, 0.85) !important;
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+    color: #ffd700 !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    padding: 3px 7px !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+    z-index: 2 !important;
+}
+
+html body .catalog-kind-badge {
+    position: absolute !important;
+    bottom: 6px !important;
+    left: 6px !important;
+    right: auto !important;
+    top: auto !important;
+    width: auto !important;
+    max-width: max-content !important;
+    display: inline-flex !important;
+    z-index: 2 !important;
+}
+
+html body .catalog-card-body,
+html body .catalog-card-info {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    padding: 10px !important;
+    box-sizing: border-box !important;
+}
+
+html body .catalog-card-title {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: var(--text-main) !important;
+    line-height: 1.3 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+}
+
+html body .catalog-card-meta {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    font-size: 11px !important;
+    color: var(--text-muted) !important;
+    margin-top: 2px !important;
+}
+
+html body #catalog-load-more-wrap.catalog-load-more-wrap {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin: 16px 0 36px 0 !important;
+    text-align: center !important;
+}
+
+html body #catalog-load-more-wrap .btn-catalog-load-more,
+html body #catalog-load-more-wrap .btn-load-more-catalog {
+    width: auto !important;
+    max-width: max-content !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 12px 28px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    border-radius: var(--radius-pill) !important;
+    background: var(--card-bg) !important;
+    border: 1px solid var(--primary) !important;
+    color: var(--primary) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+    cursor: pointer !important;
+    transition: transform 0.15s ease, background-color 0.15s ease !important;
+}
+
+html body #catalog-load-more-wrap .btn-catalog-load-more:active,
+html body #catalog-load-more-wrap .btn-load-more-catalog:active {
+    transform: scale(0.95) !important;
+    background: var(--primary-container) !important;
+}
+
+
+
+/* Показываем навбар зафиксированным снизу (Bottom Navigation Bar) */
+body > header.app-header {
+    display: block !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    top: auto !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    z-index: 1000 !important;
+    background: var(--header-bg) !important;
+    border-top: 1px solid var(--card-border) !important;
+    border-bottom: none !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    padding: 6px 8px max(8px, env(safe-area-inset-bottom)) 8px !important;
+}
+
+.header-container {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 0 !important;
+}
+
+/* 1. БЕЗ ЛОГОТИПА И НАЗВАНИЯ САЙТА */
+.header-brand-container,
+.header-brand {
+    display: none !important;
+}
+
+/* 2. БЕЗ ПОИСКА */
+#search-toggle-btn,
+#navbar-search-panel {
+    display: none !important;
+}
+
+/* 3. БЕЗ ВОЙТИ, СМЕНЫ ТЕМЫ, ЯЗЫКА И РАНДОМА (ВСЯ ПРАВАЯ ЧАСТЬ СКРЫТА) */
+.header-right {
+    display: none !important;
+}
+
+/* ДЕСКТОПНЫЙ НАВБАР (TABS-NAV) В ВИДЕ НИЖНЕЙ ПАНЕЛИ */
+.tabs-nav {
+    display: flex !important;
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    align-items: center !important;
+    justify-content: space-around !important;
+    overflow: visible !important;
+    gap: 4px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+}
+
+.tabs-nav::-webkit-scrollbar {
+    display: none !important;
+}
+
+.tab-btn {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    gap: 3px !important;
+    padding: 6px 4px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    border-radius: var(--radius-inner, 12px) !important;
+    text-align: center !important;
+}
+
+.tab-btn .tab-icon {
+    font-size: 20px !important;
+    line-height: 1 !important;
+    display: inline-block !important;
+    margin: 0 !important;
+}
+
+.tab-btn .tab-label {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+}
+
+/* Только в мобильном виде: переименование первой вкладки в «Обзор» */
+.tab-btn[onclick*="profile"] .tab-label {
+    display: none !important;
+}
+.tab-btn[onclick*="profile"]::after {
+    content: "Обзор";
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+html[lang="en"] .tab-btn[onclick*="profile"]::after {
+    content: "Explore";
+}
+
+/* Скрыть вкладку «Друзья» из навбара на мобилке */
+.tab-btn[onclick*="friends"] {
+    display: none !important;
+}
+
+/* Настройки вида навбара (только иконки / только названия) не применяются к мобильному виду */
+.app-header.navbar-view-icons .tab-btn,
+.app-header.navbar-view-titles .tab-btn,
+.navbar-view-icons .tab-btn,
+.navbar-view-titles .tab-btn {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    padding: 6px 4px !important;
+}
+
+.app-header.navbar-view-icons .tab-btn .tab-icon,
+.app-header.navbar-view-titles .tab-btn .tab-icon,
+.navbar-view-icons .tab-btn .tab-icon,
+.navbar-view-titles .tab-btn .tab-icon {
+    display: inline-block !important;
+    font-size: 20px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+}
+
+.app-header.navbar-view-icons .tab-btn .tab-label,
+.app-header.navbar-view-titles .tab-btn .tab-label,
+.navbar-view-icons .tab-btn .tab-label,
+.navbar-view-titles .tab-btn .tab-label {
+    display: block !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+}
+
+.app-header.navbar-view-icons .tab-btn[onclick*="profile"] .tab-label,
+.app-header.navbar-view-titles .tab-btn[onclick*="profile"] .tab-label,
+.navbar-view-icons .tab-btn[onclick*="profile"] .tab-label,
+.navbar-view-titles .tab-btn[onclick*="profile"] .tab-label {
+    display: none !important;
+}
+
+.app-header.navbar-view-icons .tab-btn[onclick*="profile"]::after,
+.app-header.navbar-view-titles .tab-btn[onclick*="profile"]::after,
+.navbar-view-icons .tab-btn[onclick*="profile"]::after,
+.navbar-view-titles .tab-btn[onclick*="profile"]::after {
+    content: "Обзор" !important;
+    display: block !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+}
+
+html[lang="en"] .app-header.navbar-view-icons .tab-btn[onclick*="profile"]::after,
+html[lang="en"] .app-header.navbar-view-titles .tab-btn[onclick*="profile"]::after,
+html[lang="en"] .navbar-view-icons .tab-btn[onclick*="profile"]::after,
+html[lang="en"] .navbar-view-titles .tab-btn[onclick*="profile"]::after {
+    content: "Explore" !important;
+}
+
+.app-header.navbar-view-icons .tab-btn[onclick*="friends"],
+.app-header.navbar-view-titles .tab-btn[onclick*="friends"],
+.navbar-view-icons .tab-btn[onclick*="friends"],
+.navbar-view-titles .tab-btn[onclick*="friends"] {
+    display: none !important;
+}
+
+/* Тосты поверх всех модальных окон на мобильном */
+.toast-container {
+    z-index: 100005 !important;
+}
+
+/* Всплывающее меню фильтра и сортировки серий в мобильном плеере */
+.mobile-episodes-filter-sheet {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: rgba(0, 0, 0, 0.65) !important;
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+    z-index: 100020 !important;
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+}
+
+.mobile-episodes-filter-sheet.hidden {
+    display: none !important;
+}
+
+.mobile-episodes-filter-card {
+    background: #141210 !important;
+    border-top-left-radius: 24px !important;
+    border-top-right-radius: 24px !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+    width: 100% !important;
+    max-width: 500px !important;
+    padding: 20px 20px 32px 20px !important;
+    box-sizing: border-box !important;
+    animation: slideUpSheet 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.filter-sheet-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 20px !important;
+}
+
+.filter-sheet-title {
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+}
+
+.filter-sheet-close-btn {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: none !important;
+    color: #ffffff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    transition: background 0.15s ease !important;
+}
+
+.filter-sheet-close-btn:active {
+    background: rgba(255, 255, 255, 0.16) !important;
+}
+
+.filter-sheet-section {
+    margin-bottom: 20px !important;
+}
+
+.filter-sheet-label {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: #8c8c8c !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.6px !important;
+    margin-bottom: 10px !important;
+}
+
+.filter-sheet-chips {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+}
+
+.filter-chip {
+    background: #1f1b17 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #cccccc !important;
+    padding: 9px 15px !important;
+    border-radius: 12px !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+.filter-chip:active {
+    transform: scale(0.96) !important;
+}
+
+.filter-chip.active {
+    background: #5a3c1e !important;
+    border-color: #f7a863 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+/* Выбор озвучки в мобильном плеере (Скриншот 2) */
+.mobile-player-inner-content #anicli-step-2 .anicli-step-title {
+    display: none !important;
+}
+
+.mobile-trans-container {
+    display: flex !important;
+    flex-direction: column !important;
+    padding-bottom: 30px !important;
+}
+
+/* Табы Все / Озвучка / Субтитры */
+.mobile-trans-pills {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 6px 6px 16px 6px !important;
+}
+
+.trans-pill {
+    background: transparent !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #e0e0e0 !important;
+    padding: 8px 18px !important;
+    border-radius: 12px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+.trans-pill:active {
+    transform: scale(0.96) !important;
+}
+
+.trans-pill.active {
+    background: #4a3420 !important;
+    border-color: transparent !important;
+    color: #fce8cc !important;
+    font-weight: 600 !important;
+}
+
+/* Карточка "Последнее просмотренное" */
+.mobile-last-watched-card {
+    background: #251b13 !important;
+    border-radius: 22px !important;
+    padding: 18px 20px !important;
+    margin: 0 4px 20px 4px !important;
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: space-between !important;
+    border: 1px solid rgba(247, 168, 99, 0.08) !important;
+}
+
+.last-watched-info {
+    flex: 1 !important;
+    padding-right: 12px !important;
+}
+
+.last-watched-heading {
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    margin-bottom: 8px !important;
+    letter-spacing: -0.2px !important;
+}
+
+.last-watched-title {
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    color: #d6c6b4 !important;
+    margin-bottom: 3px !important;
+}
+
+.last-watched-sub {
+    font-size: 13.5px !important;
+    color: #8c7e70 !important;
+}
+
+.last-watched-continue-btn {
+    background: #f7a863 !important;
+    color: #211508 !important;
+    border: none !important;
+    border-radius: 22px !important;
+    padding: 10px 22px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    transition: transform 0.12s ease, background 0.15s ease !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+.last-watched-continue-btn:active {
+    transform: scale(0.95) !important;
+    background: #e59952 !important;
+}
+
+/* Список озвучек (без количества серий справа) */
+.mobile-trans-list {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0 2px 30px 2px !important;
+}
+
+.mobile-trans-row {
+    display: flex !important;
+    align-items: center !important;
+    padding: 12px 10px !important;
+    border-radius: 14px !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    transition: background 0.15s ease !important;
+    gap: 16px !important;
+}
+
+.mobile-trans-row:active {
+    background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.mobile-trans-avatar {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 50% !important;
+    background: #5c3b18 !important;
+    color: #f7d5ab !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    letter-spacing: 0.5px !important;
+}
+
+.mobile-trans-details {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+}
+
+.mobile-trans-name {
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    color: #ffffff !important;
+    line-height: 1.25 !important;
+}
+
+.mobile-trans-sub {
+    font-size: 13px !important;
+    color: #8c8c8c !important;
+    margin-top: 3px !important;
+}
+
+/* Выбор источника / плеера в мобильном плеере (Шаг 3) */
+.mobile-player-inner-content #anicli-step-3 .anicli-step-title {
+    display: none !important;
+}
+
+.mobile-players-container {
+    display: flex !important;
+    flex-direction: column !important;
+    padding-bottom: 30px !important;
+}
+
+.mobile-sources-header-bar {
+    padding: 8px 10px 18px 10px !important;
+}
+
+.mobile-sources-title {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    margin-bottom: 4px !important;
+}
+
+.mobile-sources-subtitle {
+    font-size: 13.5px !important;
+    color: #b4a89b !important;
+}
+
+.mobile-players-list {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0 4px 30px 4px !important;
+    gap: 8px !important;
+}
+
+.mobile-player-row {
+    display: flex !important;
+    align-items: center !important;
+    padding: 13px 14px !important;
+    border-radius: 16px !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    transition: background 0.15s ease, transform 0.12s ease !important;
+    gap: 16px !important;
+    background: #1a1612 !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.mobile-player-row:active {
+    background: #281e16 !important;
+    transform: scale(0.98) !important;
+}
+
+.mobile-player-avatar {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 50% !important;
+    background: #5c3b18 !important;
+    color: #f7d5ab !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    letter-spacing: 0.5px !important;
+}
+
+.mobile-player-details {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+}
+
+.mobile-player-name {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    line-height: 1.25 !important;
+}
+
+.mobile-player-sub {
+    font-size: 13px !important;
+    color: #8c8c8c !important;
+    margin-top: 3px !important;
+}
+
+.mobile-player-arrow {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    background: rgba(247, 168, 99, 0.12) !important;
+    flex-shrink: 0 !important;
+}
+
+/* ==========================================================================
+   Модальное окно / Bottom Sheet: Навигация по разделам
+   ========================================================================== */
+html body #mobile-sections-modal:not(.hidden) {
+    display: flex !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0, 0, 0, 0.75) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    z-index: 5000 !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+}
+
+#mobile-sections-modal .modal-content.mobile-sections-modal-card {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 94vh !important;
+    max-height: 94vh !important;
+    background: var(--bg-color) !important;
+    border: 1px solid var(--card-border) !important;
+    border-bottom: none !important;
+    border-radius: 24px 24px 0 0 !important;
+    padding: 0 !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4) !important;
+    overflow: hidden !important;
+}
+
+/* Фиксированная шапка меню разделов (как в профиле и настройках) */
+.mobile-sections-header-banner {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: 60px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 54px 0 16px !important;
+    background: var(--card-bg) !important;
+    border-bottom: 1px solid var(--border-sub) !important;
+    border-radius: 24px 24px 0 0 !important;
+    z-index: 50 !important;
+}
+
+.mobile-sections-header-title-wrap {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    overflow: hidden !important;
+}
+
+.mobile-sections-logo-icon {
+    font-size: 22px !important;
+    color: var(--primary) !important;
+    filter: drop-shadow(0 0 8px var(--primary-glow)) !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+}
+
+.mobile-sections-title {
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    color: var(--text-main) !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+#mobile-sections-modal .modal-close-btn {
+    position: absolute !important;
+    top: 12px !important;
+    right: 14px !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: var(--radius-pill) !important;
+    background: var(--hover-bg-alpha) !important;
+    border: 1px solid var(--border-sub) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: var(--text-main) !important;
+    font-size: 18px !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    z-index: 60 !important;
+}
+
+#mobile-sections-modal .modal-close-btn:active {
+    background: var(--primary-container) !important;
+    transform: scale(0.92) !important;
+}
+
+/* Универсальная кнопка "Назад" для подмодалок (Разделы, Друзья, Статистика) */
+.sections-back-btn {
+    position: relative !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: var(--radius-pill) !important;
+    background: var(--hover-bg-alpha) !important;
+    border: 1px solid var(--border-sub) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: var(--text-main) !important;
+    font-size: 18px !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    margin-right: 10px !important;
+    flex-shrink: 0 !important;
+    transition: all 0.15s ease !important;
+    z-index: 10 !important;
+}
+
+.sections-back-btn.hidden {
+    display: none !important;
+}
+
+.sections-back-btn:active {
+    background: var(--primary-container) !important;
+    transform: scale(0.92) !important;
+}
+
+/* Шапки подмодалок Друзья и Статистика */
+.mobile-friends-header,
+.mobile-stats-header {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 60px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 54px 0 16px !important;
+    background: var(--card-bg) !important;
+    border-bottom: 1px solid var(--border-sub) !important;
+    border-radius: 24px 24px 0 0 !important;
+    z-index: 50 !important;
+}
+
+.mobile-friends-header .settings-logo-icon,
+.mobile-stats-header .settings-logo-icon {
+    font-size: 22px !important;
+    color: var(--primary) !important;
+    margin-right: 8px !important;
+    flex-shrink: 0 !important;
+}
+
+.mobile-friends-header .settings-title,
+.mobile-stats-header .settings-title {
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    color: var(--text-main) !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* Скроллируемое тело модалки разделов */
+.mobile-sections-body {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 60px !important;
+    height: calc(94vh - 60px) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 16px !important;
+    box-sizing: border-box !important;
+}
+
+.mobile-sections-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    padding-top: 4px !important;
+}
+
+.mobile-section-nav-item {
+    display: flex !important;
+    align-items: center !important;
+    padding: 14px 16px !important;
+    border-radius: 20px !important;
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    gap: 14px !important;
+    text-align: left !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.mobile-section-nav-item:active {
+    transform: scale(0.98) !important;
+    background: var(--primary-container) !important;
+    border-color: var(--primary) !important;
+}
+
+.section-nav-icon {
+    width: 46px !important;
+    height: 46px !important;
+    border-radius: 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 22px !important;
+    flex-shrink: 0 !important;
+}
+
+.section-nav-icon.icon-calendar {
+    background: rgba(245, 158, 11, 0.15) !important;
+    color: #f59e0b !important;
+    border: 1px solid rgba(245, 158, 11, 0.25) !important;
+}
+
+.section-nav-icon.icon-content {
+    background: rgba(168, 85, 247, 0.15) !important;
+    color: #c084fc !important;
+    border: 1px solid rgba(168, 85, 247, 0.25) !important;
+}
+
+.section-nav-icon.icon-hot {
+    background: rgba(239, 68, 68, 0.15) !important;
+    color: #f87171 !important;
+    border: 1px solid rgba(239, 68, 68, 0.25) !important;
+}
+
+.section-nav-icon.icon-news {
+    background: rgba(6, 182, 212, 0.15) !important;
+    color: #38bdf8 !important;
+    border: 1px solid rgba(6, 182, 212, 0.25) !important;
+}
+
+.section-nav-info {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-width: 0 !important;
+}
+
+.section-nav-title {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: var(--text-main) !important;
+    line-height: 1.25 !important;
+}
+
+.section-nav-desc {
+    font-size: 12.5px !important;
+    color: var(--text-muted) !important;
+    margin-top: 3px !important;
+}
+
+.section-nav-arrow {
+    font-size: 18px !important;
+    color: var(--text-muted) !important;
+    flex-shrink: 0 !important;
+}
+
+/* Детальный вид раздела внутри модалки */
+#sections-detail-view {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+}
+
+#sections-detail-view.hidden {
+    display: none !important;
+}
+
+#sections-main-view.hidden {
+    display: none !important;
+}
+
+#sections-detail-content {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+}
+
+#sections-detail-content .calendar-days-tabs {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    gap: 6px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 4px 0 12px 0 !important;
+    margin-bottom: 8px !important;
+}
+
+#sections-detail-content .cal-day-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 9px 2px !important;
+    border-radius: 12px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    text-align: center !important;
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    color: var(--text-muted) !important;
+    cursor: pointer !important;
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+#sections-detail-content .cal-day-btn:active {
+    transform: scale(0.94) !important;
+}
+
+#sections-detail-content .cal-day-btn.active {
+    background: var(--primary) !important;
+    color: var(--on-primary) !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 2px 8px var(--primary-alpha) !important;
+}
+
+#sections-detail-content .calendar-items-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+    margin-top: 6px !important;
+}
+
+#sections-detail-content .news-item-card {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 16px !important;
+    margin-bottom: 12px !important;
+    overflow: hidden !important;
+}
+
+@media (min-width: 769px) {
+    .mobile-anime-top-bar {
+        display: none !important;
+    }
+    html body #mobile-sections-modal:not(.hidden) {
+        align-items: center !important;
+    }
+    #mobile-sections-modal .modal-content.mobile-sections-modal-card {
+        max-width: 600px !important;
+        height: 85vh !important;
+        max-height: 85vh !important;
+        border-radius: 24px !important;
+        border-bottom: 1px solid var(--card-border) !important;
+    }
+}
+
+/* ==================== CHARACTER VIEW (SCREENSHOT STYLE) ==================== */
+.char-view-top-bar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 56px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 14px !important;
+    background: #000000 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    z-index: 1000 !important;
+}
+
+.char-view-nav-btn {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: transparent !important;
+    border: none !important;
+    color: #ffffff !important;
+    font-size: 22px !important;
+    cursor: pointer !important;
+    transition: background 0.2s !important;
+}
+
+.char-view-nav-btn:active {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.char-view-nav-title {
+    font-size: 19px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    flex: 1 !important;
+    margin-left: 8px !important;
+}
+
+.char-view-container {
+    padding: 68px 16px 40px 16px !important;
+    background: #000000 !important;
+    color: #ffffff !important;
+    min-height: 100vh !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    max-width: 600px !important;
+    margin: 0 auto !important;
+}
+
+/* 1. Header with round avatar */
+.char-view-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 18px !important;
+    margin-bottom: 22px !important;
+}
+
+.char-view-avatar-wrap {
+    width: 124px !important;
+    height: 124px !important;
+    flex: 0 0 124px !important;
+    border-radius: 50% !important;
+    overflow: hidden !important;
+    background: #18181b !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+    position: relative !important;
+}
+
+.char-view-avatar {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+.char-view-avatar.placeholder {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #71717a !important;
+    font-size: 42px !important;
+}
+
+.char-view-names {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+}
+
+.char-name-en {
+    font-size: 26px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    line-height: 1.15 !important;
+    margin: 0 0 4px 0 !important;
+    word-break: break-word !important;
+}
+
+.char-name-ru {
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    color: #a1a1aa !important;
+    line-height: 1.3 !important;
+    margin: 0 0 3px 0 !important;
+}
+
+.char-name-ja {
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    color: #71717a !important;
+    line-height: 1.3 !important;
+}
+
+/* 2. Description */
+.char-view-desc-section {
+    margin-bottom: 26px !important;
+}
+
+.char-view-desc-text {
+    font-size: 14.5px !important;
+    line-height: 1.6 !important;
+    color: #d4d4d8 !important;
+    word-break: break-word !important;
+}
+
+.char-view-desc-text a,
+.char-view-desc-text .b-link {
+    color: #e5a543 !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+}
+
+.char-view-desc-text.collapsed {
+    max-height: 90px !important;
+    overflow: hidden !important;
+    position: relative !important;
+    -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent 100%) !important;
+    mask-image: linear-gradient(to bottom, black 55%, transparent 100%) !important;
+}
+
+.char-view-desc-toggle {
+    color: #e5a543 !important;
+    font-size: 14.5px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    margin-top: 6px !important;
+    display: inline-block !important;
+}
+
+/* 3. Media Sections (Аниме, Манга) */
+.char-view-media-section {
+    margin-bottom: 24px !important;
+}
+
+.char-section-title {
+    font-size: 19px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    margin: 0 0 14px 0 !important;
+}
+
+.char-media-carousel {
+    display: flex !important;
+    gap: 12px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-bottom: 8px !important;
+    scrollbar-width: none !important;
+}
+
+.char-media-carousel::-webkit-scrollbar {
+    display: none !important;
+}
+
+.char-media-card {
+    flex: 0 0 115px !important;
+    width: 115px !important;
+    cursor: pointer !important;
+    transition: transform 0.18s ease !important;
+}
+
+.char-media-card:active {
+    transform: scale(0.95) !important;
+}
+
+.char-media-poster-wrap {
+    width: 115px !important;
+    height: 165px !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    background: #18181b !important;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4) !important;
+    position: relative !important;
+}
+
+.char-media-poster {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+.char-media-poster.placeholder {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #52525b !important;
+    font-size: 32px !important;
+}
+
+.char-media-title {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #f4f4f5 !important;
+    line-height: 1.3 !important;
+    margin-top: 7px !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    min-height: 34px !important;
+}
+
+.char-media-meta {
+    font-size: 11.5px !important;
+    color: #a1a1aa !important;
+    margin-top: 2px !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+/* ==================== MANGA VIEW (SCREENSHOT STYLE) ==================== */
+.manga-view-top-bar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 56px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 14px !important;
+    background: #000000 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    z-index: 1000 !important;
+}
+
+.manga-view-nav-btn {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: transparent !important;
+    border: none !important;
+    color: #ffffff !important;
+    font-size: 22px !important;
+    cursor: pointer !important;
+    transition: background 0.2s !important;
+}
+
+.manga-view-nav-btn:active {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.manga-view-nav-title {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    flex: 1 !important;
+    margin: 0 10px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.manga-view-container {
+    padding: 68px 16px 40px 16px !important;
+    background: #000000 !important;
+    color: #ffffff !important;
+    min-height: 100vh !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    max-width: 600px !important;
+    margin: 0 auto !important;
+}
+
+/* 1. Hero Poster */
+.manga-hero-section {
+    display: flex !important;
+    justify-content: center !important;
+    margin: 8px 0 18px 0 !important;
+}
+
+.manga-hero-poster-wrap {
+    width: 215px !important;
+    height: 310px !important;
+    border-radius: 18px !important;
+    overflow: hidden !important;
+    background: #18181b !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.65) !important;
+    position: relative !important;
+}
+
+.manga-hero-poster {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+.manga-hero-poster.placeholder {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #52525b !important;
+    font-size: 48px !important;
+}
+
+/* 2. Actions Row */
+.manga-actions-scroll {
+    display: flex !important;
+    gap: 10px !important;
+    overflow-x: auto !important;
+    padding-bottom: 6px !important;
+    scrollbar-width: none !important;
+    margin-bottom: 16px !important;
+}
+
+.manga-actions-scroll::-webkit-scrollbar {
+    display: none !important;
+}
+
+.manga-action-btn {
+    border-radius: 12px !important;
+    background: #18181c !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #f4f4f5 !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    padding: 10px 18px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.manga-action-btn:active {
+    transform: scale(0.96) !important;
+}
+
+.manga-action-btn.active {
+    background: #282119 !important;
+    border-color: #e5a543 !important;
+    color: #e5a543 !important;
+}
+
+.manga-rate-collapse {
+    margin-bottom: 18px !important;
+}
+
+/* 3. Header info & Rating */
+.manga-header-info {
+    margin-bottom: 16px !important;
+}
+
+.manga-title-main {
+    font-size: 21px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    line-height: 1.25 !important;
+    margin: 0 0 4px 0 !important;
+    word-break: break-word !important;
+}
+
+.manga-title-sub {
+    font-size: 14px !important;
+    color: #a1a1aa !important;
+    margin: 0 0 8px 0 !important;
+}
+
+.manga-score-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.manga-stars {
+    display: flex !important;
+    align-items: center !important;
+    gap: 2px !important;
+    font-size: 16px !important;
+}
+
+.manga-stars .star-gold {
+    color: #f59e0b !important;
+}
+
+.manga-stars .star-empty {
+    color: #52525b !important;
+}
+
+.manga-score-number {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+}
+
+/* 4. Metadata Grid */
+.manga-meta-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+    margin-bottom: 16px !important;
+}
+
+.manga-meta-col {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.manga-meta-label {
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    color: #e5a543 !important;
+}
+
+.manga-meta-val {
+    font-size: 14.5px !important;
+    font-weight: 500 !important;
+    color: #ffffff !important;
+    margin-top: 3px !important;
+}
+
+/* 5. Genres */
+.manga-genres-scroll {
+    display: flex !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+    margin-bottom: 20px !important;
+}
+
+.manga-genre-pill {
+    border-radius: 10px !important;
+    background: #241e17 !important;
+    border: 1px solid #3d3326 !important;
+    color: #e5a543 !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    padding: 6px 14px !important;
+}
+
+.manga-genre-pill.publisher {
+    background: #17241b !important;
+    border-color: #273d2e !important;
+    color: #81c784 !important;
+}
+
+/* 6. Description */
+.manga-desc-section {
+    margin-bottom: 26px !important;
+}
+
+.manga-desc-text {
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    color: #d4d4d8 !important;
+    word-break: break-word !important;
+}
+
+.manga-desc-text a,
+.manga-desc-text .b-link {
+    color: #e5a543 !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+}
+
+.manga-desc-text.collapsed {
+    max-height: 88px !important;
+    overflow: hidden !important;
+    position: relative !important;
+    -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%) !important;
+    mask-image: linear-gradient(to bottom, black 50%, transparent 100%) !important;
+}
+
+.manga-desc-toggle {
+    color: #e5a543 !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    margin-top: 6px !important;
+    display: inline-block !important;
+}
+
+/* 7. General Sections */
+.manga-section {
+    margin-bottom: 28px !important;
+}
+
+.manga-section-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 14px !important;
+}
+
+.manga-section-title {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.manga-section-meta {
+    font-size: 13px !important;
+    color: #a1a1aa !important;
+}
+
+.manga-count-pill {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    padding: 2px 8px !important;
+    border-radius: 10px !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    color: #e4e4e7 !important;
+}
+
+/* "В списках" Multi-color Bar & Legend */
+.manga-in-lists-bar {
+    display: flex !important;
+    height: 18px !important;
+    border-radius: 6px !important;
+    overflow: hidden !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    margin-bottom: 14px !important;
+}
+
+.manga-in-lists-bar .bar-seg.seg-planned {
+    background: #d4e157 !important;
+}
+
+.manga-in-lists-bar .bar-seg.seg-completed {
+    background: #66bb6a !important;
+}
+
+.manga-in-lists-bar .bar-seg.seg-watching {
+    background: #9575cd !important;
+}
+
+.manga-in-lists-bar .bar-seg.seg-dropped {
+    background: #ef5350 !important;
+}
+
+.manga-in-lists-bar .bar-seg.seg-onhold {
+    background: #42a5f5 !important;
+}
+
+.manga-in-lists-legend {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px 12px !important;
+}
+
+.manga-in-lists-legend .legend-item {
+    display: flex !important;
+    align-items: center !important;
+    font-size: 12.5px !important;
+    color: #e4e4e7 !important;
+    gap: 6px !important;
+}
+
+.manga-in-lists-legend .dot {
+    width: 10px !important;
+    height: 10px !important;
+    border-radius: 3px !important;
+    display: inline-block !important;
+}
+
+.manga-in-lists-legend .dot.dot-planned { background: #d4e157 !important; }
+.manga-in-lists-legend .dot.dot-completed { background: #66bb6a !important; }
+.manga-in-lists-legend .dot.dot-watching { background: #9575cd !important; }
+.manga-in-lists-legend .dot.dot-dropped { background: #ef5350 !important; }
+.manga-in-lists-legend .dot.dot-onhold { background: #42a5f5 !important; }
+
+/* 8. Персонажи */
+.manga-characters-scroll {
+    display: flex !important;
+    gap: 14px !important;
+    overflow-x: auto !important;
+    padding-bottom: 8px !important;
+    scrollbar-width: none !important;
+}
+
+.manga-characters-scroll::-webkit-scrollbar {
+    display: none !important;
+}
+
+.manga-character-card {
+    flex: 0 0 84px !important;
+    width: 84px !important;
+    text-align: center !important;
+    cursor: pointer !important;
+    transition: transform 0.18s ease !important;
+}
+
+.manga-character-card:active {
+    transform: scale(0.95) !important;
+}
+
+.manga-character-avatar-wrap {
+    width: 84px !important;
+    height: 84px !important;
+    border-radius: 50% !important;
+    overflow: hidden !important;
+    background: #18181b !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45) !important;
+    position: relative !important;
+}
+
+.manga-character-avatar {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+.manga-character-avatar.placeholder {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #71717a !important;
+    font-size: 34px !important;
+}
+
+.manga-character-name {
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    color: #f4f4f5 !important;
+    margin-top: 6px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+/* 9. Связанное */
+.manga-related-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+}
+
+.manga-related-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+    cursor: pointer !important;
+    border-radius: 12px !important;
+    padding: 4px 0 !important;
+    transition: background 0.18s ease !important;
+}
+
+.manga-related-item:active {
+    opacity: 0.8 !important;
+}
+
+.manga-related-thumb-wrap {
+    width: 65px !important;
+    height: 95px !important;
+    flex: 0 0 65px !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    background: #18181b !important;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4) !important;
+    position: relative !important;
+}
+
+.manga-related-thumb {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+.manga-related-thumb.placeholder {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #52525b !important;
+    font-size: 28px !important;
+}
+
+.manga-related-info {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    min-width: 0 !important;
+}
+
+.manga-related-title {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #f4f4f5 !important;
+    line-height: 1.3 !important;
+}
+
+.manga-related-meta {
+    font-size: 12px !important;
+    color: #a1a1aa !important;
+}
+
+/* ==================== MOBILE ANIME CONSOLE EASTER EGG ==================== */
+.mobile-anime-console-widget {
+    display: flex !important;
+    flex-direction: column !important;
+    background: #282c34 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 16px !important;
+    padding: 12px 14px 16px 14px !important;
+    margin: 28px auto 40px auto !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    color: #e4bb68 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+}
+
+.anime-console-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin-bottom: 12px !important;
+    padding-bottom: 8px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.console-dot {
+    width: 9px !important;
+    height: 9px !important;
+    border-radius: 50% !important;
+    display: inline-block !important;
+}
+
+.dot-red { background: #ff5f56 !important; }
+.dot-yellow { background: #ffbd2e !important; }
+.dot-green { background: #27c93f !important; }
+
+.console-title {
+    color: #abb2bf !important;
+    font-size: 11px !important;
+    margin-left: 4px !important;
+    font-weight: 500 !important;
+    opacity: 0.8 !important;
+}
+
+.anime-code-container {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    position: relative !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    font-size: clamp(10px, 3vw, 13.5px) !important;
+    line-height: 1.4 !important;
+    width: 100% !important;
+    font-family: 'JetBrains Mono', monospace !important;
+}
+
+.anime-code-container h1 {
+    font-size: inherit !important;
+    font-weight: 500 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #e4bb68 !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    display: inline-block !important;
+}
+
+.anime-code-container .string-box {
+    display: inline-flex !important;
+    flex-direction: column !important;
+    height: 1.4em !important;
+    overflow: hidden !important;
+    vertical-align: middle !important;
+    margin: 0 2px !important;
+}
+
+.anime-code-container .string {
+    display: flex !important;
+    flex-direction: column !important;
+    text-align: center !important;
+    animation: animeCodeMove 5.5s infinite cubic-bezier(0.77, 0, 0.175, 1) !important;
+}
+
+.anime-code-container .greeting {
+    height: 1.4em !important;
+    line-height: 1.4em !important;
+    font-size: inherit !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-family: 'JetBrains Mono', monospace !important;
+}
+
+.anime-code-container .closure {
+    color: #e4bb68 !important;
+}
+
+.anime-code-container .en {
+    color: #fa8231 !important;
+}
+
+.anime-code-container .es {
+    color: #ffffff !important;
+}
+
+.anime-code-container .de {
+    color: #c678dd !important;
+}
+
+.anime-code-container .it {
+    color: #61afef !important;
+}
+
+@keyframes animeCodeMove {
+    0%, 20% {
+        transform: translateY(0%);
+    }
+    25%, 45% {
+        transform: translateY(-25%);
+    }
+    50%, 70% {
+        transform: translateY(-50%);
+    }
+    75%, 95% {
+        transform: translateY(-75%);
+    }
+    100% {
+        transform: translateY(0%);
+    }
+}
+
+

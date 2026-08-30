@@ -59,10 +59,13 @@ def _build_anime_from_graphql(a, anime_id):
         if target:
             is_anime = bool(r.get("anime"))
             t_url = target.get("url") or (f"/animes/{target.get('id')}" if is_anime else f"/mangas/{target.get('id')}")
+            poster_obj = target.get("poster") or {}
+            poster_url = fix_image_url(poster_obj.get("mainUrl") or poster_obj.get("originalUrl"))
             related.append({
                 "id": target.get("id"),
                 "name": target.get("russian") or target.get("name"),
                 "kind": rel_ru,
+                "image": poster_url,
                 "url": f"https://shikimori.io{t_url}" if not t_url.startswith("http") else t_url
             })
 
@@ -107,7 +110,10 @@ def _build_anime_from_graphql(a, anime_id):
         "shikimori_url": f"https://shikimori.io{a.get('url')}" if a.get('url') else f"https://shikimori.io/animes/{anime_id}",
         "user_rate": user_rate,
         "synonyms": a.get("synonyms", []),
-        "japanese": [],
+        "japanese": a.get("japanese") or [],
+        "english": a.get("english") or [],
+        "statuses_stats": a.get("statusesStats") or [],
+        "scores_stats": a.get("scoresStats") or [],
         "related": related[:12],
         "characters": characters[:30],
         "screenshots": screenshots,
@@ -175,11 +181,21 @@ def _build_anime_result(data, anime_id, characters_data=None):
         "user_rate": user_rate,
         "synonyms": data.get("synonyms", []),
         "japanese": data.get("japanese", []),
+        "english": data.get("english", []),
+        "statuses_stats": [
+            {"status": s.get("name"), "count": s.get("value")}
+            for s in (data.get("rates_statuses_stats") or [])
+        ],
+        "scores_stats": [
+            {"score": s.get("name"), "count": s.get("value")}
+            for s in (data.get("rates_scores_stats") or [])
+        ],
         "related": [
             {
                 "id": r.get("anime") and r["anime"].get("id") or r.get("manga") and r["manga"].get("id"),
                 "name": (r.get("anime") and r["anime"].get("russian") or r.get("anime") and r["anime"].get("name") or r.get("manga") and r["manga"].get("russian") or r.get("manga") and r["manga"].get("name")),
                 "kind": r.get("relation") or r.get("relation_russian"),
+                "image": fix_image_url((r.get("anime") and r["anime"].get("image") and (r["anime"]["image"].get("original") or r["anime"]["image"].get("preview"))) or (r.get("manga") and r["manga"].get("image") and (r["manga"]["image"].get("original") or r["manga"]["image"].get("preview")))),
                 "url": (r.get("anime") and f"{SHIKIMORI_BASE}{r['anime'].get('url')}" or r.get("manga") and f"{SHIKIMORI_BASE}{r['manga'].get('url')}" or "")
             }
             for r in data.get("related", [])[:12]
@@ -217,6 +233,10 @@ def get_anime_details(anime_id):
         genres { id name russian }
         studios { id name }
         synonyms
+        japanese
+        english
+        scoresStats { score count }
+        statusesStats { status count }
         franchise
         url
         screenshots { id originalUrl x332Url }
@@ -292,19 +312,22 @@ def get_anicli_stream(anime_id):
     titles_pool = []
     if custom_title:
         titles_pool.append(custom_title)
-    if anime_data.get("russian"):
+    if anime_data.get("russian") and anime_data["russian"] not in titles_pool:
         titles_pool.append(anime_data["russian"])
-    if anime_data.get("name"):
+    if anime_data.get("name") and anime_data["name"] not in titles_pool:
         titles_pool.append(anime_data["name"])
 
-    synonyms = anime_data.get("synonyms") or []
-    if isinstance(synonyms, list):
-        for s in synonyms:
-            if s and s not in titles_pool:
-                titles_pool.append(s)
+    # Добавляем синонимы только при недостатке основных названий (не более 3 всего)
+    if len(titles_pool) < 2:
+        synonyms = anime_data.get("synonyms") or []
+        if isinstance(synonyms, list):
+            for s in synonyms:
+                if s and s not in titles_pool:
+                    titles_pool.append(s)
+                    if len(titles_pool) >= 2:
+                        break
 
-    titles_pool = list(dict.fromkeys(t for t in titles_pool if t and len(t.strip()) > 1))
-
+    titles_pool = [t for t in titles_pool if t and len(t.strip()) > 1][:3]
     if not titles_pool:
         titles_pool = [f"Anime {anime_id}"]
 
@@ -336,19 +359,53 @@ def get_character_details(char_id):
         raise AppError("Не удалось получить данные о персонаже", 502)
 
     poster = fix_image_url(data.get("image"))
-    animes = [{"id": a.get("id"), "name": a.get("russian") or a.get("name"), "role": a.get("role")} for a in data.get("animes", [])]
-    mangas = [{"id": m.get("id"), "name": m.get("russian") or m.get("name"), "role": m.get("role")} for m in data.get("mangas", [])]
+    animes = [
+        {
+            "id": a.get("id"),
+            "name": a.get("russian") or a.get("name"),
+            "original_name": a.get("name"),
+            "role": a.get("role"),
+            "kind": (a.get("kind") or "").upper(),
+            "score": str(a.get("score")) if a.get("score") else "",
+            "image": fix_image_url(a.get("image")),
+        }
+        for a in data.get("animes", [])
+    ]
+    mangas = [
+        {
+            "id": m.get("id"),
+            "name": m.get("russian") or m.get("name"),
+            "original_name": m.get("name"),
+            "role": m.get("role"),
+            "kind": (m.get("kind") or "").upper(),
+            "score": str(m.get("score")) if m.get("score") else "",
+            "image": fix_image_url(m.get("image")),
+        }
+        for m in data.get("mangas", [])
+    ]
 
-    logger.debug("Character loaded: char_id=%s", char_id)
+    seyu = [
+        {
+            "id": s.get("id"),
+            "name": s.get("russian") or s.get("name"),
+            "original_name": s.get("name"),
+            "image": fix_image_url(s.get("image")),
+            "url": f"{SHIKIMORI_BASE}{s.get('url')}" if s.get('url') else ""
+        }
+        for s in data.get("seyu", [])
+    ]
+
+    logger.debug("Character loaded: char_id=%s animes=%d mangas=%d", char_id, len(animes), len(mangas))
     return jsonify({
         "id": data.get("id"),
         "name": data.get("name"),
         "russian": data.get("russian") or data.get("name"),
         "japanese": data.get("japanese") or "",
         "image": poster,
-        "description": data.get("description_html") or data.get("description") or "Описание отсутствует.",
-        "animes": animes[:6],
-        "mangas": mangas[:6],
+        "description": data.get("description_html") or data.get("description") or "",
+        "animes": animes,
+        "mangas": mangas,
+        "seyu": seyu,
         "shikimori_url": f"{SHIKIMORI_BASE}{data.get('url')}" if data.get('url') else ""
     })
 

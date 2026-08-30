@@ -890,16 +890,6 @@
     border: none;
 }
 
-@media (max-width: 768px) {
-    .floating-mini-player {
-        width: calc(100% - 32px);
-        left: 16px;
-        right: 16px;
-        bottom: 74px;
-        height: 220px;
-    }
-}
-
 /* ==================== USER RATE INTERACTIVE WIDGET ==================== */
 .user-rate-widget-card {
     margin-top: 18px;
@@ -1121,71 +1111,14 @@
     }
 }
 
-@media (max-width: 860px) {
-    .modal-content.anime-modal-content {
-        padding: 18px 16px 60px 16px;
-    }
-
-    .modal-close-btn {
-        top: 12px;
-        right: 12px;
-        width: 38px;
-        height: 38px;
-        font-size: 18px;
-    }
-
-    .modal-back-btn {
-        top: 12px;
-        right: 56px;
-        width: 38px;
-        height: 38px;
-        font-size: 16px;
-    }
-
-    .anime-hero-section {
-        display: flex;
-        flex-direction: column;
-        gap: 18px;
-    }
-
-    .anime-hero-left {
-        gap: 14px;
-    }
-
-    .anime-header-titles {
-        padding-right: 0;
-        padding-bottom: 10px;
-    }
-
-    .anime-header-titles .anime-title {
-        font-size: 22px;
-    }
-
-    .anime-header-titles .anime-orig-title {
-        font-size: 13.5px;
-    }
-
-    .anime-poster-wrapper {
-        max-width: 220px;
-        margin: 0 auto;
-    }
-
-    .anime-meta-details-card .anime-info-grid {
-        grid-template-columns: 1fr;
-        gap: 8px;
-    }
-
-    .watch-player-crop-wrapper {
-        height: 280px;
-    }
-
-    .anime-description-content {
-        font-size: 13.5px;
-    }
-}
-
 /* Anicli Step-by-Step UI */
 .anicli-wizard-container .hidden,
+.anicli-wizard-container.hidden,
+.anicli-step-container.hidden,
+#anicli-step-1.hidden,
+#anicli-step-2.hidden,
+#anicli-step-3.hidden,
+#anicli-step-4.hidden,
 #anicli-video-view.hidden {
     display: none !important;
 }

@@ -74,24 +74,24 @@ function saveBgSettings(settings) {
 
 function applyBgToPage(settings) {
     if (!settings || settings.mode === 'theme') {
-        document.body.style.backgroundImage = '';
-        document.body.style.backgroundColor = '';
-        document.body.style.backgroundSize = '';
-        document.body.style.backgroundAttachment = '';
-        document.body.style.backgroundPosition = '';
+        document.body.style.removeProperty('background-image');
+        document.body.style.removeProperty('background-color');
+        document.body.style.removeProperty('background-size');
+        document.body.style.removeProperty('background-attachment');
+        document.body.style.removeProperty('background-position');
         return;
     }
 
-    document.body.style.backgroundSize = 'cover';
-    document.body.style.backgroundAttachment = 'fixed';
-    document.body.style.backgroundPosition = 'center';
+    document.body.style.setProperty('background-size', 'cover', 'important');
+    document.body.style.setProperty('background-attachment', 'fixed', 'important');
+    document.body.style.setProperty('background-position', 'center', 'important');
 
     if (settings.mode === 'image' && settings.image) {
-        document.body.style.backgroundImage = `url("${settings.image}")`;
-        document.body.style.backgroundColor = '';
+        document.body.style.removeProperty('background-color');
+        document.body.style.setProperty('background-image', `url("${settings.image}")`, 'important');
     } else if (settings.mode === 'color' && settings.color) {
-        document.body.style.backgroundImage = '';
-        document.body.style.backgroundColor = settings.color;
+        document.body.style.removeProperty('background-image');
+        document.body.style.setProperty('background-color', settings.color, 'important');
     }
 }
 
@@ -206,6 +206,9 @@ function openSettingsModal() {
     const modal = document.getElementById('settings-modal');
     if (!modal) return;
     modal.classList.remove('hidden');
+    if (typeof updateMobileProfileBadges === 'function') {
+        updateMobileProfileBadges();
+    }
 
     const colorInput = document.getElementById('bg-color-input');
     if (colorInput && !colorInput.dataset.default) {

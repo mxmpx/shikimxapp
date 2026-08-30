@@ -271,7 +271,9 @@ def fetch_user_rate(target_id, target_type):
                 "chapters": item.get("chapters", 0),
                 "volumes": item.get("volumes", 0),
                 "text": item.get("text", "") or "",
-                "rewatches": item.get("rewatches", 0)
+                "rewatches": item.get("rewatches", 0),
+                "created_at": item.get("created_at"),
+                "updated_at": item.get("updated_at")
             }
     except Exception as exc:
         logger.debug("Could not load user rate for %s %s: %s", target_type, target_id, exc)

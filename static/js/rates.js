@@ -1,8 +1,23 @@
 let currentTargetType = localStorage.getItem('currentTargetType') || 'Anime';
-let currentStatusFilter = localStorage.getItem('currentStatusFilter') || 'all';
+let currentStatusFilter = localStorage.getItem('currentStatusFilter') || 'watching';
 let currentSortFilter = localStorage.getItem('currentSortFilter') || 'updated_at';
 let currentViewMode = localStorage.getItem('ratesViewMode') || 'cards';
 let ratesSearchQuery = '';
+
+function isMobileRatesView() {
+    return window.innerWidth <= 768 || document.body.classList.contains('mobile-view');
+}
+window.isMobileRatesView = isMobileRatesView;
+
+window.toggleRatesSearch = function() {
+    const wrap = document.getElementById('mobile-rates-search-wrap');
+    if (!wrap) return;
+    wrap.classList.toggle('hidden');
+    if (!wrap.classList.contains('hidden')) {
+        const inp = document.getElementById('rates-local-search');
+        if (inp) inp.focus();
+    }
+};
 
 function getStatusMap() {
     return {
@@ -23,15 +38,15 @@ async function openTabWithFilter(type, status) {
 
     await openTab('rates');
 
-    document.querySelectorAll('.type-btn').forEach(b => {
+    document.querySelectorAll('.type-btn, .mobile-rates-type-btn').forEach(b => {
         b.classList.remove('active');
-        if ((type === 'Anime' && b.textContent.includes(i18n('rates.anime'))) || (type === 'Manga' && b.textContent.includes(i18n('rates.manga')))) {
+        if ((type === 'Anime' && b.textContent.includes('Аниме')) || (type === 'Manga' && b.textContent.includes('Манга'))) {
             b.classList.add('active');
         }
     });
 
     updateFilterLabels();
-    document.querySelectorAll('.filter-btn').forEach(b => {
+    document.querySelectorAll('.filter-btn, .mobile-rates-status-tab').forEach(b => {
         b.classList.remove('active');
         if (b.getAttribute('onclick') && b.getAttribute('onclick').includes(`'${status}'`)) b.classList.add('active');
     });
@@ -42,8 +57,12 @@ async function openTabWithFilter(type, status) {
 function switchListType(type) {
     currentTargetType = type;
     localStorage.setItem('currentTargetType', type);
-    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.type-btn, .mobile-rates-type-btn').forEach(b => b.classList.remove('active'));
     if (window.event && window.event.currentTarget) window.event.currentTarget.classList.add('active');
+    if (isMobileRatesView()) {
+        renderRatesView();
+        return;
+    }
     updateFilterLabels();
     applyListFilters();
 }
@@ -51,7 +70,7 @@ function switchListType(type) {
 function filterListStatus(status, btn) {
     currentStatusFilter = status;
     localStorage.setItem('currentStatusFilter', status);
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.filter-btn, .mobile-rates-status-tab').forEach(b => b.classList.remove('active'));
     if (btn) btn.classList.add('active');
     applyListFilters();
 }
@@ -137,56 +156,116 @@ window.quickIncrementRate = quickIncrementRate;
 
 function renderRatesView() {
     const container = document.getElementById('rates');
+    if (!container) return;
     if (!Array.isArray(ratesDataCache) || ratesDataCache.length === 0) {
-        container.innerHTML = '<div class="card"><p style="color: var(--text-muted);">' + i18n('rates.empty') + '</p></div>';
+        container.innerHTML = '<div class="card" style="margin: 20px auto; max-width: 400px; text-align: center;"><p style="color: var(--text-muted);">' + i18n('rates.empty') + '</p></div>';
         return;
     }
 
     const isAnime = currentTargetType === 'Anime';
-    container.innerHTML = `
-        <div class="list-controls">
-            <div class="type-switch">
-                <button class="type-btn ${isAnime ? 'active' : ''}" onclick="switchListType('Anime')"><i class="ti ti-movie"></i> ${i18n('rates.anime')}</button>
-                <button class="type-btn ${!isAnime ? 'active' : ''}" onclick="switchListType('Manga')"><i class="ti ti-book"></i> ${i18n('rates.manga')}</button>
-            </div>
-            <div class="rates-search-box">
-                <i class="ti ti-search search-icon"></i>
-                <input type="text" id="rates-local-search" placeholder="${i18n('mylist.search_placeholder')}" oninput="onRatesSearchInput(this.value)" value="${ratesSearchQuery}">
-                ${ratesSearchQuery ? `<button class="search-clear-btn" onclick="clearRatesSearch()"><i class="ti ti-x"></i></button>` : ''}
-            </div>
-            <div class="filter-sort-bar">
-                <div class="rates-filters">
-                    <button class="filter-btn ${currentStatusFilter === 'all' ? 'active' : ''}" onclick="filterListStatus('all', this)">${i18n('rates.all')} (<span id="cnt-all">0</span>)</button>
-                    <button id="lbl-watching" class="filter-btn ${currentStatusFilter === 'watching' ? 'active' : ''}" onclick="filterListStatus('watching', this)">${i18n('rates.watching')}</button>
-                    <button id="lbl-completed" class="filter-btn ${currentStatusFilter === 'completed' ? 'active' : ''}" onclick="filterListStatus('completed', this)">${i18n('rates.completed')}</button>
-                    <button class="filter-btn ${currentStatusFilter === 'planned' ? 'active' : ''}" onclick="filterListStatus('planned', this)">${i18n('rates.planned')}</button>
-                    <button class="filter-btn ${currentStatusFilter === 'on_hold' ? 'active' : ''}" onclick="filterListStatus('on_hold', this)">${i18n('rates.on_hold')}</button>
-                    <button class="filter-btn ${currentStatusFilter === 'dropped' ? 'active' : ''}" onclick="filterListStatus('dropped', this)">${i18n('rates.dropped')}</button>
-                </div>
-                <select id="rates-sort" class="sort-select" onchange="changeListSort(this.value)">
-                    <option value="updated_at" ${currentSortFilter === 'updated_at' ? 'selected' : ''}>${i18n('rates.sort.updated')}</option>
-                    <option value="score_desc" ${currentSortFilter === 'score_desc' ? 'selected' : ''}>${i18n('rates.sort.score_desc')}</option>
-                    <option value="score_asc" ${currentSortFilter === 'score_asc' ? 'selected' : ''}>${i18n('rates.sort.score_asc')}</option>
-                    <option value="name" ${currentSortFilter === 'name' ? 'selected' : ''}>${i18n('rates.sort.name')}</option>
-                    <option value="episodes" ${currentSortFilter === 'episodes' ? 'selected' : ''}>${i18n('rates.sort.progress')}</option>
-                </select>
-            </div>
-            <div class="view-mode-bar">
-                <button class="view-mode-btn ${currentViewMode === 'list' ? 'active' : ''}" data-view="list" onclick="setViewMode('list')" title="${i18n('rates.view.list')}">
-                    <i class="ti ti-list"></i>
-                </button>
-                <button class="view-mode-btn ${currentViewMode === 'cards' ? 'active' : ''}" data-view="cards" onclick="setViewMode('cards')" title="${i18n('rates.view.cards')}">
-                    <i class="ti ti-layout-grid"></i>
-                </button>
-                <button class="view-mode-btn ${currentViewMode === 'large' ? 'active' : ''}" data-view="large" onclick="setViewMode('large')" title="${i18n('rates.view.large')}">
-                    <i class="ti ti-photo"></i>
-                </button>
-            </div>
-        </div>
-        <div id="rates-grid-container" class="rates-grid rates-view-${currentViewMode}"></div>
-    `;
+    const isMobile = isMobileRatesView();
 
-    updateFilterLabels();
+    if (isMobile) {
+        if (!currentStatusFilter || currentStatusFilter === 'all') {
+            currentStatusFilter = 'watching';
+        }
+
+        container.innerHTML = `
+            <div class="mobile-rates-container">
+                <!-- Top Header: Anime / Manga pill switcher + Search button -->
+                <div class="mobile-rates-top-bar">
+                    <div class="mobile-rates-type-pill">
+                        <button type="button" class="mobile-rates-type-btn ${isAnime ? 'active' : ''}" onclick="switchListType('Anime')">Аниме</button>
+                        <button type="button" class="mobile-rates-type-btn ${!isAnime ? 'active' : ''}" onclick="switchListType('Manga')">Манга</button>
+                    </div>
+                    <div class="mobile-rates-top-actions">
+                        <button type="button" class="mobile-rates-action-icon" onclick="toggleRatesSearch()" title="Поиск">
+                            <i class="ti ti-search"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search box (collapsible) -->
+                <div id="mobile-rates-search-wrap" class="mobile-rates-search-wrap ${ratesSearchQuery ? '' : 'hidden'}">
+                    <div class="mobile-rates-search-box">
+                        <i class="ti ti-search search-icon"></i>
+                        <input type="text" id="rates-local-search" placeholder="${isAnime ? 'Поиск в аниме...' : 'Поиск в манге...'}" oninput="onRatesSearchInput(this.value)" value="${ratesSearchQuery}">
+                        ${ratesSearchQuery ? `<button class="search-clear-btn" onclick="clearRatesSearch()"><i class="ti ti-x"></i></button>` : ''}
+                    </div>
+                </div>
+
+                <!-- Horizontal Underlined Status Tabs (matching screenshot) -->
+                <div class="mobile-rates-status-tabs">
+                    <button type="button" class="mobile-rates-status-tab ${currentStatusFilter === 'watching' ? 'active' : ''}" onclick="filterListStatus('watching', this)">
+                        ${isAnime ? 'Смотрю' : 'Читаю'}
+                    </button>
+                    <button type="button" class="mobile-rates-status-tab ${currentStatusFilter === 'planned' ? 'active' : ''}" onclick="filterListStatus('planned', this)">
+                        В планах
+                    </button>
+                    <button type="button" class="mobile-rates-status-tab ${currentStatusFilter === 'completed' ? 'active' : ''}" onclick="filterListStatus('completed', this)">
+                        ${isAnime ? 'Просмотрено' : 'Прочитано'}
+                    </button>
+                    <button type="button" class="mobile-rates-status-tab ${currentStatusFilter === 'rewatching' ? 'active' : ''}" onclick="filterListStatus('rewatching', this)">
+                        ${isAnime ? 'Пересматриваю' : 'Перечитываю'}
+                    </button>
+                    <button type="button" class="mobile-rates-status-tab ${currentStatusFilter === 'on_hold' ? 'active' : ''}" onclick="filterListStatus('on_hold', this)">
+                        Отложено
+                    </button>
+                    <button type="button" class="mobile-rates-status-tab ${currentStatusFilter === 'dropped' ? 'active' : ''}" onclick="filterListStatus('dropped', this)">
+                        Брошено
+                    </button>
+                </div>
+
+                <!-- 3-Column Poster Grid -->
+                <div id="rates-grid-container" class="mobile-rates-3col-grid"></div>
+            </div>
+        `;
+    } else {
+        container.innerHTML = `
+            <div class="list-controls">
+                <div class="type-switch">
+                    <button class="type-btn ${isAnime ? 'active' : ''}" onclick="switchListType('Anime')"><i class="ti ti-movie"></i> ${i18n('rates.anime')}</button>
+                    <button class="type-btn ${!isAnime ? 'active' : ''}" onclick="switchListType('Manga')"><i class="ti ti-book"></i> ${i18n('rates.manga')}</button>
+                </div>
+                <div class="rates-search-box">
+                    <i class="ti ti-search search-icon"></i>
+                    <input type="text" id="rates-local-search" placeholder="${i18n('mylist.search_placeholder')}" oninput="onRatesSearchInput(this.value)" value="${ratesSearchQuery}">
+                    ${ratesSearchQuery ? `<button class="search-clear-btn" onclick="clearRatesSearch()"><i class="ti ti-x"></i></button>` : ''}
+                </div>
+                <div class="filter-sort-bar">
+                    <div class="rates-filters">
+                        <button class="filter-btn ${currentStatusFilter === 'all' ? 'active' : ''}" onclick="filterListStatus('all', this)">${i18n('rates.all')} (<span id="cnt-all">0</span>)</button>
+                        <button id="lbl-watching" class="filter-btn ${currentStatusFilter === 'watching' ? 'active' : ''}" onclick="filterListStatus('watching', this)">${i18n('rates.watching')}</button>
+                        <button id="lbl-completed" class="filter-btn ${currentStatusFilter === 'completed' ? 'active' : ''}" onclick="filterListStatus('completed', this)">${i18n('rates.completed')}</button>
+                        <button class="filter-btn ${currentStatusFilter === 'planned' ? 'active' : ''}" onclick="filterListStatus('planned', this)">${i18n('rates.planned')}</button>
+                        <button class="filter-btn ${currentStatusFilter === 'on_hold' ? 'active' : ''}" onclick="filterListStatus('on_hold', this)">${i18n('rates.on_hold')}</button>
+                        <button class="filter-btn ${currentStatusFilter === 'dropped' ? 'active' : ''}" onclick="filterListStatus('dropped', this)">${i18n('rates.dropped')}</button>
+                    </div>
+                    <select id="rates-sort" class="sort-select" onchange="changeListSort(this.value)">
+                        <option value="updated_at" ${currentSortFilter === 'updated_at' ? 'selected' : ''}>${i18n('rates.sort.updated')}</option>
+                        <option value="score_desc" ${currentSortFilter === 'score_desc' ? 'selected' : ''}>${i18n('rates.sort.score_desc')}</option>
+                        <option value="score_asc" ${currentSortFilter === 'score_asc' ? 'selected' : ''}>${i18n('rates.sort.score_asc')}</option>
+                        <option value="name" ${currentSortFilter === 'name' ? 'selected' : ''}>${i18n('rates.sort.name')}</option>
+                        <option value="episodes" ${currentSortFilter === 'episodes' ? 'selected' : ''}>${i18n('rates.sort.progress')}</option>
+                    </select>
+                </div>
+                <div class="view-mode-bar">
+                    <button class="view-mode-btn ${currentViewMode === 'list' ? 'active' : ''}" data-view="list" onclick="setViewMode('list')" title="${i18n('rates.view.list')}">
+                        <i class="ti ti-list"></i>
+                    </button>
+                    <button class="view-mode-btn ${currentViewMode === 'cards' ? 'active' : ''}" data-view="cards" onclick="setViewMode('cards')" title="${i18n('rates.view.cards')}">
+                        <i class="ti ti-layout-grid"></i>
+                    </button>
+                    <button class="view-mode-btn ${currentViewMode === 'large' ? 'active' : ''}" data-view="large" onclick="setViewMode('large')" title="${i18n('rates.view.large')}">
+                        <i class="ti ti-photo"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="rates-grid-container" class="rates-grid rates-view-${currentViewMode}"></div>
+        `;
+        updateFilterLabels();
+    }
+
     applyListFilters();
 }
 
@@ -204,7 +283,7 @@ function sortRatesList(rates, criterion) {
     });
 }
 
-const RATES_PAGE_SIZE = 28;
+const RATES_PAGE_SIZE = 30;
 let currentFilteredRates = [];
 let ratesRenderedCount = 0;
 let ratesObserver = null;
@@ -234,10 +313,38 @@ function applyListFilters() {
 function renderRateItemHtml(rate, viewMode) {
     const targetObj = rate.target_data || rate.anime || rate.manga || {};
     const isAnime = rate.target_type === 'Anime';
+    const targetName = targetObj.russian || targetObj.name || `#${rate.target_id}`;
+    const clickFn = isAnime ? `openAnimeModal(${rate.target_id})` : `openMangaModal(${rate.target_id})`;
+
+    if (isMobileRatesView()) {
+        const imgUrl = targetObj.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(targetObj.image) : targetObj.image) : '';
+        const total = isAnime ? targetObj.episodes : (targetObj.chapters || targetObj.volumes);
+        const aired = isAnime ? targetObj.episodes_aired : null;
+        const cur = isAnime ? (rate.episodes ?? 0) : (rate.chapters ?? 0);
+        const unit = isAnime ? 'эп.' : 'гл.';
+        const totalStr = (total && total > 0) ? total : '?';
+
+        let progressText = '';
+        if (aired && aired > 0 && cur > 0 && (total == 0 || aired < total || totalStr === '?')) {
+            progressText = `${cur} / ${aired} из ${totalStr} ${unit}`;
+        } else {
+            progressText = `${cur} из ${totalStr} ${unit}`;
+        }
+
+        return `
+            <div class="mobile-rate-card" onclick="${clickFn}">
+                <div class="mobile-rate-poster-wrap">
+                    ${imgUrl ? `<img src="${imgUrl}" alt="${targetName}" class="mobile-rate-poster" loading="lazy" decoding="async">` : `<div class="mobile-rate-poster placeholder"><i class="ti ti-${isAnime ? 'movie' : 'book'}"></i></div>`}
+                </div>
+                <div class="mobile-rate-title" title="${targetName}">${targetName}</div>
+                <div class="mobile-rate-progress">${progressText}</div>
+            </div>
+        `;
+    }
+
     const targetUrl = targetObj.url
         ? (targetObj.url.startsWith('http') ? targetObj.url : 'https://shikimori.io' + targetObj.url)
         : `https://shikimori.io/${isAnime ? 'animes' : 'mangas'}/${rate.target_id}`;
-    const targetName = targetObj.russian || targetObj.name || `#${rate.target_id}`;
     const statusInfo = getStatusMap()[rate.status] || { anime: rate.status, manga: rate.status, class: 'badge-planned' };
     const totalCount = isAnime ? (targetObj.episodes || 0) : (targetObj.chapters || 0);
     let progressText = isAnime ? `${rate.episodes ?? 0} / ${targetObj.episodes || '?'} ${i18n('rates.progress.anime')}` : `${rate.chapters ?? 0} / ${targetObj.chapters || '?'} ${i18n('rates.progress.manga')}`;

@@ -1,18 +1,94 @@
 const tabLoaded = {};
 let cachedHistoryData = null;
 let ratesDataCache = [];
+let loaderGridBuilt = false;
+let loaderPulseTimer = null;
+
+function buildLoaderGrid() {
+    if (window.innerWidth <= 768) return; // Desktop only
+    const grid = document.querySelector('.loader-grid');
+    if (!grid) return;
+
+    const cellPx = 48;
+    const cols = Math.min(Math.max(Math.floor(window.innerWidth / cellPx), 10), 38);
+    const rows = Math.min(Math.max(Math.floor(window.innerHeight / cellPx), 6), 24);
+
+    let html = '';
+    const total = cols * rows;
+    for (let i = 0; i < total; i++) {
+        const grade = Math.floor(Math.random() * 12 - 6);
+        const opacity = (Math.random() * 0.25).toFixed(2);
+        const hue = (240 + Math.floor(Math.random() * 95)) % 360;
+        html += `<div style="--grade: ${grade}; --opacity: ${opacity}; --hue: ${hue};">+</div>`;
+    }
+    grid.innerHTML = html;
+    grid.style.setProperty('--cols', cols);
+    grid.style.setProperty('--rows', rows);
+    loaderGridBuilt = true;
+
+    grid.onpointermove = (e) => {
+        const el = document.elementFromPoint(e.clientX, e.clientY);
+        if (el && el.parentElement === grid) {
+            el.setAttribute('data-hover', 'true');
+            setTimeout(() => el.removeAttribute('data-hover'), 300);
+        }
+    };
+}
+
+function startLoaderGridPulse() {
+    stopLoaderGridPulse();
+    const grid = document.querySelector('.loader-grid');
+    if (!grid || window.innerWidth <= 768) return;
+
+    loaderPulseTimer = setInterval(() => {
+        const items = grid.children;
+        if (!items || !items.length) return;
+        const count = 2 + Math.floor(Math.random() * 4);
+        for (let i = 0; i < count; i++) {
+            const idx = Math.floor(Math.random() * items.length);
+            const item = items[idx];
+            if (item) {
+                item.setAttribute('data-hover', 'true');
+                setTimeout(() => item.removeAttribute('data-hover'), 450 + Math.random() * 400);
+            }
+        }
+    }, 160);
+}
+
+function stopLoaderGridPulse() {
+    if (loaderPulseTimer) {
+        clearInterval(loaderPulseTimer);
+        loaderPulseTimer = null;
+    }
+}
 
 function showLoader() {
     const loader = document.getElementById('app-loader');
-    if (loader) loader.classList.remove('hidden');
+    if (loader) {
+        loader.classList.remove('hidden');
+        if (!loaderGridBuilt) buildLoaderGrid();
+        startLoaderGridPulse();
+    }
 }
 
 function hideLoader() {
     const loader = document.getElementById('app-loader');
     if (loader) loader.classList.add('hidden');
+    stopLoaderGridPulse();
 }
 
-window.addEventListener('load', () => setTimeout(hideLoader, 300));
+window.addEventListener('DOMContentLoaded', () => {
+    buildLoaderGrid();
+    startLoaderGridPulse();
+});
+
+window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) {
+        buildLoaderGrid();
+    }
+});
+
+window.addEventListener('load', () => setTimeout(hideLoader, 400));
 
 function initTheme() {
     const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -37,6 +113,7 @@ function buildImgUrl(src, highRes = false) {
     if (!src) return '';
     if (typeof src === 'string') {
         if (src.startsWith('data:')) return src;
+        if (src.startsWith('/cache/img') || src.startsWith('/static/')) return src;
         if (src.includes('missing_original') || src.includes('missing_preview')) return '';
     }
     let path = '';
@@ -55,6 +132,8 @@ function buildImgUrl(src, highRes = false) {
     if (highRes) {
         path = path.replace(/\/(x64|x32|preview)\//, '/original/');
     }
+
+    if (path.startsWith('/cache/img') || path.startsWith('/static/')) return path;
 
     const fullUrl = path.startsWith('http') ? path : 'https://shikimori.io' + (path.startsWith('/') ? path : '/' + path);
     return fullUrl;
@@ -91,13 +170,11 @@ async function openTab(tabId) {
     localStorage.setItem('activeTab', tabId);
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.mobile-tab-btn').forEach(el => el.classList.remove('active'));
 
     const activeContent = document.getElementById(tabId);
     if (activeContent) activeContent.classList.add('active');
 
     document.querySelectorAll(`.tab-btn[onclick*="'${tabId}'"]`).forEach(btn => btn.classList.add('active'));
-    document.querySelectorAll(`.mobile-tab-btn[data-tab="${tabId}"]`).forEach(btn => btn.classList.add('active'));
 
     if (tabId === 'profile') {
         // Ленивая подгрузка новостей только при приближении к области видимости
@@ -125,6 +202,24 @@ async function openTab(tabId) {
     showLoader();
     try {
         const res = await fetch(`/api/tab/${tabId}`);
+        if (!res.ok) {
+            if (res.status === 401) {
+                if (activeContent) {
+                    activeContent.innerHTML = `
+                        <div class="card" style="text-align: center; padding: 40px 20px; max-width: 440px; margin: 30px auto; border-radius: 20px; border: 1px solid var(--card-border); background: var(--card-bg);">
+                            <i class="ti ti-lock" style="font-size: 48px; color: var(--accent); margin-bottom: 12px; display: inline-block;"></i>
+                            <h2 style="font-size: 20px; margin: 0 0 10px 0; color: var(--text-main);">${i18n('auth.required') || 'Требуется авторизация'}</h2>
+                            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;">Войдите через Shikimori, чтобы просматривать свои списки.</p>
+                            <a href="/login" class="btn" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                                <i class="ti ti-brand-shikimori"></i> <span>${i18n('login.via_shikimori') || 'Войти через Shikimori'}</span>
+                            </a>
+                        </div>
+                    `;
+                }
+                return;
+            }
+            throw new Error(`HTTP ${res.status}`);
+        }
         const data = await res.json();
         tabLoaded[tabId] = true;
 
@@ -330,4 +425,408 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, '250px');
     });
+});
+
+/* ==========================================================================
+   Быстрая навигация по разделам (Расписание, Контент, Темы дня, Новости)
+   ========================================================================== */
+
+let modalNewsPage = 1;
+let modalCalendarDay = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+
+window.handleFriendsBack = function() {
+    const friendsModal = document.getElementById('mobile-friends-modal');
+    if (friendsModal) friendsModal.classList.add('hidden');
+    if (typeof openMobileProfileMenu === 'function') {
+        openMobileProfileMenu();
+    }
+};
+
+window.handleStatsBack = function() {
+    const statsModal = document.getElementById('mobile-stats-modal');
+    if (statsModal) statsModal.classList.add('hidden');
+    if (typeof openMobileProfileMenu === 'function') {
+        openMobileProfileMenu();
+    }
+};
+
+window.handleAboutBack = function() {
+    const aboutModal = document.getElementById('about-modal');
+    if (aboutModal) aboutModal.classList.add('hidden');
+    if (window._openedFromSettings) {
+        window._openedFromSettings = false;
+        const settingsModal = document.getElementById('settings-modal');
+        if (settingsModal) settingsModal.classList.remove('hidden');
+    }
+};
+
+window.openMobileSectionsMenu = function() {
+    const modal = document.getElementById('mobile-sections-modal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    handleSectionsBack();
+    if (typeof pushNavState === 'function') pushNavState();
+};
+
+window.closeMobileSectionsMenu = function(event) {
+    if (event && event.target !== event.currentTarget && !event.target.closest('.modal-close-btn')) return;
+    const modal = document.getElementById('mobile-sections-modal');
+    if (modal) modal.classList.add('hidden');
+};
+
+window.handleSectionsBack = function() {
+    const mainView = document.getElementById('sections-main-view');
+    const detailView = document.getElementById('sections-detail-view');
+    const backBtn = document.getElementById('mobile-sections-back-btn');
+    const title = document.getElementById('mobile-sections-header-title');
+    const icon = document.getElementById('mobile-sections-header-icon');
+
+    if (mainView) mainView.classList.remove('hidden');
+    if (detailView) detailView.classList.add('hidden');
+    if (backBtn) {
+        backBtn.classList.add('hidden');
+        backBtn.style.setProperty('display', 'none', 'important');
+    }
+    if (title) title.textContent = 'Разделы';
+    if (icon) icon.className = 'ti ti-layout-grid mobile-sections-logo-icon';
+};
+
+window.openSectionDetail = async function(sectionKey) {
+    const mainView = document.getElementById('sections-main-view');
+    const detailView = document.getElementById('sections-detail-view');
+    const detailContent = document.getElementById('sections-detail-content');
+    const backBtn = document.getElementById('mobile-sections-back-btn');
+    const title = document.getElementById('mobile-sections-header-title');
+    const icon = document.getElementById('mobile-sections-header-icon');
+
+    if (!detailView || !detailContent) return;
+
+    if (mainView) mainView.classList.add('hidden');
+    detailView.classList.remove('hidden');
+    if (backBtn) {
+        backBtn.classList.remove('hidden');
+        backBtn.style.setProperty('display', 'inline-flex', 'important');
+    }
+
+    if (typeof pushNavState === 'function') pushNavState();
+
+    detailContent.innerHTML = '<div class="loader" style="padding: 40px; text-align: center;"><i class="ti ti-loader animate-spin" style="font-size: 32px; color: var(--primary);"></i><p style="color: var(--text-muted); margin-top: 12px;">Загрузка...</p></div>';
+
+    if (sectionKey === 'calendar') {
+        if (title) title.textContent = 'Расписание онгоингов';
+        if (icon) icon.className = 'ti ti-calendar-event mobile-sections-logo-icon';
+        await renderModalCalendar(modalCalendarDay);
+    } else if (sectionKey === 'content') {
+        if (title) title.textContent = 'Контент';
+        if (icon) icon.className = 'ti ti-grid-dots mobile-sections-logo-icon';
+        await renderModalContent();
+    } else if (sectionKey === 'hot') {
+        if (title) title.textContent = 'Темы дня';
+        if (icon) icon.className = 'ti ti-flame mobile-sections-logo-icon';
+        await renderModalHot();
+    } else if (sectionKey === 'news') {
+        if (title) title.textContent = 'Новости';
+        if (icon) icon.className = 'ti ti-news mobile-sections-logo-icon';
+        modalNewsPage = 1;
+        await renderModalNews(1);
+    }
+};
+
+async function renderModalCalendar(activeDay) {
+    modalCalendarDay = activeDay;
+    const detailContent = document.getElementById('sections-detail-content');
+    if (!detailContent) return;
+
+    if (!window.calendarDataCache) {
+        try {
+            const res = await fetch('/api/calendar');
+            window.calendarDataCache = await res.json();
+        } catch(e) {
+            detailContent.innerHTML = '<p style="color: var(--danger); padding: 20px;">Ошибка загрузки календаря</p>';
+            return;
+        }
+    }
+
+    const data = Array.isArray(window.calendarDataCache) ? window.calendarDataCache : [];
+    const daysShort = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    const todayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+    const filtered = data.filter(item => item.day_of_week === activeDay);
+
+    detailContent.innerHTML = `
+        <div class="calendar-days-tabs">
+            ${daysShort.map((day, idx) => `
+                <button type="button" class="cal-day-btn ${idx === activeDay ? 'active' : ''}" onclick="renderModalCalendar(${idx})">
+                    <span>${day}</span>
+                    ${idx === todayIndex ? '<span class="cal-today-dot" style="position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background: currentColor;"></span>' : ''}
+                </button>
+            `).join('')}
+        </div>
+        <div class="calendar-items-grid">
+            ${filtered.length > 0 ? filtered.map(item => {
+                const title = item.russian || item.name || '';
+                const safeTitle = title.replace(/"/g, '&quot;');
+                const imgUrl = item.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(item.image) : item.image) : '';
+                const time = item.time_str ? item.time_str : '';
+                const nextEp = item.next_episode ? `${item.next_episode} эп.` : '';
+
+                return `
+                    <div class="calendar-item-card" onclick="window._openedFromSections = 'calendar'; closeMobileSectionsMenu(); openAnimeModal(${item.id});" style="cursor: pointer;">
+                        <div class="cal-thumb-wrap">
+                            ${imgUrl ? `<img src="${imgUrl}" alt="${safeTitle}" class="cal-thumb" loading="lazy" decoding="async">` : `<div class="cal-thumb placeholder"><i class="ti ti-movie"></i></div>`}
+                            ${time ? `<span class="cal-time-badge"><i class="ti ti-clock"></i> ${time}</span>` : ''}
+                            ${item.score ? `<span class="cal-score-badge"><i class="ti ti-star-filled"></i> ${item.score}</span>` : ''}
+                        </div>
+                        <div class="cal-item-info">
+                            <div class="cal-item-title" title="${safeTitle}">${title}</div>
+                            <div class="cal-item-meta">
+                                <span class="cal-next-ep">${nextEp}</span>
+                                <span class="badge badge-watching" style="font-size: 10px;">${item.kind || 'TV'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('') : '<p style="color: var(--text-muted); padding: 30px; text-align: center; grid-column: 1 / -1;">В этот день нет запланированных серий</p>'}
+        </div>
+    `;
+}
+window.renderModalCalendar = renderModalCalendar;
+
+async function renderModalContent() {
+    const detailContent = document.getElementById('sections-detail-content');
+    if (!detailContent) return;
+
+    let exploreData = window._exploreDataCache;
+    if (!exploreData) {
+        try {
+            const res = await fetch('/api/tab/explore');
+            exploreData = await res.json();
+            window._exploreDataCache = exploreData;
+        } catch(e) {
+            detailContent.innerHTML = '<p style="color: var(--danger); padding: 20px;">Ошибка загрузки контента</p>';
+            return;
+        }
+    }
+
+    const contentList = exploreData.content || [];
+    const badgeMap = {
+        'collection': 'Коллекция',
+        'critique': 'Отзыв',
+        'article': 'Статья',
+        'news': 'Новость',
+        '': 'Тема'
+    };
+
+    detailContent.innerHTML = `
+        <div style="display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
+            <a href="https://shikimori.io/collections" target="_blank" class="btn-secondary" style="padding: 6px 12px; font-size: 12.5px; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px;"><i class="ti ti-folder"></i> Коллекции</a>
+            <a href="https://shikimori.io/forum/critiques" target="_blank" class="btn-secondary" style="padding: 6px 12px; font-size: 12.5px; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px;"><i class="ti ti-message-2"></i> Отзывы</a>
+            <a href="https://shikimori.io/articles" target="_blank" class="btn-secondary" style="padding: 6px 12px; font-size: 12.5px; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px;"><i class="ti ti-article"></i> Статьи</a>
+        </div>
+        <div class="topics-list" style="display: flex; flex-direction: column; gap: 8px;">
+            ${contentList.length ? contentList.map(item => `
+                <a href="${item.url}" target="_blank" class="topic-row-item" title="${(item.title || '').replace(/"/g, '&quot;')}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-radius: 16px; background: var(--card-bg); border: 1px solid var(--card-border); text-decoration: none; color: var(--text-main);">
+                    <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; padding-right: 10px;">
+                        <span style="font-size: 14px; font-weight: 500; line-height: 1.3;">${item.title}</span>
+                        <span class="topic-badge badge-${(item.tag || '').toLowerCase()}" style="font-size: 11px; padding: 2px 6px; border-radius: 6px; align-self: flex-start; background: var(--primary-container); color: var(--on-primary-container);">${badgeMap[(item.tag || '').toLowerCase()] || 'Тема'}</span>
+                    </div>
+                    <span style="font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; flex-shrink: 0;"><i class="ti ti-message-circle"></i> ${item.comments_count || 0}</span>
+                </a>
+            `).join('') : '<p style="color: var(--text-muted); padding: 20px; text-align: center;">Нет данных</p>'}
+        </div>
+    `;
+}
+
+async function renderModalHot() {
+    const detailContent = document.getElementById('sections-detail-content');
+    if (!detailContent) return;
+
+    let exploreData = window._exploreDataCache;
+    if (!exploreData) {
+        try {
+            const res = await fetch('/api/tab/explore');
+            exploreData = await res.json();
+            window._exploreDataCache = exploreData;
+        } catch(e) {
+            detailContent.innerHTML = '<p style="color: var(--danger); padding: 20px;">Ошибка загрузки тем дня</p>';
+            return;
+        }
+    }
+
+    const hotList = exploreData.hot || [];
+    detailContent.innerHTML = `
+        <div class="topics-list" style="display: flex; flex-direction: column; gap: 8px;">
+            ${hotList.length ? hotList.map(item => `
+                <a href="${item.url}" target="_blank" class="topic-row-item" title="${(item.title || '').replace(/"/g, '&quot;')}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-radius: 16px; background: var(--card-bg); border: 1px solid var(--card-border); text-decoration: none; color: var(--text-main);">
+                    <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; padding-right: 10px;">
+                        <span style="font-size: 14px; font-weight: 500; line-height: 1.3;">${item.title}</span>
+                        ${item.author ? `<span style="font-size: 11.5px; color: var(--text-muted);"><i class="ti ti-user"></i> ${item.author}</span>` : ''}
+                    </div>
+                    <span style="font-size: 12px; color: #f87171; display: flex; align-items: center; gap: 4px; flex-shrink: 0; font-weight: 600;"><i class="ti ti-flame"></i> ${item.comments_count || 0}</span>
+                </a>
+            `).join('') : '<p style="color: var(--text-muted); padding: 20px; text-align: center;">Нет горячих тем на сегодня</p>'}
+        </div>
+    `;
+}
+
+async function renderModalNews(page = 1) {
+    const detailContent = document.getElementById('sections-detail-content');
+    if (!detailContent) return;
+
+    if (page === 1) {
+        detailContent.innerHTML = `
+            <div id="modal-news-cards-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
+            <div style="text-align: center; margin: 16px 0 24px 0;">
+                <button type="button" id="modal-load-more-news-btn" class="btn-secondary" style="padding: 10px 20px; border-radius: 14px; font-size: 13px; font-weight: 600;" onclick="loadMoreModalNews()">
+                    <i class="ti ti-refresh"></i> Загрузить ещё новости
+                </button>
+            </div>
+        `;
+    }
+
+    const list = document.getElementById('modal-news-cards-list');
+    const loadBtn = document.getElementById('modal-load-more-news-btn');
+    if (loadBtn) loadBtn.disabled = true;
+
+    try {
+        const res = await fetch(`/api/news?page=${page}&limit=12`);
+        const items = await res.json();
+        if (Array.isArray(items) && items.length > 0) {
+            const html = items.map(item => {
+                const title = item.title || '';
+                const img = item.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(item.image) : item.image) : '';
+                return `
+                    <a href="${item.url}" target="_blank" class="news-item-card" style="display: flex; gap: 12px; padding: 12px; border-radius: 16px; background: var(--card-bg); border: 1px solid var(--card-border); text-decoration: none; color: var(--text-main);">
+                        <div style="width: 80px; height: 80px; border-radius: 12px; overflow: hidden; flex-shrink: 0; background: var(--sub-bg); border: 1px solid var(--border-sub); display: flex; align-items: center; justify-content: center;">
+                            ${img ? `<img src="${img}" alt="${title.replace(/"/g, '&quot;')}" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"><div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; color: var(--text-muted); font-size: 24px;"><i class="ti ti-news"></i></div>` : `<i class="ti ti-news" style="color: var(--text-muted); font-size: 24px;"></i>`}
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0;">
+                            <div style="font-size: 14px; font-weight: 600; line-height: 1.3; margin-bottom: 4px;">${title}</div>
+                            <div style="display: flex; gap: 8px; font-size: 11.5px; color: var(--text-muted); flex-wrap: wrap;">
+                                ${item.author ? `<span><i class="ti ti-user"></i> ${item.author}</span>` : ''}
+                                ${item.date ? `<span><i class="ti ti-calendar"></i> ${item.date}</span>` : ''}
+                            </div>
+                        </div>
+                    </a>
+                `;
+            }).join('');
+            if (list) list.insertAdjacentHTML('beforeend', html);
+            if (loadBtn) {
+                loadBtn.disabled = false;
+                loadBtn.style.display = (items.length < 12) ? 'none' : 'inline-flex';
+            }
+        } else {
+            if (loadBtn) loadBtn.style.display = 'none';
+        }
+    } catch(e) {
+        if (loadBtn) loadBtn.style.display = 'none';
+    }
+}
+
+window.loadMoreModalNews = function() {
+    modalNewsPage++;
+    renderModalNews(modalNewsPage);
+};
+
+/* ==========================================================================
+   Умная оптимизированная система навигации и возвращения между меню
+   ========================================================================== */
+
+window.pushNavState = function() {
+    try {
+        history.pushState({ appNav: true }, '');
+    } catch(e) {}
+};
+
+window.AppNav = {
+    back: function() {
+        const playerModal = document.getElementById('mobile-watch-player-modal');
+        if (playerModal && !playerModal.classList.contains('hidden')) {
+            if (typeof handleMobilePlayerBack === 'function') {
+                handleMobilePlayerBack();
+                return true;
+            }
+        }
+
+        const sectionsModal = document.getElementById('mobile-sections-modal');
+        if (sectionsModal && !sectionsModal.classList.contains('hidden')) {
+            const detailView = document.getElementById('sections-detail-view');
+            if (detailView && !detailView.classList.contains('hidden')) {
+                handleSectionsBack();
+                return true;
+            }
+            closeMobileSectionsMenu();
+            return true;
+        }
+
+        const friendsModal = document.getElementById('mobile-friends-modal');
+        if (friendsModal && !friendsModal.classList.contains('hidden')) {
+            handleFriendsBack();
+            return true;
+        }
+
+        const statsModal = document.getElementById('mobile-stats-modal');
+        if (statsModal && !statsModal.classList.contains('hidden')) {
+            handleStatsBack();
+            return true;
+        }
+
+        const aboutModal = document.getElementById('about-modal');
+        if (aboutModal && !aboutModal.classList.contains('hidden')) {
+            handleAboutBack();
+            return true;
+        }
+
+        const animeModal = document.getElementById('anime-modal');
+        if (animeModal && !animeModal.classList.contains('hidden')) {
+            if (typeof popModalState === 'function' && window.modalStack && window.modalStack.length > 0) {
+                popModalState();
+                return true;
+            }
+            closeAnimeModal({ target: animeModal });
+            return true;
+        }
+
+        const profileModal = document.getElementById('mobile-profile-modal');
+        if (profileModal && !profileModal.classList.contains('hidden')) {
+            closeMobileProfileMenu();
+            return true;
+        }
+
+        const settingsModal = document.getElementById('settings-modal');
+        if (settingsModal && !settingsModal.classList.contains('hidden')) {
+            if (typeof closeSettingsModal === 'function') closeSettingsModal();
+            else settingsModal.classList.add('hidden');
+            return true;
+        }
+
+        const headerSearch = document.getElementById('mobile-header-search');
+        if (headerSearch && !headerSearch.classList.contains('hidden')) {
+            if (typeof closeMobileSearch === 'function') closeMobileSearch();
+            return true;
+        }
+
+        // 10. Если открыта вкладка списков/другая вкладка -> возврат на вкладку профиля/обзора
+        const activeTab = localStorage.getItem('activeTab') || 'profile';
+        if (activeTab !== 'profile') {
+            if (typeof openTab === 'function') openTab('profile');
+            return true;
+        }
+
+        return false;
+    }
+};
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        window.AppNav.back();
+    }
+});
+
+window.addEventListener('popstate', function(e) {
+    const handled = window.AppNav.back();
+    if (handled) {
+        try {
+            history.pushState({ appNav: true }, '');
+        } catch(err) {}
+    }
 });

@@ -559,7 +559,18 @@ def get_genres():
     """
     data = fetch_graphql(query, ttl=86400)
     if data and isinstance(data.get("genres"), list) and data["genres"]:
-        return jsonify(data["genres"])
+        genres_list = [
+            {
+                "id": g.get("id"),
+                "name": g.get("russian") or g.get("name"),
+                "english": g.get("name"),
+                "russian": g.get("russian"),
+                "kind": g.get("kind"),
+            }
+            for g in data["genres"]
+            if isinstance(g, dict)
+        ]
+        return jsonify(genres_list)
 
     # Fallback to REST if GraphQL empty
     headers = {"User-Agent": APP_NAME}

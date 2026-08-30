@@ -112,6 +112,7 @@ body {
     color: var(--text-main);
     margin: 0;
     padding-bottom: 24px;
+    min-width: 1200px;
     transition: background-color 0.25s, color 0.25s;
 }
 
@@ -160,20 +161,122 @@ button, input, select, textarea {
     width: 100vw;
     height: 100vh;
     background-color: var(--bg-color);
-    z-index: 9999;
+    z-index: 99999;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: opacity 0.2s, visibility 0.2s;
+    overflow: hidden;
+    transition: opacity 0.35s ease, visibility 0.35s ease;
 }
-.app-loader.hidden { opacity: 0; visibility: hidden; }
-.loader-content { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; }
-.loader-logo-icon { font-size: 52px; color: var(--primary); filter: drop-shadow(0 0 10px var(--primary)); }
-.loader-title { font-size: 24px; font-weight: 700; margin: 0; color: var(--text-main); }
+
+.app-loader::before {
+    --size: 45px;
+    --line: rgba(209, 153, 255, 0.08);
+    content: "";
+    height: 100vh;
+    width: 100vw;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: linear-gradient(90deg, var(--line) 1px, transparent 1px var(--size)) calc(var(--size) * 0.36) 50% / var(--size) var(--size),
+                linear-gradient(var(--line) 1px, transparent 1px var(--size)) 0% calc(var(--size) * 0.32) / var(--size) var(--size);
+    -webkit-mask: linear-gradient(-20deg, transparent 20%, white);
+    mask: linear-gradient(-20deg, transparent 20%, white);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.app-loader.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.loader-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    touch-action: none;
+    display: grid;
+    grid-template: repeat(var(--rows, 12), 1fr) / repeat(var(--cols, 24), 1fr);
+    font-size: 1.85rem;
+    font-weight: 600;
+    line-height: 1;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    cursor: default;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.loader-grid div {
+    touch-action: none;
+    padding: 2px;
+    opacity: calc(var(--opacity, 0.1) * 0.45 + 0.06);
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    transition-property: opacity, rotate, filter;
+    transition-duration: 0.8s, 0.4s, 0.6s;
+    transition-timing-function: ease-in, ease-out, ease-out;
+    scale: 1.4;
+    filter: grayscale(1);
+    color: hsl(var(--hue, 270) 85% 65%);
+    user-select: none;
+}
+
+.loader-grid div:hover,
+.loader-grid div[data-hover="true"] {
+    transition-property: opacity, rotate, filter;
+    transition-duration: 0s;
+    rotate: calc(var(--grade, 0) * 90deg);
+    filter: grayscale(0) brightness(1.6);
+    opacity: 1 !important;
+}
+
+.loader-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    background: rgba(13, 4, 20, 0.72);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    padding: 34px 50px;
+    border-radius: 26px;
+    border: 1px solid var(--card-border);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55), 0 0 35px rgba(209, 153, 255, 0.15);
+    pointer-events: none;
+}
+
+.loader-logo-icon {
+    font-size: 54px;
+    color: var(--primary);
+    filter: drop-shadow(0 0 16px var(--primary));
+    animation: loaderLogoPulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes loaderLogoPulse {
+    0% { transform: scale(1); filter: drop-shadow(0 0 10px var(--primary)); }
+    100% { transform: scale(1.08); filter: drop-shadow(0 0 24px var(--primary)); }
+}
+
+.loader-title {
+    font-size: 26px;
+    font-weight: 800;
+    margin: 0;
+    color: var(--text-main);
+    letter-spacing: 0.5px;
+}
+
 .spinner {
-    width: 38px;
-    height: 38px;
-    border: 4px solid var(--card-border);
+    width: 36px;
+    height: 36px;
+    border: 3.5px solid var(--card-border);
     border-top-color: var(--primary);
     border-radius: 50%;
     animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
@@ -419,222 +522,6 @@ button, input, select, textarea {
     .card-history-left, .card-about-right { grid-column: 1 / -1; }
 }
 
-@media (max-width: 768px) {
-    .container { padding: 12px 8px 0 8px; }
-    .app-header { padding: 8px 10px; }
-    .header-container { flex-direction: row; flex-wrap: nowrap; gap: 6px; }
-
-    /* Прячем юзер-инфо из шапки на мобилке */
-    .user-mini-info { display: none; }
-
-    /* Бренд компактнее */
-    .header-brand-container { flex-shrink: 1; min-width: 0; }
-    .brand-title { font-size: 14px; }
-    .brand-logo { font-size: 22px; }
-    .header-brand { padding: 4px 8px; gap: 6px; }
-
-    /* Кнопка темы и правая часть */
-    .header-right { flex-shrink: 1; min-width: 0; gap: 4px; }
-    .btn-theme { width: 32px; height: 32px; font-size: 16px; }
-
-    /* Навигация табов — горизонтальный скролл */
-    .tabs-nav {
-        width: 100%;
-        order: 3;
-        overflow-x: auto;
-        overflow-y: hidden;
-        justify-content: flex-start;
-        padding: 4px;
-        gap: 4px;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-    }
-    .tabs-nav::-webkit-scrollbar { display: none; }
-    .tab-btn { padding: 8px 12px; flex: 0 0 auto; min-width: 44px; justify-content: center; }
-    .tab-label { display: none; }
-
-    /* Профиль — одна колонка */
-    .profile-grid { grid-template-columns: 1fr !important; }
-    .card-history-left, .card-about-right { grid-column: 1 / -1; }
-    .card { padding: 16px; border-radius: 20px; }
-    .card h3 { font-size: 15px; }
-
-    /* Сетка друзей, избранное — мельче */
-    .media-grid { grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; }
-    .mini-friends-grid { grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 8px; }
-
-    /* Списки (rates) — одна колонка */
-    .rates-grid { grid-template-columns: 1fr; }
-    .rate-card { padding: 10px; gap: 10px; }
-    .list-controls { padding: 12px; border-radius: 20px; }
-    .type-switch { flex-wrap: wrap; }
-    .rates-filters { flex-wrap: wrap; gap: 6px; }
-    .filter-btn { padding: 5px 10px; font-size: 12px; }
-    .filter-sort-bar { flex-direction: column; align-items: flex-start; }
-
-    /* Обзор (explore) — news cards вертикально */
-    .explore-two-col { grid-template-columns: 1fr; }
-    .news-item-card { flex-direction: column; align-items: flex-start; }
-    .news-thumb { width: 100%; height: 140px; }
-    .news-item-title { font-size: 14px; }
-    .news-item-meta { flex-wrap: wrap; gap: 8px; }
-
-    .anime-detail-header { flex-direction: column; align-items: center; }
-    .anime-poster-wrapper { width: 50%; max-width: 200px; }
-
-    /* Выпадающее меню логотипа */
-    .brand-dropdown { min-width: 200px; }
-}
-
-
-@media (max-width: 480px) {
-    .container { padding: 8px 6px 0 6px; }
-    .app-header { padding: 6px 8px; }
-    .brand-title { font-size: 12px; }
-    .brand-logo { font-size: 18px; }
-    .brand-chevron { display: none; }
-    .header-brand { padding: 3px 6px; gap: 3px; }
-    .btn-theme { width: 30px; height: 30px; font-size: 15px; }
-    .header-right { gap: 4px; }
-
-    /* Lang label hidden on tiny screens */
-    .lang-label { display: none; }
-    #lang-toggle-btn { width: 30px; height: 30px; font-size: 15px; }
-
-    .tab-btn { padding: 6px 8px; }
-    .tab-icon { font-size: 16px; }
-
-    .card { padding: 12px; border-radius: 16px; }
-    .media-grid { grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 8px; }
-
-    .news-thumb { height: 110px; }
-}
-
-
-/* Mobile bottom navigation */
-.mobile-bottom-nav {
-    display: none;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    box-sizing: border-box;
-    max-width: 100%;
-    z-index: 1000;
-    background: var(--header-bg);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-top: 1px solid var(--card-border);
-    padding: 6px 8px;
-    padding-bottom: max(6px, env(safe-area-inset-bottom));
-    box-shadow: var(--shadow-md);
-}
-.mobile-tab-btn {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    font-size: 10px;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 4px 2px;
-    border-radius: var(--radius-inner);
-    transition: all 0.2s;
-    white-space: nowrap;
-    min-width: 0;
-}
-.mobile-tab-btn i {
-    font-size: 22px;
-    display: inline-flex;
-}
-.mobile-tab-btn.active {
-    color: var(--primary);
-}
-.mobile-tab-btn:active {
-    background: var(--hover-bg-alpha);
-}
-
-@media (max-width: 640px) {
-    .container { padding: 50px 6px 80px 6px; }
-    .app-header { 
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        padding: 6px 8px; 
-    }
-    .header-container { flex-direction: row; flex-wrap: nowrap; gap: 4px; }
-    .brand-title { font-size: 12px; }
-    .brand-logo { font-size: 18px; }
-    .brand-chevron { display: none; }
-    .header-brand { padding: 3px 6px; gap: 3px; }
-    .btn-theme { width: 30px; height: 30px; font-size: 15px; }
-    .header-right { flex-shrink: 1; min-width: 0; gap: 3px; }
-
-    /* Hide lang label on tiny screens */
-    .lang-label { display: none; }
-    #lang-toggle-btn { width: 30px; height: 30px; font-size: 15px; }
-
-    .tab-btn { padding: 6px 8px; }
-    .tab-icon { font-size: 16px; }
-
-    .card { padding: 12px; border-radius: 16px; }
-    .media-grid { grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 8px; }
-
-    .news-thumb { height: 110px; }
-
-    .anime-poster-wrapper { width: 60%; max-width: 180px; }
-    .anime-info-grid { grid-template-columns: 1fr; }
-
-    /* Show mobile bottom nav */
-    .mobile-bottom-nav {
-        display: flex;
-    }
-    .tabs-nav {
-        display: none;
-    }
-
-    /* Hide scrollbars on mobile */
-    html { scrollbar-width: none; -ms-overflow-style: none; }
-    html::-webkit-scrollbar { display: none; }
-
-    /* Hide scrollbars inside modals on mobile */
-    .modal-content.anime-modal-content::-webkit-scrollbar { display: none; }
-    .modal-content.anime-modal-content { scrollbar-width: none; -ms-overflow-style: none; }
-
-    .modal-back-btn,
-    .modal-close-btn {
-
-        top: 6px;
-        width: 32px;
-        height: 32px;
-        font-size: 16px;
-    }
-    .modal-back-btn { right: 44px; }
-    .modal-close-btn { right: 6px; }
-    .anime-detail-header {
-        flex-direction: column;
-        align-items: center;
-    }
-    .anime-poster-wrapper {
-        width: 45%;
-        max-width: 150px;
-    }
-
-    /* Navbar view modes on mobile - default to full since bottom nav handles icons */
-    .navbar-view-icons .brand-title,
-    .navbar-view-icons .brand-chevron {
-        display: none !important;
-    }
-    .navbar-view-titles .brand-logo {
-        display: none !important;
-    }
-}
 
 /* ==================== TOAST NOTIFICATIONS ==================== */
 .toast-container {
@@ -718,72 +605,25 @@ button, input, select, textarea {
     word-break: break-word;
 }
 
-@media (max-width: 768px) {
-    .toast-container {
-        bottom: 80px;
-        right: 16px;
-        left: 16px;
-        width: auto;
-    }
+/* Мобильные элементы скрыты в основном десктопном бандле */
+.mobile-bottom-nav,
+.mobile-profile-card,
+.mobile-top-header,
+#mobile-profile-modal,
+#mobile-sections-modal,
+#mobile-friends-modal,
+#mobile-stats-modal,
+.settings-theme-lang-block,
+.settings-about-btn-wrap,
+#mobile-search-overlay,
+.mobile-header-search,
+.anime-detail-mobile,
+.mobile-anime-console-widget {
+    display: none !important;
 }
-
 
 
 /* --- css/profile.css --- */
-/* Мобильная карточка профиля — скрыта на десктопе, видна на мобилке */
-.mobile-profile-card {
-    display: none;
-    align-items: center;
-    gap: 14px;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius-card);
-    padding: 14px 20px;
-    margin-bottom: 14px;
-    box-shadow: var(--shadow-card);
-}
-
-.mobile-profile-avatar {
-    width: 52px;
-    height: 52px;
-    border-radius: var(--radius-pill);
-    object-fit: cover;
-    border: 2px solid var(--primary);
-    box-shadow: 0 0 12px rgba(209, 153, 255, 0.3);
-}
-
-.mobile-profile-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.mobile-profile-name {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--text-main);
-}
-
-.mobile-profile-logout {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--danger);
-    font-size: 12px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: opacity 0.2s;
-}
-
-.mobile-profile-logout:hover {
-    opacity: 0.7;
-}
-
-@media (max-width: 768px) {
-    .mobile-profile-card {
-        display: flex;
-    }
-}
 
 .profile-grid {
     display: grid;
@@ -3481,16 +3321,6 @@ button, input, select, textarea {
     border: none;
 }
 
-@media (max-width: 768px) {
-    .floating-mini-player {
-        width: calc(100% - 32px);
-        left: 16px;
-        right: 16px;
-        bottom: 74px;
-        height: 220px;
-    }
-}
-
 /* ==================== USER RATE INTERACTIVE WIDGET ==================== */
 .user-rate-widget-card {
     margin-top: 18px;
@@ -3712,71 +3542,14 @@ button, input, select, textarea {
     }
 }
 
-@media (max-width: 860px) {
-    .modal-content.anime-modal-content {
-        padding: 18px 16px 60px 16px;
-    }
-
-    .modal-close-btn {
-        top: 12px;
-        right: 12px;
-        width: 38px;
-        height: 38px;
-        font-size: 18px;
-    }
-
-    .modal-back-btn {
-        top: 12px;
-        right: 56px;
-        width: 38px;
-        height: 38px;
-        font-size: 16px;
-    }
-
-    .anime-hero-section {
-        display: flex;
-        flex-direction: column;
-        gap: 18px;
-    }
-
-    .anime-hero-left {
-        gap: 14px;
-    }
-
-    .anime-header-titles {
-        padding-right: 0;
-        padding-bottom: 10px;
-    }
-
-    .anime-header-titles .anime-title {
-        font-size: 22px;
-    }
-
-    .anime-header-titles .anime-orig-title {
-        font-size: 13.5px;
-    }
-
-    .anime-poster-wrapper {
-        max-width: 220px;
-        margin: 0 auto;
-    }
-
-    .anime-meta-details-card .anime-info-grid {
-        grid-template-columns: 1fr;
-        gap: 8px;
-    }
-
-    .watch-player-crop-wrapper {
-        height: 280px;
-    }
-
-    .anime-description-content {
-        font-size: 13.5px;
-    }
-}
-
 /* Anicli Step-by-Step UI */
 .anicli-wizard-container .hidden,
+.anicli-wizard-container.hidden,
+.anicli-step-container.hidden,
+#anicli-step-1.hidden,
+#anicli-step-2.hidden,
+#anicli-step-3.hidden,
+#anicli-step-4.hidden,
 #anicli-video-view.hidden {
     display: none !important;
 }
@@ -3856,13 +3629,6 @@ button, input, select, textarea {
     gap: 24px;
 }
 
-@media (max-width: 650px) {
-    .manga-detail-header {
-        flex-direction: column;
-        align-items: center;
-    }
-}
-
 .manga-poster-wrapper {
     position: relative;
     width: 200px;
@@ -3916,12 +3682,6 @@ button, input, select, textarea {
     margin-top: 10px;
 }
 
-@media (max-width: 500px) {
-    .manga-info-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
 .manga-user-rate-item {
     grid-column: span 2;
     background: var(--sub-bg);
@@ -3962,14 +3722,6 @@ button, input, select, textarea {
     display: flex;
     gap: 28px;
     align-items: flex-start;
-}
-
-@media (max-width: 650px) {
-    .friend-detail-header {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
 }
 
 .friend-avatar-wrapper {
@@ -4061,12 +3813,6 @@ button, input, select, textarea {
     grid-template-columns: 1fr 1fr;
     gap: 12px;
     margin-top: 6px;
-}
-
-@media (max-width: 500px) {
-    .friend-stats-summary {
-        grid-template-columns: 1fr;
-    }
 }
 
 .friend-stat-box {
@@ -4360,20 +4106,6 @@ button, input, select, textarea {
     font-weight: 600;
     text-align: center;
     line-height: 1.3;
-}
-
-@media (max-width: 640px) {
-    .settings-modal-card,
-    .about-modal-card {
-        width: 100vw !important;
-        height: 100vh !important;
-        max-height: 100vh !important;
-        border-radius: 0 !important;
-        padding: 20px 16px 40px 16px !important;
-    }
-    .navbar-view-options {
-        grid-template-columns: 1fr;
-    }
 }
 
 

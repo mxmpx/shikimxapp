@@ -662,7 +662,7 @@ async function initExploreExtraSections() {
             if (genreSelect) {
                 const genres = await loadGenres();
                 genreSelect.innerHTML = `<option value="">${i18n('catalog.filter.all_genres')}</option>` +
-                    genres.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
+                    genres.map(g => `<option value="${g.id}">${g.russian || g.name}</option>`).join('');
             }
             loadCatalog(1, false);
         }, '300px');

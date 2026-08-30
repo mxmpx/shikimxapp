@@ -5,6 +5,10 @@ async function openFriendModal(userIdOrNick) {
     const body = document.getElementById('anime-modal-body');
     if (!modal || !body) return;
 
+    if (!modal.classList.contains('hidden') && body.innerHTML.trim() && !body.querySelector('.anime-modal-loader')) {
+        if (typeof pushModalState === 'function') pushModalState();
+    }
+
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
     body.innerHTML = '<div class="anime-modal-loader"><i class="ti ti-loader animate-spin"></i> ' + i18n('friends.load_error') + '</div>';
@@ -32,7 +36,15 @@ function renderFriendDetail(user) {
     const isOnline = user.last_online_at && user.last_online_at.includes(new Date().toISOString().slice(0, 10));
 
     body.innerHTML = `
-        <div class="anime-detail-container friend-modal-container">
+        <div class="mobile-anime-top-bar" id="mobile-anime-top-bar">
+            <button type="button" class="mobile-anime-top-btn" onclick="handleModalBack()" title="Назад">
+                <i class="ti ti-arrow-left"></i>
+            </button>
+            <div class="mobile-anime-top-title" id="mobile-anime-top-title">${user.name || user.nickname}</div>
+            <div style="width: 38px;"></div>
+        </div>
+
+        <div class="anime-detail-container friend-modal-container" style="padding-top: 64px;">
             <div class="anime-detail-header friend-detail-header">
                 <div class="anime-poster-wrapper friend-avatar-wrapper">
                     ${avatar ? `<img src="${avatar}" alt="${user.nickname}" class="friend-avatar-img">` : `<div class="friend-avatar-placeholder"><i class="ti ti-user"></i></div>`}

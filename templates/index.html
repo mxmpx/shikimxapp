@@ -12,10 +12,13 @@
     <title>Shiki MX App</title>
 
     <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192.png">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=JetBrains+Mono:wght@400;500;600&display=swap"
         rel="stylesheet">
 
     <link rel="preload" href="/static/fonts/tabler-icons.woff2" as="font" type="font/woff2" crossorigin>
@@ -23,6 +26,65 @@
     <link rel="preload" href="/static/bundle.js?v={{ app_version }}" as="script">
     
     <link rel="stylesheet" href="/static/bundle.css?v={{ app_version }}">
+
+    <!-- Динамический загрузчик мобильных ассетов (только для мобильных устройств / режима эмуляции мобильного) -->
+    <script>
+        window.APP_VERSION = "{{ app_version }}";
+        (function initMobileLoader() {
+            function isMobileMode() {
+                if (window.location.search.includes('mobile=1')) return true;
+                if (window.location.search.includes('desktop=1')) return false;
+
+                // 1. Client Hints (Chrome / Edge / DevTools Device Emulation)
+                if (navigator.userAgentData && typeof navigator.userAgentData.mobile === 'boolean') {
+                    if (navigator.userAgentData.mobile) return true;
+                }
+                // 2. User-Agent regex (Safari, Firefox, Android, iOS)
+                if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(navigator.userAgent)) {
+                    return true;
+                }
+                // 3. DevTools device emulation (touch points > 0 на экране <= 768px)
+                if (window.matchMedia('(max-width: 768px)').matches && (navigator.maxTouchPoints > 0 || 'ontouchstart' in window)) {
+                    return true;
+                }
+                return false;
+            }
+
+            function loadMobileAssets() {
+                if (window._mobileAssetsLoaded) return;
+                window._mobileAssetsLoaded = true;
+
+                var cacheBuster = 'v=' + encodeURIComponent(window.APP_VERSION || '1.0') + '&t=' + Date.now();
+
+                if (!document.getElementById('mobile-css')) {
+                    var link = document.createElement('link');
+                    link.id = 'mobile-css';
+                    link.rel = 'stylesheet';
+                    link.href = '/static/mobile.css?' + cacheBuster;
+                    document.head.appendChild(link);
+                }
+
+                if (!document.getElementById('mobile-js')) {
+                    var script = document.createElement('script');
+                    script.id = 'mobile-js';
+                    script.src = '/static/mobile.js?' + cacheBuster;
+                    script.defer = true;
+                    document.body.appendChild(script);
+                }
+            }
+
+            if (isMobileMode()) {
+                loadMobileAssets();
+            } else {
+                window.addEventListener('resize', function onResize() {
+                    if (isMobileMode()) {
+                        loadMobileAssets();
+                        window.removeEventListener('resize', onResize);
+                    }
+                }, { passive: true });
+            }
+        })();
+    </script>
 </head>
 
 
@@ -30,12 +92,678 @@
 
     <!-- Лоадер -->
     <div id="app-loader" class="app-loader">
+        <div class="loader-grid"></div>
         <div class="loader-content">
             <i class="ti ti-brand-shikimori loader-logo-icon"></i>
             <h1 class="loader-title">Shiki MX App</h1>
             <div class="spinner"></div>
         </div>
     </div>
+
+    <!-- Верхний мобильный бар (активируется только на мобилке) -->
+    <header class="mobile-top-header">
+        <div class="mobile-header-main" id="mobile-header-main">
+            <div class="mobile-header-brand">
+                <i class="ti ti-device-tv mobile-brand-logo"></i>
+                <span class="mobile-brand-title">Shiki MX App</span>
+            </div>
+            <div class="mobile-header-actions">
+                <button class="mobile-header-btn" id="mobile-sections-btn" onclick="openMobileSectionsMenu()" title="Разделы">
+                    <i class="ti ti-layout-grid"></i>
+                </button>
+                <button class="mobile-header-btn" id="mobile-search-btn" onclick="openMobileSearch()" title="Поиск">
+                    <i class="ti ti-search"></i>
+                </button>
+                <button class="mobile-header-btn" id="mobile-profile-btn" onclick="openMobileProfileMenu()" title="Профиль">
+                    {% if profile %}
+                    <img src="{{ profile.image | img_url }}" alt="{{ profile.nickname }}" class="mobile-header-avatar">
+                    {% else %}
+                    <i class="ti ti-user"></i>
+                    {% endif %}
+                </button>
+                <button class="mobile-header-btn" onclick="openSettingsModal()" title="Настройки">
+                    <i class="ti ti-settings"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Активная строка поиска в мобильном хедере -->
+        <div class="mobile-header-search hidden" id="mobile-header-search">
+            <button class="mobile-search-back-btn" onclick="closeMobileSearch()" title="Назад">
+                <i class="ti ti-arrow-left"></i>
+            </button>
+            <div class="mobile-search-input-wrap">
+                <i class="ti ti-search mobile-search-icon"></i>
+                <input type="text" id="mobile-search-input" placeholder="Поиск аниме, манги..." autocomplete="off" oninput="handleMobileSearch(this.value)">
+                <button type="button" class="mobile-search-clear-btn hidden" id="mobile-search-clear" onclick="clearMobileSearch()">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Выпадающий оверлей результатов мобильного поиска -->
+    <div id="mobile-search-overlay" class="mobile-search-overlay hidden" onclick="closeMobileSearchOverlay(event)">
+        <div class="mobile-search-dropdown" id="mobile-search-results"></div>
+    </div>
+
+    <!-- Мобильное меню быстрых разделов (Расписание, Контент, Темы дня, Новости) -->
+    <div id="mobile-sections-modal" class="modal-overlay hidden" onclick="closeMobileSectionsMenu(event)">
+        <div class="modal-content mobile-sections-modal-card" onclick="event.stopPropagation()">
+            <!-- Фиксированная шапка модалки разделов (как в профиле и настройках) -->
+            <div class="mobile-sections-header-banner">
+                <button type="button" class="sections-back-btn hidden" id="mobile-sections-back-btn" onclick="handleSectionsBack()" title="Назад">
+                    <i class="ti ti-arrow-left"></i>
+                </button>
+                <div class="mobile-sections-header-title-wrap">
+                    <i class="ti ti-layout-grid mobile-sections-logo-icon" id="mobile-sections-header-icon"></i>
+                    <h3 class="mobile-sections-title" id="mobile-sections-header-title">Разделы</h3>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closeMobileSectionsMenu()" title="Закрыть">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+
+            <!-- Скроллируемое тело модалки -->
+            <div class="mobile-sections-body">
+                <!-- Главный экран со списком 4 разделов -->
+                <div id="sections-main-view" class="mobile-sections-list">
+                    <!-- 1. Расписание онгоингов -->
+                    <button type="button" class="mobile-section-nav-item" onclick="openSectionDetail('calendar')">
+                        <div class="section-nav-icon icon-calendar">
+                            <i class="ti ti-calendar-event"></i>
+                        </div>
+                        <div class="section-nav-info">
+                            <span class="section-nav-title">Расписание онгоингов</span>
+                            <span class="section-nav-desc">Календарь выхода новых серий</span>
+                        </div>
+                        <i class="ti ti-chevron-right section-nav-arrow"></i>
+                    </button>
+
+                    <!-- 2. Контент -->
+                    <button type="button" class="mobile-section-nav-item" onclick="openSectionDetail('content')">
+                        <div class="section-nav-icon icon-content">
+                            <i class="ti ti-grid-dots"></i>
+                        </div>
+                        <div class="section-nav-info">
+                            <span class="section-nav-title">Контент</span>
+                            <span class="section-nav-desc">Коллекции, обзоры и статьи</span>
+                        </div>
+                        <i class="ti ti-chevron-right section-nav-arrow"></i>
+                    </button>
+
+                    <!-- 3. Темы дня -->
+                    <button type="button" class="mobile-section-nav-item" onclick="openSectionDetail('hot')">
+                        <div class="section-nav-icon icon-hot">
+                            <i class="ti ti-flame"></i>
+                        </div>
+                        <div class="section-nav-info">
+                            <span class="section-nav-title">Темы дня</span>
+                            <span class="section-nav-desc">Горячие обсуждения и темы форума</span>
+                        </div>
+                        <i class="ti ti-chevron-right section-nav-arrow"></i>
+                    </button>
+
+                    <!-- 4. Новости -->
+                    <button type="button" class="mobile-section-nav-item" onclick="openSectionDetail('news')">
+                        <div class="section-nav-icon icon-news">
+                            <i class="ti ti-news"></i>
+                        </div>
+                        <div class="section-nav-info">
+                            <span class="section-nav-title">Новости</span>
+                            <span class="section-nav-desc">Свежие события аниме-индустрии</span>
+                        </div>
+                        <i class="ti ti-chevron-right section-nav-arrow"></i>
+                    </button>
+                </div>
+
+                <!-- Экран детального содержимого выбранного раздела -->
+                <div id="sections-detail-view" class="hidden">
+                    <div id="sections-detail-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Мобильное меню профиля (активируется только на мобилке) -->
+    <div id="mobile-profile-modal" class="modal-overlay hidden" onclick="closeMobileProfileMenu(event)">
+        <div class="modal-content mobile-profile-modal-card">
+            <!-- Фиксированная шапка меню -->
+            <div class="mobile-profile-menu-header">
+                <div class="mobile-profile-header-user">
+                    {% if profile %}
+                    <img src="{{ profile.image | img_url }}" alt="{{ profile.nickname }}" class="mobile-profile-menu-avatar">
+                    <div class="mobile-profile-header-meta">
+                        <span class="mobile-profile-menu-nickname">{{ profile.nickname }}</span>
+                        <a href="/logout" class="mobile-profile-menu-logout"><i class="ti ti-logout"></i> <span data-i18n="logout">Выйти</span></a>
+                    </div>
+                    {% else %}
+                    <div class="mobile-profile-guest-avatar"><i class="ti ti-user"></i></div>
+                    <div class="mobile-profile-header-meta">
+                        <span class="mobile-profile-menu-nickname" data-i18n="auth.not_authorized">Авторизация не выполнена</span>
+                        <a href="/login" class="mobile-profile-menu-login"><i class="ti ti-brand-shikimori"></i> <span data-i18n="login.shikimori">Войти</span></a>
+                    </div>
+                    {% endif %}
+                </div>
+                <button class="modal-close-btn" onclick="closeMobileProfileMenu()"><i class="ti ti-x"></i></button>
+            </div>
+
+            <!-- Тело меню скроллируемое -->
+            <div class="mobile-profile-menu-body">
+                {% if profile %}
+                <!-- Блок: Информация (из десктопного мода) -->
+                <div class="mobile-profile-section">
+                    <div class="mobile-section-title"><i class="ti ti-id"></i> <span data-i18n="profile.info">Информация</span></div>
+                    <div class="mobile-info-list">
+                        <div class="mobile-info-row">
+                            <span class="label" data-i18n="profile.id">ID:</span>
+                            <span class="value">{{ profile.id }}</span>
+                        </div>
+                        <div class="mobile-info-row">
+                            <span class="label" data-i18n="profile.name">Имя:</span>
+                            <span class="value">{{ profile.name or profile.nickname }}</span>
+                        </div>
+                        <div class="mobile-info-row">
+                            <span class="label" data-i18n="profile.age">Возраст:</span>
+                            <span class="value">{{ profile.age or '—' }}</span>
+                        </div>
+                        <div class="mobile-info-row">
+                            <span class="label" data-i18n="profile.sex">Пол:</span>
+                            <span class="value">{{ profile.sex or '—' }}</span>
+                        </div>
+                        <div class="mobile-info-row">
+                            <span class="label" data-i18n="profile.last_visit">Последний визит:</span>
+                            <span class="value">{{ profile.last_online_at[:10] if profile.last_online_at else '—' }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Блок: Навигация и быстрые действия -->
+                <div class="mobile-profile-section">
+                    <div class="mobile-section-title"><i class="ti ti-compass"></i> <span>Разделы и действия</span></div>
+                    <div class="mobile-menu-links-group">
+                        <button class="mobile-menu-action-btn" onclick="handleMobileFriendsClick()">
+                            <div class="mobile-action-left">
+                                <i class="ti ti-users action-icon"></i>
+                                <span data-i18n="profile.friends_clubs">Друзья и клубы</span>
+                            </div>
+                            <i class="ti ti-chevron-right action-arrow"></i>
+                        </button>
+                        <button class="mobile-menu-action-btn" onclick="handleMobileStatsClick()">
+                            <div class="mobile-action-left">
+                                <i class="ti ti-chart-bar action-icon"></i>
+                                <span data-i18n="profile.stats">Статистика</span>
+                            </div>
+                            <i class="ti ti-chevron-right action-arrow"></i>
+                        </button>
+                        <button class="mobile-menu-action-btn" onclick="closeMobileProfileMenu(); openSettingsModal();">
+                            <div class="mobile-action-left">
+                                <i class="ti ti-settings action-icon"></i>
+                                <span data-i18n="settings.title">Настройки</span>
+                            </div>
+                            <i class="ti ti-chevron-right action-arrow"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Блок: Быстрые переключатели темы и языка -->
+                <div class="mobile-profile-section">
+                    <div class="mobile-section-title"><i class="ti ti-adjustments"></i> <span>Внешний вид и язык</span></div>
+                    <div class="mobile-menu-links-group">
+                        <button class="mobile-menu-action-btn" onclick="handleMobileToggleTheme()">
+                            <div class="mobile-action-left">
+                                <i class="ti ti-sun action-icon" id="mobile-profile-theme-icon"></i>
+                                <span data-i18n="theme.title">Сменить тему</span>
+                            </div>
+                            <span id="mobile-profile-theme-val" class="mobile-action-badge">Тёмная</span>
+                        </button>
+                        <button class="mobile-menu-action-btn" onclick="handleMobileToggleLanguage()">
+                            <div class="mobile-action-left">
+                                <i class="ti ti-language action-icon"></i>
+                                <span>Язык интерфейса</span>
+                            </div>
+                            <span id="mobile-profile-lang-val" class="mobile-action-badge">RU</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Мобильное окно Друзья и клубы (Bottom Sheet, аналогично Профилю и Настройкам) -->
+    <div id="mobile-friends-modal" class="modal-overlay hidden" onclick="closeMobileFriendsModal(event)">
+        <div class="modal-content mobile-friends-modal-card">
+            <!-- Фиксированная шапка -->
+            <div class="mobile-friends-header">
+                <button type="button" class="sections-back-btn" id="mobile-friends-back-btn" onclick="handleFriendsBack()" title="Назад в профиль">
+                    <i class="ti ti-arrow-left"></i>
+                </button>
+                <div class="mobile-sections-header-title-wrap" style="flex: 1; min-width: 0;">
+                    <i class="ti ti-users settings-logo-icon"></i>
+                    <h2 class="settings-title" data-i18n="profile.friends_clubs">Друзья и клубы</h2>
+                </div>
+                <button class="modal-close-btn" onclick="closeMobileFriendsModal()"><i class="ti ti-x"></i></button>
+            </div>
+
+            <!-- Скроллируемое тело со списками друзей и клубов -->
+            <div id="mobile-friends-body" class="mobile-friends-body">
+                <div class="loader" style="padding: 40px; text-align: center;">
+                    <i class="ti ti-loader animate-spin" style="font-size: 32px; color: var(--primary);"></i>
+                    <p style="color: var(--text-muted); margin-top: 12px;" data-i18n="friends.loading">Загрузка друзей и клубов...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Мобильное окно Статистика (Bottom Sheet — 1 в 1 как Профиль, Настройки, Друзья) -->
+    <div id="mobile-stats-modal" class="modal-overlay hidden" onclick="closeMobileStatsModal(event)">
+        <div class="modal-content mobile-stats-modal-card">
+            <!-- Фиксированная шапка -->
+            <div class="mobile-stats-header">
+                <button type="button" class="sections-back-btn" id="mobile-stats-back-btn" onclick="handleStatsBack()" title="Назад в профиль">
+                    <i class="ti ti-arrow-left"></i>
+                </button>
+                <div class="mobile-sections-header-title-wrap" style="flex: 1; min-width: 0;">
+                    <i class="ti ti-chart-bar settings-logo-icon"></i>
+                    <h2 class="settings-title" data-i18n="profile.stats">Статистика</h2>
+                </div>
+                <button class="modal-close-btn" onclick="closeMobileStatsModal()"><i class="ti ti-x"></i></button>
+            </div>
+
+            <!-- Скроллируемое тело со статистикой -->
+            <div id="mobile-stats-body" class="mobile-stats-body">
+                {% if profile and profile.stats %}
+                <!-- Секция Аниме -->
+                <div class="mobile-profile-section">
+                    <div class="mobile-section-title">
+                        <i class="ti ti-device-tv"></i>
+                        <span data-i18n="rates.anime">Аниме</span>
+                    </div>
+                    <div class="mobile-stats-card-box">
+                        <div class="info-row">
+                            <span class="label"><i class="ti ti-player-play stat-icon icon-watching"></i> <span data-i18n="rates.watching">Смотрю</span></span>
+                            <span class="value"><b>{{ profile.stats.statuses.anime | selectattr('name', 'equalto', 'watching') | map(attribute='size') | first or 0 }}</b></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label"><i class="ti ti-check stat-icon icon-completed"></i> <span data-i18n="rates.completed">Просмотрено</span></span>
+                            <span class="value"><b>{{ profile.stats.statuses.anime | selectattr('name', 'equalto', 'completed') | map(attribute='size') | first or 0 }}</b></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label"><i class="ti ti-calendar-time stat-icon icon-planned"></i> <span data-i18n="rates.planned">В планах</span></span>
+                            <span class="value"><b>{{ profile.stats.statuses.anime | selectattr('name', 'equalto', 'planned') | map(attribute='size') | first or 0 }}</b></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label"><i class="ti ti-player-pause stat-icon icon-on-hold"></i> <span data-i18n="rates.on_hold">Отложено</span></span>
+                            <span class="value"><b>{{ profile.stats.statuses.anime | selectattr('name', 'equalto', 'on_hold') | map(attribute='size') | first or 0 }}</b></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label"><i class="ti ti-x stat-icon icon-dropped"></i> <span data-i18n="rates.dropped">Брошено</span></span>
+                            <span class="value"><b>{{ profile.stats.statuses.anime | selectattr('name', 'equalto', 'dropped') | map(attribute='size') | first or 0 }}</b></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label"><i class="ti ti-repeat stat-icon icon-rewatching"></i> <span data-i18n="rates.rewatching">Пересматриваю</span></span>
+                            <span class="value"><b>{{ profile.stats.statuses.anime | selectattr('name', 'equalto', 'rewatching') | map(attribute='size') | first or 0 }}</b></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Секция Манга -->
+                <div class="mobile-profile-section">
+                    <div class="mobile-section-title">
+                        <i class="ti ti-book"></i>
+                        <span data-i18n="rates.manga">Манга</span>
+                    </div>
+                    <div class="mobile-stats-card-box">
+                        <div class="info-row">
+                            <span class="label"><i class="ti ti-player-play stat-icon icon-watching"></i> <span data-i18n="rates.watching">Читаю</span></span>
+                            <span class="value"><b>{{ profile.stats.statuses.manga | selectattr('name', 'equalto', 'watching') | map(attribute='size') | first or 0 }}</b></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label"><i class="ti ti-check stat-icon icon-completed"></i> <span data-i18n="rates.completed">Прочитано</span></span>
+                            <span class="value"><b>{{ profile.stats.statuses.manga | selectattr('name', 'equalto', 'completed') | map(attribute='size') | first or 0 }}</b></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label"><i class="ti ti-calendar-time stat-icon icon-planned"></i> <span data-i18n="rates.planned">В планах</span></span>
+                            <span class="value"><b>{{ profile.stats.statuses.manga | selectattr('name', 'equalto', 'planned') | map(attribute='size') | first or 0 }}</b></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label"><i class="ti ti-player-pause stat-icon icon-on-hold"></i> <span data-i18n="rates.on_hold">Отложено</span></span>
+                            <span class="value"><b>{{ profile.stats.statuses.manga | selectattr('name', 'equalto', 'on_hold') | map(attribute='size') | first or 0 }}</b></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label"><i class="ti ti-x stat-icon icon-dropped"></i> <span data-i18n="rates.dropped">Брошено</span></span>
+                            <span class="value"><b>{{ profile.stats.statuses.manga | selectattr('name', 'equalto', 'dropped') | map(attribute='size') | first or 0 }}</b></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label"><i class="ti ti-repeat stat-icon icon-rewatching"></i> <span>Перечитываю</span></span>
+                            <span class="value"><b>{{ profile.stats.statuses.manga | selectattr('name', 'equalto', 'rereading') | map(attribute='size') | first or 0 }}</b></span>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="mobile-profile-section">
+                    <p style="color: var(--text-muted); font-size: 13px; margin: 0;" data-i18n="profile.stats_unavailable">Статистика недоступна</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Моментальные хэндлеры для мобильного меню профиля и друзей -->
+    <script>
+        window.openMobileProfileMenu = function() {
+            var modal = document.getElementById('mobile-profile-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                updateMobileProfileBadges();
+            }
+        };
+
+        window.closeMobileProfileMenu = function(event) {
+            if (event && event.target !== event.currentTarget && !event.target.closest('.modal-close-btn')) return;
+            var modal = document.getElementById('mobile-profile-modal');
+            if (modal) modal.classList.add('hidden');
+        };
+
+        window.updateMobileProfileBadges = function() {
+            var theme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || 'dark';
+            var themeVal = document.getElementById('mobile-profile-theme-val');
+            var themeIcon = document.getElementById('mobile-profile-theme-icon');
+            if (themeVal) themeVal.textContent = (theme === 'dark') ? 'Тёмная' : 'Светлая';
+            if (themeIcon) themeIcon.className = (theme === 'dark') ? 'ti ti-sun action-icon' : 'ti ti-moon action-icon';
+
+            var settingsThemeVal = document.getElementById('mobile-settings-theme-val');
+            var settingsThemeIcon = document.getElementById('mobile-settings-theme-icon');
+            if (settingsThemeVal) settingsThemeVal.textContent = (theme === 'dark') ? 'Тёмная' : 'Светлая';
+            if (settingsThemeIcon) settingsThemeIcon.className = (theme === 'dark') ? 'ti ti-sun action-icon' : 'ti ti-moon action-icon';
+
+            var lang = (typeof getSavedLanguage === 'function') ? getSavedLanguage() : (localStorage.getItem('app_language') || 'ru');
+            var langVal = document.getElementById('mobile-profile-lang-val');
+            if (langVal) langVal.textContent = (lang === 'en') ? 'EN' : 'RU';
+
+            var settingsLangVal = document.getElementById('mobile-settings-lang-val');
+            if (settingsLangVal) settingsLangVal.textContent = (lang === 'en') ? 'EN' : 'RU';
+        };
+
+        window.handleMobileToggleTheme = function() {
+            var current = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || 'dark';
+            var next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            try {
+                localStorage.setItem('theme', next);
+            } catch(e) {}
+
+            // Снимаем инлайн цвет фона, если он мешает смене темы
+            if (document.body && document.body.style.backgroundColor) {
+                document.body.style.removeProperty('background-color');
+            }
+
+            if (typeof updateThemeIcon === 'function') {
+                updateThemeIcon(next);
+            }
+            updateMobileProfileBadges();
+        };
+
+        window.handleMobileToggleLanguage = function() {
+            var current = (typeof getSavedLanguage === 'function') ? getSavedLanguage() : (localStorage.getItem('app_language') || 'ru');
+            var next = current === 'ru' ? 'en' : 'ru';
+            if (typeof saveLanguage === 'function') {
+                saveLanguage(next);
+            } else {
+                try { localStorage.setItem('app_language', next); } catch(e) {}
+            }
+            if (typeof currentLanguage !== 'undefined') {
+                currentLanguage = next;
+            }
+            if (typeof applyTranslations === 'function') {
+                applyTranslations();
+            }
+            if (typeof updateLanguageButton === 'function') {
+                updateLanguageButton();
+            }
+            updateMobileProfileBadges();
+        };
+
+        window.openMobileFriendsModal = async function() {
+            var modal = document.getElementById('mobile-friends-modal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+
+            var body = document.getElementById('mobile-friends-body');
+            if (!body) return;
+
+            if (!body.dataset.loaded) {
+                body.innerHTML = '<div class="loader" style="padding: 40px; text-align: center;"><i class="ti ti-loader animate-spin" style="font-size: 32px; color: var(--primary);"></i><p style="color: var(--text-muted); margin-top: 12px;">' + (typeof t === 'function' ? t('friends.loading') : 'Загрузка друзей и клубов...') + '</p></div>';
+                try {
+                    const res = await fetch('/api/tab/friends');
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    const data = await res.json();
+                    if (typeof renderMobileFriendsAndClubs === 'function') {
+                        renderMobileFriendsAndClubs(data);
+                    } else {
+                        renderFallbackFriends(data);
+                    }
+                    body.dataset.loaded = 'true';
+                } catch(err) {
+                    console.error('Ошибка загрузки друзей:', err);
+                    body.innerHTML = '<p style="color: var(--danger); padding: 20px; text-align: center;">Не удалось загрузить друзей и клубы</p>';
+                }
+            }
+        };
+
+        window.closeMobileFriendsModal = function(event) {
+            if (event && event.target !== event.currentTarget && !event.target.closest('.modal-close-btn')) return;
+            var modal = document.getElementById('mobile-friends-modal');
+            if (modal) modal.classList.add('hidden');
+        };
+
+        function renderFallbackFriends(data) {
+            var body = document.getElementById('mobile-friends-body');
+            if (!body) return;
+            var friends = data.friends || [];
+            var clubs = data.clubs || [];
+
+            var friendsHtml = '<div class="mobile-profile-section">' +
+                '<div class="mobile-section-title"><i class="ti ti-users"></i> <span>' + (typeof t === 'function' ? t('friends.friends') : 'Друзья') + ' (' + friends.length + ')</span></div>';
+            if (friends.length > 0) {
+                friendsHtml += '<div class="mobile-friends-grid">' + friends.map(function(f) {
+                    var name = f.nickname || f.name || '';
+                    var img = (typeof buildImgUrl === 'function') ? buildImgUrl(f.avatar || f.image) : (f.avatar || f.image || '');
+                    return '<div class="mobile-friend-card" onclick="if(typeof openFriendModal===\'function\'){openFriendModal(\'' + name + '\');}">' +
+                        '<img src="' + img + '" alt="' + name + '" class="mobile-friend-avatar" loading="lazy">' +
+                        '<span class="mobile-friend-name">' + name + '</span>' +
+                    '</div>';
+                }).join('') + '</div>';
+            } else {
+                friendsHtml += '<p style="color: var(--text-muted); font-size: 13px; margin: 0;">' + (typeof t === 'function' ? t('friends.empty') : 'Список пуст') + '</p>';
+            }
+            friendsHtml += '</div>';
+
+            var clubsHtml = '<div class="mobile-profile-section">' +
+                '<div class="mobile-section-title"><i class="ti ti-building-community"></i> <span>' + (typeof t === 'function' ? t('friends.clubs') : 'Клубы') + ' (' + clubs.length + ')</span></div>';
+            if (clubs.length > 0) {
+                clubsHtml += '<div class="mobile-friends-grid">' + clubs.map(function(c) {
+                    var name = c.name || '';
+                    var img = (typeof buildImgUrl === 'function') ? buildImgUrl(c.logo || c.image) : (c.logo || c.image || '');
+                    var onclickAttr = (typeof openClubModal === 'function') ? 'onclick="openClubModal(' + c.id + ');"' : 'onclick="window.open(\'https://shikimori.io/clubs/' + c.id + '\', \'_blank\');"';
+                    return '<div class="mobile-friend-card" ' + onclickAttr + '>' +
+                        '<img src="' + img + '" alt="' + name + '" class="mobile-friend-avatar club" loading="lazy">' +
+                        '<span class="mobile-friend-name">' + name + '</span>' +
+                    '</div>';
+                }).join('') + '</div>';
+            } else {
+                clubsHtml += '<p style="color: var(--text-muted); font-size: 13px; margin: 0;">' + (typeof t === 'function' ? t('friends.empty') : 'Список пуст') + '</p>';
+            }
+            clubsHtml += '</div>';
+
+            body.innerHTML = friendsHtml + clubsHtml;
+        }
+
+        window.handleMobileFriendsClick = function() {
+            closeMobileProfileMenu();
+            openMobileFriendsModal();
+        };
+
+        window.handleMobileStatsClick = function() {
+            closeMobileProfileMenu();
+            openMobileStatsModal();
+        };
+
+        window.openMobileStatsModal = function() {
+            var modal = document.getElementById('mobile-stats-modal');
+            if (modal) modal.classList.remove('hidden');
+        };
+
+        window.closeMobileStatsModal = function(event) {
+            if (event && event.target !== event.currentTarget && !event.target.closest('.modal-close-btn')) return;
+            var modal = document.getElementById('mobile-stats-modal');
+            if (modal) modal.classList.add('hidden');
+        };
+
+        window.handleMobileAboutClick = function() {
+            var settingsModal = document.getElementById('settings-modal');
+            if (settingsModal) settingsModal.classList.add('hidden');
+            if (typeof openAboutModal === 'function') {
+                openAboutModal();
+            } else {
+                var aboutModal = document.getElementById('about-modal');
+                if (aboutModal) aboutModal.classList.remove('hidden');
+            }
+        };
+
+        var mobileSearchAbortController = null;
+        var mobileSearchDebounceTimer = null;
+
+        window.openMobileSearch = function() {
+            var main = document.getElementById('mobile-header-main');
+            var search = document.getElementById('mobile-header-search');
+            var input = document.getElementById('mobile-search-input');
+            if (main) main.classList.add('hidden');
+            if (search) search.classList.remove('hidden');
+            if (input) {
+                input.focus();
+                if (input.value.trim().length >= 2) {
+                    handleMobileSearch(input.value);
+                }
+            }
+        };
+
+        window.closeMobileSearch = function() {
+            var main = document.getElementById('mobile-header-main');
+            var search = document.getElementById('mobile-header-search');
+            var overlay = document.getElementById('mobile-search-overlay');
+            if (search) search.classList.add('hidden');
+            if (main) main.classList.remove('hidden');
+            if (overlay) overlay.classList.add('hidden');
+        };
+
+        window.closeMobileSearchOverlay = function(e) {
+            if (e.target === e.currentTarget) {
+                closeMobileSearch();
+            }
+        };
+
+        window.clearMobileSearch = function() {
+            var input = document.getElementById('mobile-search-input');
+            var clearBtn = document.getElementById('mobile-search-clear');
+            var overlay = document.getElementById('mobile-search-overlay');
+            var results = document.getElementById('mobile-search-results');
+            if (input) input.value = '';
+            if (clearBtn) clearBtn.classList.add('hidden');
+            if (overlay) overlay.classList.add('hidden');
+            if (results) results.innerHTML = '';
+            if (input) input.focus();
+        };
+
+        window.handleMobileSearch = function(val) {
+            var query = (val || '').trim();
+            var clearBtn = document.getElementById('mobile-search-clear');
+            var overlay = document.getElementById('mobile-search-overlay');
+            var resultsContainer = document.getElementById('mobile-search-results');
+
+            if (clearBtn) {
+                if (query.length > 0) clearBtn.classList.remove('hidden');
+                else clearBtn.classList.add('hidden');
+            }
+
+            if (mobileSearchAbortController) {
+                mobileSearchAbortController.abort();
+                mobileSearchAbortController = null;
+            }
+
+            if (query.length < 1) {
+                clearTimeout(mobileSearchDebounceTimer);
+                if (overlay) overlay.classList.add('hidden');
+                if (resultsContainer) resultsContainer.innerHTML = '';
+                return;
+            }
+
+            if (overlay) overlay.classList.remove('hidden');
+            if (resultsContainer) {
+                resultsContainer.innerHTML = '<div class="mobile-search-loading"><i class="ti ti-loader animate-spin"></i> Поиск...</div>';
+            }
+
+            clearTimeout(mobileSearchDebounceTimer);
+            mobileSearchDebounceTimer = setTimeout(async function() {
+                mobileSearchAbortController = new AbortController();
+                try {
+                    var res = await fetch('/api/search?q=' + encodeURIComponent(query), {
+                        signal: mobileSearchAbortController.signal
+                    });
+                    var data = await res.json();
+                    renderMobileSearchResults(data);
+                } catch (err) {
+                    if (err.name === 'AbortError') return;
+                    if (resultsContainer) {
+                        resultsContainer.innerHTML = '<div class="mobile-search-no-results" style="color: var(--danger);">Ошибка при поиске</div>';
+                    }
+                }
+            }, 180);
+        };
+
+        window.renderMobileSearchResults = function(items) {
+            var container = document.getElementById('mobile-search-results');
+            if (!container) return;
+
+            if (!Array.isArray(items) || items.length === 0) {
+                container.innerHTML = '<div class="mobile-search-no-results"><i class="ti ti-search-off" style="font-size: 20px;"></i> Ничего не найдено</div>';
+                return;
+            }
+
+            var statusMap = {
+                'released': 'Вышло',
+                'ongoing': 'Онгоинг',
+                'anons': 'Анонс'
+            };
+
+            container.innerHTML = items.map(function(item) {
+                var title = item.russian || item.name || '';
+                var origTitle = (item.russian && item.name && item.name !== item.russian) ? item.name : '';
+                var img = item.image || '';
+                var statusStr = statusMap[item.status] || item.status || '';
+                var isAnime = (item.content_type === 'anime') || (item.type === 'anime') || (item.url && item.url.indexOf('/animes/') !== -1);
+                var safeTitle = title.replace(/"/g, '&quot;');
+                var clickHandler = isAnime 
+                    ? 'event.stopPropagation(); closeMobileSearch(); openAnimeModal(' + item.id + ');' 
+                    : 'event.stopPropagation(); window.open(\'' + (item.url || '') + '\', \'_blank\');';
+
+                return '<div class="mobile-search-item" onclick="' + clickHandler + '">' +
+                    (img ? '<img src="' + img + '" alt="' + safeTitle + '" class="mobile-search-thumb" loading="lazy">' : '<div class="mobile-search-thumb placeholder"><i class="ti ti-movie"></i></div>') +
+                    '<div class="mobile-search-info">' +
+                        '<div class="mobile-search-title">' + title + '</div>' +
+                        (origTitle ? '<div class="mobile-search-orig">' + origTitle + '</div>' : '') +
+                        '<div class="mobile-search-tags">' +
+                            (item.score ? '<span class="mobile-search-score"><i class="ti ti-star-filled"></i> ' + item.score + '</span>' : '') +
+                            (item.kind ? '<span class="mobile-search-tag">' + item.kind.toUpperCase() + '</span>' : '') +
+                            (item.year ? '<span class="mobile-search-tag">' + item.year + '</span>' : '') +
+                            (statusStr ? '<span class="mobile-search-tag status">' + statusStr + '</span>' : '') +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
+        };
+    </script>
 
     <!-- Шапка -->
     <header class="app-header navbar-view-full">
@@ -85,6 +813,9 @@
             </nav>
 
             <div class="header-right">
+                <button id="sections-nav-btn" class="btn-theme" onclick="openMobileSectionsMenu()" title="Разделы">
+                    <i class="ti ti-layout-grid"></i>
+                </button>
                 <button id="random-anime-btn" class="btn-theme" onclick="pickRandomAnime()" title="Мне повезёт (Рандомайзер)">
                     <i class="ti ti-sparkles"></i>
                 </button>
@@ -128,29 +859,7 @@
         </div>
     </header>
 
-    <!-- Mobile bottom navigation -->
-    <nav class="mobile-bottom-nav">
-        <button class="mobile-tab-btn active" data-tab="profile" onclick="openTab('profile')">
-            <i class="ti ti-compass"></i>
-            <span data-i18n="tab.profile">Профиль</span>
-        </button>
-        <button class="mobile-tab-btn" data-tab="rates" onclick="openTab('rates')">
-            <i class="ti ti-list-check"></i>
-            <span data-i18n="tab.rates">Списки</span>
-        </button>
-        <button class="mobile-tab-btn" data-tab="favourites" onclick="openTab('favourites')">
-            <i class="ti ti-heart"></i>
-            <span data-i18n="tab.favourites">Избранное</span>
-        </button>
-        <button class="mobile-tab-btn" data-tab="friends" onclick="openTab('friends')">
-            <i class="ti ti-users"></i>
-            <span data-i18n="tab.friends">Друзья</span>
-        </button>
-        <button class="mobile-tab-btn" data-tab="history" onclick="openTab('history')">
-            <i class="ti ti-history"></i>
-            <span data-i18n="tab.history">История</span>
-        </button>
-    </nav>
+
 
     <!-- Основной контент -->
     <main class="container">
@@ -161,14 +870,7 @@
             <!-- Блок Продолжить просмотр -->
             <div id="continue-watching-container" class="continue-watching-wrapper hidden"></div>
 
-            <!-- Мобильная карточка профиля (только для мобилок) -->
-            <div class="mobile-profile-card">
-                <img src="{{ profile.image | img_url }}" alt="{{ profile.nickname }}" class="mobile-profile-avatar">
-                <div class="mobile-profile-info">
-                    <div class="mobile-profile-name">{{ profile.nickname }}</div>
-                    <a href="/logout" class="mobile-profile-logout"><i class="ti ti-logout"></i> <span data-i18n="logout">Выйти</span></a>
-                </div>
-            </div>
+
             <div class="profile-grid"> <!-- Общая информация -->
                 <div class="card" data-section="profile-info">
                     <h3><i class="ti ti-id"></i> <span data-i18n="profile.info">Информация</span></h3>
@@ -328,6 +1030,28 @@
                 <div id="catalog-grid-container" class="catalog-cards-grid"></div>
                 <div id="catalog-load-more-wrap" class="catalog-load-more-wrap"></div>
 
+                <!-- Пасхалка консоли аниме (в самом низу вкладки Обзор в моб. виде) -->
+                <div class="mobile-anime-console-widget">
+                    <div class="anime-console-header">
+                        <span class="console-dot dot-red"></span>
+                        <span class="console-dot dot-yellow"></span>
+                        <span class="console-dot dot-green"></span>
+                        <span class="console-title">easter_egg.java</span>
+                    </div>
+                    <div class="anime-code-container">
+                        <h1>System<span style="color:white;">.<span style="color:#e06c75;">out</span>.</span><span style="color:#61afef;">println</span>("</h1>
+                        <div class="string-box">
+                            <div class="string">
+                                <h1 class="greeting en">Konnichiwa!</h1>
+                                <h1 class="greeting es">Omae Wa Mou Shindeiru!</h1>
+                                <h1 class="greeting de">Dattebayo!</h1>
+                                <h1 class="greeting it">Ara Ara~</h1>  
+                            </div>
+                        </div>
+                        <h1 class="closure">");</h1>
+                    </div>
+                </div>
+
             </div>
 
             <!-- News (from Explore) - at the end -->
@@ -429,6 +1153,27 @@
                 <div class="settings-header-banner">
                     <i class="ti ti-settings settings-logo-icon"></i>
                     <h2 class="settings-title" data-i18n="settings.title">Настройки</h2>
+                </div>
+
+                <!-- Блок: Внешний вид и язык (мобильный вид) -->
+                <div class="mobile-profile-section settings-theme-lang-block">
+                    <div class="mobile-section-title"><i class="ti ti-adjustments"></i> <span>Внешний вид и язык</span></div>
+                    <div class="mobile-menu-links-group">
+                        <button class="mobile-menu-action-btn" onclick="handleMobileToggleTheme()">
+                            <div class="mobile-action-left">
+                                <i class="ti ti-sun action-icon" id="mobile-settings-theme-icon"></i>
+                                <span data-i18n="theme.title">Сменить тему</span>
+                            </div>
+                            <span id="mobile-settings-theme-val" class="mobile-action-badge">Тёмная</span>
+                        </button>
+                        <button class="mobile-menu-action-btn" onclick="handleMobileToggleLanguage()">
+                            <div class="mobile-action-left">
+                                <i class="ti ti-language action-icon"></i>
+                                <span>Язык интерфейса</span>
+                            </div>
+                            <span id="mobile-settings-lang-val" class="mobile-action-badge">RU</span>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="settings-section-block">
@@ -558,7 +1303,7 @@
                     </button>
                 </div>
 
-                <div class="settings-section-block">
+                <div class="settings-section-block settings-navbar-view-section">
                     <h4><i class="ti ti-layout-navbar"></i> <span data-i18n="settings.navbar_view">Вид навигации</span></h4>
                     <p class="settings-hint" data-i18n="settings.navbar_view.hint">Выберите, как отображать элементы навигации.</p>
                     <div class="navbar-view-options">
@@ -593,6 +1338,17 @@
                             <span class="navbar-view-label" data-i18n="settings.navbar_view.titles">Только названия</span>
                         </button>
                     </div>
+                </div>
+
+                <!-- Кнопка «О сайте» в самом низу настроек -->
+                <div class="settings-about-btn-wrap">
+                    <button type="button" class="mobile-menu-action-btn" onclick="handleMobileAboutClick()">
+                        <div class="mobile-action-left">
+                            <i class="ti ti-info-circle action-icon"></i>
+                            <span data-i18n="about.title">О сайте</span>
+                        </div>
+                        <i class="ti ti-chevron-right action-arrow"></i>
+                    </button>
                 </div>
             </div>
         </div>

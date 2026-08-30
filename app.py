@@ -1,7 +1,7 @@
 import os
 import logging
 
-from flask import Flask
+from flask import Flask, jsonify
 from flask_compress import Compress
 from utils import parse_shikimori_bbcode, fix_image_url
 from logging_config import setup_logging
@@ -51,6 +51,15 @@ app.register_blueprint(auth_status_bp)
 def manifest():
     return app.send_static_file('manifest.json')
 
+@app.route('/favicon.ico')
+def favicon():
+    return app.send_static_file('icons/icon-192.png')
+
+@app.route('/apple-touch-icon.png')
+@app.route('/apple-touch-icon-precomposed.png')
+def apple_touch_icon():
+    return app.send_static_file('icons/icon-192.png')
+
 @app.route('/sw.js')
 def service_worker():
     response = app.send_static_file('sw.js')
@@ -60,6 +69,11 @@ def service_worker():
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
     return response
+
+@app.route('/.well-known/appspecific/com.chrome.devtools.json')
+def chrome_devtools_json():
+    return jsonify({})
+
 
 if not os.getenv("DISABLE_CUSTOM_LOGGING"):
     setup_logging(debug=app.debug)

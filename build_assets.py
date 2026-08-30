@@ -34,10 +34,20 @@ JS_FILES = [
     'js/settings.js'
 ]
 
+MOBILE_CSS_FILES = [
+    'css/mobile.css'
+]
+
+MOBILE_JS_FILES = [
+    'js/mobile.js'
+]
+
 def build_bundles(app_root):
     static_dir = os.path.join(app_root, 'static')
     bundle_css_path = os.path.join(static_dir, 'bundle.css')
     bundle_js_path = os.path.join(static_dir, 'bundle.js')
+    mobile_css_path = os.path.join(static_dir, 'mobile.css')
+    mobile_js_path = os.path.join(static_dir, 'mobile.js')
     sw_path = os.path.join(static_dir, 'sw.js')
 
     # Bundle CSS
@@ -64,10 +74,34 @@ def build_bundles(app_root):
     with open(bundle_js_path, 'w', encoding='utf-8') as outfile:
         outfile.write(full_js)
 
+    # Bundle Mobile CSS
+    mobile_css_parts = []
+    for fname in MOBILE_CSS_FILES:
+        filepath = os.path.join(static_dir, fname)
+        if os.path.exists(filepath):
+            with open(filepath, 'r', encoding='utf-8') as infile:
+                mobile_css_parts.append(f"/* --- {fname} --- */\n" + infile.read() + "\n\n")
+    full_mobile_css = "".join(mobile_css_parts)
+    with open(mobile_css_path, 'w', encoding='utf-8') as outfile:
+        outfile.write(full_mobile_css)
+
+    # Bundle Mobile JS
+    mobile_js_parts = []
+    for fname in MOBILE_JS_FILES:
+        filepath = os.path.join(static_dir, fname)
+        if os.path.exists(filepath):
+            with open(filepath, 'r', encoding='utf-8') as infile:
+                mobile_js_parts.append(f"/* --- {fname} --- */\n" + infile.read() + "\n;\n")
+    full_mobile_js = "".join(mobile_js_parts)
+    with open(mobile_js_path, 'w', encoding='utf-8') as outfile:
+        outfile.write(full_mobile_js)
+
     # Automatically compute hash of all asset contents to version Service Worker
     content_hasher = hashlib.md5()
     content_hasher.update(full_css.encode('utf-8'))
     content_hasher.update(full_js.encode('utf-8'))
+    content_hasher.update(full_mobile_css.encode('utf-8'))
+    content_hasher.update(full_mobile_js.encode('utf-8'))
     bundle_hash = content_hasher.hexdigest()[:8]
     cache_version = f"shikimx-cache-{bundle_hash}"
 

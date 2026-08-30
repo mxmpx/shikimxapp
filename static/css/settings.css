@@ -234,17 +234,3 @@
     line-height: 1.3;
 }
 
-@media (max-width: 640px) {
-    .settings-modal-card,
-    .about-modal-card {
-        width: 100vw !important;
-        height: 100vh !important;
-        max-height: 100vh !important;
-        border-radius: 0 !important;
-        padding: 20px 16px 40px 16px !important;
-    }
-    .navbar-view-options {
-        grid-template-columns: 1fr;
-    }
-}
-
