@@ -98,3 +98,66 @@ def save_setting(key):
     set_user_setting(user_id, key, data.get("value", data))
     logger.info("Setting '%s' saved for user_id=%s", key, user_id)
     return jsonify({"success": True, "key": key})
+
+
+# ==================== CONTINUE WATCHING DB API ====================
+
+@settings_bp.route("/api/continue_watching", methods=["GET"])
+def get_continue_watching():
+    """Get continue watching list for the current user from database."""
+    user_id = _get_current_user_id()
+    if not user_id:
+        return jsonify([])
+
+    data = get_user_setting(user_id, "continue_watching", [])
+    if not isinstance(data, list):
+        data = []
+    return jsonify(data)
+
+
+@settings_bp.route("/api/continue_watching", methods=["POST"])
+def save_continue_watching():
+    """Save or update continue watching list for the current user in database."""
+    user_id = _get_current_user_id()
+    if not user_id:
+        return jsonify({"error": "Требуется авторизация"}), 401
+
+    req_data = request.get_json(silent=True)
+    if not req_data:
+        return jsonify({"error": "Некорректные данные"}), 400
+
+    current_list = get_user_setting(user_id, "continue_watching", [])
+    if not isinstance(current_list, list):
+        current_list = []
+
+    if isinstance(req_data, list):
+        new_list = req_data
+    elif isinstance(req_data, dict):
+        anime_id = req_data.get("id")
+        if not anime_id:
+            return jsonify({"error": "Missing anime id"}), 400
+        current_list = [item for item in current_list if str(item.get("id")) != str(anime_id)]
+        current_list.insert(0, req_data)
+        new_list = current_list[:30]
+    else:
+        return jsonify({"error": "Invalid format"}), 400
+
+    set_user_settings(user_id, {"continue_watching": new_list})
+    logger.info("Saved continue_watching for user_id=%s (%d items)", user_id, len(new_list))
+    return jsonify({"success": True, "data": new_list})
+
+
+@settings_bp.route("/api/continue_watching/<int:anime_id>", methods=["DELETE"])
+def delete_continue_watching(anime_id):
+    """Remove item from continue watching list in database."""
+    user_id = _get_current_user_id()
+    if not user_id:
+        return jsonify({"error": "Требуется авторизация"}), 401
+
+    current_list = get_user_setting(user_id, "continue_watching", [])
+    if isinstance(current_list, list):
+        current_list = [item for item in current_list if str(item.get("id")) != str(anime_id)]
+        set_user_settings(user_id, {"continue_watching": current_list})
+
+    logger.info("Removed anime_id=%s from continue_watching for user_id=%s", anime_id, user_id)
+    return jsonify({"success": True})

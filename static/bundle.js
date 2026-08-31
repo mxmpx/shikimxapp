@@ -971,6 +971,7 @@ function stopLoaderGridPulse() {
 }
 
 function showLoader() {
+    if (window.innerWidth <= 768 || document.body.classList.contains('mobile-view') || !!document.querySelector('.mobile-bottom-nav')) return;
     const loader = document.getElementById('app-loader');
     if (loader) {
         loader.classList.remove('hidden');
@@ -1075,6 +1076,8 @@ function setupSectionLazyLoader(target, callback, rootMargin = '250px') {
 window.setupSectionLazyLoader = setupSectionLazyLoader;
 
 async function openTab(tabId) {
+    if (!tabId) return;
+
     localStorage.setItem('activeTab', tabId);
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -1084,35 +1087,35 @@ async function openTab(tabId) {
 
     document.querySelectorAll(`.tab-btn[onclick*="'${tabId}'"]`).forEach(btn => btn.classList.add('active'));
 
-    if (tabId === 'profile') {
-        // Ленивая подгрузка новостей только при приближении к области видимости
-        setupSectionLazyLoader('explore-news-container', async () => {
-            if (!tabLoaded['explore']) {
-                try {
-                    const res = await fetch(`/api/tab/explore`);
-                    const data = await res.json();
-                    tabLoaded['explore'] = true;
-                    renderExplore(data);
-                } catch (err) {
-                    console.error('Ошибка загрузки новостей:', err);
-                }
-            }
-        }, '300px');
-        return;
-    }
-    if (tabId === 'history' && cachedHistoryData) {
-        renderHistory(cachedHistoryData);
-        tabLoaded['history'] = true;
-        return;
-    }
-    if (tabLoaded[tabId]) return;
-
-    showLoader();
     try {
-        const res = await fetch(`/api/tab/${tabId}`);
-        if (!res.ok) {
-            if (res.status === 401) {
-                if (activeContent) {
+        if (tabId === 'profile') {
+            if (typeof syncContinueWatchingWithDB === 'function') {
+                syncContinueWatchingWithDB();
+            }
+            setupSectionLazyLoader('explore-news-container', async () => {
+                if (!tabLoaded['explore']) {
+                    try {
+                        const res = await fetch(`/api/tab/explore`);
+                        const data = await res.json();
+                        tabLoaded['explore'] = true;
+                        renderExplore(data);
+                    } catch (err) {
+                        console.error('Ошибка загрузки новостей:', err);
+                    }
+                }
+            }, '300px');
+        } else if (tabId === 'history' && cachedHistoryData) {
+            renderHistory(cachedHistoryData);
+            tabLoaded['history'] = true;
+        } else if (tabLoaded[tabId]) {
+            if (tabId === 'rates' && typeof renderRatesView === 'function') renderRatesView();
+            else if (tabId === 'favourites' && typeof renderFavourites === 'function' && typeof cachedFavouritesData !== 'undefined' && cachedFavouritesData) renderFavourites(cachedFavouritesData);
+            else if (tabId === 'history' && typeof renderHistory === 'function' && cachedHistoryData) renderHistory(cachedHistoryData);
+        } else {
+            showLoader();
+            const res = await fetch(`/api/tab/${tabId}`);
+            if (!res.ok) {
+                if (res.status === 401 && activeContent) {
                     activeContent.innerHTML = `
                         <div class="card" style="text-align: center; padding: 40px 20px; max-width: 440px; margin: 30px auto; border-radius: 20px; border: 1px solid var(--card-border); background: var(--card-bg);">
                             <i class="ti ti-lock" style="font-size: 48px; color: var(--accent); margin-bottom: 12px; display: inline-block;"></i>
@@ -1126,15 +1129,14 @@ async function openTab(tabId) {
                 }
                 return;
             }
-            throw new Error(`HTTP ${res.status}`);
-        }
-        const data = await res.json();
-        tabLoaded[tabId] = true;
+            const data = await res.json();
+            tabLoaded[tabId] = true;
 
-        if (tabId === 'favourites') renderFavourites(data);
-        else if (tabId === 'friends') renderFriends(data);
-        else if (tabId === 'history') { cachedHistoryData = data; renderHistory(data); }
-        else if (tabId === 'rates') { ratesDataCache = data; renderRatesView(); }
+            if (tabId === 'favourites') renderFavourites(data);
+            else if (tabId === 'friends') renderFriends(data);
+            else if (tabId === 'history') { cachedHistoryData = data; renderHistory(data); }
+            else if (tabId === 'rates') { ratesDataCache = data; renderRatesView(); }
+        }
     } catch (err) {
         console.error(`Ошибка загрузки вкладки ${tabId}:`, err);
         if (activeContent) activeContent.innerHTML = `<p style="color: var(--danger);">Ошибка загрузки: ${err.message}</p>`;
@@ -2175,7 +2177,7 @@ function saveWatchProgress(animeId, title, russian, poster, episode, translation
     try {
         let list = JSON.parse(localStorage.getItem('shikimx_continue_watching') || '[]');
         list = list.filter(item => item.id != animeId);
-        list.unshift({
+        const newItem = {
             id: animeId,
             title: title || '',
             russian: russian || title || '',
@@ -2184,9 +2186,18 @@ function saveWatchProgress(animeId, title, russian, poster, episode, translation
             translation: translation || '',
             total_episodes: totalEpisodes || 0,
             updated_at: new Date().toISOString()
-        });
+        };
+        list.unshift(newItem);
         list = list.slice(0, 20);
         localStorage.setItem('shikimx_continue_watching', JSON.stringify(list));
+
+        // Отправляем запись в базу данных на сервере
+        fetch('/api/continue_watching', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newItem)
+        }).catch(err => console.warn('DB save continue watching error:', err));
+
         if (typeof renderContinueWatching === 'function') {
             renderContinueWatching();
         }
@@ -6379,6 +6390,48 @@ function renderContinueWatching() {
 }
 window.renderContinueWatching = renderContinueWatching;
 
+async function syncContinueWatchingWithDB() {
+    try {
+        const res = await fetch('/api/continue_watching');
+        if (!res.ok) return;
+        const dbList = await res.json();
+        if (!Array.isArray(dbList)) return;
+
+        let localList = [];
+        try {
+            localList = JSON.parse(localStorage.getItem('shikimx_continue_watching') || '[]');
+        } catch (e) { localList = []; }
+
+        if (dbList.length === 0 && localList.length === 0) return;
+
+        const map = new Map();
+        [...dbList, ...localList].forEach(item => {
+            if (!item || !item.id) return;
+            const existing = map.get(item.id);
+            if (!existing || new Date(item.updated_at || 0) > new Date(existing.updated_at || 0)) {
+                map.set(item.id, item);
+            }
+        });
+
+        const merged = Array.from(map.values())
+            .sort((a, b) => new Date(b.updated_at || 0) - new Date(a.updated_at || 0))
+            .slice(0, 30);
+
+        localStorage.setItem('shikimx_continue_watching', JSON.stringify(merged));
+        renderContinueWatching();
+    } catch (err) {
+        console.warn('Failed to sync continue watching:', err);
+    }
+}
+window.syncContinueWatchingWithDB = syncContinueWatchingWithDB;
+
+// Автоматическая синхронизация с БД при старте
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', syncContinueWatchingWithDB);
+} else {
+    syncContinueWatchingWithDB();
+}
+
 function removeContinueWatching(animeId, e) {
     if (e) {
         e.preventDefault();
@@ -6389,6 +6442,10 @@ function removeContinueWatching(animeId, e) {
         list = list.filter(item => item.id != animeId);
         localStorage.setItem('shikimx_continue_watching', JSON.stringify(list));
         renderContinueWatching();
+
+        // Удаление из БД на сервере
+        fetch(`/api/continue_watching/${animeId}`, { method: 'DELETE' })
+            .catch(err => console.warn('DB delete continue watching error:', err));
     } catch (err) {}
 }
 window.removeContinueWatching = removeContinueWatching;

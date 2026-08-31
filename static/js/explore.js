@@ -383,6 +383,48 @@ function renderContinueWatching() {
 }
 window.renderContinueWatching = renderContinueWatching;
 
+async function syncContinueWatchingWithDB() {
+    try {
+        const res = await fetch('/api/continue_watching');
+        if (!res.ok) return;
+        const dbList = await res.json();
+        if (!Array.isArray(dbList)) return;
+
+        let localList = [];
+        try {
+            localList = JSON.parse(localStorage.getItem('shikimx_continue_watching') || '[]');
+        } catch (e) { localList = []; }
+
+        if (dbList.length === 0 && localList.length === 0) return;
+
+        const map = new Map();
+        [...dbList, ...localList].forEach(item => {
+            if (!item || !item.id) return;
+            const existing = map.get(item.id);
+            if (!existing || new Date(item.updated_at || 0) > new Date(existing.updated_at || 0)) {
+                map.set(item.id, item);
+            }
+        });
+
+        const merged = Array.from(map.values())
+            .sort((a, b) => new Date(b.updated_at || 0) - new Date(a.updated_at || 0))
+            .slice(0, 30);
+
+        localStorage.setItem('shikimx_continue_watching', JSON.stringify(merged));
+        renderContinueWatching();
+    } catch (err) {
+        console.warn('Failed to sync continue watching:', err);
+    }
+}
+window.syncContinueWatchingWithDB = syncContinueWatchingWithDB;
+
+// Автоматическая синхронизация с БД при старте
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', syncContinueWatchingWithDB);
+} else {
+    syncContinueWatchingWithDB();
+}
+
 function removeContinueWatching(animeId, e) {
     if (e) {
         e.preventDefault();
@@ -393,6 +435,10 @@ function removeContinueWatching(animeId, e) {
         list = list.filter(item => item.id != animeId);
         localStorage.setItem('shikimx_continue_watching', JSON.stringify(list));
         renderContinueWatching();
+
+        // Удаление из БД на сервере
+        fetch(`/api/continue_watching/${animeId}`, { method: 'DELETE' })
+            .catch(err => console.warn('DB delete continue watching error:', err));
     } catch (err) {}
 }
 window.removeContinueWatching = removeContinueWatching;

@@ -63,6 +63,7 @@ function stopLoaderGridPulse() {
 }
 
 function showLoader() {
+    if (window.innerWidth <= 768 || document.body.classList.contains('mobile-view') || !!document.querySelector('.mobile-bottom-nav')) return;
     const loader = document.getElementById('app-loader');
     if (loader) {
         loader.classList.remove('hidden');
@@ -167,6 +168,8 @@ function setupSectionLazyLoader(target, callback, rootMargin = '250px') {
 window.setupSectionLazyLoader = setupSectionLazyLoader;
 
 async function openTab(tabId) {
+    if (!tabId) return;
+
     localStorage.setItem('activeTab', tabId);
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -176,35 +179,35 @@ async function openTab(tabId) {
 
     document.querySelectorAll(`.tab-btn[onclick*="'${tabId}'"]`).forEach(btn => btn.classList.add('active'));
 
-    if (tabId === 'profile') {
-        // Ленивая подгрузка новостей только при приближении к области видимости
-        setupSectionLazyLoader('explore-news-container', async () => {
-            if (!tabLoaded['explore']) {
-                try {
-                    const res = await fetch(`/api/tab/explore`);
-                    const data = await res.json();
-                    tabLoaded['explore'] = true;
-                    renderExplore(data);
-                } catch (err) {
-                    console.error('Ошибка загрузки новостей:', err);
-                }
-            }
-        }, '300px');
-        return;
-    }
-    if (tabId === 'history' && cachedHistoryData) {
-        renderHistory(cachedHistoryData);
-        tabLoaded['history'] = true;
-        return;
-    }
-    if (tabLoaded[tabId]) return;
-
-    showLoader();
     try {
-        const res = await fetch(`/api/tab/${tabId}`);
-        if (!res.ok) {
-            if (res.status === 401) {
-                if (activeContent) {
+        if (tabId === 'profile') {
+            if (typeof syncContinueWatchingWithDB === 'function') {
+                syncContinueWatchingWithDB();
+            }
+            setupSectionLazyLoader('explore-news-container', async () => {
+                if (!tabLoaded['explore']) {
+                    try {
+                        const res = await fetch(`/api/tab/explore`);
+                        const data = await res.json();
+                        tabLoaded['explore'] = true;
+                        renderExplore(data);
+                    } catch (err) {
+                        console.error('Ошибка загрузки новостей:', err);
+                    }
+                }
+            }, '300px');
+        } else if (tabId === 'history' && cachedHistoryData) {
+            renderHistory(cachedHistoryData);
+            tabLoaded['history'] = true;
+        } else if (tabLoaded[tabId]) {
+            if (tabId === 'rates' && typeof renderRatesView === 'function') renderRatesView();
+            else if (tabId === 'favourites' && typeof renderFavourites === 'function' && typeof cachedFavouritesData !== 'undefined' && cachedFavouritesData) renderFavourites(cachedFavouritesData);
+            else if (tabId === 'history' && typeof renderHistory === 'function' && cachedHistoryData) renderHistory(cachedHistoryData);
+        } else {
+            showLoader();
+            const res = await fetch(`/api/tab/${tabId}`);
+            if (!res.ok) {
+                if (res.status === 401 && activeContent) {
                     activeContent.innerHTML = `
                         <div class="card" style="text-align: center; padding: 40px 20px; max-width: 440px; margin: 30px auto; border-radius: 20px; border: 1px solid var(--card-border); background: var(--card-bg);">
                             <i class="ti ti-lock" style="font-size: 48px; color: var(--accent); margin-bottom: 12px; display: inline-block;"></i>
@@ -218,15 +221,14 @@ async function openTab(tabId) {
                 }
                 return;
             }
-            throw new Error(`HTTP ${res.status}`);
-        }
-        const data = await res.json();
-        tabLoaded[tabId] = true;
+            const data = await res.json();
+            tabLoaded[tabId] = true;
 
-        if (tabId === 'favourites') renderFavourites(data);
-        else if (tabId === 'friends') renderFriends(data);
-        else if (tabId === 'history') { cachedHistoryData = data; renderHistory(data); }
-        else if (tabId === 'rates') { ratesDataCache = data; renderRatesView(); }
+            if (tabId === 'favourites') renderFavourites(data);
+            else if (tabId === 'friends') renderFriends(data);
+            else if (tabId === 'history') { cachedHistoryData = data; renderHistory(data); }
+            else if (tabId === 'rates') { ratesDataCache = data; renderRatesView(); }
+        }
     } catch (err) {
         console.error(`Ошибка загрузки вкладки ${tabId}:`, err);
         if (activeContent) activeContent.innerHTML = `<p style="color: var(--danger);">Ошибка загрузки: ${err.message}</p>`;

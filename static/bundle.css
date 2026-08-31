@@ -116,6 +116,16 @@ body {
     transition: background-color 0.25s, color 0.25s;
 }
 
+a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: var(--primary-hover);
+}
+
 button, input, select, textarea {
     font-family: inherit;
 }
@@ -621,6 +631,7 @@ button, input, select, textarea {
 .mobile-anime-console-widget {
     display: none !important;
 }
+
 
 
 /* --- css/profile.css --- */
@@ -2744,6 +2755,19 @@ button, input, select, textarea {
     line-height: 1.65;
     color: var(--text-main);
     opacity: 0.92;
+}
+.anime-description-content a,
+.anime-description-content .b-link {
+    color: var(--primary, #d199ff);
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px dashed rgba(209, 153, 255, 0.4);
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+.anime-description-content a:hover,
+.anime-description-content .b-link:hover {
+    color: var(--primary-hover, #e0b8ff);
+    border-bottom-color: var(--primary-hover, #e0b8ff);
 }
 
 

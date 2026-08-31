@@ -432,7 +432,7 @@ function saveWatchProgress(animeId, title, russian, poster, episode, translation
     try {
         let list = JSON.parse(localStorage.getItem('shikimx_continue_watching') || '[]');
         list = list.filter(item => item.id != animeId);
-        list.unshift({
+        const newItem = {
             id: animeId,
             title: title || '',
             russian: russian || title || '',
@@ -441,9 +441,18 @@ function saveWatchProgress(animeId, title, russian, poster, episode, translation
             translation: translation || '',
             total_episodes: totalEpisodes || 0,
             updated_at: new Date().toISOString()
-        });
+        };
+        list.unshift(newItem);
         list = list.slice(0, 20);
         localStorage.setItem('shikimx_continue_watching', JSON.stringify(list));
+
+        // Отправляем запись в базу данных на сервере
+        fetch('/api/continue_watching', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newItem)
+        }).catch(err => console.warn('DB save continue watching error:', err));
+
         if (typeof renderContinueWatching === 'function') {
             renderContinueWatching();
         }

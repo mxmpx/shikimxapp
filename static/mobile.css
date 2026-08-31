@@ -382,10 +382,8 @@ body > main.container {
 }
 
 /* Скрываем всё остальное: другие вкладки, новости, профиль, сторонние модалки */
-#profile.tab-content > *:not(.card):not(#catalog-section-container),
+#profile.tab-content > *:not(.card):not(#catalog-section-container):not(#continue-watching-container),
 .profile-grid,
-.continue-watching-wrapper,
-#continue-watching-container,
 #explore-news-container,
 #friends,
 .modal-overlay:not(#settings-modal):not(#mobile-profile-modal):not(#mobile-sections-modal):not(#mobile-friends-modal):not(#mobile-stats-modal):not(#about-modal):not(#friend-modal):not(#anime-modal),
@@ -1038,6 +1036,23 @@ html body #mobile-watch-player-container.hidden {
     line-height: 1.55 !important;
     color: #d6cac0 !important;
     position: relative !important;
+}
+
+.mobile-anime-desc-body a,
+.mobile-anime-desc-body .b-link {
+    color: #e5a960 !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    border-bottom: 1px dashed rgba(229, 169, 96, 0.4) !important;
+    transition: color 0.15s ease, border-color 0.15s ease !important;
+}
+
+.mobile-anime-desc-body a:hover,
+.mobile-anime-desc-body a:active,
+.mobile-anime-desc-body .b-link:hover,
+.mobile-anime-desc-body .b-link:active {
+    color: #ffc278 !important;
+    border-bottom-color: #ffc278 !important;
 }
 
 .mobile-anime-desc-body.collapsed {
@@ -2929,6 +2944,83 @@ html body #settings-modal .navbar-view-options {
 #profile.tab-content.active {
     display: block !important;
     width: 100% !important;
+}
+
+/* ==================== CONTINUE WATCHING ON MOBILE ==================== */
+#continue-watching-container:not(.hidden) {
+    display: block !important;
+    width: 100% !important;
+    margin: 16px 0 !important;
+}
+
+#continue-watching-container .continue-watching-card {
+    background: var(--card-bg, #18181b) !important;
+    border: 1px solid var(--card-border, rgba(255, 255, 255, 0.08)) !important;
+    border-radius: 18px !important;
+    padding: 14px 16px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+    box-sizing: border-box !important;
+}
+
+#continue-watching-container .continue-watching-carousel {
+    display: flex !important;
+    gap: 12px !important;
+    overflow-x: auto !important;
+    padding-bottom: 4px !important;
+    scrollbar-width: none !important;
+}
+
+#continue-watching-container .continue-watching-carousel::-webkit-scrollbar {
+    display: none !important;
+}
+
+#continue-watching-container .continue-watching-item {
+    flex: 0 0 115px !important;
+    width: 115px !important;
+    cursor: pointer !important;
+}
+
+#continue-watching-container .continue-thumb-wrap {
+    width: 100% !important;
+    aspect-ratio: 2 / 3 !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    position: relative !important;
+    border: 1px solid var(--card-border, rgba(255, 255, 255, 0.1)) !important;
+    background: #18181b !important;
+}
+
+#continue-watching-container .continue-thumb {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+#continue-watching-container .continue-ep-badge {
+    position: absolute !important;
+    bottom: 6px !important;
+    left: 6px !important;
+    background: rgba(0, 0, 0, 0.8) !important;
+    backdrop-filter: blur(6px) !important;
+    color: #ffffff !important;
+    font-size: 10.5px !important;
+    font-weight: 600 !important;
+    padding: 2px 6px !important;
+    border-radius: 6px !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+#continue-watching-container .continue-title {
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    margin-top: 6px !important;
+    line-height: 1.25 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
 }
 
 /* ==================== Вкладка Избранное (перенос десктопного вида без изменений) ==================== */
@@ -5421,6 +5513,10 @@ html body #mobile-sections-modal:not(.hidden) {
         transform: translateY(0%);
     }
 }
+
+
+
+
 
 
 

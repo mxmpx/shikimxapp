@@ -100,6 +100,7 @@
         </div>
     </div>
 
+
     <!-- Верхний мобильный бар (активируется только на мобилке) -->
     <header class="mobile-top-header">
         <div class="mobile-header-main" id="mobile-header-main">
@@ -867,9 +868,6 @@
         <!-- Вкладка Профиль & Обзор -->
         <div id="profile" class="tab-content active">
             {% if profile %}
-            <!-- Блок Продолжить просмотр -->
-            <div id="continue-watching-container" class="continue-watching-wrapper hidden"></div>
-
 
             <div class="profile-grid"> <!-- Общая информация -->
                 <div class="card" data-section="profile-info">
@@ -955,6 +953,9 @@
 
             <!-- Расписание Онгоингов (Календарь) -->
             <div id="calendar-section-container" class="calendar-wrapper" data-section="explore-calendar"></div>
+
+            <!-- Блок Продолжить просмотр -->
+            <div id="continue-watching-container" class="continue-watching-wrapper hidden"></div>
 
             <!-- Каталог с фильтрами -->
             <div id="catalog-section-container" class="catalog-section-container" data-section="explore-catalog">

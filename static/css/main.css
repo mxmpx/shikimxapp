@@ -108,6 +108,16 @@ body {
     transition: background-color 0.25s, color 0.25s;
 }
 
+a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: var(--primary-hover);
+}
+
 button, input, select, textarea {
     font-family: inherit;
 }
@@ -613,3 +623,4 @@ button, input, select, textarea {
 .mobile-anime-console-widget {
     display: none !important;
 }
+
