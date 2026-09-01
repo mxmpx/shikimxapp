@@ -961,7 +961,25 @@
         </div>
     </header>
 
-
+    <!-- Мобильная нижняя панель навигации -->
+    <nav class="mobile-bottom-nav">
+        <button type="button" class="mobile-tab-btn active" data-tab="profile" onclick="openTab('profile')">
+            <i class="ti ti-compass"></i>
+            <span data-i18n="tab.profile">Обзор</span>
+        </button>
+        <button type="button" class="mobile-tab-btn" data-tab="rates" onclick="openTab('rates')">
+            <i class="ti ti-list-check"></i>
+            <span data-i18n="tab.rates">Списки</span>
+        </button>
+        <button type="button" class="mobile-tab-btn" data-tab="favourites" onclick="openTab('favourites')">
+            <i class="ti ti-heart"></i>
+            <span data-i18n="tab.favourites">Избранное</span>
+        </button>
+        <button type="button" class="mobile-tab-btn" data-tab="history" onclick="openTab('history')">
+            <i class="ti ti-history"></i>
+            <span data-i18n="tab.history">История</span>
+        </button>
+    </nav>
 
     <!-- Основной контент -->
     <main class="container">
@@ -974,13 +992,13 @@
             </div>
 
             <!-- Блок Продолжить просмотр -->
-            <div id="continue-watching-container" class="continue-watching-wrapper desktop-hidden hidden"></div>
+            <div id="continue-watching-container" class="continue-watching-wrapper desktop-hidden"></div>
 
             <!-- Расписание Онгоингов (Календарь) -->
-            <div id="calendar-section-container" class="calendar-wrapper desktop-hidden hidden" data-section="explore-calendar"></div>
+            <div id="calendar-section-container" class="calendar-wrapper desktop-hidden" data-section="explore-calendar"></div>
 
             <!-- Каталог с фильтрами -->
-            <div id="catalog-section-container" class="catalog-section-container desktop-hidden hidden" data-section="explore-catalog">
+            <div id="catalog-section-container" class="catalog-section-container desktop-hidden" data-section="explore-catalog">
                 <div class="card catalog-header-card">
                     <div class="card-header">
                         <h3><i class="ti ti-layout-grid"></i> <span data-i18n="catalog.title">Каталог аниме</span></h3>
@@ -1051,10 +1069,32 @@
 
                 <div id="catalog-grid-container" class="catalog-cards-grid"></div>
                 <div id="catalog-load-more-wrap" class="catalog-load-more-wrap"></div>
+
+                <!-- Пасхалка консоли аниме (в самом низу вкладки Обзор в моб. виде) -->
+                <div class="mobile-anime-console-widget">
+                    <div class="anime-console-header">
+                        <span class="console-dot dot-red"></span>
+                        <span class="console-dot dot-yellow"></span>
+                        <span class="console-dot dot-green"></span>
+                        <span class="console-title">easter_egg.java</span>
+                    </div>
+                    <div class="anime-code-container">
+                        <h1>System<span style="color:white;">.<span style="color:#e06c75;">out</span>.</span><span style="color:#61afef;">println</span>("</h1>
+                        <div class="string-box">
+                            <div class="string">
+                                <h1 class="greeting en">Konnichiwa!</h1>
+                                <h1 class="greeting es">Omae Wa Mou Shindeiru!</h1>
+                                <h1 class="greeting de">Dattebayo!</h1>
+                                <h1 class="greeting it">Ara Ara~</h1>  
+                            </div>
+                        </div>
+                        <h1 class="closure">");</h1>
+                    </div>
+                </div>
             </div>
 
             {% if profile %}
-            <div class="profile-grid desktop-hidden hidden" style="margin-top: 30px;"> <!-- Общая информация -->
+            <div class="profile-grid desktop-hidden" style="margin-top: 30px;"> <!-- Общая информация -->
                 <div class="card" data-section="profile-info">
                     <h3><i class="ti ti-id"></i> <span data-i18n="profile.info">Информация</span></h3>
                     <div class="info-row"><span class="label" data-i18n="profile.id">ID:</span><span>{{ profile.id }}</span></div>

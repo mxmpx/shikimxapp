@@ -1164,6 +1164,9 @@ async function openTab(tabId) {
     localStorage.setItem('activeTab', tabId);
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tabId || (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(tabId)));
+    });
 
     const activeContent = document.getElementById(tabId);
     if (activeContent) activeContent.classList.add('active');

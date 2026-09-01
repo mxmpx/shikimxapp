@@ -3727,190 +3727,89 @@ html body #catalog-load-more-wrap .btn-load-more-catalog:active {
 
 
 
-/* Показываем навбар зафиксированным снизу (Bottom Navigation Bar) */
+/* Десктопная шапка полностью скрыта в мобильном виде */
 body > header.app-header {
-    display: block !important;
+    display: none !important;
+}
+
+/* Мобильная нижняя панель навигации */
+body > .mobile-bottom-nav {
+    display: flex !important;
     position: fixed !important;
     bottom: 0 !important;
-    top: auto !important;
     left: 0 !important;
     right: 0 !important;
     width: 100% !important;
+    height: 64px !important;
     box-sizing: border-box !important;
     z-index: 1000 !important;
-    background: var(--header-bg) !important;
-    border-top: 1px solid var(--card-border) !important;
+    background: #2b133d !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
     border-bottom: none !important;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25) !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.35) !important;
     backdrop-filter: blur(16px) !important;
     -webkit-backdrop-filter: blur(16px) !important;
-    padding: 6px 8px max(8px, env(safe-area-inset-bottom)) 8px !important;
+    padding: 6px 16px max(6px, env(safe-area-inset-bottom)) 16px !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
 }
 
-.header-container {
+.mobile-bottom-nav .mobile-tab-btn {
     display: flex !important;
+    flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-    padding: 0 !important;
-}
-
-/* 1. БЕЗ ЛОГОТИПА И НАЗВАНИЯ САЙТА */
-.header-brand-container,
-.header-brand {
-    display: none !important;
-}
-
-/* 2. БЕЗ ПОИСКА */
-#search-toggle-btn,
-#navbar-search-panel {
-    display: none !important;
-}
-
-/* 3. БЕЗ ВОЙТИ, СМЕНЫ ТЕМЫ, ЯЗЫКА И РАНДОМА (ВСЯ ПРАВАЯ ЧАСТЬ СКРЫТА) */
-.header-right {
-    display: none !important;
-}
-
-/* ДЕСКТОПНЫЙ НАВБАР (TABS-NAV) В ВИДЕ НИЖНЕЙ ПАНЕЛИ */
-.tabs-nav {
-    display: flex !important;
-    flex: 1 1 auto !important;
-    width: 100% !important;
+    flex: 1 1 0 !important;
     min-width: 0 !important;
-    max-width: 100% !important;
-    align-items: center !important;
-    justify-content: space-around !important;
-    overflow: visible !important;
-    gap: 4px !important;
-    padding: 0 !important;
+    max-width: 88px !important;
+    height: 50px !important;
+    padding: 4px 8px !important;
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    border-radius: 25px !important;
+    text-align: center !important;
     background: transparent !important;
     border: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
+    color: rgba(255, 255, 255, 0.68) !important;
+    cursor: pointer !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    gap: 2px !important;
     box-sizing: border-box !important;
 }
 
-.tabs-nav::-webkit-scrollbar {
-    display: none !important;
-}
-
-.tab-btn {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    flex: 1 1 0 !important;
-    min-width: 0 !important;
-    gap: 3px !important;
-    padding: 6px 4px !important;
-    font-size: 11px !important;
-    font-weight: 600 !important;
-    border-radius: var(--radius-inner, 12px) !important;
-    text-align: center !important;
-}
-
-.tab-btn .tab-icon {
+.mobile-bottom-nav .mobile-tab-btn i {
     font-size: 20px !important;
     line-height: 1 !important;
     display: inline-block !important;
     margin: 0 !important;
 }
 
-.tab-btn .tab-label {
+.mobile-bottom-nav .mobile-tab-btn span {
     font-size: 11px !important;
     font-weight: 600 !important;
-    line-height: 1.2 !important;
+    line-height: 1.15 !important;
     white-space: nowrap !important;
 }
 
-/* Только в мобильном виде: переименование первой вкладки в «Обзор» */
-.tab-btn[onclick*="profile"] .tab-label {
-    display: none !important;
-}
-.tab-btn[onclick*="profile"]::after {
-    content: "Обзор";
-    font-size: 11px;
-    font-weight: 600;
-    line-height: 1.2;
-    white-space: nowrap;
-}
-html[lang="en"] .tab-btn[onclick*="profile"]::after {
-    content: "Explore";
+.mobile-bottom-nav .mobile-tab-btn.active {
+    background: #d8b4fe !important;
+    color: #26005b !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 10px rgba(216, 180, 254, 0.3) !important;
 }
 
-/* Скрыть вкладку «Друзья» из навбара на мобилке */
-.tab-btn[onclick*="friends"] {
-    display: none !important;
+.mobile-bottom-nav .mobile-tab-btn.active span {
+    font-weight: 700 !important;
+    color: #26005b !important;
 }
 
-/* Настройки вида навбара (только иконки / только названия) не применяются к мобильному виду */
-.app-header.navbar-view-icons .tab-btn,
-.app-header.navbar-view-titles .tab-btn,
-.navbar-view-icons .tab-btn,
-.navbar-view-titles .tab-btn {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    flex: 1 1 0 !important;
-    min-width: 0 !important;
-    padding: 6px 4px !important;
+.mobile-bottom-nav .mobile-tab-btn.active i {
+    color: #26005b !important;
 }
 
-.app-header.navbar-view-icons .tab-btn .tab-icon,
-.app-header.navbar-view-titles .tab-btn .tab-icon,
-.navbar-view-icons .tab-btn .tab-icon,
-.navbar-view-titles .tab-btn .tab-icon {
-    display: inline-block !important;
-    font-size: 20px !important;
-    line-height: 1 !important;
-    margin: 0 !important;
-}
-
-.app-header.navbar-view-icons .tab-btn .tab-label,
-.app-header.navbar-view-titles .tab-btn .tab-label,
-.navbar-view-icons .tab-btn .tab-label,
-.navbar-view-titles .tab-btn .tab-label {
-    display: block !important;
-    font-size: 11px !important;
-    font-weight: 600 !important;
-    line-height: 1.2 !important;
-    white-space: nowrap !important;
-}
-
-.app-header.navbar-view-icons .tab-btn[onclick*="profile"] .tab-label,
-.app-header.navbar-view-titles .tab-btn[onclick*="profile"] .tab-label,
-.navbar-view-icons .tab-btn[onclick*="profile"] .tab-label,
-.navbar-view-titles .tab-btn[onclick*="profile"] .tab-label {
-    display: none !important;
-}
-
-.app-header.navbar-view-icons .tab-btn[onclick*="profile"]::after,
-.app-header.navbar-view-titles .tab-btn[onclick*="profile"]::after,
-.navbar-view-icons .tab-btn[onclick*="profile"]::after,
-.navbar-view-titles .tab-btn[onclick*="profile"]::after {
-    content: "Обзор" !important;
-    display: block !important;
-    font-size: 11px !important;
-    font-weight: 600 !important;
-    line-height: 1.2 !important;
-    white-space: nowrap !important;
-}
-
-html[lang="en"] .app-header.navbar-view-icons .tab-btn[onclick*="profile"]::after,
-html[lang="en"] .app-header.navbar-view-titles .tab-btn[onclick*="profile"]::after,
-html[lang="en"] .navbar-view-icons .tab-btn[onclick*="profile"]::after,
-html[lang="en"] .navbar-view-titles .tab-btn[onclick*="profile"]::after {
-    content: "Explore" !important;
-}
-
-.app-header.navbar-view-icons .tab-btn[onclick*="friends"],
-.app-header.navbar-view-titles .tab-btn[onclick*="friends"],
-.navbar-view-icons .tab-btn[onclick*="friends"],
-.navbar-view-titles .tab-btn[onclick*="friends"] {
-    display: none !important;
+.mobile-bottom-nav .mobile-tab-btn:active {
+    transform: scale(0.92) !important;
 }
 
 /* Тосты поверх всех модальных окон на мобильном */
