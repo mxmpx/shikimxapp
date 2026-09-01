@@ -31,6 +31,7 @@ JS_FILES = [
     'js/favourites.js',
     'js/rates.js',
     'js/explore.js',
+    'js/portal_modules.js',
     'js/settings.js'
 ]
 

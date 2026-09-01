@@ -79,6 +79,126 @@ function handleExploreSearch(val) {
     }, 350);
 }
 
+let desktopSearchDebounceTimer = null;
+let desktopSearchAbortController = null;
+
+window.handleDesktopSearch = function(val) {
+    const query = (val || '').trim();
+    const clearBtn = document.getElementById('desktop-search-clear');
+    const dropdown = document.getElementById('desktop-search-dropdown');
+    const resultsList = document.getElementById('desktop-search-results-list');
+
+    if (clearBtn) {
+        if (query.length > 0) clearBtn.classList.remove('hidden');
+        else clearBtn.classList.add('hidden');
+    }
+
+    if (desktopSearchAbortController) {
+        desktopSearchAbortController.abort();
+        desktopSearchAbortController = null;
+    }
+
+    if (query.length < 1) {
+        clearTimeout(desktopSearchDebounceTimer);
+        if (dropdown) dropdown.classList.add('hidden');
+        if (resultsList) resultsList.innerHTML = '';
+        return;
+    }
+
+    if (dropdown) dropdown.classList.remove('hidden');
+    if (resultsList) {
+        resultsList.innerHTML = `<div class="shiki-search-loading"><i class="ti ti-loader animate-spin"></i> ${typeof i18n === 'function' ? i18n('explore.searching') : 'Поиск...'}</div>`;
+    }
+
+    clearTimeout(desktopSearchDebounceTimer);
+    desktopSearchDebounceTimer = setTimeout(async function() {
+        desktopSearchAbortController = new AbortController();
+        try {
+            const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`, {
+                signal: desktopSearchAbortController.signal
+            });
+            const data = await res.json();
+            renderDesktopSearchResults(data);
+        } catch (err) {
+            if (err.name === 'AbortError') return;
+            if (resultsList) {
+                resultsList.innerHTML = `<div class="shiki-search-no-results" style="color: var(--danger);">${typeof i18n === 'function' ? i18n('explore.search_error') : 'Ошибка поиска'}</div>`;
+            }
+        }
+    }, 200);
+};
+
+window.handleDesktopSearchFocus = function() {
+    const input = document.getElementById('desktop-search-input');
+    const dropdown = document.getElementById('desktop-search-dropdown');
+    const resultsList = document.getElementById('desktop-search-results-list');
+    if (input && input.value.trim().length >= 1 && resultsList && resultsList.children.length > 0) {
+        if (dropdown) dropdown.classList.remove('hidden');
+    }
+};
+
+window.clearDesktopSearch = function() {
+    const input = document.getElementById('desktop-search-input');
+    const clearBtn = document.getElementById('desktop-search-clear');
+    const dropdown = document.getElementById('desktop-search-dropdown');
+    const resultsList = document.getElementById('desktop-search-results-list');
+    if (input) {
+        input.value = '';
+        input.focus();
+    }
+    if (clearBtn) clearBtn.classList.add('hidden');
+    if (dropdown) dropdown.classList.add('hidden');
+    if (resultsList) resultsList.innerHTML = '';
+};
+
+window.closeDesktopSearch = function() {
+    const dropdown = document.getElementById('desktop-search-dropdown');
+    if (dropdown) dropdown.classList.add('hidden');
+};
+
+window.renderDesktopSearchResults = function(items) {
+    const container = document.getElementById('desktop-search-results-list');
+    if (!container) return;
+
+    if (!Array.isArray(items) || items.length === 0) {
+        container.innerHTML = `<div class="shiki-search-no-results"><i class="ti ti-search-off"></i> ${typeof i18n === 'function' ? i18n('explore.no_results') : 'Ничего не найдено'}</div>`;
+        return;
+    }
+
+    const statusMap = {
+        'released': 'Вышло',
+        'ongoing': 'Онгоинг',
+        'anons': 'Анонс'
+    };
+
+    container.innerHTML = items.map(function(item) {
+        const title = item.russian || item.name || '';
+        const origTitle = (item.russian && item.name && item.name !== item.russian) ? item.name : '';
+        const img = item.image || '';
+        const statusStr = statusMap[item.status] || item.status || '';
+        const isAnime = (item.content_type === 'anime') || (item.type === 'anime') || (item.url && item.url.indexOf('/animes/') !== -1);
+        const safeTitle = title.replace(/"/g, '&quot;');
+        const clickHandler = isAnime 
+            ? `event.stopPropagation(); closeDesktopSearch(); openAnimeModal(${item.id});` 
+            : `event.stopPropagation(); window.open('${item.url || ''}', '_blank');`;
+
+        return `
+            <div class="shiki-search-item" onclick="${clickHandler}">
+                ${img ? `<img src="${img}" alt="${safeTitle}" class="shiki-search-thumb" loading="lazy">` : `<div class="shiki-search-thumb placeholder"><i class="ti ti-movie"></i></div>`}
+                <div class="shiki-search-info">
+                    <div class="shiki-search-title">${title}</div>
+                    ${origTitle ? `<div class="shiki-search-orig">${origTitle}</div>` : ''}
+                    <div class="shiki-search-tags">
+                        ${item.score ? `<span class="shiki-search-score"><i class="ti ti-star-filled"></i> ${item.score}</span>` : ''}
+                        ${item.kind ? `<span class="shiki-search-tag">${item.kind.toUpperCase()}</span>` : ''}
+                        ${item.year ? `<span class="shiki-search-tag">${item.year}</span>` : ''}
+                        ${statusStr ? `<span class="shiki-search-tag status">${statusStr}</span>` : ''}
+                    </div>
+                </div>
+            </div>`;
+    }).join('');
+};
+
 function clearExploreSearch() {
     if (searchAbortController) {
         searchAbortController.abort();
@@ -212,6 +332,126 @@ async function loadNextNewsPage() {
     }
 }
 
+function formatTimeAgo(dateStr) {
+    if (!dateStr) return '';
+    try {
+        const date = new Date(dateStr);
+        const now = new Date();
+        const diffMs = now - date;
+        if (isNaN(diffMs)) return dateStr;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffMins < 1) return 'только что';
+        if (diffMins < 60) return `${diffMins} мин. назад`;
+        if (diffHours < 24) return `${diffHours} ч. назад`;
+        if (diffDays === 1) return 'день назад';
+        if (diffDays < 7) return `${diffDays} дн. назад`;
+        return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+    } catch(e) {
+        return dateStr;
+    }
+}
+
+window.quickFilterCatalog = function(filterType, value) {
+    if (typeof openCatalogModal === 'function') {
+        openCatalogModal();
+    } else {
+        const catContainer = document.getElementById('catalog-section-container');
+        if (catContainer) {
+            catContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+    const sel = document.getElementById(`cat-filter-${filterType}`);
+    if (sel) {
+        sel.value = value;
+        if (typeof onCatalogFilterChange === 'function') onCatalogFilterChange();
+    }
+};
+
+let currentPortalCategory = 'anime';
+let currentMyListSubTab = 'anime';
+
+const portalCategoryTags = {
+    anime: [
+        { label: 'ОСЕНЬ 2026', action: "quickFilterCatalog('season', 'fall_2026')" },
+        { label: 'ЛЕТО 2026', action: "quickFilterCatalog('season', 'summer_2026')" },
+        { label: 'АНИМЕ 2026', action: "quickFilterCatalog('season', '2026')" },
+        { label: 'АНИМЕ 2025', action: "quickFilterCatalog('season', '2025')" },
+        { label: 'ОНГОИНГИ', action: "quickFilterCatalog('status', 'ongoing')" },
+        { label: 'ИЗБРАННОЕ', action: "openTab('favourites')" },
+        { label: 'РЕКОМЕНДАЦИИ', action: "openTab('recommendations')" },
+        { label: 'МАНГА', action: "openTab('catalog-manga')" },
+        { label: 'МАНХВА', action: "quickFilterCatalog('kind', 'manhwa')" },
+        { label: 'МАНЬХУА', action: "quickFilterCatalog('kind', 'manhua')" },
+        { label: 'ВАНШОТ', action: "quickFilterCatalog('kind', 'one_shot')" },
+        { label: 'ДОДЗИНСИ', action: "quickFilterCatalog('kind', 'doujin')" }
+    ],
+    manga: [
+        { label: 'МАНГА', action: "openTab('catalog-manga')" },
+        { label: 'МАНХВА', action: "quickFilterCatalog('kind', 'manhwa')" },
+        { label: 'МАНЬХУА', action: "quickFilterCatalog('kind', 'manhua')" },
+        { label: 'ВАНШОТ', action: "quickFilterCatalog('kind', 'one_shot')" },
+        { label: 'ДОДЗИНСИ', action: "quickFilterCatalog('kind', 'doujin')" },
+        { label: 'ОНГОИНГИ', action: "quickFilterCatalog('status', 'ongoing')" },
+        { label: 'ИЗБРАННОЕ', action: "openTab('favourites')" },
+        { label: 'ТОП МАНГИ', action: "openTab('top100')" },
+        { label: 'РЕКОМЕНДАЦИИ', action: "openTab('recommendations')" }
+    ],
+    ranobe: [
+        { label: 'РАНОБЭ', action: "openTab('catalog-ranobe')" },
+        { label: 'НОВЕЛЛЫ', action: "openTab('catalog-ranobe')" },
+        { label: 'ОНГОИНГИ', action: "quickFilterCatalog('status', 'ongoing')" },
+        { label: 'ИЗБРАННОЕ', action: "openTab('favourites')" },
+        { label: 'ТОП РАНОБЭ', action: "openTab('top100')" },
+        { label: 'РЕКОМЕНДАЦИИ', action: "openTab('recommendations')" }
+    ]
+};
+
+window.switchPortalCategory = function(cat) {
+    currentPortalCategory = cat;
+    document.querySelectorAll('.shiki-cat-tab').forEach(el => {
+        el.classList.toggle('active', el.dataset.cat === cat);
+    });
+    const container = document.getElementById('shiki-filter-tags-grid');
+    if (!container) return;
+    const tags = portalCategoryTags[cat] || portalCategoryTags['anime'];
+    container.innerHTML = tags.map(t => `<button type="button" class="shiki-filter-pill" onclick="${t.action}">${t.label}</button>`).join('');
+};
+
+window.switchMyListSubTab = function(type) {
+    currentMyListSubTab = type;
+    document.querySelectorAll('.shiki-my-list-links a').forEach(el => {
+        el.classList.toggle('active', el.dataset.type === type);
+    });
+    updateMyRecentWatchedCard(type);
+};
+
+window.openCatalogCategory = function(cat) {
+    switchPortalCategory(cat);
+};
+
+function buildNewsItemCard(item) {
+    return `
+        <a href="${item.url}" target="_blank" class="shiki-featured-news-card">
+            <div class="shiki-news-thumb-wrap">
+                ${item.image ? `<img src="${item.image}" alt="${(item.title || '').replace(/"/g, '&quot;')}" class="shiki-news-thumb" loading="lazy">` : `<div class="shiki-news-thumb placeholder"><i class="ti ti-news"></i></div>`}
+                ${item.is_youtube ? `<span class="shiki-youtube-badge"><i class="ti ti-brand-youtube-filled"></i> youtube</span>` : ''}
+            </div>
+            <div class="shiki-news-card-body">
+                <div class="shiki-news-card-title">${item.title}</div>
+                <div class="shiki-news-card-tags">
+                    ${(item.tags && item.tags.length) ? item.tags.map(t => `<span class="shiki-news-tag">${t}</span>`).join('') : '<span class="shiki-news-tag">Новость</span>'}
+                </div>
+                <div class="shiki-news-card-meta">
+                    <span>${formatTimeAgo(item.date)}</span>
+                    <span><i class="ti ti-message-circle"></i> ${item.comments_count || 0}</span>
+                </div>
+            </div>
+        </a>`;
+}
+
 function renderExplore(data) {
     const container = document.getElementById('explore-news-container');
     if (!container) return;
@@ -226,6 +466,8 @@ function renderExplore(data) {
         return;
     }
 
+    const onScreens = data.on_screens || [];
+    const animeUpdates = data.anime_updates || [];
     const contentList = data.content || [];
     const hotList = data.hot || [];
     
@@ -245,78 +487,182 @@ function renderExplore(data) {
         return true;
     });
 
-    const badgeMap = {
-        'collection': 'explore.collection',
-        'critique': 'explore.review',
-        'article': 'explore.article',
-        'news': 'explore.article',
-        '': 'explore.topic'
-    };
-
-    const buildTopicRow = (item) => {
-        const badgeKey = badgeMap[(item.tag || '').toLowerCase()] || 'explore.topic';
-        return `
-        <a href="${item.url}" target="_blank" class="topic-row-item" title="${(item.title || '').replace(/"/g, '&quot;')}">
-            <div class="topic-main">
-                <span class="topic-title-text">${item.title}</span>
-                <span class="topic-badge badge-${(item.tag || '').toLowerCase()}">${i18n(badgeKey)}</span>
-            </div>
-            <div class="topic-meta">
-                <span class="topic-comments"><i class="ti ti-message-circle"></i> ${item.comments_count}</span>
-            </div>
-        </a>`;
+    const getTagClass = (tag) => {
+        const tLower = (tag || '').toLowerCase();
+        if (tLower.includes('коллекц') || tLower.includes('collection')) return 'shiki-tag-collection';
+        if (tLower.includes('реценз') || tLower.includes('critique') || tLower.includes('review')) return 'shiki-tag-critique';
+        if (tLower.includes('стать') || tLower.includes('article')) return 'shiki-tag-article';
+        return 'shiki-tag-collection';
     };
 
     let html = `
-        <div class="explore-two-col">
-            <!-- Content Manager -->
-            <div class="card" data-section="explore-content">
-                <div class="card-header">
-                    <h3><i class="ti ti-grid-dots"></i> ${i18n('explore.content')}</h3>
-                    <div class="content-sub-links">
-                        <a href="https://shikimori.io/collections" target="_blank">${i18n('explore.collections')}</a> /
-                        <a href="https://shikimori.io/forum/critiques" target="_blank">${i18n('explore.reviews')}</a> /
-                        <a href="https://shikimori.io/articles" target="_blank">${i18n('explore.articles')}</a>
+        <div class="shiki-portal-container">
+            <!-- 1. СЕЙЧАС НА ЭКРАНАХ -->
+            ${onScreens.length ? `
+                <div class="shiki-portal-section" data-section="explore-on-screens">
+                    <div class="shiki-section-heading-purple">СЕЙЧАС НА ЭКРАНАХ</div>
+                    <div class="shiki-on-screens-grid">
+                        ${onScreens.slice(0, 8).map(anime => `
+                            <div class="shiki-on-screen-card" onclick="openAnimeModal(${anime.id})">
+                                <div class="shiki-poster-wrap">
+                                    <img src="${anime.image}" alt="${(anime.russian || anime.name || '').replace(/"/g, '&quot;')}" class="shiki-on-screen-poster" loading="lazy">
+                                </div>
+                                <div class="shiki-on-screen-title" title="${anime.russian || anime.name}">${anime.russian || anime.name}</div>
+                                <div class="shiki-on-screen-studio" title="${anime.studios || ''}">${anime.studios || ''}</div>
+                            </div>
+                        `).join('')}
                     </div>
                 </div>
-                <div class="topics-list">
-                    ${contentList.length ? contentList.map(buildTopicRow).join('') : `<p style="color:var(--text-muted)">${i18n('explore.no_content')}</p>`}
+            ` : ''}
+
+            <!-- 2. МОЙ СПИСОК & НАВИГАЦИЯ -->
+            <div class="shiki-my-list-nav-row" data-section="explore-my-list">
+                <!-- Левая колонка: Мой список -->
+                <div class="shiki-my-list-block">
+                    <div class="shiki-my-list-header">
+                        <span class="shiki-my-list-title">МОЙ СПИСОК</span>
+                        <div class="shiki-my-list-links">
+                            <a href="javascript:void(0)" data-type="anime" class="active" onclick="switchMyListSubTab('anime')">аниме</a> /
+                            <a href="javascript:void(0)" data-type="manga" onclick="switchMyListSubTab('manga')">манга</a> /
+                            <a href="javascript:void(0)" data-type="history" onclick="switchMyListSubTab('history')">история</a>
+                        </div>
+                    </div>
+                    <div id="shiki-my-recent-card-container">
+                        <div class="loader" style="padding: 20px;"><i class="ti ti-loader animate-spin"></i></div>
+                    </div>
+                </div>
+
+                <!-- Правая колонка: Категории и быстрые фильтры -->
+                <div class="shiki-category-tags-block">
+                    <div class="shiki-category-tabs">
+                        <span class="shiki-cat-tab active" data-cat="anime" onclick="switchPortalCategory('anime')">АНИМЕ</span>
+                        <span class="shiki-cat-tab" data-cat="manga" onclick="switchPortalCategory('manga')">МАНГА</span>
+                        <span class="shiki-cat-tab" data-cat="ranobe" onclick="switchPortalCategory('ranobe')">РАНОБЭ</span>
+                    </div>
+                    <div class="shiki-filter-tags-grid" id="shiki-filter-tags-grid">
+                        ${portalCategoryTags.anime.map(t => `<button type="button" class="shiki-filter-pill" onclick="${t.action}">${t.label}</button>`).join('')}
+                    </div>
+                    <div class="shiki-forum-row">
+                        <button type="button" class="shiki-forum-btn" onclick="openTab('forum')">
+                            <span>Форум</span> <i class="ti ti-arrow-right"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Hot Topics -->
-            <div class="card" data-section="explore-hot">
-                <div class="card-header">
-                    <h3><i class="ti ti-flame"></i> ${i18n('explore.hot_topics')}</h3>
+            <!-- 3. НОВОСТИ -->
+            ${latest.length ? `
+                <div class="shiki-portal-section" data-section="explore-news">
+                    <div class="shiki-section-header-row">
+                        <h2 class="shiki-section-title-white">Новости</h2>
+                    </div>
+                    <div class="shiki-featured-news-grid">
+                        ${latest.map(buildNewsItemCard).join('')}
+                    </div>
                 </div>
-                <div class="topics-list">
-                    ${hotList.length ? hotList.map(buildTopicRow).join('') : `<p style="color:var(--text-muted)">${i18n('explore.no_hot')}</p>`}
+            ` : ''}
+
+            <!-- 4. КОНТЕНТ & ТЕМЫ ДНЯ -->
+            <div class="shiki-content-topics-row">
+                <!-- Левая колонка: Контент -->
+                <div class="shiki-content-col" data-section="explore-content">
+                    <div class="shiki-content-header-row">
+                        <h2 class="shiki-section-title-white">Контент</h2>
+                        <div class="shiki-content-filter-links">
+                            <a href="javascript:void(0)" onclick="openTab('collections')">коллекции</a> /
+                            <a href="javascript:void(0)" onclick="openTab('critiques')">рецензии</a> /
+                            <a href="javascript:void(0)" onclick="openTab('articles')">статьи</a>
+                        </div>
+                    </div>
+                    <div class="shiki-content-cards-grid">
+                        ${contentList.slice(0, 10).map(item => `
+                            <a href="${item.url}" target="_blank" class="shiki-content-item-card">
+                                <div class="shiki-content-item-title">${item.title}</div>
+                                <div class="shiki-content-item-footer">
+                                    <span class="shiki-content-tag ${getTagClass(item.tag)}">${item.tag || 'Коллекция'}</span>
+                                    <span class="shiki-content-comments"><i class="ti ti-message-circle"></i> ${item.comments_count || 0}</span>
+                                </div>
+                            </a>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Правая колонка: Темы дня -->
+                <div class="shiki-topics-col" data-section="explore-hot">
+                    <div class="shiki-topics-header-row">
+                        <h2 class="shiki-section-title-white">Темы дня</h2>
+                    </div>
+                    <div class="shiki-topics-stack">
+                        ${hotList.slice(0, 5).map(item => `
+                            <a href="${item.url}" target="_blank" class="shiki-topic-item-card">
+                                <div class="shiki-topic-item-title">${item.title}</div>
+                                <div class="shiki-topic-item-footer">
+                                    <div class="shiki-topic-author-row">
+                                        <span class="shiki-topic-tag">${item.tag || 'Новость'}</span>
+                                        <span class="shiki-topic-meta-text">${formatTimeAgo(item.date)} ${item.author ? `от 👤 ${item.author}` : ''}</span>
+                                    </div>
+                                    <span class="shiki-topic-comments"><i class="ti ti-message-circle"></i> ${item.comments_count || 0}</span>
+                                </div>
+                            </a>
+                        `).join('')}
+                    </div>
                 </div>
             </div>
+
+            <!-- 5. ОБНОВЛЕНИЯ АНИМЕ -->
+            ${animeUpdates.length ? `
+                <div class="shiki-portal-section" data-section="explore-anime-updates">
+                    <div class="shiki-section-heading-purple">ОБНОВЛЕНИЯ АНИМЕ</div>
+                    <div class="shiki-anime-updates-grid">
+                        ${animeUpdates.slice(0, 8).map(anime => {
+                            const statusText = anime.status === 'released' ? 'Релиз' : (anime.status === 'anons' ? 'Анонс' : 'Онгоинг');
+                            const statusClass = anime.status === 'released' ? 'status-released' : 'status-anons';
+                            const kindText = anime.kind === 'MOVIE' ? 'Фильм' : (anime.kind === 'TV' ? 'Сериал' : (anime.kind === 'CLIP' ? 'Клип' : anime.kind));
+                            return `
+                                <div class="shiki-anime-update-card" onclick="openAnimeModal(${anime.id})">
+                                    <img src="${anime.image}" alt="${(anime.russian || anime.name || '').replace(/"/g, '&quot;')}" class="shiki-update-poster" loading="lazy">
+                                    <div class="shiki-update-info">
+                                        <div class="shiki-update-title" title="${anime.russian || anime.name}">${anime.russian || anime.name}</div>
+                                        <div class="shiki-update-row-1">
+                                            <span class="shiki-update-badge ${statusClass}">${statusText}</span>
+                                            <span class="shiki-update-time">${formatTimeAgo(anime.updated_at)}</span>
+                                        </div>
+                                        <div class="shiki-update-row-2">
+                                            ${kindText ? `<span class="shiki-kind-badge">${kindText}</span>` : ''}
+                                            ${anime.rating ? `<span class="shiki-kind-badge">${anime.rating}</span>` : ''}
+                                            ${anime.genres ? `<span class="shiki-genres-text">${anime.genres}</span>` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            ` : ''}
+
+            <!-- 6. ЕЩЁ НОВОСТИ -->
+            ${other.length ? `
+                <div class="shiki-portal-section" data-section="explore-more-news">
+                    <div class="shiki-section-header-row">
+                        <h2 class="shiki-section-title-white">Ещё новости</h2>
+                    </div>
+                    <div id="other-news-list" class="shiki-more-news-grid">
+                        ${other.map(buildNewsItemCard).join('')}
+                    </div>
+                    <div id="news-infinite-sentinel" style="height: 20px; margin-top: 10px;"></div>
+                    <div id="news-infinite-loader" class="news-infinite-loader hidden">
+                        <i class="ti ti-loader animate-spin"></i> Загрузка ещё новостей...
+                    </div>
+                </div>
+            ` : ''}
         </div>
     `;
 
-    if (latest.length) {
-        html += `<div class="card explore-news-card" data-section="explore-news" style="margin-top: 24px;">
-            <div class="card-header"><h3><i class="ti ti-news"></i> ${i18n('explore.main_news')}</h3></div>
-            <div class="news-feed-list">${latest.map(buildNewsItemCard).join('')}</div>
-        </div>`;
-    }
-
-    if (other.length) {
-        html += `<div class="card explore-news-card" data-section="explore-news" style="margin-top: 24px;">
-            <div class="card-header"><h3><i class="ti ti-layout-grid"></i> ${i18n('explore.more_news')}</h3></div>
-            <div id="other-news-list" class="news-feed-list">${other.map(buildNewsItemCard).join('')}</div>
-            <div id="news-infinite-sentinel" style="height: 20px; margin-top: 10px;"></div>
-            <div id="news-infinite-loader" class="news-infinite-loader hidden">
-                <i class="ti ti-loader animate-spin"></i> ${i18n('explore.loading_more')}
-            </div>
-        </div>`;
-    }
-
-
     container.innerHTML = html;
     setupNewsInfiniteScroll();
+    if (typeof updateMyRecentWatchedCard === 'function') {
+        updateMyRecentWatchedCard('anime');
+    }
     if (typeof applySectionVisibility === 'function') {
         applySectionVisibility();
     }
@@ -535,6 +881,142 @@ function renderAiringCalendarUI(activeDay) {
         </div>
     `;
 }
+
+function formatRateStatusLabel(st, isManga = false) {
+    const map = {
+        'completed': isManga ? 'Прочитано' : 'Просмотрено',
+        'watching': 'Смотрю',
+        'reading': 'Читаю',
+        'planned': 'В планах',
+        'on_hold': 'Отложено',
+        'dropped': 'Брошено',
+        'rewatching': 'Пересматриваю',
+        'rereading': 'Перечитываю'
+    };
+    return map[st] || st || (isManga ? 'Прочитано' : 'Просмотрено');
+}
+
+function formatChaptersCountText(num) {
+    const n = Math.abs(Number(num) || 1);
+    if (n % 10 === 1 && n % 100 !== 11) return `${n} глава`;
+    if ([2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100)) return `${n} главы`;
+    return `${n} глав`;
+}
+
+async function updateMyRecentWatchedCard(type = 'anime') {
+    const container = document.getElementById('shiki-my-recent-card-container');
+    if (!container) return;
+
+    let recentItem = null;
+
+    if (type === 'manga') {
+        try {
+            const res = await fetch('/api/tab/rates?type=manga');
+            if (res.ok) {
+                const data = await res.json();
+                const list = Array.isArray(data) ? data : (data.user_rates || []);
+                if (list.length > 0) {
+                    const first = list[0];
+                    const target = first.manga || first.target || first;
+                    const chCount = first.chapters || first.volumes || target.chapters || target.volumes || 1;
+                    recentItem = {
+                        id: target.id,
+                        title: target.russian || target.name || 'Манга',
+                        image: target.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(target.image) : target.image) : '',
+                        status: formatRateStatusLabel(first.status, true),
+                        score: first.score || 8,
+                        time: typeof formatTimeAgo === 'function' ? formatTimeAgo(first.updated_at) : 'недавно',
+                        episodes: formatChaptersCountText(chCount),
+                        isManga: true
+                    };
+                }
+            }
+        } catch(e) {}
+    }
+
+    if (!recentItem && type === 'anime') {
+        if (typeof cachedHistoryData !== 'undefined' && Array.isArray(cachedHistoryData) && cachedHistoryData.length > 0) {
+            const animeHistory = cachedHistoryData.find(h => h.target && (h.target_type === 'Anime' || h.target.kind));
+            if (animeHistory && animeHistory.target) {
+                recentItem = {
+                    id: animeHistory.target.id,
+                    title: animeHistory.target.russian || animeHistory.target.name,
+                    image: animeHistory.target.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(animeHistory.target.image) : animeHistory.target.image) : '',
+                    status: formatRateStatusLabel(animeHistory.description || 'completed', false),
+                    score: animeHistory.target.score || 9,
+                    time: typeof formatTimeAgo === 'function' ? formatTimeAgo(animeHistory.created_at) : '2 дня назад',
+                    episodes: (animeHistory.target.episodes ? `${animeHistory.target.episodes} / ${animeHistory.target.episodes}` : '28 / 28')
+                };
+            }
+        }
+    }
+
+    if (!recentItem) {
+        try {
+            const res = await fetch('/api/tab/history');
+            if (res.ok) {
+                const historyData = await res.json();
+                if (Array.isArray(historyData) && historyData.length > 0) {
+                    const targetItem = (type === 'manga')
+                        ? historyData.find(h => h.target && (h.target_type === 'Manga' || !h.target.kind))
+                        : historyData.find(h => h.target && (h.target_type === 'Anime' || h.target.kind));
+                    
+                    const item = targetItem || historyData[0];
+                    if (item && item.target) {
+                        const isMangaItem = (item.target_type === 'Manga' || type === 'manga');
+                        recentItem = {
+                            id: item.target.id,
+                            title: item.target.russian || item.target.name,
+                            image: item.target.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(item.target.image) : item.target.image) : '',
+                            status: formatRateStatusLabel(item.description || 'completed', isMangaItem),
+                            score: item.target.score || 9,
+                            time: typeof formatTimeAgo === 'function' ? formatTimeAgo(item.created_at) : 'недавно',
+                            episodes: isMangaItem ? formatChaptersCountText(item.target.chapters || 1) : (item.target.episodes ? `${item.target.episodes} / ${item.target.episodes}` : '28 / 28'),
+                            isManga: isMangaItem
+                        };
+                    }
+                }
+            }
+        } catch(e) {}
+    }
+
+    if (recentItem) {
+        const starCount = Math.round(Math.min(5, Math.max(1, (recentItem.score || 8) / 2)));
+        const starsHtml = '★'.repeat(starCount) + '☆'.repeat(5 - starCount);
+        const clickHandler = recentItem.isManga ? `openMangaModal(${recentItem.id})` : `openAnimeModal(${recentItem.id})`;
+        const thumbPlaceholder = recentItem.isManga ? '<i class="ti ti-book-2"></i>' : '<i class="ti ti-movie"></i>';
+        container.innerHTML = `
+            <div class="shiki-my-list-card" onclick="${clickHandler}">
+                ${recentItem.image ? `<img src="${recentItem.image}" alt="${(recentItem.title || '').replace(/"/g, '&quot;')}" class="shiki-my-list-thumb" loading="lazy">` : `<div class="shiki-my-list-thumb placeholder">${thumbPlaceholder}</div>`}
+                <div class="shiki-my-list-info">
+                    <div class="shiki-my-list-item-title" title="${recentItem.title}">${recentItem.title}</div>
+                    <div class="shiki-my-list-status-row">
+                        <span class="shiki-status-badge-green">${recentItem.status}</span>
+                        <span>${recentItem.episodes}</span>
+                    </div>
+                    <div class="shiki-my-list-stars">${starsHtml}</div>
+                    <div class="shiki-my-list-time">${recentItem.time || 'недавно'}</div>
+                </div>
+            </div>
+        `;
+    } else {
+        container.innerHTML = `
+            <div class="shiki-my-list-card" onclick="openTab('rates')">
+                <div class="shiki-my-list-thumb placeholder"><i class="${type === 'manga' ? 'ti ti-book-2' : 'ti ti-list-check'}"></i></div>
+                <div class="shiki-my-list-info">
+                    <div class="shiki-my-list-item-title">${type === 'manga' ? 'Мои списки манги' : 'Мои списки аниме'}</div>
+                    <div class="shiki-my-list-status-row">
+                        <span class="shiki-status-badge-green">Открыть</span>
+                        <span>Перейти к спискам</span>
+                    </div>
+                    <div class="shiki-my-list-time">Нажмите для просмотра</div>
+                </div>
+            </div>
+        `;
+    }
+}
+window.updateMyRecentWatchedCard = updateMyRecentWatchedCard;
+
 
 
 // ==================== CATALOG WITH RICH FILTERS ====================

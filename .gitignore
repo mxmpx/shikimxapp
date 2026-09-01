@@ -1,22 +1,29 @@
 # Environment / secrets
 .env
 .env.*
+.env.local
 
 # Python
 __pycache__/
 *.py[cod]
+*$py.class
 *.egg-info/
 .venv/
 venv/
 ENV/
+env/
 
 # Database
 *.db
 *.sqlite
 *.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
 
-# Cached images
+# Cached media & static cache
 static/img_cache/
+.tempmediaStorage/
 
 # Logs
 *.log
@@ -29,12 +36,17 @@ test*.txt
 test*.deleted
 *.bak
 *.backup
+sys_path.txt
+extractors.txt
+push.bat
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
 
-# IDE & Agents
+# IDE & AI Coding Agents
 .vscode/
 .idea/
 *.swp
@@ -42,12 +54,7 @@ Thumbs.db
 .agents/
 .gemini/
 .claude/
-.continue
-.kilo
-
-# Misc & Examples
-sys_path.txt
-push.bat
-for AI examples/
-.tempmediaStorage/
+.continue/
+.kilo/
 .system_generated/
+for AI examples/

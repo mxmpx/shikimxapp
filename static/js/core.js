@@ -103,6 +103,8 @@ function toggleTheme() {
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('theme', next);
     updateThemeIcon(next);
+    if (typeof updateDesktopMenuBadges === 'function') updateDesktopMenuBadges();
+    if (typeof updateMobileProfileBadges === 'function') updateMobileProfileBadges();
 }
 
 function updateThemeIcon(theme) {
@@ -167,6 +169,48 @@ function setupSectionLazyLoader(target, callback, rootMargin = '250px') {
 }
 window.setupSectionLazyLoader = setupSectionLazyLoader;
 
+function updateHeaderActiveTab(tabId) {
+    const tabMap = {
+        'profile': { labelKey: 'tab.profile', defaultLabel: 'Главная', icon: 'ti ti-home' },
+        'rates': { labelKey: 'tab.rates', defaultLabel: 'Списки', icon: 'ti ti-list-check' },
+        'favourites': { labelKey: 'tab.favourites', defaultLabel: 'Избранное', icon: 'ti ti-heart' },
+        'friends': { labelKey: 'tab.friends', defaultLabel: 'Друзья', icon: 'ti ti-users' },
+        'history': { labelKey: 'tab.history', defaultLabel: 'История', icon: 'ti ti-history' },
+        // База данных
+        'catalog-anime': { labelKey: 'tab.anime', defaultLabel: 'Аниме', icon: 'ti ti-player-play' },
+        'top100': { labelKey: 'tab.top100', defaultLabel: 'Топ 100', icon: 'ti ti-trophy' },
+        'catalog-manga': { labelKey: 'tab.manga', defaultLabel: 'Манга', icon: 'ti ti-book-2' },
+        'catalog-ranobe': { labelKey: 'tab.ranobe', defaultLabel: 'Ранобэ', icon: 'ti ti-notebook' },
+        // Сообщество
+        'forum': { labelKey: 'tab.forum', defaultLabel: 'Форум', icon: 'ti ti-messages' },
+        'clubs': { labelKey: 'tab.clubs', defaultLabel: 'Клубы', icon: 'ti ti-circles-relation' },
+        'collections': { labelKey: 'tab.collections', defaultLabel: 'Коллекции', icon: 'ti ti-layout-grid' },
+        'critiques': { labelKey: 'tab.critiques', defaultLabel: 'Рецензии', icon: 'ti ti-pencil' },
+        'articles': { labelKey: 'tab.articles', defaultLabel: 'Статьи', icon: 'ti ti-file-text' },
+        'users': { labelKey: 'tab.users', defaultLabel: 'Пользователи', icon: 'ti ti-user' },
+        // Разное
+        'recommendations': { labelKey: 'tab.recommendations', defaultLabel: 'Рекомендации', icon: 'ti ti-thumb-up' },
+        'calendar': { labelKey: 'tab.calendar', defaultLabel: 'Календарь', icon: 'ti ti-calendar' }
+    };
+
+    const info = tabMap[tabId] || tabMap['profile'];
+    const labelEl = document.getElementById('shiki-current-tab-label');
+    const iconEl = document.getElementById('shiki-current-tab-icon');
+
+    if (labelEl) {
+        labelEl.dataset.i18n = info.labelKey;
+        let translated = (typeof t === 'function') ? t(info.labelKey) : '';
+        if (!translated || translated.startsWith('tab.') || translated === info.labelKey) {
+            translated = info.defaultLabel;
+        }
+        labelEl.textContent = translated;
+    }
+    if (iconEl) {
+        iconEl.className = `${info.icon} shiki-nav-icon`;
+    }
+}
+window.updateHeaderActiveTab = updateHeaderActiveTab;
+
 async function openTab(tabId) {
     if (!tabId) return;
 
@@ -178,6 +222,7 @@ async function openTab(tabId) {
     if (activeContent) activeContent.classList.add('active');
 
     document.querySelectorAll(`.tab-btn[onclick*="'${tabId}'"]`).forEach(btn => btn.classList.add('active'));
+    updateHeaderActiveTab(tabId);
 
     try {
         if (tabId === 'profile') {
@@ -196,6 +241,66 @@ async function openTab(tabId) {
                     }
                 }
             }, '300px');
+        } else if (tabId === 'catalog-anime') {
+            if (!tabLoaded['catalog-anime'] && typeof loadCatalogAnimeTab === 'function') {
+                loadCatalogAnimeTab(1);
+                tabLoaded['catalog-anime'] = true;
+            }
+        } else if (tabId === 'top100') {
+            if (!tabLoaded['top100'] && typeof loadTop100Tab === 'function') {
+                loadTop100Tab('anime');
+                tabLoaded['top100'] = true;
+            }
+        } else if (tabId === 'catalog-manga') {
+            if (!tabLoaded['catalog-manga'] && typeof loadCatalogMangaTab === 'function') {
+                loadCatalogMangaTab(1);
+                tabLoaded['catalog-manga'] = true;
+            }
+        } else if (tabId === 'catalog-ranobe') {
+            if (!tabLoaded['catalog-ranobe'] && typeof loadCatalogRanobeTab === 'function') {
+                loadCatalogRanobeTab(1);
+                tabLoaded['catalog-ranobe'] = true;
+            }
+        } else if (tabId === 'forum') {
+            if (!tabLoaded['forum'] && typeof loadForumTab === 'function') {
+                loadForumTab('all');
+                tabLoaded['forum'] = true;
+            }
+        } else if (tabId === 'clubs') {
+            if (!tabLoaded['clubs'] && typeof loadClubsTab === 'function') {
+                loadClubsTab();
+                tabLoaded['clubs'] = true;
+            }
+        } else if (tabId === 'collections') {
+            if (!tabLoaded['collections'] && typeof loadCollectionsTab === 'function') {
+                loadCollectionsTab();
+                tabLoaded['collections'] = true;
+            }
+        } else if (tabId === 'critiques') {
+            if (!tabLoaded['critiques'] && typeof loadCritiquesTab === 'function') {
+                loadCritiquesTab();
+                tabLoaded['critiques'] = true;
+            }
+        } else if (tabId === 'articles') {
+            if (!tabLoaded['articles'] && typeof loadArticlesTab === 'function') {
+                loadArticlesTab();
+                tabLoaded['articles'] = true;
+            }
+        } else if (tabId === 'users') {
+            if (!tabLoaded['users'] && typeof loadUsersTab === 'function') {
+                loadUsersTab();
+                tabLoaded['users'] = true;
+            }
+        } else if (tabId === 'recommendations') {
+            if (!tabLoaded['recommendations'] && typeof loadRecommendationsTab === 'function') {
+                loadRecommendationsTab();
+                tabLoaded['recommendations'] = true;
+            }
+        } else if (tabId === 'calendar') {
+            if (!tabLoaded['calendar'] && typeof loadFullCalendarTab === 'function') {
+                loadFullCalendarTab();
+                tabLoaded['calendar'] = true;
+            }
         } else if (tabId === 'history' && cachedHistoryData) {
             renderHistory(cachedHistoryData);
             tabLoaded['history'] = true;
@@ -831,4 +936,93 @@ window.addEventListener('popstate', function(e) {
             history.pushState({ appNav: true }, '');
         } catch(err) {}
     }
+});
+
+/* ==================== DESKTOP HEADER MENU & SHORTCUTS ==================== */
+
+window.toggleDesktopMainMenu = function(e) {
+    if (e) e.stopPropagation();
+    const mainWrap = document.getElementById('shiki-main-menu-wrap');
+    const profileWrap = document.getElementById('shiki-profile-dropdown-wrap');
+    if (profileWrap) profileWrap.classList.remove('open');
+    if (mainWrap) mainWrap.classList.toggle('open');
+};
+
+window.toggleDesktopProfileMenu = function(e) {
+    if (e) e.stopPropagation();
+    const mainWrap = document.getElementById('shiki-main-menu-wrap');
+    const profileWrap = document.getElementById('shiki-profile-dropdown-wrap');
+    if (mainWrap) mainWrap.classList.remove('open');
+    if (profileWrap) {
+        profileWrap.classList.toggle('open');
+        updateDesktopMenuBadges();
+    }
+};
+
+window.closeDesktopDropdowns = function() {
+    const mainWrap = document.getElementById('shiki-main-menu-wrap');
+    const profileWrap = document.getElementById('shiki-profile-dropdown-wrap');
+    if (mainWrap) mainWrap.classList.remove('open');
+    if (profileWrap) profileWrap.classList.remove('open');
+};
+
+window.handleDesktopNavClick = function(tabId) {
+    closeDesktopDropdowns();
+    if (typeof openTab === 'function') {
+        openTab(tabId);
+    }
+};
+
+window.updateDesktopMenuBadges = function() {
+    const theme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || 'dark';
+    const themeBadge = document.getElementById('desktop-menu-theme-badge');
+    const themeIcon = document.getElementById('desktop-menu-theme-icon');
+    if (themeBadge) themeBadge.textContent = (theme === 'dark') ? 'Тёмная' : 'Светлая';
+    if (themeIcon) themeIcon.className = (theme === 'dark') ? 'ti ti-sun' : 'ti ti-moon';
+
+    const lang = (typeof getSavedLanguage === 'function') ? getSavedLanguage() : (localStorage.getItem('app_language') || 'ru');
+    const langBadge = document.getElementById('desktop-menu-lang-badge');
+    if (langBadge) langBadge.textContent = (lang === 'en') ? 'EN' : 'RU';
+};
+
+// Global click outside to close desktop dropdowns & search results
+document.addEventListener('click', function(e) {
+    const mainWrap = document.getElementById('shiki-main-menu-wrap');
+    const profileWrap = document.getElementById('shiki-profile-dropdown-wrap');
+    const searchWrap = document.getElementById('desktop-search-wrap');
+    const searchDropdown = document.getElementById('desktop-search-dropdown');
+
+    if (mainWrap && !mainWrap.contains(e.target)) {
+        mainWrap.classList.remove('open');
+    }
+    if (profileWrap && !profileWrap.contains(e.target)) {
+        profileWrap.classList.remove('open');
+    }
+    if (searchWrap && !searchWrap.contains(e.target)) {
+        if (searchDropdown) searchDropdown.classList.add('hidden');
+    }
+});
+
+// Global Keyboard Shortcut: '/' to focus search, 'Escape' to blur & close
+document.addEventListener('keydown', function(e) {
+    if (e.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
+        e.preventDefault();
+        const searchInput = document.getElementById('desktop-search-input');
+        if (searchInput) {
+            searchInput.focus();
+            searchInput.select();
+        }
+    } else if (e.key === 'Escape') {
+        closeDesktopDropdowns();
+        const searchDropdown = document.getElementById('desktop-search-dropdown');
+        const searchInput = document.getElementById('desktop-search-input');
+        if (searchDropdown) searchDropdown.classList.add('hidden');
+        if (searchInput && document.activeElement === searchInput) {
+            searchInput.blur();
+        }
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    updateDesktopMenuBadges();
 });

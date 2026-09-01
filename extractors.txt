@@ -1,1 +1,0 @@
-['animego', 'yummy_anime', 'anilibria', 'anilibme']

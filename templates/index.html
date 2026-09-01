@@ -766,97 +766,198 @@
         };
     </script>
 
-    <!-- Шапка -->
-    <header class="app-header navbar-view-full">
+    <!-- Десктопная шапка в стиле Shikimori -->
+    <header class="app-header">
         <div class="header-container">
-            <div class="header-brand-container">
-                <div class="header-brand">
-                    <i class="ti ti-device-tv brand-logo"></i>
-                    <span class="brand-title">Shiki MX App</span>
-                    <i class="ti ti-chevron-down brand-chevron"></i>
+            <!-- Левая часть: Логотип + Главная + Поиск -->
+            <div class="header-left">
+                <!-- 1. Логотип и бренд Шикимори -->
+                <a href="javascript:void(0)" class="shiki-brand" onclick="openTab('profile')" title="Shiki MX App">
+                    <i class="ti ti-brand-shikimori shiki-brand-logo"></i>
+                    <span class="shiki-brand-title">Shiki MX App</span>
+                </a>
+
+                <!-- 2. Текущая активная вкладка (выпадающее меню разделов) -->
+                <div class="shiki-nav-dropdown-wrap" id="shiki-main-menu-wrap">
+                    <button type="button" class="shiki-nav-btn" id="shiki-main-menu-btn" onclick="toggleDesktopMainMenu(event)">
+                        <i class="ti ti-home shiki-nav-icon" id="shiki-current-tab-icon"></i>
+                        <span class="shiki-nav-label" id="shiki-current-tab-label" data-i18n="tab.profile">Главная</span>
+                        <i class="ti ti-caret-down shiki-caret-icon"></i>
+                    </button>
+                    <div class="shiki-dropdown-menu" id="shiki-main-menu-dropdown">
+                        <!-- Главная -->
+                        <button type="button" class="shiki-dropdown-item" onclick="openTab('profile'); closeDesktopDropdowns();">
+                            <i class="ti ti-home"></i>
+                            <span>Главная</span>
+                        </button>
+
+                        <div class="shiki-dropdown-divider"></div>
+
+                        <!-- 1. БАЗА ДАННЫХ -->
+                        <div class="shiki-dropdown-group-title">БАЗА ДАННЫХ</div>
+                        <button type="button" class="shiki-dropdown-item" onclick="openTab('catalog-anime'); closeDesktopDropdowns();">
+                            <i class="ti ti-player-play"></i>
+                            <span>Аниме</span>
+                        </button>
+                        <button type="button" class="shiki-dropdown-item" onclick="openTab('top100'); closeDesktopDropdowns();">
+                            <i class="ti ti-trophy"></i>
+                            <span>Топ 100</span>
+                        </button>
+                        <button type="button" class="shiki-dropdown-item" onclick="openTab('catalog-manga'); closeDesktopDropdowns();">
+                            <i class="ti ti-book-2"></i>
+                            <span>Манга</span>
+                        </button>
+                        <button type="button" class="shiki-dropdown-item" onclick="openTab('catalog-ranobe'); closeDesktopDropdowns();">
+                            <i class="ti ti-notebook"></i>
+                            <span>Ранобэ</span>
+                        </button>
+
+                        <div class="shiki-dropdown-divider"></div>
+
+                        <!-- 2. СООБЩЕСТВО -->
+                        <div class="shiki-dropdown-group-title">СООБЩЕСТВО</div>
+                        <button type="button" class="shiki-dropdown-item" onclick="openTab('forum'); closeDesktopDropdowns();">
+                            <i class="ti ti-messages"></i>
+                            <span>Форум</span>
+                        </button>
+                        <button type="button" class="shiki-dropdown-item" onclick="openTab('clubs'); closeDesktopDropdowns();">
+                            <i class="ti ti-circles-relation"></i>
+                            <span>Клубы</span>
+                        </button>
+                        <button type="button" class="shiki-dropdown-item" onclick="openTab('collections'); closeDesktopDropdowns();">
+                            <i class="ti ti-layout-grid"></i>
+                            <span>Коллекции</span>
+                        </button>
+                        <button type="button" class="shiki-dropdown-item" onclick="openTab('critiques'); closeDesktopDropdowns();">
+                            <i class="ti ti-pencil"></i>
+                            <span>Рецензии</span>
+                        </button>
+                        <button type="button" class="shiki-dropdown-item" onclick="openTab('articles'); closeDesktopDropdowns();">
+                            <i class="ti ti-file-text"></i>
+                            <span>Статьи</span>
+                        </button>
+                        <button type="button" class="shiki-dropdown-item" onclick="openTab('users'); closeDesktopDropdowns();">
+                            <i class="ti ti-user"></i>
+                            <span>Пользователи</span>
+                        </button>
+
+                        <div class="shiki-dropdown-divider"></div>
+
+                        <!-- 3. РАЗНОЕ -->
+                        <div class="shiki-dropdown-group-title">РАЗНОЕ</div>
+                        <button type="button" class="shiki-dropdown-item" onclick="openTab('recommendations'); closeDesktopDropdowns();">
+                            <i class="ti ti-thumb-up"></i>
+                            <span>Рекомендации</span>
+                        </button>
+                        <button type="button" class="shiki-dropdown-item" onclick="openTab('calendar'); closeDesktopDropdowns();">
+                            <i class="ti ti-calendar"></i>
+                            <span>Календарь</span>
+                        </button>
+                    </div>
                 </div>
-                <div class="brand-dropdown">
-                    <button class="dropdown-item" onclick="openSettingsModal()">
-                        <i class="ti ti-settings"></i>
-                        <span data-i18n="settings.title">Настройки</span>
-                    </button>
-                    <button class="dropdown-item" onclick="openAboutModal()">
-                        <i class="ti ti-info-circle"></i>
-                        <span data-i18n="about.title">О сайте</span>
-                    </button>
-                    <button class="dropdown-item btn-pwa-install hidden" onclick="installPwaApp()">
-                        <i class="ti ti-download"></i>
-                        <span data-i18n="pwa.install">Установить приложение</span>
-                    </button>
-                    <div class="dropdown-divider"></div>
-                    <div class="dropdown-footer" id="dropdown-version">
-                        <i class="ti ti-code"></i> Shiki MX v{{ app_version }}
+
+                <!-- 3. Поисковая строка со встроенной подсказкой горячей клавиши / -->
+                <div class="shiki-search-box-wrap" id="desktop-search-wrap">
+                    <div class="shiki-search-input-box" id="desktop-search-input-box">
+                        <i class="ti ti-search shiki-search-icon"></i>
+                        <input type="text" id="desktop-search-input" class="shiki-search-input" placeholder="Поиск..." autocomplete="off" oninput="handleDesktopSearch(this.value)" onfocus="handleDesktopSearchFocus()">
+                        <button type="button" class="shiki-search-clear-btn hidden" id="desktop-search-clear" onclick="clearDesktopSearch()" title="Очистить">
+                            <i class="ti ti-x"></i>
+                        </button>
+                        <kbd class="shiki-search-hotkey" id="desktop-search-hotkey" title="Нажмите / для быстрого перехода к поиску">/</kbd>
+                    </div>
+
+                    <!-- Выпадающий список результатов десктопного поиска -->
+                    <div class="shiki-search-results-dropdown hidden" id="desktop-search-dropdown">
+                        <div id="desktop-search-results-list" class="shiki-search-results-list"></div>
                     </div>
                 </div>
             </div>
 
-            <nav class="tabs-nav">
-                <button class="tab-btn active" onclick="openTab('profile')">
-                    <i class="ti ti-compass tab-icon"></i><span class="tab-label" data-i18n="tab.profile">Профиль & Обзор</span>
-                </button>
-                <button class="tab-btn" onclick="openTab('rates')">
-                    <i class="ti ti-list-check tab-icon"></i><span class="tab-label" data-i18n="tab.rates">Списки</span>
-                </button>
-                <button class="tab-btn" onclick="openTab('favourites')">
-                    <i class="ti ti-heart tab-icon"></i><span class="tab-label" data-i18n="tab.favourites">Избранное</span>
-                </button>
-                <button class="tab-btn" onclick="openTab('friends')">
-                    <i class="ti ti-users tab-icon"></i><span class="tab-label" data-i18n="tab.friends">Друзья</span>
-                </button>
-                <button class="tab-btn" onclick="openTab('history')">
-                    <i class="ti ti-history tab-icon"></i><span class="tab-label" data-i18n="tab.history">История</span>
-                </button>
-            </nav>
-
+            <!-- Правая часть: Кнопка обсуждений + Профиль -->
             <div class="header-right">
-                <button id="sections-nav-btn" class="btn-theme" onclick="openMobileSectionsMenu()" title="Разделы">
-                    <i class="ti ti-layout-grid"></i>
-                </button>
-                <button id="random-anime-btn" class="btn-theme" onclick="pickRandomAnime()" title="Мне повезёт (Рандомайзер)">
-                    <i class="ti ti-sparkles"></i>
-                </button>
-                <button id="search-toggle-btn" class="btn-theme" onclick="toggleNavbarSearch()" data-i18n-title="search.title">
-                    <i class="ti ti-search"></i>
-                </button>
-                <button id="theme-toggle-btn" class="btn-theme" onclick="toggleTheme()" data-i18n-title="theme.title">
-                    <i class="ti ti-sun"></i>
-                </button>
-                <button id="lang-toggle-btn" class="btn-theme" onclick="toggleLanguage()">
-                    <i class="ti ti-language"></i>
-                    <span class="lang-label">RU</span>
+                <!-- Кнопка Темы дня / Сообщения -->
+                <button type="button" class="shiki-header-icon-btn" onclick="openSectionDetail('hot')" title="Темы дня и обсуждения">
+                    <i class="ti ti-messages"></i>
                 </button>
 
+                <!-- Блок профиля -->
                 {% if profile %}
-                <div class="user-mini-info">
-                    <img src="{{ profile.image | img_url }}" alt="{{ profile.nickname }}" class="avatar-mini">
-                    <div>
-                        <div class="user-nickname">{{ profile.nickname }}</div>
-                        <a href="/logout"
-                            style="color: var(--danger); font-size: 11px; text-decoration: none;"><span data-i18n="logout">Выйти</span></a>
+                <div class="shiki-profile-dropdown-wrap" id="shiki-profile-dropdown-wrap">
+                    <button type="button" class="shiki-profile-btn" id="shiki-profile-btn" onclick="toggleDesktopProfileMenu(event)">
+                        <img src="{{ profile.image | img_url }}" alt="{{ profile.nickname }}" class="shiki-avatar">
+                        <span class="shiki-profile-name">{{ profile.nickname }}</span>
+                        <i class="ti ti-caret-down shiki-caret-icon"></i>
+                    </button>
+                    <div class="shiki-dropdown-menu shiki-dropdown-menu-right" id="shiki-profile-dropdown">
+                        <div class="shiki-profile-user-header">
+                            <img src="{{ profile.image | img_url }}" alt="{{ profile.nickname }}" class="shiki-dropdown-avatar">
+                            <div class="shiki-profile-user-meta">
+                                <span class="shiki-dropdown-name">{{ profile.nickname }}</span>
+                                <span class="shiki-dropdown-id">ID: {{ profile.id }}</span>
+                            </div>
+                        </div>
+                        <div class="shiki-dropdown-divider"></div>
+
+                        <button type="button" class="shiki-dropdown-item tab-btn" onclick="handleDesktopNavClick('rates')">
+                            <i class="ti ti-list-check"></i>
+                            <span data-i18n="tab.rates">Списки</span>
+                        </button>
+                        <button type="button" class="shiki-dropdown-item tab-btn" onclick="handleDesktopNavClick('favourites')">
+                            <i class="ti ti-heart"></i>
+                            <span data-i18n="tab.favourites">Избранное</span>
+                        </button>
+                        <button type="button" class="shiki-dropdown-item tab-btn" onclick="handleDesktopNavClick('friends')">
+                            <i class="ti ti-users"></i>
+                            <span data-i18n="tab.friends">Друзья</span>
+                        </button>
+                        <button type="button" class="shiki-dropdown-item tab-btn" onclick="handleDesktopNavClick('history')">
+                            <i class="ti ti-history"></i>
+                            <span data-i18n="tab.history">История</span>
+                        </button>
+                        <button type="button" class="shiki-dropdown-item" onclick="openMobileStatsModal(); closeDesktopDropdowns();">
+                            <i class="ti ti-chart-bar"></i>
+                            <span data-i18n="profile.stats">Статистика</span>
+                        </button>
+
+                        <div class="shiki-dropdown-divider"></div>
+
+                        <button type="button" class="shiki-dropdown-item" onclick="toggleTheme(); updateDesktopMenuBadges();">
+                            <i class="ti ti-sun" id="desktop-menu-theme-icon"></i>
+                            <span data-i18n="theme.title">Тема</span>
+                            <span class="shiki-dropdown-badge" id="desktop-menu-theme-badge">Тёмная</span>
+                        </button>
+                        <button type="button" class="shiki-dropdown-item" onclick="toggleLanguage(); updateDesktopMenuBadges();">
+                            <i class="ti ti-language"></i>
+                            <span>Язык</span>
+                            <span class="shiki-dropdown-badge" id="desktop-menu-lang-badge">RU</span>
+                        </button>
+                        <button type="button" class="shiki-dropdown-item" onclick="openSettingsModal(); closeDesktopDropdowns();">
+                            <i class="ti ti-settings"></i>
+                            <span data-i18n="settings.title">Настройки</span>
+                        </button>
+                        <button type="button" class="shiki-dropdown-item" onclick="openAboutModal(); closeDesktopDropdowns();">
+                            <i class="ti ti-info-circle"></i>
+                            <span data-i18n="about.title">О сайте</span>
+                        </button>
+
+                        <div class="shiki-dropdown-divider"></div>
+
+                        <a href="/logout" class="shiki-dropdown-item shiki-dropdown-logout">
+                            <i class="ti ti-logout"></i>
+                            <span data-i18n="logout">Выйти</span>
+                        </a>
                     </div>
                 </div>
                 {% else %}
-                <a href="/login" class="btn"><i class="ti ti-brand-shikimori"></i> <span data-i18n="login.shikimori">Войти</span></a>
+                <div class="shiki-profile-dropdown-wrap">
+                    <a href="/login" class="shiki-login-btn">
+                        <i class="ti ti-brand-shikimori"></i>
+                        <span data-i18n="login.shikimori">Войти</span>
+                    </a>
+                </div>
                 {% endif %}
             </div>
-        </div>
-
-
-        <!-- Поиск в навбаре -->
-        <div id="navbar-search-panel" class="navbar-search-panel hidden">
-            <div class="search-box">
-                <i class="ti ti-search search-icon"></i>
-                <input type="text" id="explore-search-input" data-i18n="search.placeholder" placeholder="Поиск аниме, манги..."
-                    oninput="handleExploreSearch(this.value)" autocomplete="off">
-                <button class="search-clear-btn hidden" id="search-clear-btn" onclick="clearExploreSearch()"><i
-                        class="ti ti-x"></i></button>
-            </div>
-            <div id="explore-search-results" class="search-results-list hidden"></div>
         </div>
     </header>
 
@@ -865,100 +966,21 @@
     <!-- Основной контент -->
     <main class="container">
 
-        <!-- Вкладка Профиль & Обзор -->
+        <!-- Вкладка Главная -->
         <div id="profile" class="tab-content active">
-            {% if profile %}
-
-            <div class="profile-grid"> <!-- Общая информация -->
-                <div class="card" data-section="profile-info">
-                    <h3><i class="ti ti-id"></i> <span data-i18n="profile.info">Информация</span></h3>
-                    <div class="info-row"><span class="label" data-i18n="profile.id">ID:</span><span>{{ profile.id }}</span></div>
-                    <div class="info-row"><span class="label" data-i18n="profile.name">Имя:</span><span>{{ profile.name or profile.nickname
-                            }}</span></div>
-                    <div class="info-row"><span class="label" data-i18n="profile.age">Возраст:</span><span>{{ profile.age or '—' }}</span></div>
-                    <div class="info-row"><span class="label" data-i18n="profile.sex">Пол:</span><span>{{ profile.sex or '—' }}</span></div>
-                    <div class="info-row"><span class="label" data-i18n="profile.last_visit">Последний визит:</span><span>{{
-                            profile.last_online_at[:10] if profile.last_online_at else '—' }}</span></div>
-                </div>
-
-                <!-- Статистика просмотров/чтения -->
-                <div class="card" data-section="profile-stats">
-                    <h3><i class="ti ti-chart-bar"></i> <span data-i18n="profile.stats">Статистика</span></h3>
-                    {% if profile.stats %}
-                    <div class="info-row clickable" onclick="openTabWithFilter('Anime', 'completed')">
-                        <span class="label" data-i18n="profile.anime_completed">Просмотрено аниме:</span>
-                        <span><b>{{ profile.stats.statuses.anime | selectattr('name', 'equalto', 'completed') |
-                                map(attribute='size') | first or 0 }}</b></span>
-                    </div>
-                    <div class="info-row clickable" onclick="openTabWithFilter('Anime', 'watching')">
-                        <span class="label" data-i18n="profile.anime_watching">Смотрю аниме:</span>
-                        <span><b>{{ profile.stats.statuses.anime | selectattr('name', 'equalto', 'watching') |
-                                map(attribute='size') | first or 0 }}</b></span>
-                    </div>
-                    <div class="info-row clickable" onclick="openTabWithFilter('Manga', 'completed')">
-                        <span class="label" data-i18n="profile.manga_completed">Прочитано манги:</span>
-                        <span><b>{{ profile.stats.statuses.manga | selectattr('name', 'equalto', 'completed') |
-                                map(attribute='size') | first or 0 }}</b></span>
-                    </div>
-                    <div class="info-row clickable" onclick="openTabWithFilter('Manga', 'watching')">
-                        <span class="label" data-i18n="profile.manga_watching">Читаю мангу:</span>
-                        <span><b>{{ profile.stats.statuses.manga | selectattr('name', 'equalto', 'watching') |
-                                map(attribute='size') | first or 0 }}</b></span>
-                    </div>
-                    {% else %}
-                    <p style="color: var(--text-muted);" data-i18n="profile.stats_unavailable">Статистика недоступна</p>
-                    {% endif %}
-                </div>
-
-                <!-- Друзья и клубы -->
-                <div class="card card-friends-preview" data-section="profile-friends">
-                    <div class="card-header">
-                        <h3><i class="ti ti-users"></i> <span data-i18n="profile.friends_clubs">Друзья и клубы</span></h3>
-                        <button class="btn-secondary" onclick="openTab('friends')" data-i18n="profile.all">Все</button>
-                    </div>
-                    <div id="profile-friends-clubs-preview">
-                        <div class="loader"><i class="ti ti-loader animate-spin"></i></div>
-                    </div>
-                </div>
-
-                <!-- Последняя активность -->
-                <div class="card card-history-left" data-section="profile-activity">
-                    <div class="card-header">
-                        <h3><i class="ti ti-history"></i> <span data-i18n="profile.activity">Активность</span></h3>
-                        <button class="btn-secondary" onclick="openTab('history')" data-i18n="profile.full_history">Вся история</button>
-                    </div>
-                    <div id="recent-history-list">
-                        <div class="loader"><i class="ti ti-loader animate-spin"></i></div>
-                    </div>
-                </div>
-
-                <!-- О себе (BBCode) -->
-                <div class="card card-about-right" data-section="profile-about">
-                    <div class="card-header">
-                        <h3><i class="ti ti-info-circle"></i> <span data-i18n="profile.about">О себе</span></h3>
-                        {% if profile.about %}
-                        <button id="toggle-about-btn" class="btn-secondary" onclick="toggleAbout()" data-i18n="profile.show_full">Показать
-                            полностью</button>
-                        {% endif %}
-                    </div>
-                    <div id="about-container" class="about-section collapsed">
-                        {% if profile.about %}
-                        {{ profile.about | bbcode }}
-                        {% else %}
-                        <p style="color: var(--text-muted); margin: 0;" data-i18n="profile.about_empty">Информация о себе не заполнена.</p>
-                        {% endif %}
-                    </div>
-                </div>
+            <!-- Главный портал новостей и контента (Шикимори) -->
+            <div id="explore-news-container" data-section="profile-news">
+                <div class="loader" style="padding: 40px;"><i class="ti ti-loader animate-spin"></i> <span data-i18n="explore.loading">Загрузка...</span></div>
             </div>
 
-            <!-- Расписание Онгоингов (Календарь) -->
-            <div id="calendar-section-container" class="calendar-wrapper" data-section="explore-calendar"></div>
-
             <!-- Блок Продолжить просмотр -->
-            <div id="continue-watching-container" class="continue-watching-wrapper hidden"></div>
+            <div id="continue-watching-container" class="continue-watching-wrapper desktop-hidden hidden"></div>
+
+            <!-- Расписание Онгоингов (Календарь) -->
+            <div id="calendar-section-container" class="calendar-wrapper desktop-hidden hidden" data-section="explore-calendar"></div>
 
             <!-- Каталог с фильтрами -->
-            <div id="catalog-section-container" class="catalog-section-container" data-section="explore-catalog">
+            <div id="catalog-section-container" class="catalog-section-container desktop-hidden hidden" data-section="explore-catalog">
                 <div class="card catalog-header-card">
                     <div class="card-header">
                         <h3><i class="ti ti-layout-grid"></i> <span data-i18n="catalog.title">Каталог аниме</span></h3>
@@ -1024,52 +1046,86 @@
                                 <option value="name" data-i18n="catalog.sort.name">По названию</option>
                             </select>
                         </div>
-
                     </div>
                 </div>
 
                 <div id="catalog-grid-container" class="catalog-cards-grid"></div>
                 <div id="catalog-load-more-wrap" class="catalog-load-more-wrap"></div>
+            </div>
 
-                <!-- Пасхалка консоли аниме (в самом низу вкладки Обзор в моб. виде) -->
-                <div class="mobile-anime-console-widget">
-                    <div class="anime-console-header">
-                        <span class="console-dot dot-red"></span>
-                        <span class="console-dot dot-yellow"></span>
-                        <span class="console-dot dot-green"></span>
-                        <span class="console-title">easter_egg.java</span>
+            {% if profile %}
+            <div class="profile-grid desktop-hidden hidden" style="margin-top: 30px;"> <!-- Общая информация -->
+                <div class="card" data-section="profile-info">
+                    <h3><i class="ti ti-id"></i> <span data-i18n="profile.info">Информация</span></h3>
+                    <div class="info-row"><span class="label" data-i18n="profile.id">ID:</span><span>{{ profile.id }}</span></div>
+                    <div class="info-row"><span class="label" data-i18n="profile.name">Имя:</span><span>{{ profile.name or profile.nickname }}</span></div>
+                    <div class="info-row"><span class="label" data-i18n="profile.age">Возраст:</span><span>{{ profile.age or '—' }}</span></div>
+                    <div class="info-row"><span class="label" data-i18n="profile.sex">Пол:</span><span>{{ profile.sex or '—' }}</span></div>
+                    <div class="info-row"><span class="label" data-i18n="profile.last_visit">Последний визит:</span><span>{{ profile.last_online_at[:10] if profile.last_online_at else '—' }}</span></div>
+                </div>
+
+                <!-- Статистика просмотров/чтения -->
+                <div class="card" data-section="profile-stats">
+                    <h3><i class="ti ti-chart-bar"></i> <span data-i18n="profile.stats">Статистика</span></h3>
+                    {% if profile.stats %}
+                    <div class="info-row clickable" onclick="openTabWithFilter('Anime', 'completed')">
+                        <span class="label" data-i18n="profile.anime_completed">Просмотрено аниме:</span>
+                        <span><b>{{ profile.stats.statuses.anime | selectattr('name', 'equalto', 'completed') | map(attribute='size') | first or 0 }}</b></span>
                     </div>
-                    <div class="anime-code-container">
-                        <h1>System<span style="color:white;">.<span style="color:#e06c75;">out</span>.</span><span style="color:#61afef;">println</span>("</h1>
-                        <div class="string-box">
-                            <div class="string">
-                                <h1 class="greeting en">Konnichiwa!</h1>
-                                <h1 class="greeting es">Omae Wa Mou Shindeiru!</h1>
-                                <h1 class="greeting de">Dattebayo!</h1>
-                                <h1 class="greeting it">Ara Ara~</h1>  
-                            </div>
-                        </div>
-                        <h1 class="closure">");</h1>
+                    <div class="info-row clickable" onclick="openTabWithFilter('Anime', 'watching')">
+                        <span class="label" data-i18n="profile.anime_watching">Смотрю аниме:</span>
+                        <span><b>{{ profile.stats.statuses.anime | selectattr('name', 'equalto', 'watching') | map(attribute='size') | first or 0 }}</b></span>
+                    </div>
+                    <div class="info-row clickable" onclick="openTabWithFilter('Manga', 'completed')">
+                        <span class="label" data-i18n="profile.manga_completed">Прочитано манги:</span>
+                        <span><b>{{ profile.stats.statuses.manga | selectattr('name', 'equalto', 'completed') | map(attribute='size') | first or 0 }}</b></span>
+                    </div>
+                    <div class="info-row clickable" onclick="openTabWithFilter('Manga', 'watching')">
+                        <span class="label" data-i18n="profile.manga_watching">Читаю мангу:</span>
+                        <span><b>{{ profile.stats.statuses.manga | selectattr('name', 'equalto', 'watching') | map(attribute='size') | first or 0 }}</b></span>
+                    </div>
+                    {% else %}
+                    <p style="color: var(--text-muted);" data-i18n="profile.stats_unavailable">Статистика недоступна</p>
+                    {% endif %}
+                </div>
+
+                <!-- Друзья и клубы -->
+                <div class="card card-friends-preview" data-section="profile-friends">
+                    <div class="card-header">
+                        <h3><i class="ti ti-users"></i> <span data-i18n="profile.friends_clubs">Друзья и клубы</span></h3>
+                        <button class="btn-secondary" onclick="openTab('friends')" data-i18n="profile.all">Все</button>
+                    </div>
+                    <div id="profile-friends-clubs-preview">
+                        <div class="loader"><i class="ti ti-loader animate-spin"></i></div>
                     </div>
                 </div>
 
-            </div>
+                <!-- Последняя активность -->
+                <div class="card card-history-left" data-section="profile-activity">
+                    <div class="card-header">
+                        <h3><i class="ti ti-history"></i> <span data-i18n="profile.activity">Активность</span></h3>
+                        <button class="btn-secondary" onclick="openTab('history')" data-i18n="profile.full_history">Вся история</button>
+                    </div>
+                    <div id="recent-history-list">
+                        <div class="loader"><i class="ti ti-loader animate-spin"></i></div>
+                    </div>
+                </div>
 
-            <!-- News (from Explore) - at the end -->
-            <div id="explore-news-container" data-section="profile-news">
-                <div class="loader"><i class="ti ti-loader animate-spin"></i> <span data-i18n="explore.loading">Загрузка...</span></div>
-            </div>
-
-            {% else %}
-            <div class="card" style="text-align: center; padding: 48px;">
-                <i class="ti ti-user-x"
-                    style="font-size: 48px; color: var(--primary); margin-bottom: 16px; display: block;"></i>
-                <h2 data-i18n="auth.not_authorized">Авторизация не выполнена</h2>
-                <p style="color: var(--text-muted); margin-bottom: 24px;" data-i18n="auth.not_authorized.desc">Войдите через Shikimori, чтобы
-                    просмотреть свой профиль, списки и обзор.</p>
-                <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-                    <a href="/login" class="btn" style="display: inline-flex;"><i class="ti ti-brand-shikimori"></i>
-                        <span data-i18n="login.via_shikimori">Войти через Shikimori</span></a>
+                <!-- О себе (BBCode) -->
+                <div class="card card-about-right" data-section="profile-about">
+                    <div class="card-header">
+                        <h3><i class="ti ti-info-circle"></i> <span data-i18n="profile.about">О себе</span></h3>
+                        {% if profile.about %}
+                        <button id="toggle-about-btn" class="btn-secondary" onclick="toggleAbout()" data-i18n="profile.show_full">Показать полностью</button>
+                        {% endif %}
+                    </div>
+                    <div id="about-container" class="about-section collapsed">
+                        {% if profile.about %}
+                        {{ profile.about | bbcode }}
+                        {% else %}
+                        <p style="color: var(--text-muted); margin: 0;" data-i18n="profile.about_empty">Информация о себе не заполнена.</p>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             {% endif %}
@@ -1093,6 +1149,233 @@
         <!-- Вкладка История -->
         <div id="history" class="tab-content">
             <div class="loader"><i class="ti ti-loader animate-spin"></i> <span data-i18n="history.loading">Загрузка истории...</span></div>
+        </div>
+
+        <!-- 1. Вкладка База данных: Аниме -->
+        <div id="catalog-anime" class="tab-content">
+            <div class="portal-module-container">
+                <div class="portal-module-header">
+                    <h2 class="portal-module-title"><i class="ti ti-player-play"></i> Каталог Аниме</h2>
+                    <div class="portal-filter-bar">
+                        <select id="anime-cat-genre" class="portal-filter-select" onchange="loadCatalogAnimeTab(1)">
+                            <option value="">Все жанры</option>
+                        </select>
+                        <select id="anime-cat-kind" class="portal-filter-select" onchange="loadCatalogAnimeTab(1)">
+                            <option value="">Все типы</option>
+                            <option value="tv">ТВ Сериал</option>
+                            <option value="movie">Фильм</option>
+                            <option value="ova">OVA</option>
+                            <option value="ona">ONA</option>
+                            <option value="special">Спешл</option>
+                        </select>
+                        <select id="anime-cat-status" class="portal-filter-select" onchange="loadCatalogAnimeTab(1)">
+                            <option value="">Любой статус</option>
+                            <option value="ongoing">Онгоинг</option>
+                            <option value="released">Вышло</option>
+                            <option value="anons">Анонс</option>
+                        </select>
+                        <select id="anime-cat-season" class="portal-filter-select" onchange="loadCatalogAnimeTab(1)">
+                            <option value="">Все сезоны</option>
+                            <option value="fall_2026">Осень 2026</option>
+                            <option value="summer_2026">Лето 2026</option>
+                            <option value="spring_2026">Весна 2026</option>
+                            <option value="winter_2026">Зима 2026</option>
+                            <option value="2026">2026 год</option>
+                            <option value="2025">2025 год</option>
+                            <option value="2024">2024 год</option>
+                        </select>
+                        <select id="anime-cat-score" class="portal-filter-select" onchange="loadCatalogAnimeTab(1)">
+                            <option value="">Любая оценка</option>
+                            <option value="8">8+</option>
+                            <option value="7">7+</option>
+                            <option value="6">6+</option>
+                        </select>
+                        <select id="anime-cat-order" class="portal-filter-select" onchange="loadCatalogAnimeTab(1)">
+                            <option value="ranked">По рейтингу</option>
+                            <option value="popularity">По популярности</option>
+                            <option value="aired_on">По дате выхода</option>
+                            <option value="name">По алфавиту</option>
+                        </select>
+                        <input type="text" id="anime-cat-search" class="portal-filter-input" placeholder="Поиск аниме..." oninput="debounce(loadCatalogAnimeTab, 400)(1)">
+                    </div>
+                </div>
+                <div id="catalog-anime-list" class="portal-media-grid"></div>
+                <div style="display: flex; justify-content: center; margin-top: 10px;">
+                    <button type="button" id="catalog-anime-loadmore" class="btn btn-primary" style="display: none;" onclick="loadMoreCatalogAnime()">Загрузить ещё</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Вкладка База данных: Топ 100 -->
+        <div id="top100" class="tab-content">
+            <div class="portal-module-container">
+                <div class="portal-module-header">
+                    <h2 class="portal-module-title"><i class="ti ti-trophy"></i> Топ 100</h2>
+                    <div class="top100-tabs-nav">
+                        <button type="button" class="top100-tab-btn active" data-type="anime" onclick="loadTop100Tab('anime')">Топ Аниме</button>
+                        <button type="button" class="top100-tab-btn" data-type="movie" onclick="loadTop100Tab('movie')">Топ Фильмов</button>
+                        <button type="button" class="top100-tab-btn" data-type="ongoing" onclick="loadTop100Tab('ongoing')">Топ Онгоингов</button>
+                        <button type="button" class="top100-tab-btn" data-type="manga" onclick="loadTop100Tab('manga')">Топ Манги</button>
+                    </div>
+                </div>
+                <div id="top100-list"></div>
+            </div>
+        </div>
+
+        <!-- 3. Вкладка База данных: Манга -->
+        <div id="catalog-manga" class="tab-content">
+            <div class="portal-module-container">
+                <div class="portal-module-header">
+                    <h2 class="portal-module-title"><i class="ti ti-book-2"></i> Каталог Манги</h2>
+                    <div class="portal-filter-bar">
+                        <select id="manga-cat-kind" class="portal-filter-select" onchange="loadCatalogMangaTab(1)">
+                            <option value="">Все типы</option>
+                            <option value="manga">Манга</option>
+                            <option value="manhwa">Манхва</option>
+                            <option value="manhua">Маньхуа</option>
+                            <option value="one_shot">Ваншот</option>
+                            <option value="doujin">Додзинси</option>
+                        </select>
+                        <select id="manga-cat-status" class="portal-filter-select" onchange="loadCatalogMangaTab(1)">
+                            <option value="">Любой статус</option>
+                            <option value="ongoing">Выходит</option>
+                            <option value="released">Издано</option>
+                            <option value="anons">Анонс</option>
+                        </select>
+                        <select id="manga-cat-order" class="portal-filter-select" onchange="loadCatalogMangaTab(1)">
+                            <option value="ranked">По рейтингу</option>
+                            <option value="popularity">По популярности</option>
+                            <option value="name">По названию</option>
+                        </select>
+                        <input type="text" id="manga-cat-search" class="portal-filter-input" placeholder="Поиск манги..." oninput="debounce(loadCatalogMangaTab, 400)(1)">
+                    </div>
+                </div>
+                <div id="catalog-manga-list" class="portal-media-grid"></div>
+                <div style="display: flex; justify-content: center; margin-top: 10px;">
+                    <button type="button" id="catalog-manga-loadmore" class="btn btn-primary" style="display: none;" onclick="loadMoreCatalogManga()">Загрузить ещё</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Вкладка База данных: Ранобэ -->
+        <div id="catalog-ranobe" class="tab-content">
+            <div class="portal-module-container">
+                <div class="portal-module-header">
+                    <h2 class="portal-module-title"><i class="ti ti-notebook"></i> Каталог Ранобэ</h2>
+                    <div class="portal-filter-bar">
+                        <select id="ranobe-cat-status" class="portal-filter-select" onchange="loadCatalogRanobeTab(1)">
+                            <option value="">Любой статус</option>
+                            <option value="ongoing">Выходит</option>
+                            <option value="released">Издано</option>
+                        </select>
+                        <select id="ranobe-cat-order" class="portal-filter-select" onchange="loadCatalogRanobeTab(1)">
+                            <option value="ranked">По рейтингу</option>
+                            <option value="popularity">По популярности</option>
+                            <option value="name">По алфавиту</option>
+                        </select>
+                        <input type="text" id="ranobe-cat-search" class="portal-filter-input" placeholder="Поиск ранобэ..." oninput="debounce(loadCatalogRanobeTab, 400)(1)">
+                    </div>
+                </div>
+                <div id="catalog-ranobe-list" class="portal-media-grid"></div>
+                <div style="display: flex; justify-content: center; margin-top: 10px;">
+                    <button type="button" id="catalog-ranobe-loadmore" class="btn btn-primary" style="display: none;" onclick="loadMoreCatalogRanobe()">Загрузить ещё</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Вкладка Сообщество: Форум -->
+        <div id="forum" class="tab-content">
+            <div class="portal-module-container">
+                <div class="portal-module-header">
+                    <h2 class="portal-module-title"><i class="ti ti-messages"></i> Форум</h2>
+                    <div class="forum-cat-nav">
+                        <button type="button" class="forum-cat-btn active" data-forum="all" onclick="loadForumTab('all')">Все темы</button>
+                        <button type="button" class="forum-cat-btn" data-forum="animanga" onclick="loadForumTab('animanga')">Аниме и Манга</button>
+                        <button type="button" class="forum-cat-btn" data-forum="news" onclick="loadForumTab('news')">Новости</button>
+                        <button type="button" class="forum-cat-btn" data-forum="critiques" onclick="loadForumTab('critiques')">Рецензии</button>
+                        <button type="button" class="forum-cat-btn" data-forum="collections" onclick="loadForumTab('collections')">Коллекции</button>
+                        <button type="button" class="forum-cat-btn" data-forum="articles" onclick="loadForumTab('articles')">Статьи</button>
+                        <button type="button" class="forum-cat-btn" data-forum="offtopic" onclick="loadForumTab('offtopic')">Офтопик</button>
+                    </div>
+                </div>
+                <div id="forum-topics-list"></div>
+            </div>
+        </div>
+
+        <!-- 6. Вкладка Сообщество: Клубы -->
+        <div id="clubs" class="tab-content">
+            <div class="portal-module-container">
+                <div class="portal-module-header">
+                    <h2 class="portal-module-title"><i class="ti ti-circles-relation"></i> Клубы</h2>
+                    <div class="portal-filter-bar">
+                        <input type="text" id="clubs-search-input" class="portal-filter-input" placeholder="Поиск клубов..." oninput="debounce(loadClubsTab, 400)()">
+                    </div>
+                </div>
+                <div id="clubs-grid-list"></div>
+            </div>
+        </div>
+
+        <!-- 7. Вкладка Сообщество: Коллекции -->
+        <div id="collections" class="tab-content">
+            <div class="portal-module-container">
+                <div class="portal-module-header">
+                    <h2 class="portal-module-title"><i class="ti ti-layout-grid"></i> Коллекции пользователей</h2>
+                </div>
+                <div id="collections-grid-list"></div>
+            </div>
+        </div>
+
+        <!-- 8. Вкладка Сообщество: Рецензии -->
+        <div id="critiques" class="tab-content">
+            <div class="portal-module-container">
+                <div class="portal-module-header">
+                    <h2 class="portal-module-title"><i class="ti ti-pencil"></i> Рецензии и отзывы</h2>
+                </div>
+                <div id="critiques-list-container"></div>
+            </div>
+        </div>
+
+        <!-- 9. Вкладка Сообщество: Статьи -->
+        <div id="articles" class="tab-content">
+            <div class="portal-module-container">
+                <div class="portal-module-header">
+                    <h2 class="portal-module-title"><i class="ti ti-file-text"></i> Статьи и аналитика</h2>
+                </div>
+                <div id="articles-list-container"></div>
+            </div>
+        </div>
+
+        <!-- 10. Вкладка Сообщество: Пользователи -->
+        <div id="users" class="tab-content">
+            <div class="portal-module-container">
+                <div class="portal-module-header">
+                    <h2 class="portal-module-title"><i class="ti ti-user"></i> Пользователи</h2>
+                    <div class="portal-filter-bar">
+                        <input type="text" id="users-search-input" class="portal-filter-input" placeholder="Поиск по никнейму..." oninput="debounce(loadUsersTab, 400)()">
+                    </div>
+                </div>
+                <div id="users-grid-container"></div>
+            </div>
+        </div>
+
+        <!-- 11. Вкладка Разное: Рекомендации -->
+        <div id="recommendations" class="tab-content">
+            <div class="portal-module-container">
+                <div class="portal-module-header">
+                    <h2 class="portal-module-title"><i class="ti ti-thumb-up"></i> Рекомендации аниме</h2>
+                </div>
+                <div id="recommendations-grid-container"></div>
+            </div>
+        </div>
+
+        <!-- 12. Вкладка Разное: Календарь -->
+        <div id="calendar" class="tab-content">
+            <div class="portal-module-container">
+                <div class="portal-module-header">
+                    <h2 class="portal-module-title"><i class="ti ti-calendar"></i> Календарь релизов онгоингов</h2>
+                </div>
+                <div id="full-calendar-container"></div>
+            </div>
         </div>
 
     </main>
