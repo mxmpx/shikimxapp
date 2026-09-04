@@ -1,6 +1,10 @@
+import time
+import json
 import logging
+import threading
 import requests
 from flask import Blueprint, session, jsonify, request
+from database import get_connection
 from utils import (
     SHIKIMORI_BASE, APP_NAME, get_auth_headers, fetch_cached_api,
     resolve_posters_graphql, fetch_graphql, fix_image_url
@@ -11,33 +15,98 @@ from errors import AppError, api_route
 logger = logging.getLogger("shikimxapp.rates")
 rates_bp = Blueprint('rates', __name__)
 
-@rates_bp.route("/api/tab/rates")
-@api_route
-def tab_rates():
-    user_id = session.get("user_id")
-    headers = get_auth_headers()
-    if not user_id or not headers:
-        raise AppError("Требуется авторизация", 401)
+RATES_CACHE_TTL = 1800  # 30 minutes
 
+_rates_locks = {}
+_rates_locks_guard = threading.Lock()
+_rates_mem_cache = {}  # user_id -> {"data": [...], "expires_at": float}
+
+
+def _get_rates_lock(user_id):
+    with _rates_locks_guard:
+        if user_id not in _rates_locks:
+            _rates_locks[user_id] = threading.Lock()
+        return _rates_locks[user_id]
+
+
+def invalidate_user_rates_mem_cache(user_id=None):
+    if user_id is None:
+        user_id = session.get("user_id")
+    if user_id:
+        uid = str(user_id)
+        _rates_mem_cache.pop(uid, None)
+
+
+def _get_cached_rates_from_db(user_id):
     try:
-        r = requests.get(
-            f"{SHIKIMORI_BASE}/api/v2/user_rates",
-            headers=headers,
-            params={"user_id": user_id, "limit": 500},
-            timeout=10,
-        )
-    except requests.RequestException as exc:
-        logger.error("Failed to fetch user rates: %s", exc)
-        raise AppError("Не удалось загрузить списки", 502, logging.ERROR)
+        conn = get_connection()
+        try:
+            row = conn.execute(
+                "SELECT data, expires_at FROM api_cache WHERE url = ?",
+                (f"rates:user_{user_id}",)
+            ).fetchone()
+            if row:
+                return json.loads(row["data"]), float(row["expires_at"])
+        finally:
+            conn.close()
+    except Exception as exc:
+        logger.error("Error reading rates cache from DB: %s", exc)
+    return None, 0.0
 
-    if r.status_code != 200:
-        logger.warning("User rates API returned %s", r.status_code)
-        raise AppError("Не удалось загрузить списки", r.status_code)
 
-    rates = r.json() if isinstance(r.json(), list) else []
+def _save_rates_to_db_and_mem(user_id, rates_list):
+    now = time.time()
+    expires_at = now + RATES_CACHE_TTL
+    uid = str(user_id)
+    _rates_mem_cache[uid] = {
+        "data": rates_list,
+        "expires_at": expires_at
+    }
+    try:
+        conn = get_connection()
+        try:
+            conn.execute(
+                "INSERT OR REPLACE INTO api_cache (url, data, expires_at) VALUES (?, ?, ?)",
+                (f"rates:user_{uid}", json.dumps(rates_list), expires_at)
+            )
+            conn.commit()
+        finally:
+            conn.close()
+    except Exception as exc:
+        logger.error("Error writing rates cache to DB: %s", exc)
+
+
+def _fetch_fresh_rates_sync(user_id, headers):
+    rates = []
+    page = 1
+    while True:
+        try:
+            r = requests.get(
+                f"{SHIKIMORI_BASE}/api/v2/user_rates",
+                headers=headers,
+                params={"user_id": user_id, "limit": 500, "page": page},
+                timeout=10,
+            )
+        except requests.RequestException as exc:
+            logger.error("Failed to fetch user rates: %s", exc)
+            raise AppError("Не удалось загрузить списки", 502, logging.ERROR)
+
+        if r.status_code != 200:
+            logger.warning("User rates API returned %s", r.status_code)
+            raise AppError("Не удалось загрузить списки", r.status_code)
+
+        chunk = r.json() if isinstance(r.json(), list) else []
+        if not chunk:
+            break
+        rates.extend(chunk)
+        if len(chunk) < 500 or page >= 20:
+            break
+        page += 1
+
     if not rates:
         logger.debug("Empty rates list for user_id=%s", user_id)
-        return jsonify([])
+        _save_rates_to_db_and_mem(user_id, [])
+        return []
 
     anime_ids = list({str(item["target_id"]) for item in rates if item.get("target_type") == "Anime" and item.get("target_id")})
     manga_ids = list({str(item["target_id"]) for item in rates if item.get("target_type") == "Manga" and item.get("target_id")})
@@ -46,29 +115,142 @@ def tab_rates():
     manga_map = {}
 
     def fetch_anime_chunk(chunk):
+        query = """
+        query BatchRatesDetails($ids: String!) {
+          animes(ids: $ids, limit: 50) {
+            id
+            name
+            russian
+            kind
+            score
+            status
+            episodes
+            episodesAired
+            duration
+            season
+            rating
+            licensors
+            airedOn {
+              year
+              date
+            }
+            genres {
+              id
+              name
+              russian
+            }
+            studios {
+              id
+              name
+            }
+            poster {
+              originalUrl
+              mainUrl
+            }
+          }
+        }
+        """
+        data = fetch_graphql(query, {"ids": ",".join(chunk)}, ttl=3600)
+        if data and isinstance(data.get("animes"), list):
+            res = []
+            for a in data["animes"]:
+                poster = a.get("poster") or {}
+                img_url = poster.get("originalUrl") or poster.get("mainUrl") or ""
+                aired_date = (a.get("airedOn") or {}).get("date") or str((a.get("airedOn") or {}).get("year") or "")
+                res.append({
+                    "id": int(a["id"]) if a.get("id") else 0,
+                    "name": a.get("name", ""),
+                    "russian": a.get("russian", "") or a.get("name", ""),
+                    "kind": a.get("kind", ""),
+                    "score": a.get("score"),
+                    "status": a.get("status", ""),
+                    "episodes": a.get("episodes", 0),
+                    "episodes_aired": a.get("episodesAired", 0),
+                    "duration": a.get("duration", 0),
+                    "season": a.get("season", ""),
+                    "aired_on": aired_date,
+                    "licensors": a.get("licensors", []),
+                    "rating": a.get("rating", ""),
+                    "genres": a.get("genres", []),
+                    "studios": a.get("studios", []),
+                    "image": img_url
+                })
+            return res
         return fetch_cached_api(f"{SHIKIMORI_BASE}/api/animes?ids={','.join(chunk)}&limit=100", headers, ttl=3600)
 
     def fetch_manga_chunk(chunk):
+        query = """
+        query BatchMangaRatesDetails($ids: String!) {
+          mangas(ids: $ids, limit: 50) {
+            id
+            name
+            russian
+            kind
+            score
+            status
+            chapters
+            volumes
+            licensors
+            airedOn {
+              year
+              date
+            }
+            genres {
+              id
+              name
+              russian
+            }
+            publishers {
+              id
+              name
+            }
+            poster {
+              originalUrl
+              mainUrl
+            }
+          }
+        }
+        """
+        data = fetch_graphql(query, {"ids": ",".join(chunk)}, ttl=3600)
+        if data and isinstance(data.get("mangas"), list):
+            res = []
+            for m in data["mangas"]:
+                poster = m.get("poster") or {}
+                img_url = poster.get("originalUrl") or poster.get("mainUrl") or ""
+                aired_date = (m.get("airedOn") or {}).get("date") or str((m.get("airedOn") or {}).get("year") or "")
+                res.append({
+                    "id": int(m["id"]) if m.get("id") else 0,
+                    "name": m.get("name", ""),
+                    "russian": m.get("russian", "") or m.get("name", ""),
+                    "kind": m.get("kind", ""),
+                    "score": m.get("score"),
+                    "status": m.get("status", ""),
+                    "chapters": m.get("chapters", 0),
+                    "volumes": m.get("volumes", 0),
+                    "aired_on": aired_date,
+                    "licensors": m.get("licensors", []),
+                    "genres": m.get("genres", []),
+                    "publishers": m.get("publishers", []),
+                    "studios": m.get("publishers", []),
+                    "image": img_url
+                })
+            return res
         return fetch_cached_api(f"{SHIKIMORI_BASE}/api/mangas?ids={','.join(chunk)}&limit=100", headers, ttl=3600)
 
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        poster_future = executor.submit(resolve_posters_graphql, anime_ids, headers) if anime_ids else None
-        
+    with ThreadPoolExecutor(max_workers=6) as executor:
         anime_chunks = [anime_ids[i:i + 50] for i in range(0, len(anime_ids), 50)]
         manga_chunks = [manga_ids[i:i + 50] for i in range(0, len(manga_ids), 50)]
 
-        anime_results = list(executor.map(fetch_anime_chunk, anime_chunks))
-        manga_results = list(executor.map(fetch_manga_chunk, manga_chunks))
-        
-        poster_map = poster_future.result() if poster_future else {}
+        anime_futures = [executor.submit(fetch_anime_chunk, chunk) for chunk in anime_chunks]
+        manga_futures = [executor.submit(fetch_manga_chunk, chunk) for chunk in manga_chunks]
+
+        anime_results = [f.result() for f in anime_futures]
+        manga_results = [f.result() for f in manga_futures]
 
     # Assemble anime map
     for data in anime_results:
         if isinstance(data, list):
             for a in data:
-                aid = str(a["id"])
-                if aid in poster_map:
-                    a["image"] = poster_map[aid]
                 anime_map[a["id"]] = a
 
     # Assemble manga map
@@ -85,7 +267,61 @@ def tab_rates():
             rate["target_data"] = manga_map[t_id]
 
     logger.info("Loaded %d rates for user_id=%s (parallelized)", len(rates), user_id)
-    return jsonify(rates)
+    _save_rates_to_db_and_mem(user_id, rates)
+    return rates
+
+
+@rates_bp.route("/api/tab/rates")
+@api_route
+def tab_rates():
+    user_id = session.get("user_id")
+    headers = get_auth_headers()
+    if not user_id or not headers:
+        raise AppError("Требуется авторизация", 401)
+
+    uid = str(user_id)
+    now = time.time()
+
+    # 1. Fast in-memory check (<0.1ms)
+    mem = _rates_mem_cache.get(uid)
+    if mem and now < mem["expires_at"]:
+        return jsonify(mem["data"])
+
+    # 2. Database check (<2ms)
+    db_data, db_expires_at = _get_cached_rates_from_db(uid)
+    if db_data is not None:
+        _rates_mem_cache[uid] = {
+            "data": db_data,
+            "expires_at": db_expires_at
+        }
+        if now < db_expires_at:
+            return jsonify(db_data)
+
+        # Stale-While-Revalidate: Return stale data immediately and refresh asynchronously
+        user_lock = _get_rates_lock(uid)
+        def _bg_worker(h=dict(headers)):
+            if user_lock.acquire(blocking=False):
+                try:
+                    logger.debug("Background refreshing stale rates for user=%s...", uid)
+                    _fetch_fresh_rates_sync(uid, h)
+                    logger.debug("Background rates refresh complete for user=%s.", uid)
+                except Exception as exc:
+                    logger.error("Background rates refresh failed: %s", exc)
+                finally:
+                    user_lock.release()
+
+        threading.Thread(target=_bg_worker, daemon=True).start()
+        logger.info("Serving stale rates feed (SWR) for user=%s while background refresh runs", uid)
+        return jsonify(db_data)
+
+    # 3. Cold start: fetch synchronously
+    user_lock = _get_rates_lock(uid)
+    with user_lock:
+        mem = _rates_mem_cache.get(uid)
+        if mem and now < mem["expires_at"]:
+            return jsonify(mem["data"])
+        rates = _fetch_fresh_rates_sync(uid, headers)
+        return jsonify(rates)
 
 @rates_bp.route("/api/grid-data")
 @api_route

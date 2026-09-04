@@ -6,6 +6,7 @@ import logging
 logger = logging.getLogger("shikimxapp.assets")
 
 CSS_FILES = [
+    'css/fonts.css',
     'css/tabler-icons.min.css',
     'css/main.css',
     'css/profile.css',
@@ -14,7 +15,7 @@ CSS_FILES = [
     'css/media.css',
     'css/anime.css',
     'css/manga.css',
-    'css/friend.css',
+    'css/friends.css',
     'css/settings.css'
 ]
 
@@ -24,7 +25,6 @@ JS_FILES = [
     'js/core.js',
     'js/anime.js',
     'js/manga.js',
-    'js/friend.js',
     'js/friends.js',
     'js/profile.js',
     'js/history.js',
@@ -104,7 +104,7 @@ def build_bundles(app_root):
     content_hasher.update(full_mobile_css.encode('utf-8'))
     content_hasher.update(full_mobile_js.encode('utf-8'))
     bundle_hash = content_hasher.hexdigest()[:8]
-    cache_version = f"shikimx-cache-{bundle_hash}"
+    cache_version = f"shikimx-v2-{bundle_hash}"
 
     if os.path.exists(sw_path):
         with open(sw_path, 'r', encoding='utf-8') as f:

@@ -1,7 +1,10 @@
 import json
 import logging
 from flask import Blueprint, jsonify, request, session
-from database import get_or_create_user, get_user_settings, set_user_settings, get_user_setting
+from database import (
+    get_or_create_user, get_user_settings, set_user_settings,
+    get_user_setting, set_user_setting
+)
 
 logger = logging.getLogger("shikimxapp.settings")
 settings_bp = Blueprint('settings', __name__)
@@ -13,7 +16,8 @@ DEFAULT_SETTINGS = {
         "image": "",
     },
     "navbar_view": "full",
-    "section_visibility": {}
+    "section_visibility": {},
+    "language": "ru"
 }
 
 
@@ -42,26 +46,28 @@ def get_settings():
         logger.debug("Settings loaded from DB for user_id=%s", user_id)
         return jsonify(merged)
     else:
-        logger.debug("Settings defaults returned (not logged in)")
-        return jsonify(DEFAULT_SETTINGS)
+        guest_settings = dict(DEFAULT_SETTINGS)
+        for k in DEFAULT_SETTINGS:
+            if f"setting_{k}" in session:
+                guest_settings[k] = session[f"setting_{k}"]
+        return jsonify(guest_settings)
 
 
 @settings_bp.route("/api/settings", methods=["POST"])
 def save_settings():
     """Save settings for the current user."""
-    user_id = _get_current_user_id()
-
-    if not user_id:
-        logger.warning("Attempted to save settings without authentication")
-        return jsonify({"error": "Требуется авторизация"}), 401
-
     data = request.get_json(silent=True)
     if not data or not isinstance(data, dict):
         return jsonify({"error": "Некорректные данные"}), 400
 
-    # Save each top-level key as a separate setting
-    set_user_settings(user_id, data)
-    logger.info("Settings saved for user_id=%s: %s", user_id, list(data.keys()))
+    user_id = _get_current_user_id()
+    if user_id:
+        set_user_settings(user_id, data)
+        logger.info("Settings saved in DB for user_id=%s: %s", user_id, list(data.keys()))
+    else:
+        for k, v in data.items():
+            session[f"setting_{k}"] = v
+
     return jsonify({"success": True, "settings": data})
 
 
@@ -70,34 +76,32 @@ def get_setting(key):
     """Get a single setting for the current user."""
     user_id = _get_current_user_id()
 
-    if not user_id:
-        # Return default if available
-        if key in DEFAULT_SETTINGS:
-            return jsonify({key: DEFAULT_SETTINGS[key]})
-        return jsonify({"error": "Требуется авторизация"}), 401
-
-    value = get_user_setting(user_id, key)
-    if value is None and key in DEFAULT_SETTINGS:
-        value = DEFAULT_SETTINGS[key]
-
-    return jsonify({key: value})
+    if user_id:
+        value = get_user_setting(user_id, key)
+        if value is None and key in DEFAULT_SETTINGS:
+            value = DEFAULT_SETTINGS[key]
+        return jsonify({key: value, "value": value})
+    else:
+        value = session.get(f"setting_{key}", DEFAULT_SETTINGS.get(key))
+        return jsonify({key: value, "value": value})
 
 
 @settings_bp.route("/api/settings/<key>", methods=["POST"])
 def save_setting(key):
     """Save a single setting for the current user."""
-    user_id = _get_current_user_id()
-
-    if not user_id:
-        return jsonify({"error": "Требуется авторизация"}), 401
-
     data = request.get_json(silent=True)
     if data is None:
         return jsonify({"error": "Некорректные данные"}), 400
 
-    set_user_setting(user_id, key, data.get("value", data))
-    logger.info("Setting '%s' saved for user_id=%s", key, user_id)
-    return jsonify({"success": True, "key": key})
+    val = data.get("value", data) if isinstance(data, dict) else data
+    user_id = _get_current_user_id()
+    if user_id:
+        set_user_setting(user_id, key, val)
+        logger.info("Setting '%s' saved in DB for user_id=%s", key, user_id)
+    else:
+        session[f"setting_{key}"] = val
+
+    return jsonify({"success": True, "key": key, "value": val})
 
 
 # ==================== CONTINUE WATCHING DB API ====================

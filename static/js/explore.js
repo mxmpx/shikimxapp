@@ -342,13 +342,14 @@ function formatTimeAgo(dateStr) {
         const diffMins = Math.floor(diffMs / 60000);
         const diffHours = Math.floor(diffMs / 3600000);
         const diffDays = Math.floor(diffMs / 86400000);
+        const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
 
-        if (diffMins < 1) return 'только что';
-        if (diffMins < 60) return `${diffMins} мин. назад`;
-        if (diffHours < 24) return `${diffHours} ч. назад`;
-        if (diffDays === 1) return 'день назад';
-        if (diffDays < 7) return `${diffDays} дн. назад`;
-        return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+        if (diffMins < 1) return typeof i18n === 'function' ? i18n('time.just_now') : 'только что';
+        if (diffMins < 60) return `${diffMins} ${typeof i18n === 'function' ? i18n('time.min_ago') : 'мин. назад'}`;
+        if (diffHours < 24) return `${diffHours} ${typeof i18n === 'function' ? i18n('time.hours_ago') : 'ч. назад'}`;
+        if (diffDays === 1) return typeof i18n === 'function' ? i18n('time.day_ago') : 'день назад';
+        if (diffDays < 7) return `${diffDays} ${typeof i18n === 'function' ? i18n('time.days_ago') : 'дн. назад'}`;
+        return date.toLocaleDateString(isEn ? 'en-US' : 'ru-RU', { day: 'numeric', month: 'short' });
     } catch(e) {
         return dateStr;
     }
@@ -373,41 +374,44 @@ window.quickFilterCatalog = function(filterType, value) {
 let currentPortalCategory = 'anime';
 let currentMyListSubTab = 'anime';
 
-const portalCategoryTags = {
-    anime: [
-        { label: 'ОСЕНЬ 2026', action: "quickFilterCatalog('season', 'fall_2026')" },
-        { label: 'ЛЕТО 2026', action: "quickFilterCatalog('season', 'summer_2026')" },
-        { label: 'АНИМЕ 2026', action: "quickFilterCatalog('season', '2026')" },
-        { label: 'АНИМЕ 2025', action: "quickFilterCatalog('season', '2025')" },
-        { label: 'ОНГОИНГИ', action: "quickFilterCatalog('status', 'ongoing')" },
-        { label: 'ИЗБРАННОЕ', action: "openTab('favourites')" },
-        { label: 'РЕКОМЕНДАЦИИ', action: "openTab('recommendations')" },
-        { label: 'МАНГА', action: "openTab('catalog-manga')" },
-        { label: 'МАНХВА', action: "quickFilterCatalog('kind', 'manhwa')" },
-        { label: 'МАНЬХУА', action: "quickFilterCatalog('kind', 'manhua')" },
-        { label: 'ВАНШОТ', action: "quickFilterCatalog('kind', 'one_shot')" },
-        { label: 'ДОДЗИНСИ', action: "quickFilterCatalog('kind', 'doujin')" }
-    ],
-    manga: [
-        { label: 'МАНГА', action: "openTab('catalog-manga')" },
-        { label: 'МАНХВА', action: "quickFilterCatalog('kind', 'manhwa')" },
-        { label: 'МАНЬХУА', action: "quickFilterCatalog('kind', 'manhua')" },
-        { label: 'ВАНШОТ', action: "quickFilterCatalog('kind', 'one_shot')" },
-        { label: 'ДОДЗИНСИ', action: "quickFilterCatalog('kind', 'doujin')" },
-        { label: 'ОНГОИНГИ', action: "quickFilterCatalog('status', 'ongoing')" },
-        { label: 'ИЗБРАННОЕ', action: "openTab('favourites')" },
-        { label: 'ТОП МАНГИ', action: "openTab('top100')" },
-        { label: 'РЕКОМЕНДАЦИИ', action: "openTab('recommendations')" }
-    ],
-    ranobe: [
-        { label: 'РАНОБЭ', action: "openTab('catalog-ranobe')" },
-        { label: 'НОВЕЛЛЫ', action: "openTab('catalog-ranobe')" },
-        { label: 'ОНГОИНГИ', action: "quickFilterCatalog('status', 'ongoing')" },
-        { label: 'ИЗБРАННОЕ', action: "openTab('favourites')" },
-        { label: 'ТОП РАНОБЭ', action: "openTab('top100')" },
-        { label: 'РЕКОМЕНДАЦИИ', action: "openTab('recommendations')" }
-    ]
-};
+function getPortalCategoryTags() {
+    const fn = (typeof i18n === 'function') ? i18n : (k => k);
+    return {
+        anime: [
+            { label: fn('explore.pill.fall_2026'), action: "quickFilterCatalog('season', 'fall_2026')" },
+            { label: fn('explore.pill.summer_2026'), action: "quickFilterCatalog('season', 'summer_2026')" },
+            { label: fn('explore.pill.anime_2026'), action: "quickFilterCatalog('season', '2026')" },
+            { label: fn('explore.pill.anime_2025'), action: "quickFilterCatalog('season', '2025')" },
+            { label: fn('explore.pill.ongoing'), action: "quickFilterCatalog('status', 'ongoing')" },
+            { label: fn('explore.pill.favourites'), action: "openTab('favourites')" },
+            { label: fn('explore.pill.recommendations'), action: "openTab('recommendations')" },
+            { label: fn('explore.pill.manga'), action: "openTab('catalog-manga')" },
+            { label: fn('explore.pill.manhwa'), action: "quickFilterCatalog('kind', 'manhwa')" },
+            { label: fn('explore.pill.manhua'), action: "quickFilterCatalog('kind', 'manhua')" },
+            { label: fn('explore.pill.one_shot'), action: "quickFilterCatalog('kind', 'one_shot')" },
+            { label: fn('explore.pill.doujin'), action: "quickFilterCatalog('kind', 'doujin')" }
+        ],
+        manga: [
+            { label: fn('explore.pill.manga'), action: "openTab('catalog-manga')" },
+            { label: fn('explore.pill.manhwa'), action: "quickFilterCatalog('kind', 'manhwa')" },
+            { label: fn('explore.pill.manhua'), action: "quickFilterCatalog('kind', 'manhua')" },
+            { label: fn('explore.pill.one_shot'), action: "quickFilterCatalog('kind', 'one_shot')" },
+            { label: fn('explore.pill.doujin'), action: "quickFilterCatalog('kind', 'doujin')" },
+            { label: fn('explore.pill.ongoing'), action: "quickFilterCatalog('status', 'ongoing')" },
+            { label: fn('explore.pill.favourites'), action: "openTab('favourites')" },
+            { label: fn('explore.pill.top_manga'), action: "openTab('top100')" },
+            { label: fn('explore.pill.recommendations'), action: "openTab('recommendations')" }
+        ],
+        ranobe: [
+            { label: fn('explore.pill.ranobe'), action: "openTab('catalog-ranobe')" },
+            { label: fn('explore.pill.novels'), action: "openTab('catalog-ranobe')" },
+            { label: fn('explore.pill.ongoing'), action: "quickFilterCatalog('status', 'ongoing')" },
+            { label: fn('explore.pill.favourites'), action: "openTab('favourites')" },
+            { label: fn('explore.pill.top_ranobe'), action: "openTab('top100')" },
+            { label: fn('explore.pill.recommendations'), action: "openTab('recommendations')" }
+        ]
+    };
+}
 
 window.switchPortalCategory = function(cat) {
     currentPortalCategory = cat;
@@ -416,7 +420,8 @@ window.switchPortalCategory = function(cat) {
     });
     const container = document.getElementById('shiki-filter-tags-grid');
     if (!container) return;
-    const tags = portalCategoryTags[cat] || portalCategoryTags['anime'];
+    const catTags = getPortalCategoryTags();
+    const tags = catTags[cat] || catTags['anime'];
     container.innerHTML = tags.map(t => `<button type="button" class="shiki-filter-pill" onclick="${t.action}">${t.label}</button>`).join('');
 };
 
@@ -432,17 +437,68 @@ window.openCatalogCategory = function(cat) {
     switchPortalCategory(cat);
 };
 
-function buildNewsItemCard(item) {
+function formatNewsTag(tag) {
+    if (!tag) return typeof i18n === 'function' ? i18n('news.tag.news') : 'Новость';
+    const tLower = tag.toLowerCase();
+    if (tLower === 'новость' || tLower === 'news') return typeof i18n === 'function' ? i18n('news.tag.news') : tag;
+    if (tLower === 'трейлер' || tLower === 'trailer') return typeof i18n === 'function' ? i18n('news.tag.trailer') : tag;
+    if (tLower === 'постер' || tLower === 'poster') return typeof i18n === 'function' ? i18n('news.tag.poster') : tag;
+    if (tLower === 'премьера' || tLower === 'premiere') return typeof i18n === 'function' ? i18n('news.tag.premiere') : tag;
+    if (tLower === 'аниме' || tLower === 'anime') return typeof i18n === 'function' ? i18n('news.tag.anime') : tag;
+    return tag;
+}
+
+function formatContentTag(tag) {
+    if (!tag) return typeof i18n === 'function' ? i18n('explore.collection') : 'Коллекция';
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    if (!isEn) return tag;
+    const tLower = tag.toLowerCase();
+    if (tLower.includes('коллекц') || tLower.includes('collection')) return 'Collection';
+    if (tLower.includes('реценз') || tLower.includes('review') || tLower.includes('critique')) return 'Review';
+    if (tLower.includes('стать') || tLower.includes('article')) return 'Article';
+    return tag;
+}
+
+function formatTopicTag(tag) {
+    if (!tag) return typeof i18n === 'function' ? i18n('news.tag.news') : 'Новость';
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    if (!isEn) return tag;
+    const tLower = tag.toLowerCase();
+    if (tLower.includes('обсуждение аниме') || tLower.includes('anime discussion')) return 'Anime Discussion';
+    if (tLower.includes('обсуждение манги') || tLower.includes('manga discussion')) return 'Manga Discussion';
+    if (tLower.includes('обсуждение') || tLower.includes('discussion')) return 'Discussion';
+    if (tLower.includes('новость') || tLower.includes('новости') || tLower.includes('news')) return 'News';
+    if (tLower.includes('коллекц') || tLower.includes('collection')) return 'Collection';
+    if (tLower.includes('реценз') || tLower.includes('review') || tLower.includes('critique')) return 'Review';
+    if (tLower.includes('стать') || tLower.includes('article')) return 'Article';
+    if (tLower.includes('офтопик') || tLower.includes('offtopic')) return 'Off-topic';
+    return tag;
+}
+
+function formatGenresText(genresStr) {
+    if (!genresStr) return '';
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    if (!isEn) return genresStr;
+    const list = genresStr.split(',').map(g => g.trim());
+    return list.map(g => (typeof t === 'function' ? t(g) : g)).join(', ');
+}
+
+function buildNewsItemCard(item, idx) {
+    const isAboveFold = (typeof idx === 'number' && idx < 2);
+    const imgAttrs = isAboveFold 
+        ? 'fetchpriority="high" decoding="async"' 
+        : 'loading="lazy" decoding="async"';
+
     return `
         <a href="${item.url}" target="_blank" class="shiki-featured-news-card">
             <div class="shiki-news-thumb-wrap">
-                ${item.image ? `<img src="${item.image}" alt="${(item.title || '').replace(/"/g, '&quot;')}" class="shiki-news-thumb" loading="lazy">` : `<div class="shiki-news-thumb placeholder"><i class="ti ti-news"></i></div>`}
+                ${item.image ? `<img src="${item.image}" alt="${(item.title || '').replace(/"/g, '&quot;')}" class="shiki-news-thumb" ${imgAttrs}>` : `<div class="shiki-news-thumb placeholder"><i class="ti ti-news"></i></div>`}
                 ${item.is_youtube ? `<span class="shiki-youtube-badge"><i class="ti ti-brand-youtube-filled"></i> youtube</span>` : ''}
             </div>
             <div class="shiki-news-card-body">
                 <div class="shiki-news-card-title">${item.title}</div>
                 <div class="shiki-news-card-tags">
-                    ${(item.tags && item.tags.length) ? item.tags.map(t => `<span class="shiki-news-tag">${t}</span>`).join('') : '<span class="shiki-news-tag">Новость</span>'}
+                    ${(item.tags && item.tags.length) ? item.tags.map(t => `<span class="shiki-news-tag">${formatNewsTag(t)}</span>`).join('') : `<span class="shiki-news-tag">${formatNewsTag('Новость')}</span>`}
                 </div>
                 <div class="shiki-news-card-meta">
                     <span>${formatTimeAgo(item.date)}</span>
@@ -495,22 +551,30 @@ function renderExplore(data) {
         return 'shiki-tag-collection';
     };
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    const catTags = getPortalCategoryTags();
+
     let html = `
         <div class="shiki-portal-container">
             <!-- 1. СЕЙЧАС НА ЭКРАНАХ -->
             ${onScreens.length ? `
                 <div class="shiki-portal-section" data-section="explore-on-screens">
-                    <div class="shiki-section-heading-purple">СЕЙЧАС НА ЭКРАНАХ</div>
+                    <div class="shiki-section-heading-purple">${i18n('explore.on_screens')}</div>
                     <div class="shiki-on-screens-grid">
-                        ${onScreens.slice(0, 8).map(anime => `
+                        ${onScreens.slice(0, 8).map((anime, idx) => {
+                            const title = (isEn && anime.name) ? anime.name : (anime.russian || anime.name);
+                            const imgAttrs = idx < 4 
+                                ? 'fetchpriority="high" decoding="async"' 
+                                : 'loading="lazy" decoding="async"';
+                            return `
                             <div class="shiki-on-screen-card" onclick="openAnimeModal(${anime.id})">
                                 <div class="shiki-poster-wrap">
-                                    <img src="${anime.image}" alt="${(anime.russian || anime.name || '').replace(/"/g, '&quot;')}" class="shiki-on-screen-poster" loading="lazy">
+                                    <img src="${anime.image}" alt="${(title || '').replace(/"/g, '&quot;')}" class="shiki-on-screen-poster" ${imgAttrs}>
                                 </div>
-                                <div class="shiki-on-screen-title" title="${anime.russian || anime.name}">${anime.russian || anime.name}</div>
+                                <div class="shiki-on-screen-title" title="${title}">${title}</div>
                                 <div class="shiki-on-screen-studio" title="${anime.studios || ''}">${anime.studios || ''}</div>
                             </div>
-                        `).join('')}
+                        `;}).join('')}
                     </div>
                 </div>
             ` : ''}
@@ -520,11 +584,11 @@ function renderExplore(data) {
                 <!-- Левая колонка: Мой список -->
                 <div class="shiki-my-list-block">
                     <div class="shiki-my-list-header">
-                        <span class="shiki-my-list-title">МОЙ СПИСОК</span>
+                        <span class="shiki-my-list-title">${i18n('explore.my_list')}</span>
                         <div class="shiki-my-list-links">
-                            <a href="javascript:void(0)" data-type="anime" class="active" onclick="switchMyListSubTab('anime')">аниме</a> /
-                            <a href="javascript:void(0)" data-type="manga" onclick="switchMyListSubTab('manga')">манга</a> /
-                            <a href="javascript:void(0)" data-type="history" onclick="switchMyListSubTab('history')">история</a>
+                            <a href="javascript:void(0)" data-type="anime" class="active" onclick="switchMyListSubTab('anime')">${i18n('explore.subtab.anime')}</a> /
+                            <a href="javascript:void(0)" data-type="manga" onclick="switchMyListSubTab('manga')">${i18n('explore.subtab.manga')}</a> /
+                            <a href="javascript:void(0)" data-type="history" onclick="switchMyListSubTab('history')">${i18n('explore.subtab.history')}</a>
                         </div>
                     </div>
                     <div id="shiki-my-recent-card-container">
@@ -535,16 +599,16 @@ function renderExplore(data) {
                 <!-- Правая колонка: Категории и быстрые фильтры -->
                 <div class="shiki-category-tags-block">
                     <div class="shiki-category-tabs">
-                        <span class="shiki-cat-tab active" data-cat="anime" onclick="switchPortalCategory('anime')">АНИМЕ</span>
-                        <span class="shiki-cat-tab" data-cat="manga" onclick="switchPortalCategory('manga')">МАНГА</span>
-                        <span class="shiki-cat-tab" data-cat="ranobe" onclick="switchPortalCategory('ranobe')">РАНОБЭ</span>
+                        <span class="shiki-cat-tab active" data-cat="anime" onclick="switchPortalCategory('anime')">${i18n('explore.cat.anime')}</span>
+                        <span class="shiki-cat-tab" data-cat="manga" onclick="switchPortalCategory('manga')">${i18n('explore.cat.manga')}</span>
+                        <span class="shiki-cat-tab" data-cat="ranobe" onclick="switchPortalCategory('ranobe')">${i18n('explore.cat.ranobe')}</span>
                     </div>
                     <div class="shiki-filter-tags-grid" id="shiki-filter-tags-grid">
-                        ${portalCategoryTags.anime.map(t => `<button type="button" class="shiki-filter-pill" onclick="${t.action}">${t.label}</button>`).join('')}
+                        ${catTags.anime.map(t => `<button type="button" class="shiki-filter-pill" onclick="${t.action}">${t.label}</button>`).join('')}
                     </div>
                     <div class="shiki-forum-row">
                         <button type="button" class="shiki-forum-btn" onclick="openTab('forum')">
-                            <span>Форум</span> <i class="ti ti-arrow-right"></i>
+                            <span>${i18n('explore.forum_btn')}</span> <i class="ti ti-arrow-right"></i>
                         </button>
                     </div>
                 </div>
@@ -554,7 +618,7 @@ function renderExplore(data) {
             ${latest.length ? `
                 <div class="shiki-portal-section" data-section="explore-news">
                     <div class="shiki-section-header-row">
-                        <h2 class="shiki-section-title-white">Новости</h2>
+                        <h2 class="shiki-section-title-white">${i18n('explore.news')}</h2>
                     </div>
                     <div class="shiki-featured-news-grid">
                         ${latest.map(buildNewsItemCard).join('')}
@@ -567,11 +631,11 @@ function renderExplore(data) {
                 <!-- Левая колонка: Контент -->
                 <div class="shiki-content-col" data-section="explore-content">
                     <div class="shiki-content-header-row">
-                        <h2 class="shiki-section-title-white">Контент</h2>
+                        <h2 class="shiki-section-title-white">${i18n('explore.content')}</h2>
                         <div class="shiki-content-filter-links">
-                            <a href="javascript:void(0)" onclick="openTab('collections')">коллекции</a> /
-                            <a href="javascript:void(0)" onclick="openTab('critiques')">рецензии</a> /
-                            <a href="javascript:void(0)" onclick="openTab('articles')">статьи</a>
+                            <a href="javascript:void(0)" onclick="openTab('collections')">${i18n('explore.collections')}</a> /
+                            <a href="javascript:void(0)" onclick="openTab('critiques')">${i18n('explore.reviews')}</a> /
+                            <a href="javascript:void(0)" onclick="openTab('articles')">${i18n('explore.articles')}</a>
                         </div>
                     </div>
                     <div class="shiki-content-cards-grid">
@@ -579,7 +643,7 @@ function renderExplore(data) {
                             <a href="${item.url}" target="_blank" class="shiki-content-item-card">
                                 <div class="shiki-content-item-title">${item.title}</div>
                                 <div class="shiki-content-item-footer">
-                                    <span class="shiki-content-tag ${getTagClass(item.tag)}">${item.tag || 'Коллекция'}</span>
+                                    <span class="shiki-content-tag ${getTagClass(item.tag)}">${formatContentTag(item.tag)}</span>
                                     <span class="shiki-content-comments"><i class="ti ti-message-circle"></i> ${item.comments_count || 0}</span>
                                 </div>
                             </a>
@@ -590,7 +654,7 @@ function renderExplore(data) {
                 <!-- Правая колонка: Темы дня -->
                 <div class="shiki-topics-col" data-section="explore-hot">
                     <div class="shiki-topics-header-row">
-                        <h2 class="shiki-section-title-white">Темы дня</h2>
+                        <h2 class="shiki-section-title-white">${i18n('explore.hot_topics')}</h2>
                     </div>
                     <div class="shiki-topics-stack">
                         ${hotList.slice(0, 5).map(item => `
@@ -598,8 +662,8 @@ function renderExplore(data) {
                                 <div class="shiki-topic-item-title">${item.title}</div>
                                 <div class="shiki-topic-item-footer">
                                     <div class="shiki-topic-author-row">
-                                        <span class="shiki-topic-tag">${item.tag || 'Новость'}</span>
-                                        <span class="shiki-topic-meta-text">${formatTimeAgo(item.date)} ${item.author ? `от 👤 ${item.author}` : ''}</span>
+                                        <span class="shiki-topic-tag">${formatTopicTag(item.tag || 'Новость')}</span>
+                                        <span class="shiki-topic-meta-text">${formatTimeAgo(item.date)} ${item.author ? (isEn ? `by 👤 ${item.author}` : `от 👤 ${item.author}`) : ''}</span>
                                     </div>
                                     <span class="shiki-topic-comments"><i class="ti ti-message-circle"></i> ${item.comments_count || 0}</span>
                                 </div>
@@ -612,17 +676,18 @@ function renderExplore(data) {
             <!-- 5. ОБНОВЛЕНИЯ АНИМЕ -->
             ${animeUpdates.length ? `
                 <div class="shiki-portal-section" data-section="explore-anime-updates">
-                    <div class="shiki-section-heading-purple">ОБНОВЛЕНИЯ АНИМЕ</div>
+                    <div class="shiki-section-heading-purple">${i18n('explore.anime_updates')}</div>
                     <div class="shiki-anime-updates-grid">
                         ${animeUpdates.slice(0, 8).map(anime => {
-                            const statusText = anime.status === 'released' ? 'Релиз' : (anime.status === 'anons' ? 'Анонс' : 'Онгоинг');
+                            const title = (isEn && anime.name) ? anime.name : (anime.russian || anime.name);
+                            const statusText = anime.status === 'released' ? i18n('explore.status.released') : (anime.status === 'anons' ? i18n('explore.status.anons') : i18n('explore.status.ongoing'));
                             const statusClass = anime.status === 'released' ? 'status-released' : 'status-anons';
-                            const kindText = anime.kind === 'MOVIE' ? 'Фильм' : (anime.kind === 'TV' ? 'Сериал' : (anime.kind === 'CLIP' ? 'Клип' : anime.kind));
+                            const kindText = anime.kind === 'MOVIE' ? (isEn ? 'Movie' : 'Фильм') : (anime.kind === 'TV' ? (isEn ? 'TV Series' : 'Сериал') : (anime.kind === 'CLIP' ? (isEn ? 'Clip' : 'Клип') : anime.kind));
                             return `
                                 <div class="shiki-anime-update-card" onclick="openAnimeModal(${anime.id})">
-                                    <img src="${anime.image}" alt="${(anime.russian || anime.name || '').replace(/"/g, '&quot;')}" class="shiki-update-poster" loading="lazy">
+                                    <img src="${anime.image}" alt="${(title || '').replace(/"/g, '&quot;')}" class="shiki-update-poster" loading="lazy">
                                     <div class="shiki-update-info">
-                                        <div class="shiki-update-title" title="${anime.russian || anime.name}">${anime.russian || anime.name}</div>
+                                        <div class="shiki-update-title" title="${title}">${title}</div>
                                         <div class="shiki-update-row-1">
                                             <span class="shiki-update-badge ${statusClass}">${statusText}</span>
                                             <span class="shiki-update-time">${formatTimeAgo(anime.updated_at)}</span>
@@ -630,7 +695,7 @@ function renderExplore(data) {
                                         <div class="shiki-update-row-2">
                                             ${kindText ? `<span class="shiki-kind-badge">${kindText}</span>` : ''}
                                             ${anime.rating ? `<span class="shiki-kind-badge">${anime.rating}</span>` : ''}
-                                            ${anime.genres ? `<span class="shiki-genres-text">${anime.genres}</span>` : ''}
+                                            ${anime.genres ? `<span class="shiki-genres-text">${formatGenresText(anime.genres)}</span>` : ''}
                                         </div>
                                     </div>
                                 </div>
@@ -644,14 +709,14 @@ function renderExplore(data) {
             ${other.length ? `
                 <div class="shiki-portal-section" data-section="explore-more-news">
                     <div class="shiki-section-header-row">
-                        <h2 class="shiki-section-title-white">Ещё новости</h2>
+                        <h2 class="shiki-section-title-white">${i18n('explore.more_news')}</h2>
                     </div>
                     <div id="other-news-list" class="shiki-more-news-grid">
                         ${other.map(buildNewsItemCard).join('')}
                     </div>
                     <div id="news-infinite-sentinel" style="height: 20px; margin-top: 10px;"></div>
                     <div id="news-infinite-loader" class="news-infinite-loader hidden">
-                        <i class="ti ti-loader animate-spin"></i> Загрузка ещё новостей...
+                        <i class="ti ti-loader animate-spin"></i> ${i18n('explore.loading_more')}
                     </div>
                 </div>
             ` : ''}
@@ -696,11 +761,12 @@ function renderContinueWatching() {
             </div>
             <div class="continue-watching-carousel">
                 ${items.map(item => {
+                    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
                     const total = item.total_episodes || 0;
                     const percent = total > 0 ? Math.min(100, Math.round((item.episode / total) * 100)) : 0;
                     const epText = `${i18n('player.ep_short')} ${item.episode}${total ? ` / ${total}` : ''}`;
                     const imgUrl = item.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(item.image) : item.image) : '';
-                    const title = item.russian || item.title || 'Anime';
+                    const title = (isEn && item.name) ? item.name : (item.russian || item.title || 'Anime');
 
                     return `
                         <div class="continue-watching-item" onclick="openAnimeModal(${item.id})">
@@ -854,7 +920,8 @@ function renderAiringCalendarUI(activeDay) {
 
             <div class="calendar-items-grid">
                 ${filtered.length > 0 ? filtered.map(item => {
-                    const title = item.russian || item.name;
+                    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+                    const title = (isEn && item.name) ? item.name : (item.russian || item.name);
                     const imgUrl = item.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(item.image) : item.image) : '';
                     const time = item.time_str ? `${item.time_str}` : '';
                     const nextEp = item.next_episode ? `${item.next_episode} ${i18n('calendar.ep_next')}` : '';
@@ -883,6 +950,20 @@ function renderAiringCalendarUI(activeDay) {
 }
 
 function formatRateStatusLabel(st, isManga = false) {
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    if (isEn) {
+        const mapEn = {
+            'completed': isManga ? 'Read' : 'Completed',
+            'watching': 'Watching',
+            'reading': 'Reading',
+            'planned': 'Planned',
+            'on_hold': 'On Hold',
+            'dropped': 'Dropped',
+            'rewatching': 'Rewatching',
+            'rereading': 'Rereading'
+        };
+        return mapEn[st] || st || (isManga ? 'Read' : 'Completed');
+    }
     const map = {
         'completed': isManga ? 'Прочитано' : 'Просмотрено',
         'watching': 'Смотрю',
@@ -898,14 +979,17 @@ function formatRateStatusLabel(st, isManga = false) {
 
 function formatChaptersCountText(num) {
     const n = Math.abs(Number(num) || 1);
-    if (n % 10 === 1 && n % 100 !== 11) return `${n} глава`;
-    if ([2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100)) return `${n} главы`;
-    return `${n} глав`;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    if (isEn) return `${n} ${typeof i18n === 'function' ? i18n('explore.chapter') : 'ch.'}`;
+    if (n % 10 === 1 && n % 100 !== 11) return `${n} ${typeof i18n === 'function' ? i18n('explore.chapter') : 'глава'}`;
+    if ([2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100)) return `${n} ${typeof i18n === 'function' ? i18n('explore.chapters_few') : 'главы'}`;
+    return `${n} ${typeof i18n === 'function' ? i18n('explore.chapters_many') : 'глав'}`;
 }
 
 async function updateMyRecentWatchedCard(type = 'anime') {
     const container = document.getElementById('shiki-my-recent-card-container');
     if (!container) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
 
     let recentItem = null;
 
@@ -921,11 +1005,11 @@ async function updateMyRecentWatchedCard(type = 'anime') {
                     const chCount = first.chapters || first.volumes || target.chapters || target.volumes || 1;
                     recentItem = {
                         id: target.id,
-                        title: target.russian || target.name || 'Манга',
+                        title: (isEn && target.name) ? target.name : (target.russian || target.name || (isEn ? 'Manga' : 'Манга')),
                         image: target.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(target.image) : target.image) : '',
                         status: formatRateStatusLabel(first.status, true),
                         score: first.score || 8,
-                        time: typeof formatTimeAgo === 'function' ? formatTimeAgo(first.updated_at) : 'недавно',
+                        time: typeof formatTimeAgo === 'function' ? formatTimeAgo(first.updated_at) : (typeof i18n === 'function' ? i18n('explore.recently') : 'недавно'),
                         episodes: formatChaptersCountText(chCount),
                         isManga: true
                     };
@@ -940,11 +1024,11 @@ async function updateMyRecentWatchedCard(type = 'anime') {
             if (animeHistory && animeHistory.target) {
                 recentItem = {
                     id: animeHistory.target.id,
-                    title: animeHistory.target.russian || animeHistory.target.name,
+                    title: (isEn && animeHistory.target.name) ? animeHistory.target.name : (animeHistory.target.russian || animeHistory.target.name),
                     image: animeHistory.target.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(animeHistory.target.image) : animeHistory.target.image) : '',
                     status: formatRateStatusLabel(animeHistory.description || 'completed', false),
                     score: animeHistory.target.score || 9,
-                    time: typeof formatTimeAgo === 'function' ? formatTimeAgo(animeHistory.created_at) : '2 дня назад',
+                    time: typeof formatTimeAgo === 'function' ? formatTimeAgo(animeHistory.created_at) : (typeof i18n === 'function' ? i18n('explore.recently') : 'недавно'),
                     episodes: (animeHistory.target.episodes ? `${animeHistory.target.episodes} / ${animeHistory.target.episodes}` : '28 / 28')
                 };
             }
@@ -966,11 +1050,11 @@ async function updateMyRecentWatchedCard(type = 'anime') {
                         const isMangaItem = (item.target_type === 'Manga' || type === 'manga');
                         recentItem = {
                             id: item.target.id,
-                            title: item.target.russian || item.target.name,
+                            title: (isEn && item.target.name) ? item.target.name : (item.target.russian || item.target.name),
                             image: item.target.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(item.target.image) : item.target.image) : '',
                             status: formatRateStatusLabel(item.description || 'completed', isMangaItem),
                             score: item.target.score || 9,
-                            time: typeof formatTimeAgo === 'function' ? formatTimeAgo(item.created_at) : 'недавно',
+                            time: typeof formatTimeAgo === 'function' ? formatTimeAgo(item.created_at) : (typeof i18n === 'function' ? i18n('explore.recently') : 'недавно'),
                             episodes: isMangaItem ? formatChaptersCountText(item.target.chapters || 1) : (item.target.episodes ? `${item.target.episodes} / ${item.target.episodes}` : '28 / 28'),
                             isManga: isMangaItem
                         };
@@ -995,7 +1079,7 @@ async function updateMyRecentWatchedCard(type = 'anime') {
                         <span>${recentItem.episodes}</span>
                     </div>
                     <div class="shiki-my-list-stars">${starsHtml}</div>
-                    <div class="shiki-my-list-time">${recentItem.time || 'недавно'}</div>
+                    <div class="shiki-my-list-time">${recentItem.time || (typeof i18n === 'function' ? i18n('explore.recently') : 'недавно')}</div>
                 </div>
             </div>
         `;
@@ -1004,12 +1088,12 @@ async function updateMyRecentWatchedCard(type = 'anime') {
             <div class="shiki-my-list-card" onclick="openTab('rates')">
                 <div class="shiki-my-list-thumb placeholder"><i class="${type === 'manga' ? 'ti ti-book-2' : 'ti ti-list-check'}"></i></div>
                 <div class="shiki-my-list-info">
-                    <div class="shiki-my-list-item-title">${type === 'manga' ? 'Мои списки манги' : 'Мои списки аниме'}</div>
+                    <div class="shiki-my-list-item-title">${type === 'manga' ? (typeof i18n === 'function' ? i18n('explore.my_manga_lists') : 'Мои списки манги') : (typeof i18n === 'function' ? i18n('explore.my_anime_lists') : 'Мои списки аниме')}</div>
                     <div class="shiki-my-list-status-row">
-                        <span class="shiki-status-badge-green">Открыть</span>
-                        <span>Перейти к спискам</span>
+                        <span class="shiki-status-badge-green">${typeof i18n === 'function' ? i18n('explore.open') : 'Открыть'}</span>
+                        <span>${typeof i18n === 'function' ? i18n('explore.go_to_lists') : 'Перейти к спискам'}</span>
                     </div>
-                    <div class="shiki-my-list-time">Нажмите для просмотра</div>
+                    <div class="shiki-my-list-time">${typeof i18n === 'function' ? i18n('explore.click_to_view') : 'Нажмите для просмотра'}</div>
                 </div>
             </div>
         `;
@@ -1107,8 +1191,9 @@ function renderCatalogGrid(items, hasMore = false) {
         return;
     }
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     container.innerHTML = items.map(item => {
-        const title = item.russian || item.name;
+        const title = (isEn && item.name) ? item.name : (item.russian || item.name);
         const imgUrl = item.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(item.image) : item.image) : '';
         const genres = (item.genres || []).slice(0, 2).join(', ');
 

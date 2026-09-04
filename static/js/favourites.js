@@ -58,9 +58,11 @@ function renderMobileFavouritesGrid() {
         return;
     }
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+
     grid.innerHTML = items.map(item => {
-        const title = item.russian || item.name || '';
-        const origTitle = item.name && item.russian ? item.name : '';
+        const title = (isEn && item.name) ? item.name : (item.russian || item.name || '');
+        const origTitle = isEn ? (item.russian || '') : (item.name && item.russian ? item.name : '');
         const img = buildImgUrl(item.image);
 
         let clickFn = '';
@@ -68,13 +70,13 @@ function renderMobileFavouritesGrid() {
 
         if (currentFavouritesTab === 'characters') {
             clickFn = `openCharacterModal(${item.id})`;
-            subtitle = origTitle || 'Персонаж';
+            subtitle = origTitle || (isEn ? 'Character' : 'Персонаж');
         } else if (currentFavouritesTab === 'animes') {
             clickFn = `openAnimeModal(${item.id})`;
-            subtitle = origTitle || 'Аниме';
+            subtitle = origTitle || (isEn ? 'Anime' : 'Аниме');
         } else if (currentFavouritesTab === 'mangas') {
             clickFn = `openMangaModal(${item.id})`;
-            subtitle = origTitle || 'Манга';
+            subtitle = origTitle || (isEn ? 'Manga' : 'Манга');
         }
 
         const iconType = currentFavouritesTab === 'characters' ? 'user' : (currentFavouritesTab === 'animes' ? 'movie' : 'book');
@@ -95,6 +97,7 @@ function renderMobileFavouritesView() {
     const container = document.getElementById('favourites');
     if (!container || !cachedFavouritesData) return;
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     const chars = cachedFavouritesData.characters || [];
     const animes = cachedFavouritesData.animes || [];
     const mangas = cachedFavouritesData.mangas || [];
@@ -109,10 +112,10 @@ function renderMobileFavouritesView() {
             <div class="mobile-rates-top-bar">
                 <div style="display: flex; align-items: center; gap: 8px; padding-left: 4px;">
                     <i class="ti ti-heart-filled" style="color: #ff9e9e; font-size: 20px;"></i>
-                    <span style="font-weight: 700; font-size: 16px; color: #ffffff;">Избранное</span>
+                    <span style="font-weight: 700; font-size: 16px; color: #ffffff;">${i18n('tab.favourites')}</span>
                 </div>
                 <div class="mobile-rates-top-actions">
-                    <button type="button" class="mobile-rates-action-icon" onclick="toggleFavouritesSearch()" title="Поиск">
+                    <button type="button" class="mobile-rates-action-icon" onclick="toggleFavouritesSearch()" title="${isEn ? 'Search' : 'Поиск'}">
                         <i class="ti ti-search"></i>
                     </button>
                 </div>
@@ -122,21 +125,21 @@ function renderMobileFavouritesView() {
             <div id="mobile-favourites-search-wrap" class="mobile-rates-search-wrap ${favouritesSearchQuery ? '' : 'hidden'}">
                 <div class="mobile-rates-search-box">
                     <i class="ti ti-search search-icon"></i>
-                    <input type="text" id="favourites-local-search" placeholder="Поиск в избранном..." oninput="onFavouritesSearchInput(this.value)" value="${favouritesSearchQuery}">
+                    <input type="text" id="favourites-local-search" placeholder="${isEn ? 'Search favorites...' : 'Поиск в избранном...'}" oninput="onFavouritesSearchInput(this.value)" value="${favouritesSearchQuery}">
                     ${favouritesSearchQuery ? `<button class="search-clear-btn" onclick="clearFavouritesSearch()"><i class="ti ti-x"></i></button>` : ''}
                 </div>
             </div>
 
-            <!-- Горизонтальные подчеркнутые вкладки категорий (в стиле списков) -->
+            <!-- Горизонтальные подчеркнутые вкладки категорий -->
             <div class="mobile-rates-status-tabs">
                 <button type="button" class="mobile-rates-status-tab mobile-fav-tab ${currentFavouritesTab === 'characters' ? 'active' : ''}" onclick="switchFavouritesTab('characters', this)">
-                    Персонажи <span style="opacity: 0.65; font-size: 13px; font-weight: 400;">(${chars.length})</span>
+                    ${isEn ? 'Characters' : 'Персонажи'} <span style="opacity: 0.65; font-size: 13px; font-weight: 400;">(${chars.length})</span>
                 </button>
                 <button type="button" class="mobile-rates-status-tab mobile-fav-tab ${currentFavouritesTab === 'animes' ? 'active' : ''}" onclick="switchFavouritesTab('animes', this)">
-                    Аниме <span style="opacity: 0.65; font-size: 13px; font-weight: 400;">(${animes.length})</span>
+                    ${isEn ? 'Anime' : 'Аниме'} <span style="opacity: 0.65; font-size: 13px; font-weight: 400;">(${animes.length})</span>
                 </button>
                 <button type="button" class="mobile-rates-status-tab mobile-fav-tab ${currentFavouritesTab === 'mangas' ? 'active' : ''}" onclick="switchFavouritesTab('mangas', this)">
-                    Манга <span style="opacity: 0.65; font-size: 13px; font-weight: 400;">(${mangas.length})</span>
+                    ${isEn ? 'Manga' : 'Манга'} <span style="opacity: 0.65; font-size: 13px; font-weight: 400;">(${mangas.length})</span>
                 </button>
             </div>
 
@@ -151,12 +154,13 @@ function renderMobileFavouritesView() {
 function renderDesktopFavouritesView(data) {
     const container = document.getElementById('favourites');
     if (!container) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     const chars = data.characters || [], animes = data.animes || [], mangas = data.mangas || [];
 
     const buildGrid = (items, type) => {
         if (!items.length) return '<p style="color: var(--text-muted);">' + i18n('favourites.empty') + '</p>';
         return `<div class="media-grid">` + items.map(item => {
-            const title = item.russian || item.name || '';
+            const title = (isEn && item.name) ? item.name : (item.russian || item.name || '');
             const img = buildImgUrl(item.image);
             const url = item.url ? (item.url.startsWith('http') ? item.url : 'https://shikimori.io' + item.url) : `https://shikimori.io/${type}/${item.id}`;
             let clickAttr = '';

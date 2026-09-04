@@ -7,6 +7,7 @@ function isMobileHistoryView() {
 
 function formatHistoryDate(dateStr) {
     if (!dateStr) return '';
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     try {
         const date = new Date(dateStr);
         const now = new Date();
@@ -15,14 +16,18 @@ function formatHistoryDate(dateStr) {
 
         if (diffHours < 1) {
             const diffMin = Math.max(1, Math.floor(diffMs / (1000 * 60)));
+            if (isEn) return diffMin === 1 ? 'Just now' : `${diffMin} min. ago`;
             return diffMin === 1 ? 'Только что' : `${diffMin} мин. назад`;
         }
         if (diffHours < 24) {
+            if (isEn) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
             const hoursWord = (diffHours === 1 || diffHours === 21) ? 'час' : ((diffHours >= 2 && diffHours <= 4) || (diffHours >= 22 && diffHours <= 24) ? 'часа' : 'часов');
             return `${diffHours} ${hoursWord} назад`;
         }
 
-        const months = ['янв.', 'февр.', 'мар.', 'апр.', 'мая', 'июн.', 'июл.', 'авг.', 'сент.', 'окт.', 'нояб.', 'дек.'];
+        const monthsRu = ['янв.', 'февр.', 'мар.', 'апр.', 'мая', 'июн.', 'июл.', 'авг.', 'сент.', 'окт.', 'нояб.', 'дек.'];
+        const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const months = isEn ? monthsEn : monthsRu;
         const day = date.getDate();
         const month = months[date.getMonth()];
         const hours = String(date.getHours()).padStart(2, '0');
@@ -44,6 +49,7 @@ function getNormalizedHistoryItems(apiList) {
         continueList = JSON.parse(localStorage.getItem('shikimx_continue_watching') || '[]');
     } catch(e) { continueList = []; }
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     const result = [];
     const seenKeys = new Set();
 
@@ -54,11 +60,12 @@ function getNormalizedHistoryItems(apiList) {
             seenKeys.add(key);
             result.push({
                 id: item.id,
-                title: item.russian || item.title || '',
+                title: (isEn && item.name) ? item.name : (item.russian || item.title || item.name || ''),
+                name: item.name || '',
                 image: item.image || item.poster || '',
                 episode: item.episode || 1,
                 translation: item.translation || 'WinMedia',
-                status: item.progress_status || 'Просмотрено полностью',
+                status: item.progress_status || (isEn ? 'Watched completely' : 'Просмотрено полностью'),
                 date: item.created_at || item.updated_at || new Date().toISOString()
             });
         }
@@ -71,11 +78,12 @@ function getNormalizedHistoryItems(apiList) {
             seenKeys.add(key);
             result.push({
                 id: item.id,
-                title: item.russian || item.title || '',
+                title: (isEn && item.name) ? item.name : (item.russian || item.title || item.name || ''),
+                name: item.name || '',
                 image: item.image || '',
                 episode: item.episode || 1,
                 translation: item.translation || 'Crunchyroll.Subtitles',
-                status: 'Просмотрено полностью',
+                status: isEn ? 'Watched completely' : 'Просмотрено полностью',
                 date: item.updated_at || new Date().toISOString()
             });
         }
@@ -102,67 +110,17 @@ function getNormalizedHistoryItems(apiList) {
 
                     result.push({
                         id: target.id,
-                        title: target.russian || target.name || '',
+                        title: (isEn && target.name) ? target.name : (target.russian || target.name || ''),
+                        name: target.name || '',
                         image: poster,
                         episode: epNum,
                         translation: 'Crunchyroll.Subtitles',
-                        status: 'Просмотрено полностью',
+                        status: isEn ? 'Watched completely' : 'Просмотрено полностью',
                         date: item.created_at || new Date().toISOString()
                     });
                 }
             }
         }
-    }
-
-    // 4. Если данных еще нет, отображаем демо-набор в точности по скриншоту
-    if (result.length === 0) {
-        return [
-            {
-                id: 52991,
-                title: 'Провожающая в последний путь Фрирен',
-                image: 'https://desu.shikimori.one/system/animes/original/52991.jpg',
-                episode: 1,
-                translation: 'WinMedia',
-                status: 'Просмотрено полностью',
-                date: new Date(Date.now() - 6 * 3600 * 1000).toISOString()
-            },
-            {
-                id: 54857,
-                title: 'Re:Zero. Жизнь с нуля в альтернативном мире 4',
-                image: 'https://desu.shikimori.one/system/animes/original/54857.jpg',
-                episode: 14,
-                translation: 'Crunchyroll.Subtitles',
-                status: 'Просмотрено полностью',
-                date: new Date(Date.now() - 2 * 86400 * 1000 - 3 * 3600 * 1000).toISOString()
-            },
-            {
-                id: 51179,
-                title: 'Реинкарнация безработного: История о приключениях в другом мире 2. Часть 2',
-                image: 'https://desu.shikimori.one/system/animes/original/51179.jpg',
-                episode: 9,
-                translation: 'Crunchyroll.Subtitles',
-                status: 'Просмотрено полностью',
-                date: new Date(Date.now() - 6 * 86400 * 1000 - 11 * 3600 * 1000).toISOString()
-            },
-            {
-                id: 37786,
-                title: 'В конечном счёте я стану твоей',
-                image: 'https://desu.shikimori.one/system/animes/original/37786.jpg',
-                episode: 1,
-                translation: 'Indie Dub',
-                status: 'Просмотрено до 17:58',
-                date: new Date(Date.now() - 7 * 86400 * 1000 - 6 * 3600 * 1000).toISOString()
-            },
-            {
-                id: 15583,
-                title: 'Рандеву с жизнью',
-                image: 'https://desu.shikimori.one/system/animes/original/15583.jpg',
-                episode: 3,
-                translation: 'Studio Band',
-                status: 'Просмотрено полностью',
-                date: new Date(Date.now() - 24 * 86400 * 1000 - 5 * 3600 * 1000).toISOString()
-            }
-        ];
     }
 
     return result;
@@ -213,6 +171,7 @@ function renderMobileHistoryList() {
     const listContainer = document.getElementById('history-items-container');
     if (!listContainer) return;
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     let items = getNormalizedHistoryItems(cachedHistoryList);
 
     if (historySearchQuery) {
@@ -227,21 +186,23 @@ function renderMobileHistoryList() {
         listContainer.innerHTML = `
             <div style="text-align: center; padding: 48px 10px; color: var(--text-muted);">
                 <i class="ti ti-clock-off" style="font-size: 40px; opacity: 0.45; margin-bottom: 10px; display: block;"></i>
-                <span style="font-size: 14px;">${historySearchQuery ? 'Ничего не найдено' : 'История просмотров пуста'}</span>
+                <span style="font-size: 14px;">${historySearchQuery ? (isEn ? 'No results found' : 'Ничего не найдено') : (isEn ? 'Watch history is empty' : 'История просмотров пуста')}</span>
             </div>
         `;
         return;
     }
 
     listContainer.innerHTML = items.map((item, idx) => {
-        const title = item.title || 'Аниме';
+        const title = item.title || (isEn ? 'Anime' : 'Аниме');
         let imgUrl = item.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(item.image) : item.image) : '';
         if (imgUrl && (imgUrl.includes('missing_original') || imgUrl.includes('missing_preview'))) {
             imgUrl = '';
         }
         const dateFormatted = formatHistoryDate(item.date);
-        const metaStr = `${item.episode || 1} серия • ${item.translation || 'Субтитры'}`;
-        const statusStr = item.status || 'Просмотрено полностью';
+        const metaStr = `${isEn ? 'Episode ' + (item.episode || 1) : (item.episode || 1) + ' серия'} • ${item.translation || (isEn ? 'Subtitles' : 'Субтитры')}`;
+        let statusStr = item.status || (isEn ? 'Watched completely' : 'Просмотрено полностью');
+        if (isEn && statusStr.includes('Просмотрено полностью')) statusStr = 'Watched completely';
+        if (isEn && statusStr.includes('Просмотрено до')) statusStr = statusStr.replace('Просмотрено до', 'Watched until');
         const wrapId = `hist-poster-wrap-${item.id}-${idx}`;
 
         if (!imgUrl && item.id) {
@@ -267,6 +228,7 @@ function renderMobileHistoryList() {
 function renderMobileHistoryView() {
     const container = document.getElementById('history');
     if (!container) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
 
     container.innerHTML = `
         <div class="mobile-history-container">
@@ -274,10 +236,10 @@ function renderMobileHistoryView() {
             <div class="mobile-rates-top-bar">
                 <div style="display: flex; align-items: center; gap: 8px; padding-left: 4px;">
                     <i class="ti ti-history" style="color: #60a5fa; font-size: 20px;"></i>
-                    <span style="font-weight: 700; font-size: 16px; color: #ffffff;">История</span>
+                    <span style="font-weight: 700; font-size: 16px; color: #ffffff;">${i18n('tab.history')}</span>
                 </div>
                 <div class="mobile-rates-top-actions">
-                    <button type="button" class="mobile-rates-action-icon" onclick="toggleHistorySearch()" title="Поиск">
+                    <button type="button" class="mobile-rates-action-icon" onclick="toggleHistorySearch()" title="${isEn ? 'Search' : 'Поиск'}">
                         <i class="ti ti-search"></i>
                     </button>
                 </div>
@@ -287,7 +249,7 @@ function renderMobileHistoryView() {
             <div id="mobile-history-search-wrap" class="mobile-rates-search-wrap ${historySearchQuery ? '' : 'hidden'}">
                 <div class="mobile-rates-search-box">
                     <i class="ti ti-search search-icon"></i>
-                    <input type="text" id="history-local-search" placeholder="Поиск в истории..." oninput="onHistorySearchInput(this.value)" value="${historySearchQuery}">
+                    <input type="text" id="history-local-search" placeholder="${isEn ? 'Search history...' : 'Поиск в истории...'}" oninput="onHistorySearchInput(this.value)" value="${historySearchQuery}">
                     ${historySearchQuery ? `<button class="search-clear-btn" onclick="clearHistorySearch()"><i class="ti ti-x"></i></button>` : ''}
                 </div>
             </div>
@@ -301,11 +263,12 @@ function renderMobileHistoryView() {
 }
 
 function renderDesktopHistoryItemHtml(item) {
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     const target = item.target || {};
-    const title = target.russian || target.name || '';
+    const title = (isEn && target.name) ? target.name : (target.russian || target.name || '');
     const imgUrl = target.image ? buildImgUrl(target.image) : '';
     const targetUrl = target.url ? (target.url.startsWith('http') ? target.url : 'https://shikimori.io' + target.url) : (target.id ? `https://shikimori.io/animes/${target.id}` : '#');
-    const dateStr = item.created_at ? new Date(item.created_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+    const dateStr = item.created_at ? new Date(item.created_at).toLocaleString(isEn ? 'en-US' : 'ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
 
     return `
         <div class="history-item">
@@ -317,6 +280,8 @@ function renderDesktopHistoryItemHtml(item) {
             <div class="history-date">${dateStr}</div>
         </div>`;
 }
+
+const renderHistoryItemHtml = renderDesktopHistoryItemHtml;
 
 function renderHistory(historyList) {
     cachedHistoryList = historyList;

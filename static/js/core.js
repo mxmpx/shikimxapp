@@ -316,13 +316,14 @@ async function openTab(tabId) {
             const res = await fetch(`/api/tab/${tabId}`);
             if (!res.ok) {
                 if (res.status === 401 && activeContent) {
+                    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
                     activeContent.innerHTML = `
                         <div class="card" style="text-align: center; padding: 40px 20px; max-width: 440px; margin: 30px auto; border-radius: 20px; border: 1px solid var(--card-border); background: var(--card-bg);">
                             <i class="ti ti-lock" style="font-size: 48px; color: var(--accent); margin-bottom: 12px; display: inline-block;"></i>
-                            <h2 style="font-size: 20px; margin: 0 0 10px 0; color: var(--text-main);">${i18n('auth.required') || 'Требуется авторизация'}</h2>
-                            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;">Войдите через Shikimori, чтобы просматривать свои списки.</p>
+                            <h2 style="font-size: 20px; margin: 0 0 10px 0; color: var(--text-main);">${i18n('auth.required') || (isEn ? 'Authorization required' : 'Требуется авторизация')}</h2>
+                            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;">${isEn ? 'Log in via Shikimori to view your lists.' : 'Войдите через Shikimori, чтобы просматривать свои списки.'}</p>
                             <a href="/login" class="btn" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
-                                <i class="ti ti-brand-shikimori"></i> <span>${i18n('login.via_shikimori') || 'Войти через Shikimori'}</span>
+                                <i class="ti ti-brand-shikimori"></i> <span>${i18n('login.via_shikimori') || (isEn ? 'Login with Shikimori' : 'Войти через Shikimori')}</span>
                             </a>
                         </div>
                     `;
@@ -597,7 +598,8 @@ window.handleSectionsBack = function() {
         backBtn.classList.add('hidden');
         backBtn.style.setProperty('display', 'none', 'important');
     }
-    if (title) title.textContent = 'Разделы';
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    if (title) title.textContent = isEn ? 'Sections' : 'Разделы';
     if (icon) icon.className = 'ti ti-layout-grid mobile-sections-logo-icon';
 };
 
@@ -608,6 +610,7 @@ window.openSectionDetail = async function(sectionKey) {
     const backBtn = document.getElementById('mobile-sections-back-btn');
     const title = document.getElementById('mobile-sections-header-title');
     const icon = document.getElementById('mobile-sections-header-icon');
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
 
     if (!detailView || !detailContent) return;
 
@@ -620,22 +623,22 @@ window.openSectionDetail = async function(sectionKey) {
 
     if (typeof pushNavState === 'function') pushNavState();
 
-    detailContent.innerHTML = '<div class="loader" style="padding: 40px; text-align: center;"><i class="ti ti-loader animate-spin" style="font-size: 32px; color: var(--primary);"></i><p style="color: var(--text-muted); margin-top: 12px;">Загрузка...</p></div>';
+    detailContent.innerHTML = '<div class="loader" style="padding: 40px; text-align: center;"><i class="ti ti-loader animate-spin" style="font-size: 32px; color: var(--primary);"></i><p style="color: var(--text-muted); margin-top: 12px;">' + (isEn ? 'Loading...' : 'Загрузка...') + '</p></div>';
 
     if (sectionKey === 'calendar') {
-        if (title) title.textContent = 'Расписание онгоингов';
+        if (title) title.textContent = isEn ? 'Ongoing Schedule' : 'Расписание онгоингов';
         if (icon) icon.className = 'ti ti-calendar-event mobile-sections-logo-icon';
         await renderModalCalendar(modalCalendarDay);
     } else if (sectionKey === 'content') {
-        if (title) title.textContent = 'Контент';
+        if (title) title.textContent = isEn ? 'Content' : 'Контент';
         if (icon) icon.className = 'ti ti-grid-dots mobile-sections-logo-icon';
         await renderModalContent();
     } else if (sectionKey === 'hot') {
-        if (title) title.textContent = 'Темы дня';
+        if (title) title.textContent = isEn ? 'Hot Topics' : 'Темы дня';
         if (icon) icon.className = 'ti ti-flame mobile-sections-logo-icon';
         await renderModalHot();
     } else if (sectionKey === 'news') {
-        if (title) title.textContent = 'Новости';
+        if (title) title.textContent = isEn ? 'News' : 'Новости';
         if (icon) icon.className = 'ti ti-news mobile-sections-logo-icon';
         modalNewsPage = 1;
         await renderModalNews(1);
@@ -646,19 +649,20 @@ async function renderModalCalendar(activeDay) {
     modalCalendarDay = activeDay;
     const detailContent = document.getElementById('sections-detail-content');
     if (!detailContent) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
 
     if (!window.calendarDataCache) {
         try {
             const res = await fetch('/api/calendar');
             window.calendarDataCache = await res.json();
         } catch(e) {
-            detailContent.innerHTML = '<p style="color: var(--danger); padding: 20px;">Ошибка загрузки календаря</p>';
+            detailContent.innerHTML = `<p style="color: var(--danger); padding: 20px;">${isEn ? 'Error loading calendar' : 'Ошибка загрузки календаря'}</p>`;
             return;
         }
     }
 
     const data = Array.isArray(window.calendarDataCache) ? window.calendarDataCache : [];
-    const daysShort = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    const daysShort = isEn ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] : ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
     const todayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
     const filtered = data.filter(item => item.day_of_week === activeDay);
 
@@ -673,11 +677,11 @@ async function renderModalCalendar(activeDay) {
         </div>
         <div class="calendar-items-grid">
             ${filtered.length > 0 ? filtered.map(item => {
-                const title = item.russian || item.name || '';
+                const title = (isEn && item.name) ? item.name : (item.russian || item.name || '');
                 const safeTitle = title.replace(/"/g, '&quot;');
                 const imgUrl = item.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(item.image) : item.image) : '';
                 const time = item.time_str ? item.time_str : '';
-                const nextEp = item.next_episode ? `${item.next_episode} эп.` : '';
+                const nextEp = item.next_episode ? (isEn ? `Ep ${item.next_episode}` : `${item.next_episode} эп.`) : '';
 
                 return `
                     <div class="calendar-item-card" onclick="window._openedFromSections = 'calendar'; closeMobileSectionsMenu(); openAnimeModal(${item.id});" style="cursor: pointer;">
@@ -695,7 +699,7 @@ async function renderModalCalendar(activeDay) {
                         </div>
                     </div>
                 `;
-            }).join('') : '<p style="color: var(--text-muted); padding: 30px; text-align: center; grid-column: 1 / -1;">В этот день нет запланированных серий</p>'}
+            }).join('') : `<p style="color: var(--text-muted); padding: 30px; text-align: center; grid-column: 1 / -1;">${isEn ? 'No scheduled episodes for this day' : 'В этот день нет запланированных серий'}</p>`}
         </div>
     `;
 }
@@ -704,6 +708,7 @@ window.renderModalCalendar = renderModalCalendar;
 async function renderModalContent() {
     const detailContent = document.getElementById('sections-detail-content');
     if (!detailContent) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
 
     let exploreData = window._exploreDataCache;
     if (!exploreData) {
@@ -712,36 +717,36 @@ async function renderModalContent() {
             exploreData = await res.json();
             window._exploreDataCache = exploreData;
         } catch(e) {
-            detailContent.innerHTML = '<p style="color: var(--danger); padding: 20px;">Ошибка загрузки контента</p>';
+            detailContent.innerHTML = `<p style="color: var(--danger); padding: 20px;">${isEn ? 'Error loading content' : 'Ошибка загрузки контента'}</p>`;
             return;
         }
     }
 
     const contentList = exploreData.content || [];
     const badgeMap = {
-        'collection': 'Коллекция',
-        'critique': 'Отзыв',
-        'article': 'Статья',
-        'news': 'Новость',
-        '': 'Тема'
+        'collection': isEn ? 'Collection' : 'Коллекция',
+        'critique': isEn ? 'Critique' : 'Отзыв',
+        'article': isEn ? 'Article' : 'Статья',
+        'news': isEn ? 'News' : 'Новость',
+        '': isEn ? 'Topic' : 'Тема'
     };
 
     detailContent.innerHTML = `
         <div style="display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
-            <a href="https://shikimori.io/collections" target="_blank" class="btn-secondary" style="padding: 6px 12px; font-size: 12.5px; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px;"><i class="ti ti-folder"></i> Коллекции</a>
-            <a href="https://shikimori.io/forum/critiques" target="_blank" class="btn-secondary" style="padding: 6px 12px; font-size: 12.5px; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px;"><i class="ti ti-message-2"></i> Отзывы</a>
-            <a href="https://shikimori.io/articles" target="_blank" class="btn-secondary" style="padding: 6px 12px; font-size: 12.5px; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px;"><i class="ti ti-article"></i> Статьи</a>
+            <a href="https://shikimori.io/collections" target="_blank" class="btn-secondary" style="padding: 6px 12px; font-size: 12.5px; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px;"><i class="ti ti-folder"></i> ${isEn ? 'Collections' : 'Коллекции'}</a>
+            <a href="https://shikimori.io/forum/critiques" target="_blank" class="btn-secondary" style="padding: 6px 12px; font-size: 12.5px; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px;"><i class="ti ti-message-2"></i> ${isEn ? 'Critiques' : 'Отзывы'}</a>
+            <a href="https://shikimori.io/articles" target="_blank" class="btn-secondary" style="padding: 6px 12px; font-size: 12.5px; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px;"><i class="ti ti-article"></i> ${isEn ? 'Articles' : 'Статьи'}</a>
         </div>
         <div class="topics-list" style="display: flex; flex-direction: column; gap: 8px;">
             ${contentList.length ? contentList.map(item => `
                 <a href="${item.url}" target="_blank" class="topic-row-item" title="${(item.title || '').replace(/"/g, '&quot;')}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-radius: 16px; background: var(--card-bg); border: 1px solid var(--card-border); text-decoration: none; color: var(--text-main);">
                     <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; padding-right: 10px;">
                         <span style="font-size: 14px; font-weight: 500; line-height: 1.3;">${item.title}</span>
-                        <span class="topic-badge badge-${(item.tag || '').toLowerCase()}" style="font-size: 11px; padding: 2px 6px; border-radius: 6px; align-self: flex-start; background: var(--primary-container); color: var(--on-primary-container);">${badgeMap[(item.tag || '').toLowerCase()] || 'Тема'}</span>
+                        <span class="topic-badge badge-${(item.tag || '').toLowerCase()}" style="font-size: 11px; padding: 2px 6px; border-radius: 6px; align-self: flex-start; background: var(--primary-container); color: var(--on-primary-container);">${badgeMap[(item.tag || '').toLowerCase()] || (isEn ? 'Topic' : 'Тема')}</span>
                     </div>
                     <span style="font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; flex-shrink: 0;"><i class="ti ti-message-circle"></i> ${item.comments_count || 0}</span>
                 </a>
-            `).join('') : '<p style="color: var(--text-muted); padding: 20px; text-align: center;">Нет данных</p>'}
+            `).join('') : `<p style="color: var(--text-muted); padding: 20px; text-align: center;">${isEn ? 'No data' : 'Нет данных'}</p>`}
         </div>
     `;
 }
@@ -749,6 +754,7 @@ async function renderModalContent() {
 async function renderModalHot() {
     const detailContent = document.getElementById('sections-detail-content');
     if (!detailContent) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
 
     let exploreData = window._exploreDataCache;
     if (!exploreData) {
@@ -757,7 +763,7 @@ async function renderModalHot() {
             exploreData = await res.json();
             window._exploreDataCache = exploreData;
         } catch(e) {
-            detailContent.innerHTML = '<p style="color: var(--danger); padding: 20px;">Ошибка загрузки тем дня</p>';
+            detailContent.innerHTML = `<p style="color: var(--danger); padding: 20px;">${isEn ? 'Error loading hot topics' : 'Ошибка загрузки тем дня'}</p>`;
             return;
         }
     }
@@ -773,7 +779,7 @@ async function renderModalHot() {
                     </div>
                     <span style="font-size: 12px; color: #f87171; display: flex; align-items: center; gap: 4px; flex-shrink: 0; font-weight: 600;"><i class="ti ti-flame"></i> ${item.comments_count || 0}</span>
                 </a>
-            `).join('') : '<p style="color: var(--text-muted); padding: 20px; text-align: center;">Нет горячих тем на сегодня</p>'}
+            `).join('') : `<p style="color: var(--text-muted); padding: 20px; text-align: center;">${isEn ? 'No hot topics for today' : 'Нет горячих тем на сегодня'}</p>`}
         </div>
     `;
 }
@@ -781,13 +787,14 @@ async function renderModalHot() {
 async function renderModalNews(page = 1) {
     const detailContent = document.getElementById('sections-detail-content');
     if (!detailContent) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
 
     if (page === 1) {
         detailContent.innerHTML = `
             <div id="modal-news-cards-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
             <div style="text-align: center; margin: 16px 0 24px 0;">
                 <button type="button" id="modal-load-more-news-btn" class="btn-secondary" style="padding: 10px 20px; border-radius: 14px; font-size: 13px; font-weight: 600;" onclick="loadMoreModalNews()">
-                    <i class="ti ti-refresh"></i> Загрузить ещё новости
+                    <i class="ti ti-refresh"></i> ${isEn ? 'Load more news' : 'Загрузить ещё новости'}
                 </button>
             </div>
         `;
@@ -980,7 +987,7 @@ window.updateDesktopMenuBadges = function() {
     const theme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || 'dark';
     const themeBadge = document.getElementById('desktop-menu-theme-badge');
     const themeIcon = document.getElementById('desktop-menu-theme-icon');
-    if (themeBadge) themeBadge.textContent = (theme === 'dark') ? 'Тёмная' : 'Светлая';
+    if (themeBadge) themeBadge.textContent = (theme === 'dark') ? (typeof i18n === 'function' ? i18n('theme.dark') : 'Тёмная') : (typeof i18n === 'function' ? i18n('theme.light') : 'Светлая');
     if (themeIcon) themeIcon.className = (theme === 'dark') ? 'ti ti-sun' : 'ti ti-moon';
 
     const lang = (typeof getSavedLanguage === 'function') ? getSavedLanguage() : (localStorage.getItem('app_language') || 'ru');

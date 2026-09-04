@@ -1,7 +1,8 @@
 import sqlite3
 import os
+import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 logger = logging.getLogger("shikimxapp.database")
 
@@ -85,7 +86,7 @@ def get_or_create_user(shikimori_id=None, google_id=None, email=None, name=None,
             cur = conn.execute("SELECT * FROM users WHERE google_id = ?", (google_id,))
             user = cur.fetchone()
 
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).isoformat()
 
         if user:
             # Update existing user
@@ -155,8 +156,8 @@ def get_user_settings(user_id):
         settings = {}
         for row in rows:
             try:
-                settings[row["key"]] = __import__("json").loads(row["value"])
-            except (ValueError, TypeError):
+                settings[row["key"]] = json.loads(row["value"])
+            except (ValueError, TypeError, json.JSONDecodeError):
                 settings[row["key"]] = row["value"]
         return settings
     finally:
@@ -174,8 +175,8 @@ def get_user_setting(user_id, key, default=None):
         row = cur.fetchone()
         if row:
             try:
-                return __import__("json").loads(row["value"])
-            except (ValueError, TypeError):
+                return json.loads(row["value"])
+            except (ValueError, TypeError, json.JSONDecodeError):
                 return row["value"]
         return default
     finally:
@@ -184,11 +185,10 @@ def get_user_setting(user_id, key, default=None):
 
 def set_user_setting(user_id, key, value):
     """Set a single setting for a user (upsert)."""
-    import json
     conn = get_connection()
     try:
-        value_str = json.dumps(value) if not isinstance(value, str) else value
-        now = datetime.utcnow().isoformat()
+        value_str = json.dumps(value)
+        now = datetime.now(timezone.utc).isoformat()
         conn.execute(
             """INSERT INTO user_settings (user_id, key, value, updated_at)
                VALUES (?, ?, ?, ?)
@@ -206,13 +206,12 @@ def set_user_settings(user_id, settings_dict):
     """Set multiple settings for a user at once in a single transaction."""
     if not settings_dict:
         return
-    import json
     conn = get_connection()
     try:
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).isoformat()
         rows = []
         for key, value in settings_dict.items():
-            value_str = json.dumps(value) if not isinstance(value, str) else value
+            value_str = json.dumps(value)
             rows.append((user_id, key, value_str, now))
         conn.executemany(
             """INSERT INTO user_settings (user_id, key, value, updated_at)

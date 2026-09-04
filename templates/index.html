@@ -15,12 +15,6 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192.png">
     <link rel="shortcut icon" href="/favicon.ico">
     <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=JetBrains+Mono:wght@400;500;600&display=swap"
-        rel="stylesheet">
-
     <link rel="preload" href="/static/fonts/tabler-icons.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/static/bundle.css?v={{ app_version }}" as="style">
     <link rel="preload" href="/static/bundle.js?v={{ app_version }}" as="script">
@@ -322,7 +316,7 @@
                         <button class="mobile-menu-action-btn" onclick="handleMobileToggleLanguage()">
                             <div class="mobile-action-left">
                                 <i class="ti ti-language action-icon"></i>
-                                <span>Язык интерфейса</span>
+                                <span data-i18n="lang.interface">Язык интерфейса</span>
                             </div>
                             <span id="mobile-profile-lang-val" class="mobile-action-badge">RU</span>
                         </button>
@@ -788,70 +782,70 @@
                         <!-- Главная -->
                         <button type="button" class="shiki-dropdown-item" onclick="openTab('profile'); closeDesktopDropdowns();">
                             <i class="ti ti-home"></i>
-                            <span>Главная</span>
+                            <span data-i18n="tab.profile">Главная</span>
                         </button>
 
                         <div class="shiki-dropdown-divider"></div>
 
                         <!-- 1. БАЗА ДАННЫХ -->
-                        <div class="shiki-dropdown-group-title">БАЗА ДАННЫХ</div>
+                        <div class="shiki-dropdown-group-title" data-i18n="nav.group_database">БАЗА ДАННЫХ</div>
                         <button type="button" class="shiki-dropdown-item" onclick="openTab('catalog-anime'); closeDesktopDropdowns();">
                             <i class="ti ti-player-play"></i>
-                            <span>Аниме</span>
+                            <span data-i18n="tab.anime">Аниме</span>
                         </button>
                         <button type="button" class="shiki-dropdown-item" onclick="openTab('top100'); closeDesktopDropdowns();">
                             <i class="ti ti-trophy"></i>
-                            <span>Топ 100</span>
+                            <span data-i18n="tab.top100">Топ 100</span>
                         </button>
                         <button type="button" class="shiki-dropdown-item" onclick="openTab('catalog-manga'); closeDesktopDropdowns();">
                             <i class="ti ti-book-2"></i>
-                            <span>Манга</span>
+                            <span data-i18n="tab.manga">Манга</span>
                         </button>
                         <button type="button" class="shiki-dropdown-item" onclick="openTab('catalog-ranobe'); closeDesktopDropdowns();">
                             <i class="ti ti-notebook"></i>
-                            <span>Ранобэ</span>
+                            <span data-i18n="tab.ranobe">Ранобэ</span>
                         </button>
 
                         <div class="shiki-dropdown-divider"></div>
 
                         <!-- 2. СООБЩЕСТВО -->
-                        <div class="shiki-dropdown-group-title">СООБЩЕСТВО</div>
+                        <div class="shiki-dropdown-group-title" data-i18n="nav.group_community">СООБЩЕСТВО</div>
                         <button type="button" class="shiki-dropdown-item" onclick="openTab('forum'); closeDesktopDropdowns();">
                             <i class="ti ti-messages"></i>
-                            <span>Форум</span>
+                            <span data-i18n="tab.forum">Форум</span>
                         </button>
                         <button type="button" class="shiki-dropdown-item" onclick="openTab('clubs'); closeDesktopDropdowns();">
                             <i class="ti ti-circles-relation"></i>
-                            <span>Клубы</span>
+                            <span data-i18n="tab.clubs">Клубы</span>
                         </button>
                         <button type="button" class="shiki-dropdown-item" onclick="openTab('collections'); closeDesktopDropdowns();">
                             <i class="ti ti-layout-grid"></i>
-                            <span>Коллекции</span>
+                            <span data-i18n="tab.collections">Коллекции</span>
                         </button>
                         <button type="button" class="shiki-dropdown-item" onclick="openTab('critiques'); closeDesktopDropdowns();">
                             <i class="ti ti-pencil"></i>
-                            <span>Рецензии</span>
+                            <span data-i18n="tab.critiques">Рецензии</span>
                         </button>
                         <button type="button" class="shiki-dropdown-item" onclick="openTab('articles'); closeDesktopDropdowns();">
                             <i class="ti ti-file-text"></i>
-                            <span>Статьи</span>
+                            <span data-i18n="tab.articles">Статьи</span>
                         </button>
                         <button type="button" class="shiki-dropdown-item" onclick="openTab('users'); closeDesktopDropdowns();">
                             <i class="ti ti-user"></i>
-                            <span>Пользователи</span>
+                            <span data-i18n="tab.users">Пользователи</span>
                         </button>
 
                         <div class="shiki-dropdown-divider"></div>
 
                         <!-- 3. РАЗНОЕ -->
-                        <div class="shiki-dropdown-group-title">РАЗНОЕ</div>
+                        <div class="shiki-dropdown-group-title" data-i18n="nav.group_misc">РАЗНОЕ</div>
                         <button type="button" class="shiki-dropdown-item" onclick="openTab('recommendations'); closeDesktopDropdowns();">
                             <i class="ti ti-thumb-up"></i>
-                            <span>Рекомендации</span>
+                            <span data-i18n="tab.recommendations">Рекомендации</span>
                         </button>
                         <button type="button" class="shiki-dropdown-item" onclick="openTab('calendar'); closeDesktopDropdowns();">
                             <i class="ti ti-calendar"></i>
-                            <span>Календарь</span>
+                            <span data-i18n="tab.calendar">Календарь</span>
                         </button>
                     </div>
                 </div>
@@ -860,11 +854,11 @@
                 <div class="shiki-search-box-wrap" id="desktop-search-wrap">
                     <div class="shiki-search-input-box" id="desktop-search-input-box">
                         <i class="ti ti-search shiki-search-icon"></i>
-                        <input type="text" id="desktop-search-input" class="shiki-search-input" placeholder="Поиск..." autocomplete="off" oninput="handleDesktopSearch(this.value)" onfocus="handleDesktopSearchFocus()">
-                        <button type="button" class="shiki-search-clear-btn hidden" id="desktop-search-clear" onclick="clearDesktopSearch()" title="Очистить">
+                        <input type="text" id="desktop-search-input" class="shiki-search-input" placeholder="Поиск..." data-i18n-placeholder="search.title" autocomplete="off" oninput="handleDesktopSearch(this.value)" onfocus="handleDesktopSearchFocus()">
+                        <button type="button" class="shiki-search-clear-btn hidden" id="desktop-search-clear" onclick="clearDesktopSearch()" title="Очистить" data-i18n-title="search.clear">
                             <i class="ti ti-x"></i>
                         </button>
-                        <kbd class="shiki-search-hotkey" id="desktop-search-hotkey" title="Нажмите / для быстрого перехода к поиску">/</kbd>
+                        <kbd class="shiki-search-hotkey" id="desktop-search-hotkey" title="Нажмите / для быстрого перехода к поиску" data-i18n-title="search.hotkey_tip">/</kbd>
                     </div>
 
                     <!-- Выпадающий список результатов десктопного поиска -->
@@ -899,9 +893,13 @@
                         </div>
                         <div class="shiki-dropdown-divider"></div>
 
-                        <button type="button" class="shiki-dropdown-item tab-btn" onclick="handleDesktopNavClick('rates')">
-                            <i class="ti ti-list-check"></i>
-                            <span data-i18n="tab.rates">Списки</span>
+                        <button type="button" class="shiki-dropdown-item tab-btn" onclick="openRatesListWithType('Anime')">
+                            <i class="ti ti-movie"></i>
+                            <span data-i18n="tab.anime_list">Список аниме</span>
+                        </button>
+                        <button type="button" class="shiki-dropdown-item tab-btn" onclick="openRatesListWithType('Manga')">
+                            <i class="ti ti-book-2"></i>
+                            <span data-i18n="tab.manga_list">Список манги</span>
                         </button>
                         <button type="button" class="shiki-dropdown-item tab-btn" onclick="handleDesktopNavClick('favourites')">
                             <i class="ti ti-heart"></i>
@@ -929,7 +927,7 @@
                         </button>
                         <button type="button" class="shiki-dropdown-item" onclick="toggleLanguage(); updateDesktopMenuBadges();">
                             <i class="ti ti-language"></i>
-                            <span>Язык</span>
+                            <span data-i18n="lang.title">Язык</span>
                             <span class="shiki-dropdown-badge" id="desktop-menu-lang-badge">RU</span>
                         </button>
                         <button type="button" class="shiki-dropdown-item" onclick="openSettingsModal(); closeDesktopDropdowns();">
@@ -1195,53 +1193,53 @@
         <div id="catalog-anime" class="tab-content">
             <div class="portal-module-container">
                 <div class="portal-module-header">
-                    <h2 class="portal-module-title"><i class="ti ti-player-play"></i> Каталог Аниме</h2>
+                    <h2 class="portal-module-title"><i class="ti ti-player-play"></i> <span data-i18n="portal.anime_title">Каталог Аниме</span></h2>
                     <div class="portal-filter-bar">
                         <select id="anime-cat-genre" class="portal-filter-select" onchange="loadCatalogAnimeTab(1)">
-                            <option value="">Все жанры</option>
+                            <option value="" data-i18n="catalog.filter.all_genres">Все жанры</option>
                         </select>
                         <select id="anime-cat-kind" class="portal-filter-select" onchange="loadCatalogAnimeTab(1)">
-                            <option value="">Все типы</option>
-                            <option value="tv">ТВ Сериал</option>
-                            <option value="movie">Фильм</option>
-                            <option value="ova">OVA</option>
-                            <option value="ona">ONA</option>
-                            <option value="special">Спешл</option>
+                            <option value="" data-i18n="catalog.filter.all_types">Все типы</option>
+                            <option value="tv" data-i18n="catalog.kind.tv">ТВ Сериал</option>
+                            <option value="movie" data-i18n="catalog.kind.movie">Фильм</option>
+                            <option value="ova" data-i18n="catalog.kind.ova">OVA</option>
+                            <option value="ona" data-i18n="catalog.kind.ona">ONA</option>
+                            <option value="special" data-i18n="catalog.kind.special">Спешл</option>
                         </select>
                         <select id="anime-cat-status" class="portal-filter-select" onchange="loadCatalogAnimeTab(1)">
-                            <option value="">Любой статус</option>
-                            <option value="ongoing">Онгоинг</option>
-                            <option value="released">Вышло</option>
-                            <option value="anons">Анонс</option>
+                            <option value="" data-i18n="catalog.filter.all_statuses">Любой статус</option>
+                            <option value="ongoing" data-i18n="catalog.status.ongoing">Онгоинг</option>
+                            <option value="released" data-i18n="catalog.status.released">Вышло</option>
+                            <option value="anons" data-i18n="catalog.status.anons">Анонс</option>
                         </select>
                         <select id="anime-cat-season" class="portal-filter-select" onchange="loadCatalogAnimeTab(1)">
-                            <option value="">Все сезоны</option>
-                            <option value="fall_2026">Осень 2026</option>
-                            <option value="summer_2026">Лето 2026</option>
-                            <option value="spring_2026">Весна 2026</option>
-                            <option value="winter_2026">Зима 2026</option>
-                            <option value="2026">2026 год</option>
-                            <option value="2025">2025 год</option>
-                            <option value="2024">2024 год</option>
+                            <option value="" data-i18n="catalog.filter.all_seasons">Все сезоны</option>
+                            <option value="fall_2026" data-i18n="catalog.season.fall_2026">Осень 2026</option>
+                            <option value="summer_2026" data-i18n="catalog.season.summer_2026">Лето 2026</option>
+                            <option value="spring_2026" data-i18n="catalog.season.spring_2026">Весна 2026</option>
+                            <option value="winter_2026" data-i18n="catalog.season.winter_2026">Зима 2026</option>
+                            <option value="2026" data-i18n="catalog.season.y2026">2026 год</option>
+                            <option value="2025" data-i18n="catalog.season.y2025">2025 год</option>
+                            <option value="2024" data-i18n="catalog.season.y2024">2024 год</option>
                         </select>
                         <select id="anime-cat-score" class="portal-filter-select" onchange="loadCatalogAnimeTab(1)">
-                            <option value="">Любая оценка</option>
+                            <option value="" data-i18n="catalog.filter.all_scores">Любая оценка</option>
                             <option value="8">8+</option>
                             <option value="7">7+</option>
                             <option value="6">6+</option>
                         </select>
                         <select id="anime-cat-order" class="portal-filter-select" onchange="loadCatalogAnimeTab(1)">
-                            <option value="ranked">По рейтингу</option>
-                            <option value="popularity">По популярности</option>
-                            <option value="aired_on">По дате выхода</option>
-                            <option value="name">По алфавиту</option>
+                            <option value="ranked" data-i18n="catalog.sort.ranked">По рейтингу</option>
+                            <option value="popularity" data-i18n="catalog.sort.popularity">По популярности</option>
+                            <option value="aired_on" data-i18n="catalog.sort.aired_on">По дате выхода</option>
+                            <option value="name" data-i18n="catalog.sort.name">По алфавиту</option>
                         </select>
-                        <input type="text" id="anime-cat-search" class="portal-filter-input" placeholder="Поиск аниме..." oninput="debounce(loadCatalogAnimeTab, 400)(1)">
+                        <input type="text" id="anime-cat-search" class="portal-filter-input" placeholder="Поиск аниме..." data-i18n-placeholder="portal.search_anime" oninput="handleAnimeSearchInput()">
                     </div>
                 </div>
                 <div id="catalog-anime-list" class="portal-media-grid"></div>
                 <div style="display: flex; justify-content: center; margin-top: 10px;">
-                    <button type="button" id="catalog-anime-loadmore" class="btn btn-primary" style="display: none;" onclick="loadMoreCatalogAnime()">Загрузить ещё</button>
+                    <button type="button" id="catalog-anime-loadmore" class="btn btn-primary" style="display: none;" onclick="loadMoreCatalogAnime()" data-i18n="catalog.load_more">Загрузить ещё</button>
                 </div>
             </div>
         </div>
@@ -1250,12 +1248,12 @@
         <div id="top100" class="tab-content">
             <div class="portal-module-container">
                 <div class="portal-module-header">
-                    <h2 class="portal-module-title"><i class="ti ti-trophy"></i> Топ 100</h2>
+                    <h2 class="portal-module-title"><i class="ti ti-trophy"></i> <span data-i18n="portal.top100_title">Топ 100</span></h2>
                     <div class="top100-tabs-nav">
-                        <button type="button" class="top100-tab-btn active" data-type="anime" onclick="loadTop100Tab('anime')">Топ Аниме</button>
-                        <button type="button" class="top100-tab-btn" data-type="movie" onclick="loadTop100Tab('movie')">Топ Фильмов</button>
-                        <button type="button" class="top100-tab-btn" data-type="ongoing" onclick="loadTop100Tab('ongoing')">Топ Онгоингов</button>
-                        <button type="button" class="top100-tab-btn" data-type="manga" onclick="loadTop100Tab('manga')">Топ Манги</button>
+                        <button type="button" class="top100-tab-btn active" data-type="anime" onclick="loadTop100Tab('anime')" data-i18n="portal.top_anime">Топ Аниме</button>
+                        <button type="button" class="top100-tab-btn" data-type="movie" onclick="loadTop100Tab('movie')" data-i18n="portal.top_movie">Топ Фильмов</button>
+                        <button type="button" class="top100-tab-btn" data-type="ongoing" onclick="loadTop100Tab('ongoing')" data-i18n="portal.top_ongoing">Топ Онгоингов</button>
+                        <button type="button" class="top100-tab-btn" data-type="manga" onclick="loadTop100Tab('manga')" data-i18n="portal.top_manga">Топ Манги</button>
                     </div>
                 </div>
                 <div id="top100-list"></div>
@@ -1266,33 +1264,33 @@
         <div id="catalog-manga" class="tab-content">
             <div class="portal-module-container">
                 <div class="portal-module-header">
-                    <h2 class="portal-module-title"><i class="ti ti-book-2"></i> Каталог Манги</h2>
+                    <h2 class="portal-module-title"><i class="ti ti-book-2"></i> <span data-i18n="portal.manga_title">Каталог Манги</span></h2>
                     <div class="portal-filter-bar">
                         <select id="manga-cat-kind" class="portal-filter-select" onchange="loadCatalogMangaTab(1)">
-                            <option value="">Все типы</option>
-                            <option value="manga">Манга</option>
-                            <option value="manhwa">Манхва</option>
-                            <option value="manhua">Маньхуа</option>
-                            <option value="one_shot">Ваншот</option>
-                            <option value="doujin">Додзинси</option>
+                            <option value="" data-i18n="catalog.filter.all_types">Все типы</option>
+                            <option value="manga" data-i18n="catalog.kind.manga">Манга</option>
+                            <option value="manhwa" data-i18n="catalog.kind.manhwa">Манхва</option>
+                            <option value="manhua" data-i18n="catalog.kind.manhua">Маньхуа</option>
+                            <option value="one_shot" data-i18n="catalog.kind.one_shot">Ваншот</option>
+                            <option value="doujin" data-i18n="catalog.kind.doujin">Додзинси</option>
                         </select>
                         <select id="manga-cat-status" class="portal-filter-select" onchange="loadCatalogMangaTab(1)">
-                            <option value="">Любой статус</option>
-                            <option value="ongoing">Выходит</option>
-                            <option value="released">Издано</option>
-                            <option value="anons">Анонс</option>
+                            <option value="" data-i18n="catalog.filter.all_statuses">Любой статус</option>
+                            <option value="ongoing" data-i18n="catalog.status.ongoing_manga">Выходит</option>
+                            <option value="released" data-i18n="catalog.status.released_manga">Издано</option>
+                            <option value="anons" data-i18n="catalog.status.anons">Анонс</option>
                         </select>
                         <select id="manga-cat-order" class="portal-filter-select" onchange="loadCatalogMangaTab(1)">
-                            <option value="ranked">По рейтингу</option>
-                            <option value="popularity">По популярности</option>
-                            <option value="name">По названию</option>
+                            <option value="ranked" data-i18n="catalog.sort.ranked">По рейтингу</option>
+                            <option value="popularity" data-i18n="catalog.sort.popularity">По популярности</option>
+                            <option value="name" data-i18n="catalog.sort.name">По названию</option>
                         </select>
-                        <input type="text" id="manga-cat-search" class="portal-filter-input" placeholder="Поиск манги..." oninput="debounce(loadCatalogMangaTab, 400)(1)">
+                        <input type="text" id="manga-cat-search" class="portal-filter-input" placeholder="Поиск манги..." data-i18n-placeholder="portal.search_manga" oninput="handleMangaSearchInput()">
                     </div>
                 </div>
                 <div id="catalog-manga-list" class="portal-media-grid"></div>
                 <div style="display: flex; justify-content: center; margin-top: 10px;">
-                    <button type="button" id="catalog-manga-loadmore" class="btn btn-primary" style="display: none;" onclick="loadMoreCatalogManga()">Загрузить ещё</button>
+                    <button type="button" id="catalog-manga-loadmore" class="btn btn-primary" style="display: none;" onclick="loadMoreCatalogManga()" data-i18n="catalog.load_more">Загрузить ещё</button>
                 </div>
             </div>
         </div>
@@ -1301,24 +1299,24 @@
         <div id="catalog-ranobe" class="tab-content">
             <div class="portal-module-container">
                 <div class="portal-module-header">
-                    <h2 class="portal-module-title"><i class="ti ti-notebook"></i> Каталог Ранобэ</h2>
+                    <h2 class="portal-module-title"><i class="ti ti-notebook"></i> <span data-i18n="portal.ranobe_title">Каталог Ранобэ</span></h2>
                     <div class="portal-filter-bar">
                         <select id="ranobe-cat-status" class="portal-filter-select" onchange="loadCatalogRanobeTab(1)">
-                            <option value="">Любой статус</option>
-                            <option value="ongoing">Выходит</option>
-                            <option value="released">Издано</option>
+                            <option value="" data-i18n="catalog.filter.all_statuses">Любой статус</option>
+                            <option value="ongoing" data-i18n="catalog.status.ongoing_manga">Выходит</option>
+                            <option value="released" data-i18n="catalog.status.released_manga">Издано</option>
                         </select>
                         <select id="ranobe-cat-order" class="portal-filter-select" onchange="loadCatalogRanobeTab(1)">
-                            <option value="ranked">По рейтингу</option>
-                            <option value="popularity">По популярности</option>
-                            <option value="name">По алфавиту</option>
+                            <option value="ranked" data-i18n="catalog.sort.ranked">По рейтингу</option>
+                            <option value="popularity" data-i18n="catalog.sort.popularity">По популярности</option>
+                            <option value="name" data-i18n="catalog.sort.name">По алфавиту</option>
                         </select>
-                        <input type="text" id="ranobe-cat-search" class="portal-filter-input" placeholder="Поиск ранобэ..." oninput="debounce(loadCatalogRanobeTab, 400)(1)">
+                        <input type="text" id="ranobe-cat-search" class="portal-filter-input" placeholder="Поиск ранобэ..." data-i18n-placeholder="portal.search_ranobe" oninput="handleRanobeSearchInput()">
                     </div>
                 </div>
                 <div id="catalog-ranobe-list" class="portal-media-grid"></div>
                 <div style="display: flex; justify-content: center; margin-top: 10px;">
-                    <button type="button" id="catalog-ranobe-loadmore" class="btn btn-primary" style="display: none;" onclick="loadMoreCatalogRanobe()">Загрузить ещё</button>
+                    <button type="button" id="catalog-ranobe-loadmore" class="btn btn-primary" style="display: none;" onclick="loadMoreCatalogRanobe()" data-i18n="catalog.load_more">Загрузить ещё</button>
                 </div>
             </div>
         </div>
@@ -1327,15 +1325,15 @@
         <div id="forum" class="tab-content">
             <div class="portal-module-container">
                 <div class="portal-module-header">
-                    <h2 class="portal-module-title"><i class="ti ti-messages"></i> Форум</h2>
+                    <h2 class="portal-module-title"><i class="ti ti-messages"></i> <span data-i18n="portal.forum_title">Форум</span></h2>
                     <div class="forum-cat-nav">
-                        <button type="button" class="forum-cat-btn active" data-forum="all" onclick="loadForumTab('all')">Все темы</button>
-                        <button type="button" class="forum-cat-btn" data-forum="animanga" onclick="loadForumTab('animanga')">Аниме и Манга</button>
-                        <button type="button" class="forum-cat-btn" data-forum="news" onclick="loadForumTab('news')">Новости</button>
-                        <button type="button" class="forum-cat-btn" data-forum="critiques" onclick="loadForumTab('critiques')">Рецензии</button>
-                        <button type="button" class="forum-cat-btn" data-forum="collections" onclick="loadForumTab('collections')">Коллекции</button>
-                        <button type="button" class="forum-cat-btn" data-forum="articles" onclick="loadForumTab('articles')">Статьи</button>
-                        <button type="button" class="forum-cat-btn" data-forum="offtopic" onclick="loadForumTab('offtopic')">Офтопик</button>
+                        <button type="button" class="forum-cat-btn active" data-forum="all" onclick="loadForumTab('all')" data-i18n="forum.all">Все темы</button>
+                        <button type="button" class="forum-cat-btn" data-forum="animanga" onclick="loadForumTab('animanga')" data-i18n="forum.animanga">Аниме и Манга</button>
+                        <button type="button" class="forum-cat-btn" data-forum="news" onclick="loadForumTab('news')" data-i18n="forum.news">Новости</button>
+                        <button type="button" class="forum-cat-btn" data-forum="critiques" onclick="loadForumTab('critiques')" data-i18n="forum.critiques">Рецензии</button>
+                        <button type="button" class="forum-cat-btn" data-forum="collections" onclick="loadForumTab('collections')" data-i18n="forum.collections">Коллекции</button>
+                        <button type="button" class="forum-cat-btn" data-forum="articles" onclick="loadForumTab('articles')" data-i18n="forum.articles">Статьи</button>
+                        <button type="button" class="forum-cat-btn" data-forum="offtopic" onclick="loadForumTab('offtopic')" data-i18n="forum.offtopic">Офтопик</button>
                     </div>
                 </div>
                 <div id="forum-topics-list"></div>
@@ -1346,9 +1344,9 @@
         <div id="clubs" class="tab-content">
             <div class="portal-module-container">
                 <div class="portal-module-header">
-                    <h2 class="portal-module-title"><i class="ti ti-circles-relation"></i> Клубы</h2>
+                    <h2 class="portal-module-title"><i class="ti ti-circles-relation"></i> <span data-i18n="portal.clubs_title">Клубы</span></h2>
                     <div class="portal-filter-bar">
-                        <input type="text" id="clubs-search-input" class="portal-filter-input" placeholder="Поиск клубов..." oninput="debounce(loadClubsTab, 400)()">
+                        <input type="text" id="clubs-search-input" class="portal-filter-input" placeholder="Поиск клубов..." data-i18n-placeholder="portal.search_clubs" oninput="handleClubsSearchInput()">
                     </div>
                 </div>
                 <div id="clubs-grid-list"></div>
@@ -1359,7 +1357,7 @@
         <div id="collections" class="tab-content">
             <div class="portal-module-container">
                 <div class="portal-module-header">
-                    <h2 class="portal-module-title"><i class="ti ti-layout-grid"></i> Коллекции пользователей</h2>
+                    <h2 class="portal-module-title"><i class="ti ti-layout-grid"></i> <span data-i18n="portal.collections_title">Коллекции пользователей</span></h2>
                 </div>
                 <div id="collections-grid-list"></div>
             </div>
@@ -1369,7 +1367,7 @@
         <div id="critiques" class="tab-content">
             <div class="portal-module-container">
                 <div class="portal-module-header">
-                    <h2 class="portal-module-title"><i class="ti ti-pencil"></i> Рецензии и отзывы</h2>
+                    <h2 class="portal-module-title"><i class="ti ti-pencil"></i> <span data-i18n="portal.critiques_title">Рецензии и отзывы</span></h2>
                 </div>
                 <div id="critiques-list-container"></div>
             </div>
@@ -1379,7 +1377,7 @@
         <div id="articles" class="tab-content">
             <div class="portal-module-container">
                 <div class="portal-module-header">
-                    <h2 class="portal-module-title"><i class="ti ti-file-text"></i> Статьи и аналитика</h2>
+                    <h2 class="portal-module-title"><i class="ti ti-file-text"></i> <span data-i18n="portal.articles_title">Статьи и аналитика</span></h2>
                 </div>
                 <div id="articles-list-container"></div>
             </div>
@@ -1389,9 +1387,9 @@
         <div id="users" class="tab-content">
             <div class="portal-module-container">
                 <div class="portal-module-header">
-                    <h2 class="portal-module-title"><i class="ti ti-user"></i> Пользователи</h2>
+                    <h2 class="portal-module-title"><i class="ti ti-user"></i> <span data-i18n="portal.users_title">Пользователи</span></h2>
                     <div class="portal-filter-bar">
-                        <input type="text" id="users-search-input" class="portal-filter-input" placeholder="Поиск по никнейму..." oninput="debounce(loadUsersTab, 400)()">
+                        <input type="text" id="users-search-input" class="portal-filter-input" placeholder="Поиск по никнейму..." data-i18n-placeholder="portal.search_users" oninput="handleUsersSearchInput()">
                     </div>
                 </div>
                 <div id="users-grid-container"></div>
@@ -1402,7 +1400,7 @@
         <div id="recommendations" class="tab-content">
             <div class="portal-module-container">
                 <div class="portal-module-header">
-                    <h2 class="portal-module-title"><i class="ti ti-thumb-up"></i> Рекомендации аниме</h2>
+                    <h2 class="portal-module-title"><i class="ti ti-thumb-up"></i> <span data-i18n="portal.recommendations_title">Рекомендации аниме</span></h2>
                 </div>
                 <div id="recommendations-grid-container"></div>
             </div>
@@ -1412,7 +1410,7 @@
         <div id="calendar" class="tab-content">
             <div class="portal-module-container">
                 <div class="portal-module-header">
-                    <h2 class="portal-module-title"><i class="ti ti-calendar"></i> Календарь релизов онгоингов</h2>
+                    <h2 class="portal-module-title"><i class="ti ti-calendar"></i> <span data-i18n="portal.calendar_title">Календарь релизов онгоингов</span></h2>
                 </div>
                 <div id="full-calendar-container"></div>
             </div>
@@ -1493,7 +1491,7 @@
                         <button class="mobile-menu-action-btn" onclick="handleMobileToggleLanguage()">
                             <div class="mobile-action-left">
                                 <i class="ti ti-language action-icon"></i>
-                                <span>Язык интерфейса</span>
+                                <span data-i18n="lang.interface">Язык интерфейса</span>
                             </div>
                             <span id="mobile-settings-lang-val" class="mobile-action-badge">RU</span>
                         </button>

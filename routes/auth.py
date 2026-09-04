@@ -1,8 +1,8 @@
 import os
-import hashlib
 import logging
+import secrets
 import requests
-from flask import Blueprint, redirect, request, session, url_for, send_from_directory, current_app
+from flask import Blueprint, redirect, request, session, url_for, jsonify
 from utils import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, APP_NAME, AUTH_URL, TOKEN_URL, WHOAMI_URL
 from errors import AppError, api_route
 from database import get_or_create_user
@@ -10,63 +10,60 @@ from database import get_or_create_user
 logger = logging.getLogger("shikimxapp.auth")
 auth_bp = Blueprint('auth', __name__)
 
-@auth_bp.route("/cache/img")
-def cache_img():
-    img_url = request.args.get("url")
-    if not img_url:
-        logger.warning("Image cache request without URL")
-        return "Missing URL", 400
 
-    clean_url = img_url.split("?")[0]
-    ext = clean_url.split(".")[-1].lower()
-    if ext not in ["jpg", "jpeg", "png", "gif", "webp"]:
-        ext = "jpg"
+@auth_bp.route("/api/auth/status")
+@api_route
+def auth_status():
+    """Check if the current user is authenticated."""
+    is_authenticated = bool(session.get("user_id"))
+    return jsonify({
+        "authenticated": is_authenticated,
+        "user_id": session.get("user_id"),
+        "db_user_id": session.get("db_user_id")
+    })
 
-    cache_dir = os.path.join(current_app.root_path, "static", "img_cache")
-    os.makedirs(cache_dir, exist_ok=True)
-
-    filename = hashlib.md5(img_url.encode("utf-8")).hexdigest() + f".{ext}"
-    filepath = os.path.join(cache_dir, filename)
-
-    if os.path.exists(filepath):
-        logger.debug("Image cache hit: %s", filename)
-        return send_from_directory(cache_dir, filename)
-
-    try:
-        r = requests.get(img_url, headers={"User-Agent": APP_NAME}, timeout=10)
-        if r.status_code == 200:
-            with open(filepath, "wb") as f:
-                f.write(r.content)
-            logger.debug("Image cached: %s", filename)
-            return send_from_directory(cache_dir, filename)
-        logger.warning("Image download failed (%s): %s", r.status_code, img_url)
-    except requests.RequestException as exc:
-        logger.warning("Image cache error for %s: %s", img_url, exc)
-
-    logger.info("Redirecting to original image: %s", img_url)
-    return redirect(img_url)
 
 @auth_bp.route("/login")
 def login():
     if not CLIENT_ID:
         logger.error("OAuth login attempted without SHIKIMORI_CLIENT_ID")
         raise AppError("OAuth не настроен: отсутствует SHIKIMORI_CLIENT_ID", 500, logging.ERROR)
-    params = {"client_id": CLIENT_ID, "redirect_uri": REDIRECT_URI, "response_type": "code", "scope": "user_rates"}
+    
+    state = secrets.token_urlsafe(32)
+    session["oauth_state"] = state
+    params = {
+        "client_id": CLIENT_ID,
+        "redirect_uri": REDIRECT_URI,
+        "response_type": "code",
+        "scope": "user_rates",
+        "state": state
+    }
     req = requests.Request("GET", AUTH_URL, params=params).prepare()
     logger.info("Redirecting user to Shikimori OAuth with scope=user_rates")
     return redirect(req.url)
+
 
 @auth_bp.route("/auth/callback")
 def callback():
     code = request.args.get("code")
     error = request.args.get("error")
+    state = request.args.get("state")
+    saved_state = session.pop("oauth_state", None)
+
     if error or not code:
         logger.warning("OAuth callback error: %s", error or "missing code")
         raise AppError(f"Ошибка авторизации: {error or 'код не получен'}", 400)
 
+    if not state or not saved_state or state != saved_state:
+        logger.warning("OAuth CSRF state mismatch: received=%s, expected=%s", state, saved_state)
+        raise AppError("Ошибка безопасности: неверный CSRF токен (state)", 400)
+
     token_data = {
-        "grant_type": "authorization_code", "client_id": CLIENT_ID,
-        "client_secret": CLIENT_SECRET, "code": code, "redirect_uri": REDIRECT_URI
+        "grant_type": "authorization_code",
+        "client_id": CLIENT_ID,
+        "client_secret": CLIENT_SECRET,
+        "code": code,
+        "redirect_uri": REDIRECT_URI
     }
     try:
         response = requests.post(TOKEN_URL, headers={"User-Agent": APP_NAME}, data=token_data, timeout=10)
@@ -113,6 +110,7 @@ def callback():
         logger.error("Failed to save user to DB: %s", exc)
 
     return redirect(url_for("profile.index"))
+
 
 @auth_bp.route("/logout")
 def logout():

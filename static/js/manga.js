@@ -39,7 +39,7 @@ function renderMangaUserRateWidget(manga) {
         <div class="user-rate-widget-card" id="user-rate-widget-${manga.id}">
             <div class="user-rate-widget-header">
                 <h4><i class="ti ti-bookmark"></i> ${i18n('mylist.title')}</h4>
-                ${currentStatus ? `<span class="badge badge-${currentStatus}">${statusMap[currentStatus] ? statusMap[currentStatus].manga : currentStatus}</span>` : `<span class="badge" style="background: rgba(255,255,255,0.08); color: var(--text-muted);">${i18n('mylist.not_in_list')}</span>`}
+                ${currentStatus ? `<span class="badge badge-${currentStatus}">${statusMap[currentStatus] ? (statusMap[currentStatus].label || statusMap[currentStatus].name) : currentStatus}</span>` : `<span class="badge" style="background: rgba(255,255,255,0.08); color: var(--text-muted);">${i18n('mylist.not_in_list')}</span>`}
             </div>
             <div class="user-rate-widget-body">
                 <div class="user-rate-row">
@@ -124,12 +124,13 @@ window.toggleMangaRateWidget = function(mangaId) {
 window.toggleMangaDesc = function(mangaId, btn) {
     const el = document.getElementById(`manga-desc-${mangaId}`);
     if (!el) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     if (el.classList.contains('collapsed')) {
         el.classList.remove('collapsed');
-        btn.textContent = 'Свернуть';
+        btn.textContent = isEn ? 'Show less' : 'Свернуть';
     } else {
         el.classList.add('collapsed');
-        btn.textContent = 'Развернуть';
+        btn.textContent = isEn ? 'Show more' : 'Развернуть';
     }
 };
 
@@ -137,9 +138,10 @@ function renderMangaDetail(manga) {
     const body = document.getElementById('anime-modal-body');
     if (!body) return;
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     const poster = manga.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(manga.image) : manga.image) : '';
-    const title = manga.russian || manga.name || '';
-    const origTitle = (manga.name && manga.name !== manga.russian) ? manga.name : '';
+    const title = (isEn && manga.name) ? manga.name : (manga.russian || manga.name || '');
+    const origTitle = isEn ? (manga.russian || '') : ((manga.name && manga.name !== manga.russian) ? manga.name : '');
     const scoreVal = manga.score || '';
     const descText = manga.description || '';
     const isLongDesc = descText.length > 220;
@@ -150,11 +152,11 @@ function renderMangaDetail(manga) {
     statsList.forEach(st => {
         const name = (st.name || '').toLowerCase();
         const val = parseInt(st.value, 10) || 0;
-        if (name.includes('план')) plannedCount = val;
-        else if (name.includes('прочит')) completedCount = val;
-        else if (name.includes('чит')) readingCount = val;
-        else if (name.includes('брош')) droppedCount = val;
-        else if (name.includes('отлож')) onHoldCount = val;
+        if (name.includes('план') || name.includes('plan')) plannedCount = val;
+        else if (name.includes('прочит') || name.includes('complet')) completedCount = val;
+        else if (name.includes('чит') || name.includes('read')) readingCount = val;
+        else if (name.includes('брош') || name.includes('drop')) droppedCount = val;
+        else if (name.includes('отлож') || name.includes('hold')) onHoldCount = val;
     });
     const totalInLists = plannedCount + completedCount + readingCount + droppedCount + onHoldCount;
 
@@ -162,7 +164,7 @@ function renderMangaDetail(manga) {
     const rate = manga.user_rate;
     const currentStatus = rate ? rate.status : '';
     const statusMap = typeof getStatusMap === 'function' ? getStatusMap() : {};
-    const statusText = currentStatus ? (statusMap[currentStatus] ? statusMap[currentStatus].manga : currentStatus) : 'Добавить в список';
+    const statusText = currentStatus ? (statusMap[currentStatus] ? (statusMap[currentStatus].label || statusMap[currentStatus].name) : currentStatus) : (isEn ? 'Add to list' : 'Добавить в список');
 
     const characters = manga.characters || [];
     const related = manga.related || [];
@@ -171,11 +173,11 @@ function renderMangaDetail(manga) {
 
     body.innerHTML = `
         <div class="manga-view-top-bar">
-            <button type="button" class="manga-view-nav-btn" onclick="handleModalBack()" title="Назад">
+            <button type="button" class="manga-view-nav-btn" onclick="handleModalBack()" title="${isEn ? 'Back' : 'Назад'}">
                 <i class="ti ti-arrow-left"></i>
             </button>
             <div class="manga-view-nav-title" id="manga-view-nav-title">${title}</div>
-            <button type="button" class="manga-view-nav-btn" onclick="copyCharacterLink('${manga.shikimori_url || ('https://shikimori.io/mangas/' + manga.id)}')" title="Поделиться">
+            <button type="button" class="manga-view-nav-btn" onclick="copyCharacterLink('${manga.shikimori_url || ('https://shikimori.io/mangas/' + manga.id)}')" title="${isEn ? 'Share' : 'Поделиться'}">
                 <i class="ti ti-share"></i>
             </button>
         </div>
@@ -197,7 +199,7 @@ function renderMangaDetail(manga) {
                 ${manga.shikimori_url ? `
                     <a href="${manga.shikimori_url}#comments" target="_blank" class="manga-action-btn">
                         <i class="ti ti-message"></i>
-                        <span>Обсуждение</span>
+                        <span>${isEn ? 'Discussions' : 'Обсуждение'}</span>
                     </a>
                 ` : ''}
                 ${manga.shikimori_url ? `
@@ -226,11 +228,11 @@ function renderMangaDetail(manga) {
             <!-- 4. Metadata Info Grid (2 cols) -->
             <div class="manga-meta-grid">
                 <div class="manga-meta-col">
-                    <span class="manga-meta-label">Тип</span>
-                    <span class="manga-meta-val">${manga.type_and_status || (manga.kind + ' • ' + (manga.status || 'Онгоинг'))}</span>
+                    <span class="manga-meta-label">${isEn ? 'Type' : 'Тип'}</span>
+                    <span class="manga-meta-val">${manga.type_and_status || (manga.kind + ' • ' + (manga.status || (isEn ? 'Ongoing' : 'Онгоинг')))}</span>
                 </div>
                 <div class="manga-meta-col">
-                    <span class="manga-meta-label">Выходит</span>
+                    <span class="manga-meta-label">${isEn ? 'Aired' : 'Выходит'}</span>
                     <span class="manga-meta-val">${manga.aired_on_formatted || '—'}</span>
                 </div>
             </div>
@@ -247,7 +249,7 @@ function renderMangaDetail(manga) {
                     <div class="manga-desc-text ${isLongDesc ? 'collapsed' : ''}" id="manga-desc-${manga.id}">
                         ${descText}
                     </div>
-                    ${isLongDesc ? `<div class="manga-desc-toggle" onclick="toggleMangaDesc('${manga.id}', this)">Развернуть</div>` : ''}
+                    ${isLongDesc ? `<div class="manga-desc-toggle" onclick="toggleMangaDesc('${manga.id}', this)">${isEn ? 'Show more' : 'Развернуть'}</div>` : ''}
                 </div>
             ` : ''}
 
@@ -255,22 +257,22 @@ function renderMangaDetail(manga) {
             ${totalInLists > 0 ? `
                 <div class="manga-section">
                     <div class="manga-section-header">
-                        <div class="manga-section-title">В списках</div>
-                        <div class="manga-section-meta">Всего: ${totalInLists.toLocaleString()}</div>
+                        <div class="manga-section-title">${isEn ? 'In lists' : 'В списках'}</div>
+                        <div class="manga-section-meta">${isEn ? 'Total:' : 'Всего:'} ${totalInLists.toLocaleString()}</div>
                     </div>
                     <div class="manga-in-lists-bar">
-                        <div class="bar-seg seg-planned" style="flex: ${plannedCount || 0.01};" title="Запланировано: ${plannedCount}"></div>
-                        <div class="bar-seg seg-completed" style="flex: ${completedCount || 0.01};" title="Прочитано: ${completedCount}"></div>
-                        <div class="bar-seg seg-watching" style="flex: ${readingCount || 0.01};" title="Читаю: ${readingCount}"></div>
-                        <div class="bar-seg seg-dropped" style="flex: ${droppedCount || 0.01};" title="Брошено: ${droppedCount}"></div>
-                        <div class="bar-seg seg-onhold" style="flex: ${onHoldCount || 0.01};" title="Отложено: ${onHoldCount}"></div>
+                        <div class="bar-seg seg-planned" style="flex: ${plannedCount || 0.01};" title="${isEn ? 'Planned: ' : 'Запланировано: '}${plannedCount}"></div>
+                        <div class="bar-seg seg-completed" style="flex: ${completedCount || 0.01};" title="${isEn ? 'Read: ' : 'Прочитано: '}${completedCount}"></div>
+                        <div class="bar-seg seg-watching" style="flex: ${readingCount || 0.01};" title="${isEn ? 'Reading: ' : 'Читаю: '}${readingCount}"></div>
+                        <div class="bar-seg seg-dropped" style="flex: ${droppedCount || 0.01};" title="${isEn ? 'Dropped: ' : 'Брошено: '}${droppedCount}"></div>
+                        <div class="bar-seg seg-onhold" style="flex: ${onHoldCount || 0.01};" title="${isEn ? 'On hold: ' : 'Отложено: '}${onHoldCount}"></div>
                     </div>
                     <div class="manga-in-lists-legend">
-                        <div class="legend-item"><span class="dot dot-planned"></span> <span class="label">Запланировано:</span> <span class="val">${plannedCount.toLocaleString()}</span></div>
-                        <div class="legend-item"><span class="dot dot-completed"></span> <span class="label">Прочитано:</span> <span class="val">${completedCount.toLocaleString()}</span></div>
-                        <div class="legend-item"><span class="dot dot-watching"></span> <span class="label">Читаю:</span> <span class="val">${readingCount.toLocaleString()}</span></div>
-                        <div class="legend-item"><span class="dot dot-dropped"></span> <span class="label">Брошено:</span> <span class="val">${droppedCount.toLocaleString()}</span></div>
-                        <div class="legend-item"><span class="dot dot-onhold"></span> <span class="label">Отложено:</span> <span class="val">${onHoldCount.toLocaleString()}</span></div>
+                        <div class="legend-item"><span class="dot dot-planned"></span> <span class="label">${isEn ? 'Planned:' : 'Запланировано:'}</span> <span class="val">${plannedCount.toLocaleString()}</span></div>
+                        <div class="legend-item"><span class="dot dot-completed"></span> <span class="label">${isEn ? 'Read:' : 'Прочитано:'}</span> <span class="val">${completedCount.toLocaleString()}</span></div>
+                        <div class="legend-item"><span class="dot dot-watching"></span> <span class="label">${isEn ? 'Reading:' : 'Читаю:'}</span> <span class="val">${readingCount.toLocaleString()}</span></div>
+                        <div class="legend-item"><span class="dot dot-dropped"></span> <span class="label">${isEn ? 'Dropped:' : 'Брошено:'}</span> <span class="val">${droppedCount.toLocaleString()}</span></div>
+                        <div class="legend-item"><span class="dot dot-onhold"></span> <span class="label">${isEn ? 'On hold:' : 'Отложено:'}</span> <span class="val">${onHoldCount.toLocaleString()}</span></div>
                     </div>
                 </div>
             ` : ''}
@@ -280,7 +282,7 @@ function renderMangaDetail(manga) {
                 <div class="manga-section">
                     <div class="manga-section-header">
                         <div class="manga-section-title">
-                            Персонажи <span class="manga-count-pill">${manga.characters_total || characters.length}</span>
+                            ${isEn ? 'Characters' : 'Персонажи'} <span class="manga-count-pill">${manga.characters_total || characters.length}</span>
                         </div>
                         <i class="ti ti-chevron-right section-chevron"></i>
                     </div>
@@ -305,7 +307,7 @@ function renderMangaDetail(manga) {
                 <div class="manga-section">
                     <div class="manga-section-header">
                         <div class="manga-section-title">
-                            Связанное (${manga.related_total || related.length})
+                            ${isEn ? 'Related' : 'Связанное'} (${manga.related_total || related.length})
                         </div>
                         <i class="ti ti-chevron-right section-chevron"></i>
                     </div>

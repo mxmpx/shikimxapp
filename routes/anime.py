@@ -97,7 +97,7 @@ def _build_anime_from_graphql(a, anime_id):
         "scored_by": None,
         "status": status_map.get(a.get("status"), a.get("status")),
         "episodes": a.get("episodes"),
-        "episodes_aired": a.get("episodes_aired"),
+        "episodes_aired": a.get("episodesAired") or a.get("episodes_aired"),
         "duration": a.get("duration"),
         "aired_on": aired_on,
         "released_on": released_on,

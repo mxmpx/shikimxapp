@@ -2,8 +2,9 @@
 .env
 .env.*
 .env.local
+!.env.example
 
-# Python
+# Python & Virtual Environments
 __pycache__/
 *.py[cod]
 *$py.class
@@ -12,8 +13,10 @@ __pycache__/
 venv/
 ENV/
 env/
+.pytest_cache/
+.coverage
 
-# Database
+# Database & SQLite storage
 *.db
 *.sqlite
 *.sqlite3
@@ -21,15 +24,16 @@ env/
 *.db-wal
 *.db-shm
 
-# Cached media & static cache
+# Cached media & runtime assets
 static/img_cache/
 .tempmediaStorage/
 
 # Logs
+logs/
 *.log
 server.log
 
-# Scratch & temporary scripts
+# Scratch, temporary files & test artifacts
 scratch/
 test_*.py
 test*.txt
@@ -46,7 +50,7 @@ Thumbs.db
 ehthumbs.db
 [Dd]esktop.ini
 
-# IDE & AI Coding Agents
+# IDE & AI Assistant metadata
 .vscode/
 .idea/
 *.swp
@@ -58,3 +62,5 @@ ehthumbs.db
 .kilo/
 .system_generated/
 for AI examples/
+node_modules/
+package-lock.json

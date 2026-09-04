@@ -144,722 +144,81 @@
 
 ;
 /* --- js/translations.js --- */
-/* Translations for Shiki MX App */
-
-const TRANSLATIONS = {
-    ru: {
-        // Header
-        'nav.main': 'Главная',
-        'nav.my_pages': 'Мои страницы',
-        'nav.sections': 'Разделы сайта',
-        'tab.profile': 'Главная',
-        'tab.rates': 'Списки',
-        'tab.favourites': 'Избранное',
-        'tab.friends': 'Друзья',
-        'tab.history': 'История',
-        'tab.anime': 'Аниме',
-        'tab.top100': 'Топ 100',
-        'tab.manga': 'Манга',
-        'tab.ranobe': 'Ранобэ',
-        'tab.forum': 'Форум',
-        'tab.clubs': 'Клубы',
-        'tab.collections': 'Коллекции',
-        'tab.critiques': 'Рецензии',
-        'tab.articles': 'Статьи',
-        'tab.users': 'Пользователи',
-        'tab.recommendations': 'Рекомендации',
-        'tab.calendar': 'Календарь',
-        'search.title': 'Поиск',
-        'search.placeholder': 'Поиск аниме, манги...',
-        'theme.title': 'Сменить тему',
-        'logout': 'Выйти',
-
-        // Auth
-        'login.shikimori': 'Войти',
-        'login.via_shikimori': 'Войти через Shikimori',
-        'auth.not_authorized': 'Авторизация не выполнена',
-        'auth.not_authorized.desc': 'Войдите через Shikimori, чтобы просмотреть свой профиль, списки и обзор.',
-
-        // Profile
-        'profile.info': 'Информация',
-        'profile.stats': 'Статистика',
-        'profile.friends_clubs': 'Друзья и клубы',
-        'profile.activity': 'Активность',
-        'profile.about': 'О себе',
-        'profile.all': 'Все',
-        'profile.full_history': 'Вся история',
-        'profile.show_full': 'Показать полностью',
-        'profile.collapse': 'Свернуть',
-        'profile.expand': 'Показать полностью',
-        'profile.about_empty': 'Информация о себе не заполнена.',
-        'profile.stats_unavailable': 'Статистика недоступна',
-        'profile.id': 'ID:',
-        'profile.name': 'Имя:',
-        'profile.age': 'Возраст:',
-        'profile.sex': 'Пол:',
-        'profile.last_visit': 'Последний визит:',
-        'profile.anime_completed': 'Просмотрено аниме:',
-        'profile.anime_watching': 'Смотрю аниме:',
-        'profile.manga_completed': 'Прочитано манги:',
-        'profile.manga_watching': 'Читаю мангу:',
-
-        // Explore
-        'explore.content': 'Контент',
-        'explore.hot_topics': 'Темы дня',
-        'explore.main_news': 'Главные новости',
-        'explore.more_news': 'Ещё новости',
-        'explore.no_content': 'Нет доступного контента',
-        'explore.no_hot': 'Нет популярных тем',
-        'explore.searching': 'Поиск...',
-        'explore.no_results': 'Ничего не найдено',
-        'explore.min_chars': 'Введите минимум 2 символа',
-        'explore.topic': 'Тема',
-        'explore.collection': 'Коллекция',
-        'explore.review': 'Рецензия',
-        'explore.discussion': 'Обсуждение',
-        'explore.article': 'Статья',
-        'explore.loading': 'Загрузка...',
-        'explore.loading_more': 'Подгрузка новостей...',
-        'explore.news_feed': 'Новостная лента',
-        'explore.collections': 'коллекции',
-        'explore.reviews': 'рецензии',
-        'explore.articles': 'статьи',
-        'explore.search_error': 'Ошибка поиска',
-        'explore.status.released': 'Завершено',
-        'explore.status.ongoing': 'Онгоинг',
-        'explore.status.anons': 'Анонс',
-        'explore.type': 'Тип:',
-        'explore.year': 'год',
-        'explore.genres': 'Жанры:',
-        'explore.no_more_news': 'Больше новостей нет',
-        'explore.load_more_error': 'Ошибка подгрузки новостей:',
-
-        // Settings
-        'settings.title': 'Настройки',
-        'settings.background': 'Фон сайта',
-        'settings.background.hint': 'Выберите цвет фона или установите любое фото.',
-        'settings.color': 'Цвет',
-        'settings.image': 'Фото',
-        'settings.bg_color': 'Цвет фона',
-        'settings.image_url': 'URL изображения',
-        'settings.or': 'или',
-        'settings.upload': 'Загрузить с устройства',
-        'settings.reset': 'Сбросить',
-        'settings.section_visibility': 'Видимость разделов',
-        'settings.section_visibility.hint': 'Выберите, какие разделы отображать на вкладке «Профиль & Обзор».',
-        'settings.navbar_view': 'Вид навигации',
-        'settings.navbar_view.hint': 'Выберите, как отображать элементы навигации.',
-        'settings.navbar_view.full': 'Иконка + название',
-        'settings.navbar_view.icons': 'Только иконки',
-        'settings.navbar_view.titles': 'Только названия',
-
-        // About modal
-        'about.title': 'О сайте',
-        'about.features': 'Возможности приложения',
-        'about.tech_stack': 'Технологический стек',
-        'about.changelog': 'Чейнджлог (История изменений)',
-
-        // Common
-        'loading': 'Загрузка...',
-        'rates.loading': 'Загрузка списков...',
-        'favourites.loading': 'Загрузка избранного...',
-        'friends.loading': 'Загрузка друзей и клубов...',
-        'history.loading': 'Загрузка истории...',
-        'common.load_error': 'Ошибка загрузки',
-        'error': 'Ошибка',
-        'close': 'Закрыть',
-
-        // Rates
-        'rates.watching': 'Смотрю',
-        'rates.completed': 'Просмотрено',
-        'rates.planned': 'В планах',
-        'rates.on_hold': 'Отложено',
-        'rates.dropped': 'Брошено',
-        'rates.rewatching': 'Пересматриваю',
-        'rates.anime': 'Аниме',
-        'rates.manga': 'Манга',
-        'rates.all': 'Все',
-        'rates.empty': 'Список пуст',
-        'rates.no_results': 'Записей не найдено',
-        'rates.sort.updated': 'По дате обновления',
-        'rates.sort.score_desc': 'По оценке (сначала высокие)',
-        'rates.sort.score_asc': 'По оценке (сначала низкие)',
-        'rates.sort.name': 'По названию (А-Я)',
-        'rates.sort.progress': 'По прогрессу',
-        'rates.progress.anime': 'эп.',
-        'rates.progress.manga': 'гл.',
-        'rates.rewatches': 'повторов:',
-        'rates.view.list': 'Список',
-        'rates.view.cards': 'Карточки',
-        'rates.view.large': 'Большие постеры',
-        'rates.progress': 'Прогресс',
-        'rates.score': 'Оценка',
-        
-        // Friends
-        'friends.empty': 'Список пуст',
-        'friends.load_error': 'Ошибка загрузки',
-        'friends.friends': 'Друзья',
-        'friends.clubs': 'Клубы',
-        'friends.private_club': 'Закрытый клуб',
-        'friends.public_club': 'Публичный клуб',
-        'friends.open_shikimori': 'Открыть на Shikimori',
-        'friends.about': 'О себе',
-        'friends.about_empty': 'Информация о себе не заполнена.',
-        'friends.id': 'ID:',
-        'friends.sex': 'Пол:',
-        'friends.age': 'Возраст:',
-        'friends.last_online': 'Был(а) в сети:',
-        'friends.online_today': 'Онлайн сегодня',
-        'friends.anime': 'Аниме',
-        'friends.manga': 'Манга',
-        'friends.watched': 'Просмотрено:',
-        'friends.watching': 'Смотрит:',
-        'friends.read': 'Прочитано:',
-        'friends.reading': 'Читает:',
-
-        // Favourites
-        'favourites.empty': 'Пусто',
-        'favourites.characters': 'Избранные персонажи',
-        'favourites.animes': 'Избранные Аниме',
-        'favourites.mangas': 'Избранная Манга',
-
-        // History
-        'history.empty': 'История пуста',
-        'history.load_error': 'Не удалось загрузить историю',
-        'history.full': 'Вся история',
-
-        // Anime modal
-        'anime.loading': 'Загрузка информации...',
-        'anime.load_error': 'Не удалось загрузить данные',
-        'anime.playback_error': 'Ошибка воспроизведения',
-        'anime.no_players': 'Доступные плееры не найдены',
-        'anime.sources': 'Источники:',
-        'anime.open_shikimori': 'Открыть на Shikimori',
-        'anime.episode': 'Серия',
-        'anime.translation': 'Озвучка / Перевод:',
-        'anime.player': 'Плеер / Зеркало:',
-        'anime.description': 'Описание',
-        'anime.search_error': 'Ошибка поиска',
-        'anime.no_results': 'Ничего не найдено',
-        'anime.search_players': 'Поиск в Kodik, AniLibria, AnimeGo, Animevost...',
-        'anime.player_1': 'Плеер 1 (Shikimori)',
-        'anime.player_2': 'Плеер 2 (Anicli)',
-        'anime.type': 'Тип:',
-        'anime.status': 'Статус:',
-        'anime.episodes': 'Эпизоды:',
-        'anime.duration': 'Длительность:',
-        'anime.min': 'мин.',
-        'anime.aired': 'Выпуск:',
-        'anime.rating': 'Рейтинг:',
-        'anime.studios': 'Студии:',
-        'anime.genres': 'Жанры:',
-        'anime.scored_by': 'Оценили:',
-        'anime.characters': 'Персонажи:',
-        'anime.show_all_characters': 'Показать всех',
-        'anime.hide_characters': 'Скрыть',
-        'anime.franchise': 'Франшиза:',
-        'anime.related': 'Относится:',
-        'anime.screenshots': 'Скриншоты:',
-        'anime.external_scores': 'Оценки на других сайтах:',
-        'anime.videos': 'Видео:',
-        'anime.licensed_by': 'Лицензиары:',
-        'anime.my_progress': 'Мой прогресс:',
-        'anime.chapters': 'Главы:',
-        'anime.volumes': 'Тома:',
-        'anime.publisher': 'Издательство:',
-
-        // Lightbox
-        'lightbox.close': 'Закрыть (Esc)',
-        'lightbox.prev': 'Назад (←)',
-        'lightbox.next': 'Вперед (→)',
-        'lightbox.zoom': 'Нажмите для увеличения',
-        'video.link': 'Видео',
-
-        // Manga modal
-        'manga.loading': 'Загрузка информации о манге...',
-        'manga.load_error': 'Не удалось загрузить данные о манге',
-        'manga.type': 'Тип:',
-        'manga.status': 'Статус:',
-        'manga.volumes': 'Томов:',
-        'manga.chapters': 'Глав:',
-        'manga.publisher': 'Издательство:',
-        'manga.aired': 'Выпуск:',
-        'manga.genres': 'Жанры:',
-
-        // Character modal
-        'character.loading': 'Загрузка персонажа...',
-        'character.load_error': 'Не удалось загрузить персонажа',
-        'character.info': 'Информация о персонаже',
-        'character.anime': 'Аниме:',
-        'character.manga': 'Манга:',
-
-        // Club modal
-        'club.loading': 'Загрузка информации о клубе...',
-        'club.load_error': 'Не удалось загрузить данные клуба',
-        'club.members': 'Участников:',
-        'club.type': 'Тип:',
-        'club.description': 'Описание клуба',
-
-        // Player & Continue Watching
-        'player.continue_watching': 'Продолжить просмотр',
-        'player.continue_desc': 'Вы остановились здесь',
-        'player.ep_short': 'сер.',
-        'player.skip_intro': '+85 сек',
-        'player.next_ep': 'След. серия',
-        'player.prev_ep': 'Пред. серия',
-        'player.mini_player': 'PiP',
-        'player.restore': 'Развернуть',
-        'player.close': 'Закрыть',
-
-        // My List widget
-        'mylist.title': 'Мой список',
-        'mylist.not_in_list': 'Не в списке',
-        'mylist.status': 'Статус:',
-        'mylist.episodes': 'Серии:',
-        'mylist.chapters': 'Главы:',
-        'mylist.volumes': 'Тома:',
-        'mylist.score': 'Оценка:',
-        'mylist.note': 'Заметка / впечатления:',
-        'mylist.note_placeholder': 'Напишите заметку...',
-        'mylist.save': 'Сохранить',
-        'mylist.saving': 'Сохранение...',
-        'mylist.saved': 'Успешно сохранено в Shikimori',
-        'mylist.delete': 'Удалить из списка',
-        'mylist.deleted': 'Удалено из списка',
-        'mylist.quick_inc': '+1',
-        'mylist.search_placeholder': 'Поиск по вашим спискам...',
-        'mylist.delete_confirm': 'Удалить из списка?',
-        'mylist.delete_error': 'Ошибка удаления',
-        'mylist.save_error': 'Ошибка при сохранении',
-        'mylist.update_error': 'Ошибка обновления',
-
-        // Airing Calendar
-        'calendar.title': 'Расписание онгоингов',
-        'calendar.today': 'Сегодня',
-        'calendar.airing_soon': 'Скоро выйдет',
-        'calendar.ep_next': 'серия',
-        'calendar.empty_day': 'В этот день нет запланированных релизов',
-        'calendar.mon': 'Пн',
-        'calendar.tue': 'Вт',
-        'calendar.wed': 'Ср',
-        'calendar.thu': 'Чт',
-        'calendar.fri': 'Пт',
-        'calendar.sat': 'Сб',
-        'calendar.sun': 'Вс',
-
-        // Catalog
-        'catalog.title': 'Каталог аниме',
-        'catalog.filter.genre': 'Жанр',
-        'catalog.filter.all_genres': 'Все жанры',
-        'catalog.filter.season': 'Сезон / Год',
-        'catalog.filter.all_seasons': 'Все сезоны',
-        'catalog.season.summer_2026': 'Лето 2026',
-        'catalog.season.spring_2026': 'Весна 2026',
-        'catalog.season.winter_2026': 'Зима 2026',
-        'catalog.season.fall_2025': 'Осень 2025',
-        'catalog.season.y2026': '2026 год',
-        'catalog.season.y2025': '2025 год',
-        'catalog.season.y2024': '2024 год',
-        'catalog.filter.type': 'Тип',
-        'catalog.filter.all_types': 'Все типы',
-        'catalog.kind.tv': 'ТВ Сериал',
-        'catalog.kind.movie': 'Фильм',
-        'catalog.kind.ova': 'OVA',
-        'catalog.kind.ona': 'ONA',
-        'catalog.kind.special': 'Спешл',
-        'catalog.filter.status': 'Статус',
-        'catalog.filter.all_statuses': 'Все статусы',
-        'catalog.status.ongoing': 'Онгоинг',
-        'catalog.status.released': 'Вышло',
-        'catalog.status.anons': 'Анонс',
-        'catalog.filter.score': 'Мин. оценка',
-        'catalog.filter.all_scores': 'Любая',
-        'catalog.filter.sort': 'Сортировка',
-        'catalog.sort.ranked': 'По рейтингу',
-        'catalog.sort.popularity': 'По популярности',
-        'catalog.sort.aired_on': 'По дате выхода',
-        'catalog.sort.name': 'По названию',
-        'catalog.load_more': 'Загрузить ещё',
-        'catalog.empty': 'Ничего не найдено по выбранным фильтрам',
-
-        // Randomizer & Recommendations
-        'random.title': 'Рандомайзер',
-        'random.btn': 'Мне повезёт!',
-        'random.tooltip': 'Случайное аниме (Мне повезёт!)',
-        'random.finding': 'Подбираем случайное аниме...',
-        'random.error': 'Не удалось подобрать тайтл',
-        'recommendations.title': 'Рекомендуем посмотреть',
-
-        // PWA
-        'pwa.title': 'Приложение (PWA)',
-        'pwa.desc': 'Установите Shiki MX как быстрое приложение для рабочего стола или смартфона.',
-        'pwa.install': 'Установить приложение',
-        'pwa.installed': 'Приложение установлено',
-        'pwa.offline_toast': 'Вы находитесь в офлайн-режиме',
-    },
-    en: {
-        // Header
-        'tab.profile': 'Profile & Explore',
-        'tab.rates': 'Lists',
-        'tab.favourites': 'Favorites',
-        'tab.friends': 'Friends',
-        'tab.history': 'History',
-        'search.title': 'Search',
-        'search.placeholder': 'Search anime, manga...',
-        'theme.title': 'Change theme',
-        'logout': 'Log out',
-
-        // Auth
-        'login.shikimori': 'Log in',
-        'login.via_shikimori': 'Log in with Shikimori',
-        'auth.not_authorized': 'Authorization not completed',
-        'auth.not_authorized.desc': 'Log in with Shikimori to view your profile, lists and explore.',
-
-        // Profile
-        'profile.info': 'Information',
-        'profile.stats': 'Statistics',
-        'profile.friends_clubs': 'Friends and clubs',
-        'profile.activity': 'Activity',
-        'profile.about': 'About',
-        'profile.all': 'All',
-        'profile.full_history': 'Full history',
-        'profile.show_full': 'Show full',
-        'profile.collapse': 'Collapse',
-        'profile.expand': 'Show more',
-        'profile.about_empty': 'About section is not filled.',
-        'profile.stats_unavailable': 'Statistics unavailable',
-        'profile.id': 'ID:',
-        'profile.name': 'Name:',
-        'profile.age': 'Age:',
-        'profile.sex': 'Gender:',
-        'profile.last_visit': 'Last visit:',
-        'profile.anime_completed': 'Anime watched:',
-        'profile.anime_watching': 'Watching anime:',
-        'profile.manga_completed': 'Manga read:',
-        // Header
-        'nav.main': 'Home',
-        'nav.my_pages': 'My pages',
-        'nav.sections': 'Site sections',
-        'tab.profile': 'Home',
-        'tab.rates': 'Lists',
-        'tab.favourites': 'Favorites',
-        'tab.friends': 'Friends',
-        'tab.history': 'History',
-        'tab.anime': 'Anime',
-        'tab.top100': 'Top 100',
-        'tab.manga': 'Manga',
-        'tab.ranobe': 'Light Novels',
-        'tab.forum': 'Forum',
-        'tab.clubs': 'Clubs',
-        'tab.collections': 'Collections',
-        'tab.critiques': 'Critiques',
-        'tab.articles': 'Articles',
-        'tab.users': 'Users',
-        'tab.recommendations': 'Recommendations',
-        'tab.calendar': 'Calendar',
-        'search.title': 'Search',
-        'search.placeholder': 'Search anime, manga...',
-        'theme.title': 'Change theme',
-        'logout': 'Log out',
-
-        // Explore
-        'explore.content': 'Content',
-        'explore.hot_topics': 'Hot topics',
-        'explore.main_news': 'Main news',
-        'explore.more_news': 'More news',
-        'explore.no_content': 'No content available',
-        'explore.no_hot': 'No popular topics',
-        'explore.searching': 'Searching...',
-        'explore.no_results': 'No results found',
-        'explore.min_chars': 'Enter at least 2 characters',
-        'explore.topic': 'Topic',
-        'explore.collection': 'Collection',
-        'explore.review': 'Review',
-        'explore.discussion': 'Discussion',
-        'explore.article': 'Article',
-        'explore.loading': 'Loading...',
-        'explore.loading_more': 'Loading more news...',
-        'explore.news_feed': 'News feed',
-        'explore.collections': 'collections',
-        'explore.reviews': 'reviews',
-        'explore.articles': 'articles',
-        'explore.search_error': 'Search error',
-        'explore.status.released': 'Released',
-        'explore.status.ongoing': 'Ongoing',
-        'explore.status.anons': 'Announced',
-        'explore.type': 'Type:',
-        'explore.year': 'year',
-        'explore.genres': 'Genres:',
-        'explore.no_more_news': 'No more news',
-        'explore.load_more_error': 'Error loading more news:',
-
-        // Settings
-        'settings.title': 'Settings',
-        'settings.background': 'Site background',
-        'settings.background.hint': 'Choose a background color or set any image.',
-        'settings.color': 'Color',
-        'settings.image': 'Image',
-        'settings.bg_color': 'Background color',
-        'settings.image_url': 'Image URL',
-        'settings.or': 'or',
-        'settings.upload': 'Upload from device',
-        'settings.reset': 'Reset',
-        'settings.section_visibility': 'Section visibility',
-        'settings.section_visibility.hint': 'Choose which sections to display on the «Profile & Explore» tab.',
-        'settings.navbar_view': 'Navigation view',
-        'settings.navbar_view.hint': 'Choose how navigation elements are displayed.',
-        'settings.navbar_view.full': 'Icon + label',
-        'settings.navbar_view.icons': 'Icons only',
-        'settings.navbar_view.titles': 'Labels only',
-
-        // About modal
-        'about.title': 'About',
-        'about.features': 'Features',
-        'about.tech_stack': 'Tech stack',
-        'about.changelog': 'Changelog (Change history)',
-
-        // Common
-        'loading': 'Loading...',
-        'rates.loading': 'Loading lists...',
-        'favourites.loading': 'Loading favorites...',
-        'friends.loading': 'Loading friends and clubs...',
-        'history.loading': 'Loading history...',
-        'common.load_error': 'Loading error',
-        'error': 'Error',
-        'close': 'Close',
-
-        // Rates
-        'rates.watching': 'Watching',
-        'rates.completed': 'Completed',
-        'rates.planned': 'Planned',
-        'rates.on_hold': 'On hold',
-        'rates.dropped': 'Dropped',
-        'rates.rewatching': 'Rewatching',
-        'rates.anime': 'Anime',
-        'rates.manga': 'Manga',
-        'rates.all': 'All',
-        'rates.empty': 'List is empty',
-        'rates.no_results': 'No records found',
-        'rates.sort.updated': 'By update date',
-        'rates.sort.score_desc': 'By score (highest first)',
-        'rates.sort.score_asc': 'By score (lowest first)',
-        'rates.sort.name': 'By name (A-Z)',
-        'rates.sort.progress': 'By progress',
-        'rates.progress': 'Progress',
-        'rates.score': 'Score',
-        'rates.progress.anime': 'eps',
-        'rates.progress.manga': 'ch',
-        'rates.rewatches': 'rewatches:',
-        'rates.view.list': 'List',
-        'rates.view.cards': 'Cards',
-        'rates.view.large': 'Large',
-
-        // Friends
-        'friends.empty': 'List is empty',
-        'friends.load_error': 'Loading error',
-        'friends.friends': 'Friends',
-        'friends.clubs': 'Clubs',
-        'friends.private_club': 'Private club',
-        'friends.public_club': 'Public club',
-        'friends.open_shikimori': 'Open on Shikimori',
-        'friends.about': 'About',
-        'friends.about_empty': 'About section is not filled.',
-        'friends.id': 'ID:',
-        'friends.sex': 'Gender:',
-        'friends.age': 'Age:',
-        'friends.last_online': 'Last seen:',
-        'friends.online_today': 'Online today',
-        'friends.anime': 'Anime',
-        'friends.manga': 'Manga',
-        'friends.watched': 'Watched:',
-        'friends.watching': 'Watching:',
-        'friends.read': 'Read:',
-        'friends.reading': 'Reading:',
-
-        // Favourites
-        'favourites.empty': 'Empty',
-        'favourites.characters': 'Favorite characters',
-        'favourites.animes': 'Favorite anime',
-        'favourites.mangas': 'Favorite manga',
-
-        // History
-        'history.empty': 'History is empty',
-        'history.load_error': 'Failed to load history',
-        'history.full': 'Full history',
-
-        // Anime modal
-        'anime.loading': 'Loading information...',
-        'anime.load_error': 'Failed to load data',
-        'anime.playback_error': 'Playback error',
-        'anime.no_players': 'No available players found',
-        'anime.sources': 'Sources:',
-        'anime.open_shikimori': 'Open on Shikimori',
-        'anime.episode': 'Episode',
-        'anime.translation': 'Dub / Sub:',
-        'anime.player': 'Player / Mirror:',
-        'anime.description': 'Description',
-        'anime.search_error': 'Search error',
-        'anime.no_results': 'No results found',
-        'anime.search_players': 'Searching in Kodik, AniLibria, AnimeGo, Animevost...',
-        'anime.player_1': 'Player 1 (Shikimori)',
-        'anime.player_2': 'Player 2 (Anicli)',
-        'anime.type': 'Type:',
-        'anime.status': 'Status:',
-        'anime.episodes': 'Episodes:',
-        'anime.duration': 'Duration:',
-        'anime.min': 'min.',
-        'anime.aired': 'Aired:',
-        'anime.rating': 'Rating:',
-        'anime.studios': 'Studios:',
-        'anime.genres': 'Genres:',
-        'anime.scored_by': 'Rated by:',
-        'anime.characters': 'Characters:',
-        'anime.show_all_characters': 'Show all',
-        'anime.hide_characters': 'Hide',
-        'anime.franchise': 'Franchise:',
-        'anime.related': 'Related:',
-        'anime.screenshots': 'Screenshots:',
-        'anime.external_scores': 'External scores:',
-        'anime.videos': 'Videos:',
-        'anime.licensed_by': 'Licensed by:',
-        'anime.my_progress': 'My progress:',
-        'anime.chapters': 'Chapters:',
-        'anime.volumes': 'Volumes:',
-        'anime.publisher': 'Publisher:',
-
-        // Lightbox
-        'lightbox.close': 'Close (Esc)',
-        'lightbox.prev': 'Previous (←)',
-        'lightbox.next': 'Next (→)',
-        'lightbox.zoom': 'Click to zoom',
-        'video.link': 'Video',
-
-        // Manga modal
-        'manga.loading': 'Loading manga information...',
-        'manga.load_error': 'Failed to load manga data',
-        'manga.type': 'Type:',
-        'manga.status': 'Status:',
-        'manga.volumes': 'Volumes:',
-        'manga.chapters': 'Chapters:',
-        'manga.publisher': 'Publisher:',
-        'manga.aired': 'Aired:',
-        'manga.genres': 'Genres:',
-
-        // Character modal
-        'character.loading': 'Loading character...',
-        'character.load_error': 'Failed to load character',
-        'character.info': 'Character information',
-        'character.anime': 'Anime:',
-        'character.manga': 'Manga:',
-
-        // Club modal
-        'club.loading': 'Loading club information...',
-        'club.load_error': 'Failed to load club data',
-        'club.members': 'Members:',
-        'club.type': 'Type:',
-        'club.description': 'Club description',
-
-        // Player & Continue Watching
-        'player.continue_watching': 'Continue Watching',
-        'player.continue_desc': 'Pick up where you left off',
-        'player.ep_short': 'ep.',
-        'player.skip_intro': '+85 sec',
-        'player.next_ep': 'Next Episode',
-        'player.prev_ep': 'Prev Episode',
-        'player.mini_player': 'PiP',
-        'player.restore': 'Restore',
-        'player.close': 'Close',
-
-        // My List widget
-        'mylist.title': 'My List',
-        'mylist.not_in_list': 'Not in list',
-        'mylist.status': 'Status:',
-        'mylist.episodes': 'Episodes:',
-        'mylist.chapters': 'Chapters:',
-        'mylist.volumes': 'Volumes:',
-        'mylist.score': 'Score:',
-        'mylist.note': 'Note / Review:',
-        'mylist.note_placeholder': 'Write your personal note...',
-        'mylist.save': 'Save',
-        'mylist.saving': 'Saving...',
-        'mylist.saved': 'Successfully saved to Shikimori',
-        'mylist.delete': 'Remove from list',
-        'mylist.deleted': 'Removed from list',
-        'mylist.quick_inc': '+1',
-        'mylist.search_placeholder': 'Search your lists...',
-        'mylist.delete_confirm': 'Remove from list?',
-        'mylist.delete_error': 'Error removing item',
-        'mylist.save_error': 'Error saving item',
-        'mylist.update_error': 'Error updating',
-
-        // Airing Calendar
-        'calendar.title': 'Airing Schedule',
-        'calendar.today': 'Today',
-        'calendar.airing_soon': 'Airing soon',
-        'calendar.ep_next': 'ep.',
-        'calendar.empty_day': 'No scheduled releases on this day',
-        'calendar.mon': 'Mon',
-        'calendar.tue': 'Tue',
-        'calendar.wed': 'Wed',
-        'calendar.thu': 'Thu',
-        'calendar.fri': 'Fri',
-        'calendar.sat': 'Sat',
-        'calendar.sun': 'Sun',
-
-        // Catalog
-        'catalog.title': 'Anime Catalog',
-        'catalog.filter.genre': 'Genre',
-        'catalog.filter.all_genres': 'All genres',
-        'catalog.filter.season': 'Season / Year',
-        'catalog.filter.all_seasons': 'All seasons',
-        'catalog.season.summer_2026': 'Summer 2026',
-        'catalog.season.spring_2026': 'Spring 2026',
-        'catalog.season.winter_2026': 'Winter 2026',
-        'catalog.season.fall_2025': 'Fall 2025',
-        'catalog.season.y2026': '2026',
-        'catalog.season.y2025': '2025',
-        'catalog.season.y2024': '2024',
-        'catalog.filter.type': 'Type',
-        'catalog.filter.all_types': 'All types',
-        'catalog.kind.tv': 'TV Series',
-        'catalog.kind.movie': 'Movie',
-        'catalog.kind.ova': 'OVA',
-        'catalog.kind.ona': 'ONA',
-        'catalog.kind.special': 'Special',
-        'catalog.filter.status': 'Status',
-        'catalog.filter.all_statuses': 'All statuses',
-        'catalog.status.ongoing': 'Ongoing',
-        'catalog.status.released': 'Released',
-        'catalog.status.anons': 'Announced',
-        'catalog.filter.score': 'Min Score',
-        'catalog.filter.all_scores': 'Any',
-        'catalog.filter.sort': 'Sort',
-        'catalog.sort.ranked': 'By Rating',
-        'catalog.sort.popularity': 'By Popularity',
-        'catalog.sort.aired_on': 'By Release Date',
-        'catalog.sort.name': 'By Name',
-        'catalog.load_more': 'Load More',
-        'catalog.empty': 'No anime found matching selected filters',
-
-        // Randomizer & Recommendations
-        'random.title': 'Random Anime',
-        'random.btn': 'I\'m Feeling Lucky!',
-        'random.tooltip': 'Random Anime (I\'m Feeling Lucky!)',
-        'random.finding': 'Picking a random anime...',
-        'random.error': 'Could not find anime',
-        'recommendations.title': 'Recommended for You',
-
-        // PWA
-        'pwa.title': 'App (PWA)',
-        'pwa.desc': 'Install Shiki MX as a fast app on desktop or mobile.',
-        'pwa.install': 'Install Application',
-        'pwa.installed': 'App installed',
-        'pwa.offline_toast': 'You are currently offline',
-    }
-};
+/**
+ * Shikimori MX - i18n Translation Engine
+ * All translation values are stored exclusively in translations.txt.
+ * No translation strings or dictionaries are hardcoded in JavaScript files.
+ */
 
 const LANGUAGE_KEY = 'app_language';
+const TRANSLATIONS_TXT_CACHE_KEY = 'shikimx_translations_txt_data';
 let currentLanguage = 'ru';
+window.TRANSLATIONS = { ru: {}, en: {} };
+
+/**
+ * Parse plain-text translation dictionary format:
+ * [ru]
+ * key = value
+ * [en]
+ * key = value
+ */
+function parseTranslationsText(text) {
+    const result = { ru: {}, en: {} };
+    if (!text || typeof text !== 'string') return result;
+    let currentSection = 'ru';
+    const lines = text.split(/\r?\n/);
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line || line.startsWith('#')) continue;
+        if (line.startsWith('[') && line.endsWith(']')) {
+            const sec = line.slice(1, -1).toLowerCase().trim();
+            if (sec === 'ru' || sec === 'en') {
+                currentSection = sec;
+            }
+            continue;
+        }
+        const eqIndex = line.indexOf('=');
+        if (eqIndex !== -1) {
+            const key = line.slice(0, eqIndex).trim();
+            const val = line.slice(eqIndex + 1).trim();
+            if (key) {
+                result[currentSection][key] = val;
+            }
+        }
+    }
+    return result;
+}
+
+// Immediate synchronous initialization from localStorage cache (ensures instant rendering with 0 delay)
+try {
+    const cachedTxt = localStorage.getItem(TRANSLATIONS_TXT_CACHE_KEY);
+    if (cachedTxt) {
+        window.TRANSLATIONS = parseTranslationsText(cachedTxt);
+    }
+} catch (e) {}
+
+/**
+ * Asynchronously fetch translations.txt and update memory & local storage
+ */
+async function loadTranslationsFromTxt() {
+    try {
+        const v = (typeof window.APP_VERSION !== 'undefined' && window.APP_VERSION) ? window.APP_VERSION : ((typeof window.ASSET_VERSION !== 'undefined' && window.ASSET_VERSION) ? window.ASSET_VERSION : '');
+        const res = await fetch('/translations.txt' + (v ? ('?v=' + v) : ''));
+        if (res.ok) {
+            const text = await res.text();
+            window.TRANSLATIONS = parseTranslationsText(text);
+            try {
+                localStorage.setItem(TRANSLATIONS_TXT_CACHE_KEY, text);
+            } catch (e) {}
+            applyTranslations();
+            updateLanguageButton();
+            if (typeof updateDesktopMenuBadges === 'function') updateDesktopMenuBadges();
+            if (typeof updateMobileProfileBadges === 'function') updateMobileProfileBadges();
+        }
+    } catch (err) {
+        console.debug('translations.txt fetch note:', err);
+    }
+}
 
 function getSavedLanguage() {
     try {
@@ -875,13 +234,50 @@ function saveLanguage(lang) {
     } catch (err) {
         console.error('Ошибка сохранения языка:', err);
     }
+    // Save to SQLite DB for user session
+    fetch('/api/settings/language', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ language: lang })
+    }).catch(() => {});
 }
 
-function t(key) {
-    const lang = getSavedLanguage();
-    const dict = TRANSLATIONS[lang] || TRANSLATIONS['ru'];
-    return (dict && dict[key]) || (TRANSLATIONS['ru'] && TRANSLATIONS['ru'][key]) || key;
+async function syncLanguageFromDB() {
+    try {
+        const res = await fetch('/api/settings/language');
+        if (res.ok) {
+            const data = await res.json();
+            const dbLang = data.language || data.value;
+            if (dbLang && (dbLang === 'ru' || dbLang === 'en')) {
+                const localLang = localStorage.getItem(LANGUAGE_KEY);
+                if (localLang !== dbLang) {
+                    localStorage.setItem(LANGUAGE_KEY, dbLang);
+                    currentLanguage = dbLang;
+                    applyTranslations();
+                    updateLanguageButton();
+                    if (typeof updateDesktopMenuBadges === 'function') updateDesktopMenuBadges();
+                    if (typeof updateMobileProfileBadges === 'function') updateMobileProfileBadges();
+                }
+            }
+        }
+    } catch (e) {}
 }
+
+function t(key, fallback) {
+    if (!key) return fallback !== undefined ? fallback : '';
+    const lang = getSavedLanguage();
+    const dict = (window.TRANSLATIONS && window.TRANSLATIONS[lang]) || (window.TRANSLATIONS && window.TRANSLATIONS['ru']) || {};
+    if (dict[key] !== undefined && dict[key] !== '') return dict[key];
+
+    // Fallback check in Russian section
+    if (window.TRANSLATIONS && window.TRANSLATIONS['ru'] && window.TRANSLATIONS['ru'][key] !== undefined && window.TRANSLATIONS['ru'][key] !== '') {
+        return window.TRANSLATIONS['ru'][key];
+    }
+    return fallback !== undefined ? fallback : key;
+}
+
+window.t = t;
+window.i18n = t;
 
 function applyTranslations() {
     const lang = getSavedLanguage();
@@ -890,7 +286,7 @@ function applyTranslations() {
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.dataset.i18n;
         const translation = t(key);
-        if (translation) {
+        if (translation && translation !== key) {
             if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
                 el.placeholder = translation;
             } else {
@@ -902,7 +298,7 @@ function applyTranslations() {
     document.querySelectorAll('[data-i18n-title]').forEach(el => {
         const key = el.dataset.i18nTitle;
         const translation = t(key);
-        if (translation) {
+        if (translation && translation !== key) {
             el.title = translation;
         }
     });
@@ -910,7 +306,7 @@ function applyTranslations() {
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
         const key = el.dataset.i18nPlaceholder;
         const translation = t(key);
-        if (translation) {
+        if (translation && translation !== key) {
             el.placeholder = translation;
         }
     });
@@ -937,10 +333,15 @@ function updateLanguageButton() {
     btn.title = lang === 'ru' ? 'Switch to English' : 'Переключить на русский';
 }
 
+// Auto-initialize
+currentLanguage = getSavedLanguage();
+loadTranslationsFromTxt();
+
 document.addEventListener('DOMContentLoaded', () => {
     currentLanguage = getSavedLanguage();
     applyTranslations();
     updateLanguageButton();
+    syncLanguageFromDB();
 });
 
 ;
@@ -1263,13 +664,14 @@ async function openTab(tabId) {
             const res = await fetch(`/api/tab/${tabId}`);
             if (!res.ok) {
                 if (res.status === 401 && activeContent) {
+                    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
                     activeContent.innerHTML = `
                         <div class="card" style="text-align: center; padding: 40px 20px; max-width: 440px; margin: 30px auto; border-radius: 20px; border: 1px solid var(--card-border); background: var(--card-bg);">
                             <i class="ti ti-lock" style="font-size: 48px; color: var(--accent); margin-bottom: 12px; display: inline-block;"></i>
-                            <h2 style="font-size: 20px; margin: 0 0 10px 0; color: var(--text-main);">${i18n('auth.required') || 'Требуется авторизация'}</h2>
-                            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;">Войдите через Shikimori, чтобы просматривать свои списки.</p>
+                            <h2 style="font-size: 20px; margin: 0 0 10px 0; color: var(--text-main);">${i18n('auth.required') || (isEn ? 'Authorization required' : 'Требуется авторизация')}</h2>
+                            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;">${isEn ? 'Log in via Shikimori to view your lists.' : 'Войдите через Shikimori, чтобы просматривать свои списки.'}</p>
                             <a href="/login" class="btn" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
-                                <i class="ti ti-brand-shikimori"></i> <span>${i18n('login.via_shikimori') || 'Войти через Shikimori'}</span>
+                                <i class="ti ti-brand-shikimori"></i> <span>${i18n('login.via_shikimori') || (isEn ? 'Login with Shikimori' : 'Войти через Shikimori')}</span>
                             </a>
                         </div>
                     `;
@@ -1544,7 +946,8 @@ window.handleSectionsBack = function() {
         backBtn.classList.add('hidden');
         backBtn.style.setProperty('display', 'none', 'important');
     }
-    if (title) title.textContent = 'Разделы';
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    if (title) title.textContent = isEn ? 'Sections' : 'Разделы';
     if (icon) icon.className = 'ti ti-layout-grid mobile-sections-logo-icon';
 };
 
@@ -1555,6 +958,7 @@ window.openSectionDetail = async function(sectionKey) {
     const backBtn = document.getElementById('mobile-sections-back-btn');
     const title = document.getElementById('mobile-sections-header-title');
     const icon = document.getElementById('mobile-sections-header-icon');
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
 
     if (!detailView || !detailContent) return;
 
@@ -1567,22 +971,22 @@ window.openSectionDetail = async function(sectionKey) {
 
     if (typeof pushNavState === 'function') pushNavState();
 
-    detailContent.innerHTML = '<div class="loader" style="padding: 40px; text-align: center;"><i class="ti ti-loader animate-spin" style="font-size: 32px; color: var(--primary);"></i><p style="color: var(--text-muted); margin-top: 12px;">Загрузка...</p></div>';
+    detailContent.innerHTML = '<div class="loader" style="padding: 40px; text-align: center;"><i class="ti ti-loader animate-spin" style="font-size: 32px; color: var(--primary);"></i><p style="color: var(--text-muted); margin-top: 12px;">' + (isEn ? 'Loading...' : 'Загрузка...') + '</p></div>';
 
     if (sectionKey === 'calendar') {
-        if (title) title.textContent = 'Расписание онгоингов';
+        if (title) title.textContent = isEn ? 'Ongoing Schedule' : 'Расписание онгоингов';
         if (icon) icon.className = 'ti ti-calendar-event mobile-sections-logo-icon';
         await renderModalCalendar(modalCalendarDay);
     } else if (sectionKey === 'content') {
-        if (title) title.textContent = 'Контент';
+        if (title) title.textContent = isEn ? 'Content' : 'Контент';
         if (icon) icon.className = 'ti ti-grid-dots mobile-sections-logo-icon';
         await renderModalContent();
     } else if (sectionKey === 'hot') {
-        if (title) title.textContent = 'Темы дня';
+        if (title) title.textContent = isEn ? 'Hot Topics' : 'Темы дня';
         if (icon) icon.className = 'ti ti-flame mobile-sections-logo-icon';
         await renderModalHot();
     } else if (sectionKey === 'news') {
-        if (title) title.textContent = 'Новости';
+        if (title) title.textContent = isEn ? 'News' : 'Новости';
         if (icon) icon.className = 'ti ti-news mobile-sections-logo-icon';
         modalNewsPage = 1;
         await renderModalNews(1);
@@ -1593,19 +997,20 @@ async function renderModalCalendar(activeDay) {
     modalCalendarDay = activeDay;
     const detailContent = document.getElementById('sections-detail-content');
     if (!detailContent) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
 
     if (!window.calendarDataCache) {
         try {
             const res = await fetch('/api/calendar');
             window.calendarDataCache = await res.json();
         } catch(e) {
-            detailContent.innerHTML = '<p style="color: var(--danger); padding: 20px;">Ошибка загрузки календаря</p>';
+            detailContent.innerHTML = `<p style="color: var(--danger); padding: 20px;">${isEn ? 'Error loading calendar' : 'Ошибка загрузки календаря'}</p>`;
             return;
         }
     }
 
     const data = Array.isArray(window.calendarDataCache) ? window.calendarDataCache : [];
-    const daysShort = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    const daysShort = isEn ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] : ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
     const todayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
     const filtered = data.filter(item => item.day_of_week === activeDay);
 
@@ -1620,11 +1025,11 @@ async function renderModalCalendar(activeDay) {
         </div>
         <div class="calendar-items-grid">
             ${filtered.length > 0 ? filtered.map(item => {
-                const title = item.russian || item.name || '';
+                const title = (isEn && item.name) ? item.name : (item.russian || item.name || '');
                 const safeTitle = title.replace(/"/g, '&quot;');
                 const imgUrl = item.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(item.image) : item.image) : '';
                 const time = item.time_str ? item.time_str : '';
-                const nextEp = item.next_episode ? `${item.next_episode} эп.` : '';
+                const nextEp = item.next_episode ? (isEn ? `Ep ${item.next_episode}` : `${item.next_episode} эп.`) : '';
 
                 return `
                     <div class="calendar-item-card" onclick="window._openedFromSections = 'calendar'; closeMobileSectionsMenu(); openAnimeModal(${item.id});" style="cursor: pointer;">
@@ -1642,7 +1047,7 @@ async function renderModalCalendar(activeDay) {
                         </div>
                     </div>
                 `;
-            }).join('') : '<p style="color: var(--text-muted); padding: 30px; text-align: center; grid-column: 1 / -1;">В этот день нет запланированных серий</p>'}
+            }).join('') : `<p style="color: var(--text-muted); padding: 30px; text-align: center; grid-column: 1 / -1;">${isEn ? 'No scheduled episodes for this day' : 'В этот день нет запланированных серий'}</p>`}
         </div>
     `;
 }
@@ -1651,6 +1056,7 @@ window.renderModalCalendar = renderModalCalendar;
 async function renderModalContent() {
     const detailContent = document.getElementById('sections-detail-content');
     if (!detailContent) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
 
     let exploreData = window._exploreDataCache;
     if (!exploreData) {
@@ -1659,36 +1065,36 @@ async function renderModalContent() {
             exploreData = await res.json();
             window._exploreDataCache = exploreData;
         } catch(e) {
-            detailContent.innerHTML = '<p style="color: var(--danger); padding: 20px;">Ошибка загрузки контента</p>';
+            detailContent.innerHTML = `<p style="color: var(--danger); padding: 20px;">${isEn ? 'Error loading content' : 'Ошибка загрузки контента'}</p>`;
             return;
         }
     }
 
     const contentList = exploreData.content || [];
     const badgeMap = {
-        'collection': 'Коллекция',
-        'critique': 'Отзыв',
-        'article': 'Статья',
-        'news': 'Новость',
-        '': 'Тема'
+        'collection': isEn ? 'Collection' : 'Коллекция',
+        'critique': isEn ? 'Critique' : 'Отзыв',
+        'article': isEn ? 'Article' : 'Статья',
+        'news': isEn ? 'News' : 'Новость',
+        '': isEn ? 'Topic' : 'Тема'
     };
 
     detailContent.innerHTML = `
         <div style="display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
-            <a href="https://shikimori.io/collections" target="_blank" class="btn-secondary" style="padding: 6px 12px; font-size: 12.5px; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px;"><i class="ti ti-folder"></i> Коллекции</a>
-            <a href="https://shikimori.io/forum/critiques" target="_blank" class="btn-secondary" style="padding: 6px 12px; font-size: 12.5px; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px;"><i class="ti ti-message-2"></i> Отзывы</a>
-            <a href="https://shikimori.io/articles" target="_blank" class="btn-secondary" style="padding: 6px 12px; font-size: 12.5px; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px;"><i class="ti ti-article"></i> Статьи</a>
+            <a href="https://shikimori.io/collections" target="_blank" class="btn-secondary" style="padding: 6px 12px; font-size: 12.5px; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px;"><i class="ti ti-folder"></i> ${isEn ? 'Collections' : 'Коллекции'}</a>
+            <a href="https://shikimori.io/forum/critiques" target="_blank" class="btn-secondary" style="padding: 6px 12px; font-size: 12.5px; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px;"><i class="ti ti-message-2"></i> ${isEn ? 'Critiques' : 'Отзывы'}</a>
+            <a href="https://shikimori.io/articles" target="_blank" class="btn-secondary" style="padding: 6px 12px; font-size: 12.5px; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px;"><i class="ti ti-article"></i> ${isEn ? 'Articles' : 'Статьи'}</a>
         </div>
         <div class="topics-list" style="display: flex; flex-direction: column; gap: 8px;">
             ${contentList.length ? contentList.map(item => `
                 <a href="${item.url}" target="_blank" class="topic-row-item" title="${(item.title || '').replace(/"/g, '&quot;')}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-radius: 16px; background: var(--card-bg); border: 1px solid var(--card-border); text-decoration: none; color: var(--text-main);">
                     <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; padding-right: 10px;">
                         <span style="font-size: 14px; font-weight: 500; line-height: 1.3;">${item.title}</span>
-                        <span class="topic-badge badge-${(item.tag || '').toLowerCase()}" style="font-size: 11px; padding: 2px 6px; border-radius: 6px; align-self: flex-start; background: var(--primary-container); color: var(--on-primary-container);">${badgeMap[(item.tag || '').toLowerCase()] || 'Тема'}</span>
+                        <span class="topic-badge badge-${(item.tag || '').toLowerCase()}" style="font-size: 11px; padding: 2px 6px; border-radius: 6px; align-self: flex-start; background: var(--primary-container); color: var(--on-primary-container);">${badgeMap[(item.tag || '').toLowerCase()] || (isEn ? 'Topic' : 'Тема')}</span>
                     </div>
                     <span style="font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; flex-shrink: 0;"><i class="ti ti-message-circle"></i> ${item.comments_count || 0}</span>
                 </a>
-            `).join('') : '<p style="color: var(--text-muted); padding: 20px; text-align: center;">Нет данных</p>'}
+            `).join('') : `<p style="color: var(--text-muted); padding: 20px; text-align: center;">${isEn ? 'No data' : 'Нет данных'}</p>`}
         </div>
     `;
 }
@@ -1696,6 +1102,7 @@ async function renderModalContent() {
 async function renderModalHot() {
     const detailContent = document.getElementById('sections-detail-content');
     if (!detailContent) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
 
     let exploreData = window._exploreDataCache;
     if (!exploreData) {
@@ -1704,7 +1111,7 @@ async function renderModalHot() {
             exploreData = await res.json();
             window._exploreDataCache = exploreData;
         } catch(e) {
-            detailContent.innerHTML = '<p style="color: var(--danger); padding: 20px;">Ошибка загрузки тем дня</p>';
+            detailContent.innerHTML = `<p style="color: var(--danger); padding: 20px;">${isEn ? 'Error loading hot topics' : 'Ошибка загрузки тем дня'}</p>`;
             return;
         }
     }
@@ -1720,7 +1127,7 @@ async function renderModalHot() {
                     </div>
                     <span style="font-size: 12px; color: #f87171; display: flex; align-items: center; gap: 4px; flex-shrink: 0; font-weight: 600;"><i class="ti ti-flame"></i> ${item.comments_count || 0}</span>
                 </a>
-            `).join('') : '<p style="color: var(--text-muted); padding: 20px; text-align: center;">Нет горячих тем на сегодня</p>'}
+            `).join('') : `<p style="color: var(--text-muted); padding: 20px; text-align: center;">${isEn ? 'No hot topics for today' : 'Нет горячих тем на сегодня'}</p>`}
         </div>
     `;
 }
@@ -1728,13 +1135,14 @@ async function renderModalHot() {
 async function renderModalNews(page = 1) {
     const detailContent = document.getElementById('sections-detail-content');
     if (!detailContent) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
 
     if (page === 1) {
         detailContent.innerHTML = `
             <div id="modal-news-cards-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
             <div style="text-align: center; margin: 16px 0 24px 0;">
                 <button type="button" id="modal-load-more-news-btn" class="btn-secondary" style="padding: 10px 20px; border-radius: 14px; font-size: 13px; font-weight: 600;" onclick="loadMoreModalNews()">
-                    <i class="ti ti-refresh"></i> Загрузить ещё новости
+                    <i class="ti ti-refresh"></i> ${isEn ? 'Load more news' : 'Загрузить ещё новости'}
                 </button>
             </div>
         `;
@@ -1927,7 +1335,7 @@ window.updateDesktopMenuBadges = function() {
     const theme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || 'dark';
     const themeBadge = document.getElementById('desktop-menu-theme-badge');
     const themeIcon = document.getElementById('desktop-menu-theme-icon');
-    if (themeBadge) themeBadge.textContent = (theme === 'dark') ? 'Тёмная' : 'Светлая';
+    if (themeBadge) themeBadge.textContent = (theme === 'dark') ? (typeof i18n === 'function' ? i18n('theme.dark') : 'Тёмная') : (typeof i18n === 'function' ? i18n('theme.light') : 'Светлая');
     if (themeIcon) themeIcon.className = (theme === 'dark') ? 'ti ti-sun' : 'ti ti-moon';
 
     const lang = (typeof getSavedLanguage === 'function') ? getSavedLanguage() : (localStorage.getItem('app_language') || 'ru');
@@ -2244,10 +1652,11 @@ async function toggleAnicliPlayer(title, episode = 1, animeId = 0) {
     container.dataset.playerType = 'anicli';
 
     const isMobile = window.innerWidth <= 768;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     if (isMobile) {
         container.innerHTML = `
             <div class="mobile-player-fullscreen-header">
-                <button type="button" class="mobile-player-close-btn" onclick="handleMobilePlayerBack()" title="Назад">
+                <button type="button" class="mobile-player-close-btn" onclick="handleMobilePlayerBack()" title="${isEn ? 'Back' : 'Назад'}">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="19" y1="12" x2="5" y2="12"></line>
                         <polyline points="12 19 5 12 12 5"></polyline>
@@ -2257,7 +1666,7 @@ async function toggleAnicliPlayer(title, episode = 1, animeId = 0) {
                     <div class="p-title">${title}</div>
                     <div class="p-sub" id="mobile-player-sub-title">Kodik • WinMedia</div>
                 </div>
-                <button type="button" class="mobile-player-close-btn" id="mobile-player-filter-btn" onclick="openMobileEpisodesFilterSheet()" title="Фильтр и порядок">
+                <button type="button" class="mobile-player-close-btn" id="mobile-player-filter-btn" onclick="openMobileEpisodesFilterSheet()" title="${isEn ? 'Filter & Order' : 'Фильтр и порядок'}">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                         <line x1="4" y1="6" x2="20" y2="6"></line>
                         <line x1="7" y1="12" x2="17" y2="12"></line>
@@ -2272,26 +1681,26 @@ async function toggleAnicliPlayer(title, episode = 1, animeId = 0) {
             <div id="mobile-episodes-filter-sheet" class="mobile-episodes-filter-sheet hidden" onclick="if(event.target===this) closeMobileEpisodesFilterSheet();">
                 <div class="mobile-episodes-filter-card" onclick="event.stopPropagation();">
                     <div class="filter-sheet-header">
-                        <div class="filter-sheet-title">Фильтр и порядок</div>
+                        <div class="filter-sheet-title">${isEn ? 'Filter & Order' : 'Фильтр и порядок'}</div>
                         <button type="button" class="filter-sheet-close-btn" onclick="closeMobileEpisodesFilterSheet()">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                         </button>
                     </div>
 
                     <div class="filter-sheet-section">
-                        <div class="filter-sheet-label">Фильтр серий</div>
+                        <div class="filter-sheet-label">${isEn ? 'Episodes filter' : 'Фильтр серий'}</div>
                         <div class="filter-sheet-chips">
-                            <button type="button" class="filter-chip" id="filter-chip-all" onclick="setMobileEpFilter('all')">Все</button>
-                            <button type="button" class="filter-chip" id="filter-chip-unwatched" onclick="setMobileEpFilter('unwatched')">Непросмотренные</button>
-                            <button type="button" class="filter-chip" id="filter-chip-watched" onclick="setMobileEpFilter('watched')">Просмотренные</button>
+                            <button type="button" class="filter-chip" id="filter-chip-all" onclick="setMobileEpFilter('all')">${isEn ? 'All' : 'Все'}</button>
+                            <button type="button" class="filter-chip" id="filter-chip-unwatched" onclick="setMobileEpFilter('unwatched')">${isEn ? 'Unwatched' : 'Непросмотренные'}</button>
+                            <button type="button" class="filter-chip" id="filter-chip-watched" onclick="setMobileEpFilter('watched')">${isEn ? 'Watched' : 'Просмотренные'}</button>
                         </div>
                     </div>
 
                     <div class="filter-sheet-section">
-                        <div class="filter-sheet-label">Порядок серий</div>
+                        <div class="filter-sheet-label">${isEn ? 'Episode order' : 'Порядок серий'}</div>
                         <div class="filter-sheet-chips">
-                            <button type="button" class="filter-chip" id="order-chip-asc" onclick="setMobileEpOrder(false)">По возрастанию (1 → N)</button>
-                            <button type="button" class="filter-chip" id="order-chip-desc" onclick="setMobileEpOrder(true)">По убыванию (N → 1)</button>
+                            <button type="button" class="filter-chip" id="order-chip-asc" onclick="setMobileEpOrder(false)">${isEn ? 'Ascending (1 → N)' : 'По возрастанию (1 → N)'}</button>
+                            <button type="button" class="filter-chip" id="order-chip-desc" onclick="setMobileEpOrder(true)">${isEn ? 'Descending (N → 1)' : 'По убыванию (N → 1)'}</button>
                         </div>
                     </div>
                 </div>
@@ -2747,8 +2156,9 @@ function renderMobileEpisodesList() {
         availableEpNums.reverse();
     }
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     if (!availableEpNums.length) {
-        listContainer.innerHTML = '<div style="padding: 36px 16px; text-align: center; color: #888888; font-size: 14px;">Серии не найдены</div>';
+        listContainer.innerHTML = `<div style="padding: 36px 16px; text-align: center; color: #888888; font-size: 14px;">${isEn ? 'No episodes found' : 'Серии не найдены'}</div>`;
         return;
     }
 
@@ -2756,14 +2166,14 @@ function renderMobileEpisodesList() {
         // ГАЛОЧКА: отображает статус просмотрено ли по данным из Shikimori (НЕ МЕНЯЕТСЯ ЗДЕСЬ!)
         const isWatchedOnShikimori = num <= shikimoriWatchedCount;
 
-        // Отметка "Просмотрено полностью" (Скриншот 3)
+        // Отметка "Просмотрено полностью"
         const isFullyWatched = fullyWatchedList.includes(num);
 
         return `
             <div class="mobile-ep-row ${num === window.currentAnicliEp ? 'current-playing' : ''}" data-ep="${num}">
                 <div class="mobile-ep-info" onclick="onAnicliEpisodeChange(${num})">
-                    <div class="mobile-ep-title">Серия ${num}</div>
-                    ${isFullyWatched ? `<div class="mobile-ep-sub">Просмотрено полностью</div>` : ''}
+                    <div class="mobile-ep-title">${isEn ? 'Episode ' + num : 'Серия ' + num}</div>
+                    ${isFullyWatched ? `<div class="mobile-ep-sub">${isEn ? 'Watched completely' : 'Просмотрено полностью'}</div>` : ''}
                 </div>
                 <div class="mobile-ep-actions">
                     <div class="mobile-ep-check ${isWatchedOnShikimori ? 'watched' : ''}">
@@ -2774,14 +2184,14 @@ function renderMobileEpisodesList() {
                         ` : ''}
                     </div>
                     ${isFullyWatched ? `
-                        <button type="button" class="mobile-ep-btn delete" onclick="unmarkEpisodeWatched(event, ${animeId}, ${num})" title="Удалить отметку о просмотре">
+                        <button type="button" class="mobile-ep-btn delete" onclick="unmarkEpisodeWatched(event, ${animeId}, ${num})" title="${isEn ? 'Remove watched mark' : 'Удалить отметку о просмотре'}">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="#f09080">
                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                                 <line x1="3" y1="6" x2="21" y2="6" stroke="#f09080" stroke-width="2" stroke-linecap="round"></line>
                             </svg>
                         </button>
                     ` : `
-                        <button type="button" class="mobile-ep-btn add" onclick="markEpisodeWatched(event, ${animeId}, ${num})" title="Отметить просмотренной">
+                        <button type="button" class="mobile-ep-btn add" onclick="markEpisodeWatched(event, ${animeId}, ${num})" title="${isEn ? 'Mark as watched' : 'Отметить просмотренной'}">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="12" y1="5" x2="12" y2="19"></line>
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -2843,9 +2253,9 @@ function initAnicliPlayerUI(container, initialEpisode = 1) {
                     ${isMobile ? `
                         <div id="mobile-episodes-list-container" class="mobile-episodes-list-container"></div>
                     ` : `
-                        <div class="anicli-step-title"><i class="ti ti-list-numbers"></i> Шаг 1: Выберите серию</div>
+                        <div class="anicli-step-title"><i class="ti ti-list-numbers"></i> ${isEn ? 'Step 1: Select episode' : 'Шаг 1: Выберите серию'}</div>
                         <div class="anicli-chip-list" id="anicli-ep-chips">
-                            ${availableEpNums.map(num => `<div class="anicli-chip" data-ep="${num}" onclick="onAnicliEpisodeChange(${num})">${num} серия</div>`).join('')}
+                            ${availableEpNums.map(num => `<div class="anicli-chip" data-ep="${num}" onclick="onAnicliEpisodeChange(${num})">${isEn ? 'Episode ' + num : num + ' серия'}</div>`).join('')}
                         </div>
                     `}
                 </div>
@@ -2856,8 +2266,8 @@ function initAnicliPlayerUI(container, initialEpisode = 1) {
                         <div id="mobile-trans-container" class="mobile-trans-container"></div>
                     ` : `
                         <div class="anicli-step-title" style="justify-content: space-between;">
-                            <span><i class="ti ti-headphones"></i> Шаг 2: Выберите озвучку <span id="wizard-ep-lbl" style="opacity: 0.6; font-size: 12px; margin-left: 8px;"></span></span>
-                            <button class="btn-secondary" style="padding: 2px 8px; font-size: 12px;" onclick="goToAnicliStep(1)"><i class="ti ti-arrow-left"></i> Назад</button>
+                            <span><i class="ti ti-headphones"></i> ${isEn ? 'Step 2: Select voiceover' : 'Шаг 2: Выберите озвучку'} <span id="wizard-ep-lbl" style="opacity: 0.6; font-size: 12px; margin-left: 8px;"></span></span>
+                            <button class="btn-secondary" style="padding: 2px 8px; font-size: 12px;" onclick="goToAnicliStep(1)"><i class="ti ti-arrow-left"></i> ${isEn ? 'Back' : 'Назад'}</button>
                         </div>
                         <div class="anicli-chip-list" id="anicli-trans-chips"></div>
                     `}
@@ -2869,8 +2279,8 @@ function initAnicliPlayerUI(container, initialEpisode = 1) {
                         <div id="mobile-players-container" class="mobile-players-container"></div>
                     ` : `
                         <div class="anicli-step-title" style="justify-content: space-between;">
-                            <span><i class="ti ti-video"></i> Шаг 3: Выберите источник <span id="wizard-trans-lbl" style="opacity: 0.6; font-size: 12px; margin-left: 8px;"></span></span>
-                            <button class="btn-secondary" style="padding: 2px 8px; font-size: 12px;" onclick="goToAnicliStep(2)"><i class="ti ti-arrow-left"></i> Назад</button>
+                            <span><i class="ti ti-video"></i> ${isEn ? 'Step 3: Select source' : 'Шаг 3: Выберите источник'} <span id="wizard-trans-lbl" style="opacity: 0.6; font-size: 12px; margin-left: 8px;"></span></span>
+                            <button class="btn-secondary" style="padding: 2px 8px; font-size: 12px;" onclick="goToAnicliStep(2)"><i class="ti ti-arrow-left"></i> ${isEn ? 'Back' : 'Назад'}</button>
                         </div>
                         <div class="anicli-chip-list" id="anicli-player-chips"></div>
                     `}
@@ -2882,7 +2292,7 @@ function initAnicliPlayerUI(container, initialEpisode = 1) {
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                             <div style="color: var(--text-main); font-size: 13px; font-weight: 600;" id="video-active-info"></div>
                             ${!isMobile ? `
-                                <button class="btn-secondary" style="padding: 4px 10px; font-size: 12px;" onclick="goToAnicliStep(1)"><i class="ti ti-settings"></i> Изменить</button>
+                                <button class="btn-secondary" style="padding: 4px 10px; font-size: 12px;" onclick="goToAnicliStep(1)"><i class="ti ti-settings"></i> ${isEn ? 'Change' : 'Изменить'}</button>
                             ` : ''}
                         </div>
 
@@ -3032,12 +2442,12 @@ function renderMobileTranslations() {
         ${lastWatched ? `
             <div class="mobile-last-watched-card">
                 <div class="last-watched-info">
-                    <div class="last-watched-heading">Последнее просмотренное</div>
-                    <div class="last-watched-title">${lastWatched.trans} &bull; Серия ${lastWatched.ep}</div>
-                    <div class="last-watched-sub">${lastWatched.fullyWatched ? 'Просмотрено полностью' : `Серия ${lastWatched.ep}`}</div>
+                    <div class="last-watched-heading">${isEn ? 'Recently watched' : 'Последнее просмотренное'}</div>
+                    <div class="last-watched-title">${lastWatched.trans} &bull; ${isEn ? 'Episode' : 'Серия'} ${lastWatched.ep}</div>
+                    <div class="last-watched-sub">${lastWatched.fullyWatched ? (isEn ? 'Watched completely' : 'Просмотрено полностью') : (isEn ? `Episode ${lastWatched.ep}` : `Серия ${lastWatched.ep}`)}</div>
                 </div>
-                <button type="button" class="last-watched-continue-btn" onclick="onAnicliTranslationChange('${lastWatched.trans.replace(/'/g, "\\'")}')">
-                    Продолжить
+                <button type="button" class="last-watched-continue-btn" onclick="onAnicliTranslationChange(this.getAttribute('data-trans'))" data-trans="${lastWatched.trans.replace(/"/g, '&quot;')}">
+                    ${isEn ? 'Continue' : 'Продолжить'}
                 </button>
             </div>
         ` : ''}
@@ -3046,9 +2456,10 @@ function renderMobileTranslations() {
             ${filteredTrans.map(tr => {
                 const initials = getInitials(tr);
                 const isSub = isSubtitles(tr);
-                const typeText = isSub ? 'Субтитры' : 'Озвучка';
+                const typeText = isSub ? (isEn ? 'Subtitles' : 'Субтитры') : (isEn ? 'Dubbing' : 'Озвучка');
+                const safeTr = tr.replace(/"/g, '&quot;');
                 return `
-                    <div class="mobile-trans-row ${tr === window.currentAnicliTrans ? 'active' : ''}" onclick="onAnicliTranslationChange('${tr.replace(/'/g, "\\'")}')">
+                    <div class="mobile-trans-row ${tr === window.currentAnicliTrans ? 'active' : ''}" onclick="onAnicliTranslationChange(this.getAttribute('data-trans'))" data-trans="${safeTr}">
                         <div class="mobile-trans-avatar">${initials}</div>
                         <div class="mobile-trans-details">
                             <div class="mobile-trans-name">${tr}</div>
@@ -3058,7 +2469,7 @@ function renderMobileTranslations() {
                 `;
             }).join('')}
             ${!filteredTrans.length ? `
-                <div style="padding: 32px 16px; text-align: center; color: #888; font-size: 13.5px;">Ничего не найдено для выбранного фильтра</div>
+                <div style="padding: 32px 16px; text-align: center; color: #888; font-size: 13.5px;">${isEn ? 'Nothing found for selected filter' : 'Ничего не найдено для выбранного фильтра'}</div>
             ` : ''}
         </div>
     `;
@@ -3162,7 +2573,8 @@ function populateAnicliTranslations(epNum) {
     const availableTrans = Object.keys(epData);
     
     transChips.innerHTML = availableTrans.map(tr => {
-        return `<div class="anicli-chip" onclick="onAnicliTranslationChange('${tr.replace(/'/g, "\\'")}')">${tr}</div>`;
+        const safeTr = tr.replace(/"/g, '&quot;');
+        return `<div class="anicli-chip" onclick="onAnicliTranslationChange(this.getAttribute('data-trans'))" data-trans="${safeTr}">${tr}</div>`;
     }).join('');
 }
 
@@ -3212,12 +2624,13 @@ function renderMobilePlayers(epNum, transName) {
         <div class="mobile-players-list">
             ${players.map((p, idx) => {
                 const initials = getInitials(p.player);
+                const safePlayer = p.player.replace(/"/g, '&quot;');
                 return `
-                    <div class="mobile-player-row" onclick="onAnicliPlayerChange('${p.url}', this, '${p.player.replace(/'/g, "\\'")}')">
+                    <div class="mobile-player-row" onclick="onAnicliPlayerChange(this.getAttribute('data-url'), this, this.getAttribute('data-player'))" data-url="${p.url}" data-player="${safePlayer}">
                         <div class="mobile-player-avatar">${initials}</div>
                         <div class="mobile-player-details">
                             <div class="mobile-player-name">${p.player}</div>
-                            <div class="mobile-player-sub">Видеопоток &bull; Быстрая загрузка</div>
+                            <div class="mobile-player-sub">${isEn ? 'Video stream • Fast loading' : 'Видеопоток • Быстрая загрузка'}</div>
                         </div>
                         <div class="mobile-player-arrow">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="#f7a863">
@@ -3433,7 +2846,7 @@ function renderAnimeUserRateWidget(a) {
         <div class="user-rate-widget-card" id="user-rate-widget-${a.id}">
             <div class="user-rate-widget-header">
                 <h4><i class="ti ti-bookmark"></i> ${i18n('mylist.title')}</h4>
-                ${currentStatus ? `<span class="badge badge-${currentStatus}">${statusMap[currentStatus] ? statusMap[currentStatus].anime : currentStatus}</span>` : `<span class="badge" style="background: rgba(255,255,255,0.08); color: var(--text-muted);">${i18n('mylist.not_in_list')}</span>`}
+                ${currentStatus ? `<span class="badge badge-${currentStatus}">${statusMap[currentStatus] ? (statusMap[currentStatus].label || statusMap[currentStatus].name) : currentStatus}</span>` : `<span class="badge" style="background: rgba(255,255,255,0.08); color: var(--text-muted);">${i18n('mylist.not_in_list')}</span>`}
             </div>
             <div class="user-rate-widget-body">
                 <div class="user-rate-row">
@@ -3752,18 +3165,19 @@ function buildMobileRateSheetHTML(a) {
     const currentText = rate ? (rate.text || '') : '';
     const rateId = rate ? rate.id : '';
     const totalEpisodes = a.episodes || 0;
-    const title = a.russian || a.name;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    const title = (isEn && a.name) ? a.name : (a.russian || a.name);
 
     const createdAtStr = rate && rate.created_at ? formatTimestampRussian(rate.created_at) : '';
     const updatedAtStr = rate && rate.updated_at ? formatTimestampRussian(rate.updated_at) : '';
 
     const statuses = [
-        { id: 'watching', label: 'Смотрю', icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>' },
-        { id: 'planned', label: 'В планах', icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>' },
-        { id: 'completed', label: 'Просмотрено', icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' },
-        { id: 'on_hold', label: 'Отложено', icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="10" y1="15" x2="10" y2="9"></line><line x1="14" y1="15" x2="14" y2="9"></line></svg>' },
-        { id: 'dropped', label: 'Брошено', icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' },
-        { id: 'rewatching', label: 'Пересматриваю', icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>' }
+        { id: 'watching', label: typeof i18n === 'function' ? i18n('rates.watching') : (isEn ? 'Watching' : 'Смотрю'), icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>' },
+        { id: 'planned', label: typeof i18n === 'function' ? i18n('rates.planned') : (isEn ? 'Planned' : 'В планах'), icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>' },
+        { id: 'completed', label: typeof i18n === 'function' ? i18n('rates.completed') : (isEn ? 'Completed' : 'Просмотрено'), icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' },
+        { id: 'on_hold', label: typeof i18n === 'function' ? i18n('rates.on_hold') : (isEn ? 'On hold' : 'Отложено'), icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="10" y1="15" x2="10" y2="9"></line><line x1="14" y1="15" x2="14" y2="9"></line></svg>' },
+        { id: 'dropped', label: typeof i18n === 'function' ? i18n('rates.dropped') : (isEn ? 'Dropped' : 'Брошено'), icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' },
+        { id: 'rewatching', label: typeof i18n === 'function' ? i18n('rates.rewatching') : (isEn ? 'Rewatching' : 'Пересматриваю'), icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>' }
     ];
 
     return `
@@ -3776,12 +3190,12 @@ function buildMobileRateSheetHTML(a) {
                             ${a.image ? `<img src="${a.image}" alt="${title}" class="rate-sheet-poster">` : `<div class="rate-sheet-poster placeholder"><i class="ti ti-movie"></i></div>`}
                         </div>
                         <div class="rate-sheet-header-text">
-                            <div class="rate-sheet-main-title">Прогресс</div>
+                            <div class="rate-sheet-main-title">${isEn ? 'Progress' : 'Прогресс'}</div>
                             <div class="rate-sheet-sub-title">${title}</div>
                         </div>
                     </div>
                     ${rateId ? `
-                        <button type="button" class="rate-sheet-delete-btn" onclick="deleteUserRateAction('${a.id}', 'Anime', '${rateId}')" title="Удалить из списка">
+                        <button type="button" class="rate-sheet-delete-btn" onclick="deleteUserRateAction('${a.id}', 'Anime', '${rateId}')" title="${isEn ? 'Delete from list' : 'Удалить из списка'}">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e07a68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="3 6 5 6 21 6"></polyline>
                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -3808,7 +3222,7 @@ function buildMobileRateSheetHTML(a) {
                 <div class="rate-sheet-counters-row">
                     <!-- Эпизоды -->
                     <div class="rate-counter-card">
-                        <div class="rate-counter-label">Эпизоды</div>
+                        <div class="rate-counter-label">${isEn ? 'Episodes' : 'Эпизоды'}</div>
                         <div class="rate-counter-val" id="mobile-rate-episodes-val-${a.id}" data-total="${totalEpisodes}">${currentEpisodes}</div>
                         <div class="rate-counter-btns">
                             <button type="button" class="rate-counter-btn" onclick="stepMobileCounter('${a.id}', 'episodes', -1)">−</button>
@@ -3818,7 +3232,7 @@ function buildMobileRateSheetHTML(a) {
 
                     <!-- Повторения -->
                     <div class="rate-counter-card">
-                        <div class="rate-counter-label">Повторения</div>
+                        <div class="rate-counter-label">${isEn ? 'Rewatches' : 'Повторения'}</div>
                         <div class="rate-counter-val" id="mobile-rate-rewatches-val-${a.id}">${currentRewatches}</div>
                         <div class="rate-counter-btns">
                             <button type="button" class="rate-counter-btn" onclick="stepMobileCounter('${a.id}', 'rewatches', -1)">−</button>
@@ -3829,7 +3243,7 @@ function buildMobileRateSheetHTML(a) {
 
                 <!-- 4. Оценка со слайдером и точками 0..10 -->
                 <div class="rate-sheet-score-section">
-                    <div class="rate-sheet-section-title">Оценка</div>
+                    <div class="rate-sheet-section-title">${isEn ? 'Score' : 'Оценка'}</div>
                     <div class="rate-sheet-slider-row">
                         <div class="rate-sheet-slider-wrap">
                             <input type="range" min="0" max="10" step="1" value="${currentScore}" id="mobile-rate-score-slider-${a.id}" class="rate-sheet-slider" oninput="updateMobileRateScore('${a.id}', this.value)">
@@ -3844,8 +3258,8 @@ function buildMobileRateSheetHTML(a) {
 
                 <!-- 5. Заметка -->
                 <div class="rate-sheet-note-section">
-                    <div class="rate-sheet-section-title">Заметка</div>
-                    <textarea id="mobile-rate-note-input-${a.id}" class="rate-sheet-note-input" placeholder="Личная заметка..." rows="2">${currentText}</textarea>
+                    <div class="rate-sheet-section-title">${isEn ? 'Note' : 'Заметка'}</div>
+                    <textarea id="mobile-rate-note-input-${a.id}" class="rate-sheet-note-input" placeholder="${isEn ? 'Personal note...' : 'Личная заметка...'}" rows="2">${currentText}</textarea>
                 </div>
 
                 <!-- 6. Футер с датами и кнопкой сохранить -->
@@ -3854,7 +3268,7 @@ function buildMobileRateSheetHTML(a) {
                         ${createdAtStr ? `<div class="rate-timestamp-item"><span class="t-icon">+</span> <span>${createdAtStr}</span></div>` : ''}
                         ${updatedAtStr ? `<div class="rate-timestamp-item"><span class="t-icon">✏</span> <span>${updatedAtStr}</span></div>` : ''}
                     </div>
-                    <button type="button" class="rate-sheet-save-btn" onclick="saveMobileUserRate('${a.id}', ${rateId ? `'${rateId}'` : 'null'})" title="Сохранить">
+                    <button type="button" class="rate-sheet-save-btn" onclick="saveMobileUserRate('${a.id}', ${rateId ? `'${rateId}'` : 'null'})" title="${isEn ? 'Save' : 'Сохранить'}">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="#ffffff">
                             <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2zM7 5v4h10V5H7zm5 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
                         </svg>
@@ -3886,30 +3300,31 @@ function initMobileAnimeModalScroll() {
 }
 
 function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetHTML) {
-    const title = a.russian || a.name;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    const title = (isEn && a.name) ? a.name : (a.russian || a.name);
     const scoreVal = a.score ? parseFloat(a.score) : 0;
     const secondaryScore = a.scores_stats && a.scores_stats.length ? (scoreVal ? (scoreVal * 0.958).toFixed(2) : '') : '';
 
     const statusMapRu = {
-        'planned': 'В планах',
-        'watching': 'Смотрю',
-        'completed': 'Просмотрено',
-        'on_hold': 'Отложено',
-        'dropped': 'Брошено',
-        'rewatching': 'Пересматриваю'
+        'planned': isEn ? 'Planned' : 'В планах',
+        'watching': isEn ? 'Watching' : 'Смотрю',
+        'completed': isEn ? 'Completed' : 'Просмотрено',
+        'on_hold': isEn ? 'On hold' : 'Отложено',
+        'dropped': isEn ? 'Dropped' : 'Брошено',
+        'rewatching': isEn ? 'Rewatching' : 'Пересматриваю'
     };
 
-    let userRateLabel = 'В список';
+    let userRateLabel = isEn ? 'Add to list' : 'В список';
     let userRateHasScore = false;
     if (a.user_rate) {
-        const st = statusMapRu[a.user_rate.status] || a.user_rate.status || 'В списке';
+        const st = statusMapRu[a.user_rate.status] || a.user_rate.status || (isEn ? 'In list' : 'В списке');
         const sc = a.user_rate.score ? ` • ${a.user_rate.score} ★` : '';
-        const ep = (!a.user_rate.score && a.user_rate.episodes) ? ` • ${a.user_rate.episodes} эп.` : '';
+        const ep = (!a.user_rate.score && a.user_rate.episodes) ? ` • ${a.user_rate.episodes} ${isEn ? 'eps' : 'эп.'}` : '';
         userRateLabel = `${st}${sc}${ep}`;
         userRateHasScore = true;
     }
 
-    const descText = a.description || 'Описание отсутствует.';
+    const descText = a.description || (isEn ? 'No description available.' : 'Описание отсутствует.');
     const isLongDesc = descText.length > 200;
 
     const statusesStats = a.statuses_stats || [];
@@ -3938,11 +3353,11 @@ function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetH
         <div class="mobile-anime-container">
             <!-- 1. Верхний бар с кнопкой назад и поделиться -->
             <div class="mobile-anime-top-bar" id="mobile-anime-top-bar">
-                <button type="button" class="mobile-anime-top-btn" onclick="handleModalBack()" title="Назад">
+                <button type="button" class="mobile-anime-top-btn" onclick="handleModalBack()" title="${isEn ? 'Back' : 'Назад'}">
                     <i class="ti ti-arrow-left"></i>
                 </button>
                 <div class="mobile-anime-top-title" id="mobile-anime-top-title">${title}</div>
-                <button type="button" class="mobile-anime-top-btn" onclick="copyAnimeShikimoriLink('${a.shikimori_url || ('https://shikimori.io/animes/' + a.id)}')" title="Скопировать ссылку на Shikimori">
+                <button type="button" class="mobile-anime-top-btn" onclick="copyAnimeShikimoriLink('${a.shikimori_url || ('https://shikimori.io/animes/' + a.id)}')" title="${isEn ? 'Share link' : 'Скопировать ссылку на Shikimori'}">
                     <i class="ti ti-share"></i>
                 </button>
             </div>
@@ -3968,19 +3383,19 @@ function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetH
 
                     <div class="mobile-anime-meta-grid">
                         <div class="mobile-anime-meta-col">
-                            <div class="meta-label">ФОРМАТ</div>
-                            <div class="meta-val">${(a.kind || 'ТВ')} • ${(a.status || 'Вышло')}</div>
+                            <div class="meta-label">${isEn ? 'FORMAT' : 'ФОРМАТ'}</div>
+                            <div class="meta-val">${(a.kind || 'TV')} • ${(a.status || (isEn ? 'Released' : 'Вышло'))}</div>
                         </div>
                         <div class="mobile-anime-meta-col">
-                            <div class="meta-label">СЕЗОН</div>
+                            <div class="meta-label">${isEn ? 'SEASON' : 'СЕЗОН'}</div>
                             <div class="meta-val">${getSeasonFromDate(a.aired_on)}</div>
                         </div>
                         <div class="mobile-anime-meta-col">
-                            <div class="meta-label">ЭПИЗОДЫ</div>
-                            <div class="meta-val">${a.episodes ? a.episodes + ' эп.' : (a.episodes_aired ? a.episodes_aired + ' эп.' : '—')}</div>
+                            <div class="meta-label">${isEn ? 'EPISODES' : 'ЭПИЗОДЫ'}</div>
+                            <div class="meta-val">${a.episodes ? a.episodes + (isEn ? ' eps' : ' эп.') : (a.episodes_aired ? a.episodes_aired + (isEn ? ' eps' : ' эп.') : '—')}</div>
                         </div>
                         <div class="mobile-anime-meta-col">
-                            <div class="meta-label">РЕЙТИНГ</div>
+                            <div class="meta-label">${isEn ? 'RATING' : 'РЕЙТИНГ'}</div>
                             <div class="meta-val">${a.rating ? a.rating.replace('_', '-') : 'PG-13'}</div>
                         </div>
                     </div>
@@ -4003,7 +3418,7 @@ function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetH
                         `}
                         <span>${userRateLabel}</span>
                     </button>
-                    <button type="button" class="mobile-anime-play-btn" onclick="toggleAnicliPlayer('${safeTitle}', ${targetEpisode}, ${a.id})" title="Смотреть в Плеере 2 (Anicli)">
+                    <button type="button" class="mobile-anime-play-btn" onclick="toggleAnicliPlayer('${safeTitle}', ${targetEpisode}, ${a.id})" title="${isEn ? 'Watch in Player 2 (Anicli)' : 'Смотреть в Плеере 2 (Anicli)'}">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="#1b2612" style="margin-left: 2px; display: block;">
                             <path d="M7 4v16l13-8z"/>
                         </svg>
@@ -4015,11 +3430,11 @@ function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetH
 
                 <!-- 4. Карточка описания -->
                 <div class="mobile-anime-desc-card">
-                    <div class="mobile-anime-desc-heading">Описание</div>
+                    <div class="mobile-anime-desc-heading">${isEn ? 'Description' : 'Описание'}</div>
                     <div class="mobile-anime-desc-body ${isLongDesc ? 'collapsed' : ''}" id="mobile-desc-body-${a.id}">
                         ${descText}
                     </div>
-                    ${isLongDesc ? `<div class="mobile-anime-desc-toggle" onclick="toggleMobileAnimeDesc('${a.id}', this)">Развернуть</div>` : ''}
+                    ${isLongDesc ? `<div class="mobile-anime-desc-toggle" onclick="toggleMobileAnimeDesc('${a.id}', this)">${isEn ? 'Show more' : 'Развернуть'}</div>` : ''}
                 </div>
 
                 <!-- 5. Горизонтальная прокрутка жанров -->
@@ -4032,20 +3447,20 @@ function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetH
                 <!-- 6. Раздел В списках с цветной полосой -->
                 ${totalInLists > 0 ? `
                     <div class="mobile-anime-section">
-                        <div class="mobile-anime-section-title">В списках</div>
+                        <div class="mobile-anime-section-title">${isEn ? 'In lists' : 'В списках'}</div>
                         <div class="mobile-in-lists-bar">
-                            <div class="bar-seg seg-planned" style="flex: ${plannedCount || 0.05};" title="В планах"></div>
-                            <div class="bar-seg seg-completed" style="flex: ${completedCount || 0.05};" title="Просмотрено"></div>
-                            <div class="bar-seg seg-watching" style="flex: ${watchingCount || 0.05};" title="Смотрю"></div>
-                            <div class="bar-seg seg-dropped" style="flex: ${droppedCount || 0.05};" title="Брошено"></div>
-                            <div class="bar-seg seg-onhold" style="flex: ${onHoldCount || 0.05};" title="Отложено"></div>
+                            <div class="bar-seg seg-planned" style="flex: ${plannedCount || 0.05};" title="${isEn ? 'Planned' : 'В планах'}"></div>
+                            <div class="bar-seg seg-completed" style="flex: ${completedCount || 0.05};" title="${isEn ? 'Completed' : 'Просмотрено'}"></div>
+                            <div class="bar-seg seg-watching" style="flex: ${watchingCount || 0.05};" title="${isEn ? 'Watching' : 'Смотрю'}"></div>
+                            <div class="bar-seg seg-dropped" style="flex: ${droppedCount || 0.05};" title="${isEn ? 'Dropped' : 'Брошено'}"></div>
+                            <div class="bar-seg seg-onhold" style="flex: ${onHoldCount || 0.05};" title="${isEn ? 'On hold' : 'Отложено'}"></div>
                         </div>
                         <div class="mobile-in-lists-legend">
-                            <div class="legend-item"><span class="dot dot-planned"></span> <span class="label">В планах</span> <span class="val">${plannedCount.toLocaleString()}</span></div>
-                            <div class="legend-item"><span class="dot dot-completed"></span> <span class="label">Просмотрено</span> <span class="val">${completedCount.toLocaleString()}</span></div>
-                            <div class="legend-item"><span class="dot dot-watching"></span> <span class="label">Смотрю</span> <span class="val">${watchingCount.toLocaleString()}</span></div>
-                            <div class="legend-item"><span class="dot dot-dropped"></span> <span class="label">Брошено</span> <span class="val">${droppedCount.toLocaleString()}</span></div>
-                            <div class="legend-item"><span class="dot dot-onhold"></span> <span class="label">Отложено</span> <span class="val">${onHoldCount.toLocaleString()}</span></div>
+                            <div class="legend-item"><span class="dot dot-planned"></span> <span class="label">${isEn ? 'Planned' : 'В планах'}</span> <span class="val">${plannedCount.toLocaleString()}</span></div>
+                            <div class="legend-item"><span class="dot dot-completed"></span> <span class="label">${isEn ? 'Completed' : 'Просмотрено'}</span> <span class="val">${completedCount.toLocaleString()}</span></div>
+                            <div class="legend-item"><span class="dot dot-watching"></span> <span class="label">${isEn ? 'Watching' : 'Смотрю'}</span> <span class="val">${watchingCount.toLocaleString()}</span></div>
+                            <div class="legend-item"><span class="dot dot-dropped"></span> <span class="label">${isEn ? 'Dropped' : 'Брошено'}</span> <span class="val">${droppedCount.toLocaleString()}</span></div>
+                            <div class="legend-item"><span class="dot dot-onhold"></span> <span class="label">${isEn ? 'On hold' : 'Отложено'}</span> <span class="val">${onHoldCount.toLocaleString()}</span></div>
                         </div>
                     </div>
                 ` : ''}
@@ -4054,7 +3469,7 @@ function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetH
                 ${charactersList.length ? `
                     <div class="mobile-anime-section">
                         <div class="mobile-anime-section-header">
-                            <div class="mobile-anime-section-title">Персонажи</div>
+                            <div class="mobile-anime-section-title">${isEn ? 'Characters' : 'Персонажи'}</div>
                             <i class="ti ti-chevron-right section-chevron"></i>
                         </div>
                         <div class="mobile-characters-scroll">
@@ -4079,8 +3494,8 @@ function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetH
                     <div class="mobile-anime-section">
                         <div class="mobile-anime-section-header">
                             <div class="mobile-anime-section-title">
-                                Связанное <span class="mobile-count-pill">${relatedList.length}</span>
-                                <span class="mobile-chronology-badge">Хронология</span>
+                                ${isEn ? 'Related' : 'Связанное'} <span class="mobile-count-pill">${relatedList.length}</span>
+                                <span class="mobile-chronology-badge">${isEn ? 'Chronology' : 'Хронология'}</span>
                             </div>
                             <i class="ti ti-chevron-right section-chevron"></i>
                         </div>
@@ -4098,7 +3513,7 @@ function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetH
                                         </div>
                                         <div class="mobile-related-info">
                                             <div class="mobile-related-title">${r.name}</div>
-                                            <div class="mobile-related-kind">${r.kind || 'Продолжение'}</div>
+                                            <div class="mobile-related-kind">${r.kind || (isEn ? 'Sequel' : 'Продолжение')}</div>
                                         </div>
                                         <div class="mobile-related-action">
                                             <i class="ti ti-eye"></i>
@@ -4113,11 +3528,11 @@ function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetH
                 <!-- 9. Кадры -->
                 ${screenshotsList.length ? `
                     <div class="mobile-anime-section">
-                        <div class="mobile-anime-section-title">Кадры</div>
+                        <div class="mobile-anime-section-title">${isEn ? 'Screenshots' : 'Кадры'}</div>
                         <div class="mobile-screenshots-scroll">
                             ${screenshotsList.map((src, idx) => `
                                 <div class="mobile-screenshot-card" onclick="openScreenshotLightbox(${idx})">
-                                    <img src="${src}" alt="Кадр ${idx + 1}" class="mobile-screenshot-img" loading="lazy">
+                                    <img src="${src}" alt="${isEn ? 'Screenshot ' + (idx + 1) : 'Кадр ' + (idx + 1)}" class="mobile-screenshot-img" loading="lazy">
                                 </div>
                             `).join('')}
                         </div>
@@ -4126,53 +3541,53 @@ function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetH
 
                 <!-- 10. Детали -->
                 <div class="mobile-anime-section mobile-details-section">
-                    <div class="mobile-anime-section-title">Детали</div>
+                    <div class="mobile-anime-section-title">${isEn ? 'Details' : 'Детали'}</div>
                     <div class="mobile-detail-row">
-                        <span class="detail-label">Студия</span>
+                        <span class="detail-label">${isEn ? 'Studio' : 'Студия'}</span>
                         <span class="detail-val"><span class="studio-badge">${studiosList}</span></span>
                     </div>
                     <div class="mobile-detail-row">
-                        <span class="detail-label">Первоисточник</span>
-                        <span class="detail-val">Манга</span>
+                        <span class="detail-label">${isEn ? 'Source' : 'Первоисточник'}</span>
+                        <span class="detail-val">${isEn ? 'Manga' : 'Манга'}</span>
                     </div>
                     <div class="mobile-detail-row">
-                        <span class="detail-label">Длительность эпизода</span>
-                        <span class="detail-val">${a.duration ? a.duration + ' мин.' : '24 мин.'}</span>
+                        <span class="detail-label">${isEn ? 'Episode duration' : 'Длительность эпизода'}</span>
+                        <span class="detail-val">${a.duration ? a.duration + (isEn ? ' min.' : ' мин.') : (isEn ? '24 min.' : '24 мин.')}</span>
                     </div>
                     <div class="mobile-detail-row">
-                        <span class="detail-label">Начало показа</span>
+                        <span class="detail-label">${isEn ? 'Aired from' : 'Начало показа'}</span>
                         <span class="detail-val">${formatRussianDate(a.aired_on)}</span>
                     </div>
                     <div class="mobile-detail-row">
-                        <span class="detail-label">Конец показа</span>
+                        <span class="detail-label">${isEn ? 'Aired to' : 'Конец показа'}</span>
                         <span class="detail-val">${formatRussianDate(a.released_on)}</span>
                     </div>
 
                     <div class="mobile-detail-separator"></div>
 
                     <div class="mobile-detail-row">
-                        <span class="detail-label">Ромадзи</span>
+                        <span class="detail-label">${isEn ? 'Romaji' : 'Ромадзи'}</span>
                         <span class="detail-val">${a.name || '—'}</span>
                     </div>
                     <div class="mobile-detail-row">
-                        <span class="detail-label">По-русски</span>
+                        <span class="detail-label">${isEn ? 'Russian' : 'По-русски'}</span>
                         <span class="detail-val">${a.russian || a.name || '—'}</span>
                     </div>
                     ${englishTitle ? `
                         <div class="mobile-detail-row">
-                            <span class="detail-label">По-английски</span>
+                            <span class="detail-label">${isEn ? 'English' : 'По-английски'}</span>
                             <span class="detail-val">${englishTitle}</span>
                         </div>
                     ` : ''}
                     ${japaneseTitle ? `
                         <div class="mobile-detail-row">
-                            <span class="detail-label">По-японски</span>
+                            <span class="detail-label">${isEn ? 'Japanese' : 'По-японски'}</span>
                             <span class="detail-val">${japaneseTitle}</span>
                         </div>
                     ` : ''}
                     ${synonymsText ? `
                         <div class="mobile-detail-row">
-                            <span class="detail-label">Другие названия</span>
+                            <span class="detail-label">${isEn ? 'Synonyms' : 'Другие названия'}</span>
                             <span class="detail-val">${synonymsText}</span>
                         </div>
                     ` : ''}
@@ -4185,35 +3600,35 @@ function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetH
                     <div class="mobile-nav-link-item" onclick="window.open('${a.shikimori_url || '#'}', '_blank')">
                         <div class="mobile-nav-link-left">
                             <i class="ti ti-messages"></i>
-                            <span>Обсуждение</span>
+                            <span>${isEn ? 'Discussions' : 'Обсуждение'}</span>
                         </div>
                         <i class="ti ti-chevron-right"></i>
                     </div>
                     <div class="mobile-nav-link-item" onclick="window.open('${a.shikimori_url || '#'}/similar', '_blank')">
                         <div class="mobile-nav-link-left">
                             <i class="ti ti-copy"></i>
-                            <span>Похожее</span>
+                            <span>${isEn ? 'Similar' : 'Похожее'}</span>
                         </div>
                         <i class="ti ti-chevron-right"></i>
                     </div>
                     <div class="mobile-nav-link-item" onclick="window.open('${a.shikimori_url || '#'}', '_blank')">
                         <div class="mobile-nav-link-left">
                             <i class="ti ti-link"></i>
-                            <span>Ссылки</span>
+                            <span>${isEn ? 'Links' : 'Ссылки'}</span>
                         </div>
                         <i class="ti ti-chevron-right"></i>
                     </div>
                     <div class="mobile-nav-link-item" onclick="toggleAnicliPlayer('${safeTitle}', ${targetEpisode}, ${a.id})">
                         <div class="mobile-nav-link-left">
                             <i class="ti ti-movie"></i>
-                            <span>Видео</span>
+                            <span>${isEn ? 'Videos' : 'Видео'}</span>
                         </div>
                         <i class="ti ti-chevron-right"></i>
                     </div>
                 </div>
             </div>
 
-            <!-- 12. Всплывающий боттом-шит прогресса (Скриншот 2) -->
+            <!-- 12. Всплывающий боттом-шит прогресса -->
             ${buildMobileRateSheetHTML(a)}
         </div>
     `;
@@ -4445,17 +3860,6 @@ async function searchAnime(query) {
     }
 }
 
-async function getSerialInfo(animeId, source = 'shikimori') {
-    try {
-        const response = await fetch(`/api/serial/${source}/${animeId}`);
-        if (!response.ok) throw new Error('Failed to fetch serial info');
-        return await response.json();
-    } catch (error) {
-        console.error('Ошибка получения информации серий:', error);
-        return null;
-    }
-}
-
 // ==================== CHARACTER MODAL ====================
 
 async function openCharacterModal(charId) {
@@ -4481,13 +3885,14 @@ async function openCharacterModal(charId) {
 function toggleCharDesc(id, btn) {
     const desc = document.getElementById('char-desc-' + id);
     if (!desc) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     const isCollapsed = desc.classList.contains('collapsed');
     if (isCollapsed) {
         desc.classList.remove('collapsed');
-        btn.textContent = 'Свернуть';
+        btn.textContent = isEn ? 'Show less' : 'Свернуть';
     } else {
         desc.classList.add('collapsed');
-        btn.textContent = 'Развернуть';
+        btn.textContent = isEn ? 'Show more' : 'Развернуть';
     }
 }
 window.toggleCharDesc = toggleCharDesc;
@@ -4496,6 +3901,7 @@ function renderCharacterDetail(char) {
     const body = document.getElementById('anime-modal-body');
     if (!body) return;
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     const poster = char.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(char.image) : char.image) : '';
     const animes = char.animes || [];
     const mangas = char.mangas || [];
@@ -4504,11 +3910,11 @@ function renderCharacterDetail(char) {
 
     body.innerHTML = `
         <div class="char-view-top-bar">
-            <button type="button" class="char-view-nav-btn" onclick="handleModalBack()" title="Назад">
+            <button type="button" class="char-view-nav-btn" onclick="handleModalBack()" title="${isEn ? 'Back' : 'Назад'}">
                 <i class="ti ti-arrow-left"></i>
             </button>
-            <div class="char-view-nav-title">Персонаж</div>
-            <button type="button" class="char-view-nav-btn" onclick="copyCharacterLink('${char.shikimori_url || ('https://shikimori.io/characters/' + char.id)}')" title="Поделиться">
+            <div class="char-view-nav-title">${isEn ? 'Character' : 'Персонаж'}</div>
+            <button type="button" class="char-view-nav-btn" onclick="copyCharacterLink('${char.shikimori_url || ('https://shikimori.io/characters/' + char.id)}')" title="${isEn ? 'Share' : 'Поделиться'}">
                 <i class="ti ti-share"></i>
             </button>
         </div>
@@ -4533,7 +3939,7 @@ function renderCharacterDetail(char) {
                         ${descText}
                     </div>
                     ${isLongDesc ? `
-                        <div class="char-view-desc-toggle" onclick="toggleCharDesc('${char.id}', this)">Развернуть</div>
+                        <div class="char-view-desc-toggle" onclick="toggleCharDesc('${char.id}', this)">${isEn ? 'Show more' : 'Развернуть'}</div>
                     ` : ''}
                 </div>
             ` : ''}
@@ -4541,7 +3947,7 @@ function renderCharacterDetail(char) {
             <!-- 3. Anime section -->
             ${animes.length > 0 ? `
                 <div class="char-view-media-section">
-                    <h3 class="char-section-title">Аниме</h3>
+                    <h3 class="char-section-title">${isEn ? 'Anime' : 'Аниме'}</h3>
                     <div class="char-media-carousel">
                         ${animes.map(a => {
                             const aImg = a.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(a.image) : a.image) : '';
@@ -4564,7 +3970,7 @@ function renderCharacterDetail(char) {
             <!-- 4. Manga section -->
             ${mangas.length > 0 ? `
                 <div class="char-view-media-section">
-                    <h3 class="char-section-title">Манга и ранобэ</h3>
+                    <h3 class="char-section-title">${isEn ? 'Manga & Light Novels' : 'Манга и ранобэ'}</h3>
                     <div class="char-media-carousel">
                         ${mangas.map(m => {
                             const mImg = m.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(m.image) : m.image) : '';
@@ -4615,11 +4021,12 @@ function renderClubDetail(club) {
     const body = document.getElementById('anime-modal-body');
     if (!body) return;
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     const logo = club.image || '';
 
     body.innerHTML = `
         <div class="mobile-anime-top-bar" id="mobile-anime-top-bar">
-            <button type="button" class="mobile-anime-top-btn" onclick="handleModalBack()" title="Назад">
+            <button type="button" class="mobile-anime-top-btn" onclick="handleModalBack()" title="${isEn ? 'Back' : 'Назад'}">
                 <i class="ti ti-arrow-left"></i>
             </button>
             <div class="mobile-anime-top-title" id="mobile-anime-top-title">${club.name || ''}</div>
@@ -4701,7 +4108,7 @@ function renderMangaUserRateWidget(manga) {
         <div class="user-rate-widget-card" id="user-rate-widget-${manga.id}">
             <div class="user-rate-widget-header">
                 <h4><i class="ti ti-bookmark"></i> ${i18n('mylist.title')}</h4>
-                ${currentStatus ? `<span class="badge badge-${currentStatus}">${statusMap[currentStatus] ? statusMap[currentStatus].manga : currentStatus}</span>` : `<span class="badge" style="background: rgba(255,255,255,0.08); color: var(--text-muted);">${i18n('mylist.not_in_list')}</span>`}
+                ${currentStatus ? `<span class="badge badge-${currentStatus}">${statusMap[currentStatus] ? (statusMap[currentStatus].label || statusMap[currentStatus].name) : currentStatus}</span>` : `<span class="badge" style="background: rgba(255,255,255,0.08); color: var(--text-muted);">${i18n('mylist.not_in_list')}</span>`}
             </div>
             <div class="user-rate-widget-body">
                 <div class="user-rate-row">
@@ -4786,12 +4193,13 @@ window.toggleMangaRateWidget = function(mangaId) {
 window.toggleMangaDesc = function(mangaId, btn) {
     const el = document.getElementById(`manga-desc-${mangaId}`);
     if (!el) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     if (el.classList.contains('collapsed')) {
         el.classList.remove('collapsed');
-        btn.textContent = 'Свернуть';
+        btn.textContent = isEn ? 'Show less' : 'Свернуть';
     } else {
         el.classList.add('collapsed');
-        btn.textContent = 'Развернуть';
+        btn.textContent = isEn ? 'Show more' : 'Развернуть';
     }
 };
 
@@ -4799,9 +4207,10 @@ function renderMangaDetail(manga) {
     const body = document.getElementById('anime-modal-body');
     if (!body) return;
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     const poster = manga.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(manga.image) : manga.image) : '';
-    const title = manga.russian || manga.name || '';
-    const origTitle = (manga.name && manga.name !== manga.russian) ? manga.name : '';
+    const title = (isEn && manga.name) ? manga.name : (manga.russian || manga.name || '');
+    const origTitle = isEn ? (manga.russian || '') : ((manga.name && manga.name !== manga.russian) ? manga.name : '');
     const scoreVal = manga.score || '';
     const descText = manga.description || '';
     const isLongDesc = descText.length > 220;
@@ -4812,11 +4221,11 @@ function renderMangaDetail(manga) {
     statsList.forEach(st => {
         const name = (st.name || '').toLowerCase();
         const val = parseInt(st.value, 10) || 0;
-        if (name.includes('план')) plannedCount = val;
-        else if (name.includes('прочит')) completedCount = val;
-        else if (name.includes('чит')) readingCount = val;
-        else if (name.includes('брош')) droppedCount = val;
-        else if (name.includes('отлож')) onHoldCount = val;
+        if (name.includes('план') || name.includes('plan')) plannedCount = val;
+        else if (name.includes('прочит') || name.includes('complet')) completedCount = val;
+        else if (name.includes('чит') || name.includes('read')) readingCount = val;
+        else if (name.includes('брош') || name.includes('drop')) droppedCount = val;
+        else if (name.includes('отлож') || name.includes('hold')) onHoldCount = val;
     });
     const totalInLists = plannedCount + completedCount + readingCount + droppedCount + onHoldCount;
 
@@ -4824,7 +4233,7 @@ function renderMangaDetail(manga) {
     const rate = manga.user_rate;
     const currentStatus = rate ? rate.status : '';
     const statusMap = typeof getStatusMap === 'function' ? getStatusMap() : {};
-    const statusText = currentStatus ? (statusMap[currentStatus] ? statusMap[currentStatus].manga : currentStatus) : 'Добавить в список';
+    const statusText = currentStatus ? (statusMap[currentStatus] ? (statusMap[currentStatus].label || statusMap[currentStatus].name) : currentStatus) : (isEn ? 'Add to list' : 'Добавить в список');
 
     const characters = manga.characters || [];
     const related = manga.related || [];
@@ -4833,11 +4242,11 @@ function renderMangaDetail(manga) {
 
     body.innerHTML = `
         <div class="manga-view-top-bar">
-            <button type="button" class="manga-view-nav-btn" onclick="handleModalBack()" title="Назад">
+            <button type="button" class="manga-view-nav-btn" onclick="handleModalBack()" title="${isEn ? 'Back' : 'Назад'}">
                 <i class="ti ti-arrow-left"></i>
             </button>
             <div class="manga-view-nav-title" id="manga-view-nav-title">${title}</div>
-            <button type="button" class="manga-view-nav-btn" onclick="copyCharacterLink('${manga.shikimori_url || ('https://shikimori.io/mangas/' + manga.id)}')" title="Поделиться">
+            <button type="button" class="manga-view-nav-btn" onclick="copyCharacterLink('${manga.shikimori_url || ('https://shikimori.io/mangas/' + manga.id)}')" title="${isEn ? 'Share' : 'Поделиться'}">
                 <i class="ti ti-share"></i>
             </button>
         </div>
@@ -4859,7 +4268,7 @@ function renderMangaDetail(manga) {
                 ${manga.shikimori_url ? `
                     <a href="${manga.shikimori_url}#comments" target="_blank" class="manga-action-btn">
                         <i class="ti ti-message"></i>
-                        <span>Обсуждение</span>
+                        <span>${isEn ? 'Discussions' : 'Обсуждение'}</span>
                     </a>
                 ` : ''}
                 ${manga.shikimori_url ? `
@@ -4888,11 +4297,11 @@ function renderMangaDetail(manga) {
             <!-- 4. Metadata Info Grid (2 cols) -->
             <div class="manga-meta-grid">
                 <div class="manga-meta-col">
-                    <span class="manga-meta-label">Тип</span>
-                    <span class="manga-meta-val">${manga.type_and_status || (manga.kind + ' • ' + (manga.status || 'Онгоинг'))}</span>
+                    <span class="manga-meta-label">${isEn ? 'Type' : 'Тип'}</span>
+                    <span class="manga-meta-val">${manga.type_and_status || (manga.kind + ' • ' + (manga.status || (isEn ? 'Ongoing' : 'Онгоинг')))}</span>
                 </div>
                 <div class="manga-meta-col">
-                    <span class="manga-meta-label">Выходит</span>
+                    <span class="manga-meta-label">${isEn ? 'Aired' : 'Выходит'}</span>
                     <span class="manga-meta-val">${manga.aired_on_formatted || '—'}</span>
                 </div>
             </div>
@@ -4909,7 +4318,7 @@ function renderMangaDetail(manga) {
                     <div class="manga-desc-text ${isLongDesc ? 'collapsed' : ''}" id="manga-desc-${manga.id}">
                         ${descText}
                     </div>
-                    ${isLongDesc ? `<div class="manga-desc-toggle" onclick="toggleMangaDesc('${manga.id}', this)">Развернуть</div>` : ''}
+                    ${isLongDesc ? `<div class="manga-desc-toggle" onclick="toggleMangaDesc('${manga.id}', this)">${isEn ? 'Show more' : 'Развернуть'}</div>` : ''}
                 </div>
             ` : ''}
 
@@ -4917,22 +4326,22 @@ function renderMangaDetail(manga) {
             ${totalInLists > 0 ? `
                 <div class="manga-section">
                     <div class="manga-section-header">
-                        <div class="manga-section-title">В списках</div>
-                        <div class="manga-section-meta">Всего: ${totalInLists.toLocaleString()}</div>
+                        <div class="manga-section-title">${isEn ? 'In lists' : 'В списках'}</div>
+                        <div class="manga-section-meta">${isEn ? 'Total:' : 'Всего:'} ${totalInLists.toLocaleString()}</div>
                     </div>
                     <div class="manga-in-lists-bar">
-                        <div class="bar-seg seg-planned" style="flex: ${plannedCount || 0.01};" title="Запланировано: ${plannedCount}"></div>
-                        <div class="bar-seg seg-completed" style="flex: ${completedCount || 0.01};" title="Прочитано: ${completedCount}"></div>
-                        <div class="bar-seg seg-watching" style="flex: ${readingCount || 0.01};" title="Читаю: ${readingCount}"></div>
-                        <div class="bar-seg seg-dropped" style="flex: ${droppedCount || 0.01};" title="Брошено: ${droppedCount}"></div>
-                        <div class="bar-seg seg-onhold" style="flex: ${onHoldCount || 0.01};" title="Отложено: ${onHoldCount}"></div>
+                        <div class="bar-seg seg-planned" style="flex: ${plannedCount || 0.01};" title="${isEn ? 'Planned: ' : 'Запланировано: '}${plannedCount}"></div>
+                        <div class="bar-seg seg-completed" style="flex: ${completedCount || 0.01};" title="${isEn ? 'Read: ' : 'Прочитано: '}${completedCount}"></div>
+                        <div class="bar-seg seg-watching" style="flex: ${readingCount || 0.01};" title="${isEn ? 'Reading: ' : 'Читаю: '}${readingCount}"></div>
+                        <div class="bar-seg seg-dropped" style="flex: ${droppedCount || 0.01};" title="${isEn ? 'Dropped: ' : 'Брошено: '}${droppedCount}"></div>
+                        <div class="bar-seg seg-onhold" style="flex: ${onHoldCount || 0.01};" title="${isEn ? 'On hold: ' : 'Отложено: '}${onHoldCount}"></div>
                     </div>
                     <div class="manga-in-lists-legend">
-                        <div class="legend-item"><span class="dot dot-planned"></span> <span class="label">Запланировано:</span> <span class="val">${plannedCount.toLocaleString()}</span></div>
-                        <div class="legend-item"><span class="dot dot-completed"></span> <span class="label">Прочитано:</span> <span class="val">${completedCount.toLocaleString()}</span></div>
-                        <div class="legend-item"><span class="dot dot-watching"></span> <span class="label">Читаю:</span> <span class="val">${readingCount.toLocaleString()}</span></div>
-                        <div class="legend-item"><span class="dot dot-dropped"></span> <span class="label">Брошено:</span> <span class="val">${droppedCount.toLocaleString()}</span></div>
-                        <div class="legend-item"><span class="dot dot-onhold"></span> <span class="label">Отложено:</span> <span class="val">${onHoldCount.toLocaleString()}</span></div>
+                        <div class="legend-item"><span class="dot dot-planned"></span> <span class="label">${isEn ? 'Planned:' : 'Запланировано:'}</span> <span class="val">${plannedCount.toLocaleString()}</span></div>
+                        <div class="legend-item"><span class="dot dot-completed"></span> <span class="label">${isEn ? 'Read:' : 'Прочитано:'}</span> <span class="val">${completedCount.toLocaleString()}</span></div>
+                        <div class="legend-item"><span class="dot dot-watching"></span> <span class="label">${isEn ? 'Reading:' : 'Читаю:'}</span> <span class="val">${readingCount.toLocaleString()}</span></div>
+                        <div class="legend-item"><span class="dot dot-dropped"></span> <span class="label">${isEn ? 'Dropped:' : 'Брошено:'}</span> <span class="val">${droppedCount.toLocaleString()}</span></div>
+                        <div class="legend-item"><span class="dot dot-onhold"></span> <span class="label">${isEn ? 'On hold:' : 'Отложено:'}</span> <span class="val">${onHoldCount.toLocaleString()}</span></div>
                     </div>
                 </div>
             ` : ''}
@@ -4942,7 +4351,7 @@ function renderMangaDetail(manga) {
                 <div class="manga-section">
                     <div class="manga-section-header">
                         <div class="manga-section-title">
-                            Персонажи <span class="manga-count-pill">${manga.characters_total || characters.length}</span>
+                            ${isEn ? 'Characters' : 'Персонажи'} <span class="manga-count-pill">${manga.characters_total || characters.length}</span>
                         </div>
                         <i class="ti ti-chevron-right section-chevron"></i>
                     </div>
@@ -4967,7 +4376,7 @@ function renderMangaDetail(manga) {
                 <div class="manga-section">
                     <div class="manga-section-header">
                         <div class="manga-section-title">
-                            Связанное (${manga.related_total || related.length})
+                            ${isEn ? 'Related' : 'Связанное'} (${manga.related_total || related.length})
                         </div>
                         <i class="ti ti-chevron-right section-chevron"></i>
                     </div>
@@ -4998,8 +4407,8 @@ function renderMangaDetail(manga) {
 
 
 ;
-/* --- js/friend.js --- */
-// ==================== FRIEND & USER MODAL HANDLERS ====================
+/* --- js/friends.js --- */
+// ==================== FRIENDS, CLUBS & USER MODAL MODULE ====================
 
 async function openFriendModal(userIdOrNick) {
     const modal = document.getElementById('anime-modal');
@@ -5036,9 +4445,10 @@ function renderFriendDetail(user) {
     const avatar = user.image || '';
     const isOnline = user.last_online_at && user.last_online_at.includes(new Date().toISOString().slice(0, 10));
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     body.innerHTML = `
         <div class="mobile-anime-top-bar" id="mobile-anime-top-bar">
-            <button type="button" class="mobile-anime-top-btn" onclick="handleModalBack()" title="Назад">
+            <button type="button" class="mobile-anime-top-btn" onclick="handleModalBack()" title="${isEn ? 'Back' : 'Назад'}">
                 <i class="ti ti-arrow-left"></i>
             </button>
             <div class="mobile-anime-top-title" id="mobile-anime-top-title">${user.name || user.nickname}</div>
@@ -5100,46 +4510,42 @@ function renderFriendDetail(user) {
     `;
 }
 
-;
-/* --- js/friends.js --- */
 function renderFriends(data) {
-    if (typeof openFriendModal === 'function') {
-        const container = document.getElementById('friends');
-        if (!container) return;
-        const friends = data.friends || [], clubs = data.clubs || [];
+    const container = document.getElementById('friends');
+    if (!container) return;
+    const friends = data.friends || [], clubs = data.clubs || [];
 
-        const buildGrid = (items, isUser = true) => {
-            if (!items.length) return '<p style="color: var(--text-muted);">' + i18n('friends.empty') + '</p>';
-            return `<div class="media-grid">` + items.map(item => {
-                const name = item.nickname || item.name || '';
-                const img = typeof buildImgUrl === 'function' ? buildImgUrl(isUser ? (item.avatar || item.image) : (item.logo || item.image)) : (item.avatar || item.image || '');
-                const onclickAttr = isUser ? `onclick="event.preventDefault(); openFriendModal('${name}');"` : `onclick="event.preventDefault(); openClubModal(${item.id});"`;
-                const url = isUser ? `https://shikimori.io/${name}` : `https://shikimori.io/clubs/${item.id}`;
+    const buildGrid = (items, isUser = true) => {
+        if (!items.length) return '<p style="color: var(--text-muted);">' + i18n('friends.empty') + '</p>';
+        return `<div class="media-grid">` + items.map(item => {
+            const name = item.nickname || item.name || '';
+            const img = typeof buildImgUrl === 'function' ? buildImgUrl(isUser ? (item.avatar || item.image) : (item.logo || item.image)) : (item.avatar || item.image || '');
+            const onclickAttr = isUser ? `onclick="event.preventDefault(); openFriendModal('${name}');"` : `onclick="event.preventDefault(); openClubModal(${item.id});"`;
+            const url = isUser ? `https://shikimori.io/${name}` : `https://shikimori.io/clubs/${item.id}`;
 
-                return `
-                    <a href="${url}" class="media-item" title="${name}" ${onclickAttr}>
-                        <img src="${img}" alt="${name}" loading="lazy" class="${isUser ? 'friend-grid-avatar' : 'club-grid-logo'}">
-                        <div class="media-title">${name}</div>
-                    </a>`;
-            }).join('') + `</div>`;
-        };
+            return `
+                <a href="${url}" class="media-item" title="${name}" ${onclickAttr}>
+                    <img src="${img}" alt="${name}" loading="lazy" class="${isUser ? 'friend-grid-avatar' : 'club-grid-logo'}">
+                    <div class="media-title">${name}</div>
+                </a>`;
+        }).join('') + `</div>`;
+    };
 
-        container.innerHTML = `
-            <div class="card media-section">
-                <div class="friends-view-header">
-                    <h3><i class="ti ti-users"></i> ${i18n('friends.friends')} (${friends.length})</h3>
-                </div>
-                ${buildGrid(friends, true)}
+    container.innerHTML = `
+        <div class="card media-section">
+            <div class="friends-view-header">
+                <h3><i class="ti ti-users"></i> ${i18n('friends.friends')} (${friends.length})</h3>
             </div>
+            ${buildGrid(friends, true)}
+        </div>
 
-            <div class="card media-section" style="margin-top: 20px;">
-                <div class="friends-view-header">
-                    <h3><i class="ti ti-building-community"></i> ${i18n('friends.clubs')} (${clubs.length})</h3>
-                </div>
-                ${buildGrid(clubs, false)}
+        <div class="card media-section" style="margin-top: 20px;">
+            <div class="friends-view-header">
+                <h3><i class="ti ti-building-community"></i> ${i18n('friends.clubs')} (${clubs.length})</h3>
             </div>
-        `;
-    }
+            ${buildGrid(clubs, false)}
+        </div>
+    `;
 }
 ;
 /* --- js/profile.js --- */
@@ -5171,7 +4577,10 @@ async function loadRecentHistory(retries = 2) {
             return;
         }
 
-        container.innerHTML = data.slice(0, 4).map(renderHistoryItemHtml).join('');
+        const renderFn = typeof renderHistoryItemHtml === 'function' ? renderHistoryItemHtml : (typeof renderDesktopHistoryItemHtml === 'function' ? renderDesktopHistoryItemHtml : null);
+        if (renderFn) {
+            container.innerHTML = data.slice(0, 4).map(renderFn).join('');
+        }
     } catch (err) {
         if (retries > 0) {
             setTimeout(() => loadRecentHistory(retries - 1), 1500);
@@ -5233,6 +4642,7 @@ function isMobileHistoryView() {
 
 function formatHistoryDate(dateStr) {
     if (!dateStr) return '';
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     try {
         const date = new Date(dateStr);
         const now = new Date();
@@ -5241,14 +4651,18 @@ function formatHistoryDate(dateStr) {
 
         if (diffHours < 1) {
             const diffMin = Math.max(1, Math.floor(diffMs / (1000 * 60)));
+            if (isEn) return diffMin === 1 ? 'Just now' : `${diffMin} min. ago`;
             return diffMin === 1 ? 'Только что' : `${diffMin} мин. назад`;
         }
         if (diffHours < 24) {
+            if (isEn) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
             const hoursWord = (diffHours === 1 || diffHours === 21) ? 'час' : ((diffHours >= 2 && diffHours <= 4) || (diffHours >= 22 && diffHours <= 24) ? 'часа' : 'часов');
             return `${diffHours} ${hoursWord} назад`;
         }
 
-        const months = ['янв.', 'февр.', 'мар.', 'апр.', 'мая', 'июн.', 'июл.', 'авг.', 'сент.', 'окт.', 'нояб.', 'дек.'];
+        const monthsRu = ['янв.', 'февр.', 'мар.', 'апр.', 'мая', 'июн.', 'июл.', 'авг.', 'сент.', 'окт.', 'нояб.', 'дек.'];
+        const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const months = isEn ? monthsEn : monthsRu;
         const day = date.getDate();
         const month = months[date.getMonth()];
         const hours = String(date.getHours()).padStart(2, '0');
@@ -5270,6 +4684,7 @@ function getNormalizedHistoryItems(apiList) {
         continueList = JSON.parse(localStorage.getItem('shikimx_continue_watching') || '[]');
     } catch(e) { continueList = []; }
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     const result = [];
     const seenKeys = new Set();
 
@@ -5280,11 +4695,12 @@ function getNormalizedHistoryItems(apiList) {
             seenKeys.add(key);
             result.push({
                 id: item.id,
-                title: item.russian || item.title || '',
+                title: (isEn && item.name) ? item.name : (item.russian || item.title || item.name || ''),
+                name: item.name || '',
                 image: item.image || item.poster || '',
                 episode: item.episode || 1,
                 translation: item.translation || 'WinMedia',
-                status: item.progress_status || 'Просмотрено полностью',
+                status: item.progress_status || (isEn ? 'Watched completely' : 'Просмотрено полностью'),
                 date: item.created_at || item.updated_at || new Date().toISOString()
             });
         }
@@ -5297,11 +4713,12 @@ function getNormalizedHistoryItems(apiList) {
             seenKeys.add(key);
             result.push({
                 id: item.id,
-                title: item.russian || item.title || '',
+                title: (isEn && item.name) ? item.name : (item.russian || item.title || item.name || ''),
+                name: item.name || '',
                 image: item.image || '',
                 episode: item.episode || 1,
                 translation: item.translation || 'Crunchyroll.Subtitles',
-                status: 'Просмотрено полностью',
+                status: isEn ? 'Watched completely' : 'Просмотрено полностью',
                 date: item.updated_at || new Date().toISOString()
             });
         }
@@ -5328,67 +4745,17 @@ function getNormalizedHistoryItems(apiList) {
 
                     result.push({
                         id: target.id,
-                        title: target.russian || target.name || '',
+                        title: (isEn && target.name) ? target.name : (target.russian || target.name || ''),
+                        name: target.name || '',
                         image: poster,
                         episode: epNum,
                         translation: 'Crunchyroll.Subtitles',
-                        status: 'Просмотрено полностью',
+                        status: isEn ? 'Watched completely' : 'Просмотрено полностью',
                         date: item.created_at || new Date().toISOString()
                     });
                 }
             }
         }
-    }
-
-    // 4. Если данных еще нет, отображаем демо-набор в точности по скриншоту
-    if (result.length === 0) {
-        return [
-            {
-                id: 52991,
-                title: 'Провожающая в последний путь Фрирен',
-                image: 'https://desu.shikimori.one/system/animes/original/52991.jpg',
-                episode: 1,
-                translation: 'WinMedia',
-                status: 'Просмотрено полностью',
-                date: new Date(Date.now() - 6 * 3600 * 1000).toISOString()
-            },
-            {
-                id: 54857,
-                title: 'Re:Zero. Жизнь с нуля в альтернативном мире 4',
-                image: 'https://desu.shikimori.one/system/animes/original/54857.jpg',
-                episode: 14,
-                translation: 'Crunchyroll.Subtitles',
-                status: 'Просмотрено полностью',
-                date: new Date(Date.now() - 2 * 86400 * 1000 - 3 * 3600 * 1000).toISOString()
-            },
-            {
-                id: 51179,
-                title: 'Реинкарнация безработного: История о приключениях в другом мире 2. Часть 2',
-                image: 'https://desu.shikimori.one/system/animes/original/51179.jpg',
-                episode: 9,
-                translation: 'Crunchyroll.Subtitles',
-                status: 'Просмотрено полностью',
-                date: new Date(Date.now() - 6 * 86400 * 1000 - 11 * 3600 * 1000).toISOString()
-            },
-            {
-                id: 37786,
-                title: 'В конечном счёте я стану твоей',
-                image: 'https://desu.shikimori.one/system/animes/original/37786.jpg',
-                episode: 1,
-                translation: 'Indie Dub',
-                status: 'Просмотрено до 17:58',
-                date: new Date(Date.now() - 7 * 86400 * 1000 - 6 * 3600 * 1000).toISOString()
-            },
-            {
-                id: 15583,
-                title: 'Рандеву с жизнью',
-                image: 'https://desu.shikimori.one/system/animes/original/15583.jpg',
-                episode: 3,
-                translation: 'Studio Band',
-                status: 'Просмотрено полностью',
-                date: new Date(Date.now() - 24 * 86400 * 1000 - 5 * 3600 * 1000).toISOString()
-            }
-        ];
     }
 
     return result;
@@ -5439,6 +4806,7 @@ function renderMobileHistoryList() {
     const listContainer = document.getElementById('history-items-container');
     if (!listContainer) return;
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     let items = getNormalizedHistoryItems(cachedHistoryList);
 
     if (historySearchQuery) {
@@ -5453,21 +4821,23 @@ function renderMobileHistoryList() {
         listContainer.innerHTML = `
             <div style="text-align: center; padding: 48px 10px; color: var(--text-muted);">
                 <i class="ti ti-clock-off" style="font-size: 40px; opacity: 0.45; margin-bottom: 10px; display: block;"></i>
-                <span style="font-size: 14px;">${historySearchQuery ? 'Ничего не найдено' : 'История просмотров пуста'}</span>
+                <span style="font-size: 14px;">${historySearchQuery ? (isEn ? 'No results found' : 'Ничего не найдено') : (isEn ? 'Watch history is empty' : 'История просмотров пуста')}</span>
             </div>
         `;
         return;
     }
 
     listContainer.innerHTML = items.map((item, idx) => {
-        const title = item.title || 'Аниме';
+        const title = item.title || (isEn ? 'Anime' : 'Аниме');
         let imgUrl = item.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(item.image) : item.image) : '';
         if (imgUrl && (imgUrl.includes('missing_original') || imgUrl.includes('missing_preview'))) {
             imgUrl = '';
         }
         const dateFormatted = formatHistoryDate(item.date);
-        const metaStr = `${item.episode || 1} серия • ${item.translation || 'Субтитры'}`;
-        const statusStr = item.status || 'Просмотрено полностью';
+        const metaStr = `${isEn ? 'Episode ' + (item.episode || 1) : (item.episode || 1) + ' серия'} • ${item.translation || (isEn ? 'Subtitles' : 'Субтитры')}`;
+        let statusStr = item.status || (isEn ? 'Watched completely' : 'Просмотрено полностью');
+        if (isEn && statusStr.includes('Просмотрено полностью')) statusStr = 'Watched completely';
+        if (isEn && statusStr.includes('Просмотрено до')) statusStr = statusStr.replace('Просмотрено до', 'Watched until');
         const wrapId = `hist-poster-wrap-${item.id}-${idx}`;
 
         if (!imgUrl && item.id) {
@@ -5493,6 +4863,7 @@ function renderMobileHistoryList() {
 function renderMobileHistoryView() {
     const container = document.getElementById('history');
     if (!container) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
 
     container.innerHTML = `
         <div class="mobile-history-container">
@@ -5500,10 +4871,10 @@ function renderMobileHistoryView() {
             <div class="mobile-rates-top-bar">
                 <div style="display: flex; align-items: center; gap: 8px; padding-left: 4px;">
                     <i class="ti ti-history" style="color: #60a5fa; font-size: 20px;"></i>
-                    <span style="font-weight: 700; font-size: 16px; color: #ffffff;">История</span>
+                    <span style="font-weight: 700; font-size: 16px; color: #ffffff;">${i18n('tab.history')}</span>
                 </div>
                 <div class="mobile-rates-top-actions">
-                    <button type="button" class="mobile-rates-action-icon" onclick="toggleHistorySearch()" title="Поиск">
+                    <button type="button" class="mobile-rates-action-icon" onclick="toggleHistorySearch()" title="${isEn ? 'Search' : 'Поиск'}">
                         <i class="ti ti-search"></i>
                     </button>
                 </div>
@@ -5513,7 +4884,7 @@ function renderMobileHistoryView() {
             <div id="mobile-history-search-wrap" class="mobile-rates-search-wrap ${historySearchQuery ? '' : 'hidden'}">
                 <div class="mobile-rates-search-box">
                     <i class="ti ti-search search-icon"></i>
-                    <input type="text" id="history-local-search" placeholder="Поиск в истории..." oninput="onHistorySearchInput(this.value)" value="${historySearchQuery}">
+                    <input type="text" id="history-local-search" placeholder="${isEn ? 'Search history...' : 'Поиск в истории...'}" oninput="onHistorySearchInput(this.value)" value="${historySearchQuery}">
                     ${historySearchQuery ? `<button class="search-clear-btn" onclick="clearHistorySearch()"><i class="ti ti-x"></i></button>` : ''}
                 </div>
             </div>
@@ -5527,11 +4898,12 @@ function renderMobileHistoryView() {
 }
 
 function renderDesktopHistoryItemHtml(item) {
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     const target = item.target || {};
-    const title = target.russian || target.name || '';
+    const title = (isEn && target.name) ? target.name : (target.russian || target.name || '');
     const imgUrl = target.image ? buildImgUrl(target.image) : '';
     const targetUrl = target.url ? (target.url.startsWith('http') ? target.url : 'https://shikimori.io' + target.url) : (target.id ? `https://shikimori.io/animes/${target.id}` : '#');
-    const dateStr = item.created_at ? new Date(item.created_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+    const dateStr = item.created_at ? new Date(item.created_at).toLocaleString(isEn ? 'en-US' : 'ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
 
     return `
         <div class="history-item">
@@ -5543,6 +4915,8 @@ function renderDesktopHistoryItemHtml(item) {
             <div class="history-date">${dateStr}</div>
         </div>`;
 }
+
+const renderHistoryItemHtml = renderDesktopHistoryItemHtml;
 
 function renderHistory(historyList) {
     cachedHistoryList = historyList;
@@ -5630,9 +5004,11 @@ function renderMobileFavouritesGrid() {
         return;
     }
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+
     grid.innerHTML = items.map(item => {
-        const title = item.russian || item.name || '';
-        const origTitle = item.name && item.russian ? item.name : '';
+        const title = (isEn && item.name) ? item.name : (item.russian || item.name || '');
+        const origTitle = isEn ? (item.russian || '') : (item.name && item.russian ? item.name : '');
         const img = buildImgUrl(item.image);
 
         let clickFn = '';
@@ -5640,13 +5016,13 @@ function renderMobileFavouritesGrid() {
 
         if (currentFavouritesTab === 'characters') {
             clickFn = `openCharacterModal(${item.id})`;
-            subtitle = origTitle || 'Персонаж';
+            subtitle = origTitle || (isEn ? 'Character' : 'Персонаж');
         } else if (currentFavouritesTab === 'animes') {
             clickFn = `openAnimeModal(${item.id})`;
-            subtitle = origTitle || 'Аниме';
+            subtitle = origTitle || (isEn ? 'Anime' : 'Аниме');
         } else if (currentFavouritesTab === 'mangas') {
             clickFn = `openMangaModal(${item.id})`;
-            subtitle = origTitle || 'Манга';
+            subtitle = origTitle || (isEn ? 'Manga' : 'Манга');
         }
 
         const iconType = currentFavouritesTab === 'characters' ? 'user' : (currentFavouritesTab === 'animes' ? 'movie' : 'book');
@@ -5667,6 +5043,7 @@ function renderMobileFavouritesView() {
     const container = document.getElementById('favourites');
     if (!container || !cachedFavouritesData) return;
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     const chars = cachedFavouritesData.characters || [];
     const animes = cachedFavouritesData.animes || [];
     const mangas = cachedFavouritesData.mangas || [];
@@ -5681,10 +5058,10 @@ function renderMobileFavouritesView() {
             <div class="mobile-rates-top-bar">
                 <div style="display: flex; align-items: center; gap: 8px; padding-left: 4px;">
                     <i class="ti ti-heart-filled" style="color: #ff9e9e; font-size: 20px;"></i>
-                    <span style="font-weight: 700; font-size: 16px; color: #ffffff;">Избранное</span>
+                    <span style="font-weight: 700; font-size: 16px; color: #ffffff;">${i18n('tab.favourites')}</span>
                 </div>
                 <div class="mobile-rates-top-actions">
-                    <button type="button" class="mobile-rates-action-icon" onclick="toggleFavouritesSearch()" title="Поиск">
+                    <button type="button" class="mobile-rates-action-icon" onclick="toggleFavouritesSearch()" title="${isEn ? 'Search' : 'Поиск'}">
                         <i class="ti ti-search"></i>
                     </button>
                 </div>
@@ -5694,21 +5071,21 @@ function renderMobileFavouritesView() {
             <div id="mobile-favourites-search-wrap" class="mobile-rates-search-wrap ${favouritesSearchQuery ? '' : 'hidden'}">
                 <div class="mobile-rates-search-box">
                     <i class="ti ti-search search-icon"></i>
-                    <input type="text" id="favourites-local-search" placeholder="Поиск в избранном..." oninput="onFavouritesSearchInput(this.value)" value="${favouritesSearchQuery}">
+                    <input type="text" id="favourites-local-search" placeholder="${isEn ? 'Search favorites...' : 'Поиск в избранном...'}" oninput="onFavouritesSearchInput(this.value)" value="${favouritesSearchQuery}">
                     ${favouritesSearchQuery ? `<button class="search-clear-btn" onclick="clearFavouritesSearch()"><i class="ti ti-x"></i></button>` : ''}
                 </div>
             </div>
 
-            <!-- Горизонтальные подчеркнутые вкладки категорий (в стиле списков) -->
+            <!-- Горизонтальные подчеркнутые вкладки категорий -->
             <div class="mobile-rates-status-tabs">
                 <button type="button" class="mobile-rates-status-tab mobile-fav-tab ${currentFavouritesTab === 'characters' ? 'active' : ''}" onclick="switchFavouritesTab('characters', this)">
-                    Персонажи <span style="opacity: 0.65; font-size: 13px; font-weight: 400;">(${chars.length})</span>
+                    ${isEn ? 'Characters' : 'Персонажи'} <span style="opacity: 0.65; font-size: 13px; font-weight: 400;">(${chars.length})</span>
                 </button>
                 <button type="button" class="mobile-rates-status-tab mobile-fav-tab ${currentFavouritesTab === 'animes' ? 'active' : ''}" onclick="switchFavouritesTab('animes', this)">
-                    Аниме <span style="opacity: 0.65; font-size: 13px; font-weight: 400;">(${animes.length})</span>
+                    ${isEn ? 'Anime' : 'Аниме'} <span style="opacity: 0.65; font-size: 13px; font-weight: 400;">(${animes.length})</span>
                 </button>
                 <button type="button" class="mobile-rates-status-tab mobile-fav-tab ${currentFavouritesTab === 'mangas' ? 'active' : ''}" onclick="switchFavouritesTab('mangas', this)">
-                    Манга <span style="opacity: 0.65; font-size: 13px; font-weight: 400;">(${mangas.length})</span>
+                    ${isEn ? 'Manga' : 'Манга'} <span style="opacity: 0.65; font-size: 13px; font-weight: 400;">(${mangas.length})</span>
                 </button>
             </div>
 
@@ -5723,12 +5100,13 @@ function renderMobileFavouritesView() {
 function renderDesktopFavouritesView(data) {
     const container = document.getElementById('favourites');
     if (!container) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     const chars = data.characters || [], animes = data.animes || [], mangas = data.mangas || [];
 
     const buildGrid = (items, type) => {
         if (!items.length) return '<p style="color: var(--text-muted);">' + i18n('favourites.empty') + '</p>';
         return `<div class="media-grid">` + items.map(item => {
-            const title = item.russian || item.name || '';
+            const title = (isEn && item.name) ? item.name : (item.russian || item.name || '');
             const img = buildImgUrl(item.image);
             const url = item.url ? (item.url.startsWith('http') ? item.url : 'https://shikimori.io' + item.url) : `https://shikimori.io/${type}/${item.id}`;
             let clickAttr = '';
@@ -5775,111 +5153,206 @@ function renderFavourites(data) {
 ;
 /* --- js/rates.js --- */
 let currentTargetType = localStorage.getItem('currentTargetType') || 'Anime';
-let currentStatusFilter = localStorage.getItem('currentStatusFilter') || 'watching';
-let currentSortFilter = localStorage.getItem('currentSortFilter') || 'updated_at';
-let currentViewMode = localStorage.getItem('ratesViewMode') || 'cards';
+let currentStatusFilter = localStorage.getItem('currentStatusFilter') || 'all';
+let currentSortFilter = localStorage.getItem('currentSortFilter') || 'default';
+let currentSortDirection = localStorage.getItem('ratesSortDir') || 'asc';
+let currentViewMode = localStorage.getItem('ratesViewMode') || 'table';
 let ratesSearchQuery = '';
+let collapsedSections = JSON.parse(sessionStorage.getItem('ratesCollapsedSections') || '{}');
+
+let ratesFilters = {
+    order: 'rate_updated',
+    status: 'all',
+    kind: 'all',
+    genre: 'all',
+    topic: 'all',
+    season: 'all',
+    duration: 'all',
+    rating: 'all',
+    source: 'all',
+    studio: 'all',
+    license: 'all',
+    scoreFrom: '',
+    scoreTo: ''
+};
 
 function isMobileRatesView() {
     return window.innerWidth <= 768 || document.body.classList.contains('mobile-view');
 }
 window.isMobileRatesView = isMobileRatesView;
 
-window.toggleRatesSearch = function() {
-    const wrap = document.getElementById('mobile-rates-search-wrap');
-    if (!wrap) return;
-    wrap.classList.toggle('hidden');
-    if (!wrap.classList.contains('hidden')) {
-        const inp = document.getElementById('rates-local-search');
-        if (inp) inp.focus();
-    }
-};
-
 function getStatusMap() {
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     return {
-        'watching': { anime: i18n('rates.watching'), manga: i18n('rates.watching'), class: 'badge-watching' },
-        'completed': { anime: i18n('rates.completed'), manga: i18n('rates.completed'), class: 'badge-completed' },
-        'planned': { anime: i18n('rates.planned'), manga: i18n('rates.planned'), class: 'badge-planned' },
-        'on_hold': { anime: i18n('rates.on_hold'), manga: i18n('rates.on_hold'), class: 'badge-on_hold' },
-        'dropped': { anime: i18n('rates.dropped'), manga: i18n('rates.dropped'), class: 'badge-dropped' },
-        'rewatching': { anime: i18n('rates.rewatching'), manga: i18n('rates.rewatching'), class: 'badge-watching' }
+        'planned': { 
+            name: isEn ? 'PLANNED' : 'ЗАПЛАНИРОВАНО', 
+            label: isEn ? 'Planned' : 'Запланировано',
+            id: 'planned', 
+            order: 1, 
+            icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>` 
+        },
+        'watching': { 
+            name: isEn ? (currentTargetType === 'Anime' ? 'WATCHING' : 'READING') : (currentTargetType === 'Anime' ? 'СМОТРЮ' : 'ЧИТАЮ'), 
+            label: isEn ? (currentTargetType === 'Anime' ? 'Watching' : 'Reading') : (currentTargetType === 'Anime' ? 'Смотрю' : 'Читаю'),
+            id: 'watching', 
+            order: 2, 
+            icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>` 
+        },
+        'rewatching': { 
+            name: isEn ? (currentTargetType === 'Anime' ? 'REWATCHING' : 'REREADING') : (currentTargetType === 'Anime' ? 'ПЕРЕСМАТРИВАЮ' : 'ПЕРЕЧИТЫВАЮ'), 
+            label: isEn ? (currentTargetType === 'Anime' ? 'Rewatching' : 'Rereading') : (currentTargetType === 'Anime' ? 'Пересматриваю' : 'Перечитываю'),
+            id: 'rewatching', 
+            order: 3, 
+            icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>` 
+        },
+        'completed': { 
+            name: isEn ? (currentTargetType === 'Anime' ? 'COMPLETED' : 'READ') : (currentTargetType === 'Anime' ? 'ПРОСМОТРЕНО' : 'ПРОЧИТАНО'), 
+            label: isEn ? (currentTargetType === 'Anime' ? 'Completed' : 'Read') : (currentTargetType === 'Anime' ? 'Просмотрено' : 'Прочитано'),
+            id: 'completed', 
+            order: 4, 
+            icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>` 
+        },
+        'on_hold': { 
+            name: isEn ? 'ON HOLD' : 'ОТЛОЖЕНО', 
+            label: isEn ? 'On hold' : 'Отложено',
+            id: 'on_hold', 
+            order: 5, 
+            icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>` 
+        },
+        'dropped': { 
+            name: isEn ? 'DROPPED' : 'БРОШЕНО', 
+            label: isEn ? 'Dropped' : 'Брошено',
+            id: 'dropped', 
+            order: 6, 
+            icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>` 
+        }
     };
+}
+
+function getUserProfileInfo() {
+    const headerAvatar = document.querySelector('.shiki-avatar')?.src || document.querySelector('.mobile-header-avatar')?.src;
+    const headerName = document.querySelector('.shiki-profile-name')?.textContent || document.querySelector('.mobile-profile-menu-nickname')?.textContent;
+    const user = (typeof window.currentUserData !== 'undefined' && window.currentUserData) ? window.currentUserData : {};
+    const nickname = user.nickname || user.name || (headerName && headerName.trim()) || 'Musanime';
+    const avatar = (user.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(user.image) : user.image) : (user.avatar || headerAvatar || '/static/icons/icon-192.png'));
+    return { nickname, avatar };
 }
 
 async function openTabWithFilter(type, status) {
     currentTargetType = type;
     currentStatusFilter = status;
+    ratesFilters.status = status;
     localStorage.setItem('currentTargetType', type);
     localStorage.setItem('currentStatusFilter', status);
 
     await openTab('rates');
-
-    document.querySelectorAll('.type-btn, .mobile-rates-type-btn').forEach(b => {
-        b.classList.remove('active');
-        if ((type === 'Anime' && b.textContent.includes('Аниме')) || (type === 'Manga' && b.textContent.includes('Манга'))) {
-            b.classList.add('active');
-        }
-    });
-
-    updateFilterLabels();
-    document.querySelectorAll('.filter-btn, .mobile-rates-status-tab').forEach(b => {
-        b.classList.remove('active');
-        if (b.getAttribute('onclick') && b.getAttribute('onclick').includes(`'${status}'`)) b.classList.add('active');
-    });
-
     applyListFilters();
 }
 
 function switchListType(type) {
     currentTargetType = type;
     localStorage.setItem('currentTargetType', type);
-    document.querySelectorAll('.type-btn, .mobile-rates-type-btn').forEach(b => b.classList.remove('active'));
-    if (window.event && window.event.currentTarget) window.event.currentTarget.classList.add('active');
-    if (isMobileRatesView()) {
-        renderRatesView();
-        return;
-    }
-    updateFilterLabels();
-    applyListFilters();
+    renderRatesView();
 }
+window.switchListType = switchListType;
+
+async function openRatesListWithType(type) {
+    currentTargetType = type;
+    localStorage.setItem('currentTargetType', type);
+    if (typeof handleDesktopNavClick === 'function') {
+        handleDesktopNavClick('rates');
+    } else if (typeof openTab === 'function') {
+        await openTab('rates');
+    }
+    if (typeof renderRatesView === 'function') {
+        renderRatesView();
+    }
+}
+window.openRatesListWithType = openRatesListWithType;
 
 function filterListStatus(status, btn) {
+    if (currentStatusFilter === status) {
+        currentStatusFilter = 'all';
+        ratesFilters.status = 'all';
+        localStorage.setItem('currentStatusFilter', 'all');
+        document.querySelectorAll('.shiki-dock-btn').forEach(b => b.classList.remove('active'));
+        const sel = document.getElementById('rates-filter-status');
+        if (sel) sel.value = 'all';
+        applyListFilters();
+        return;
+    }
+
     currentStatusFilter = status;
+    ratesFilters.status = status;
     localStorage.setItem('currentStatusFilter', status);
-    document.querySelectorAll('.filter-btn, .mobile-rates-status-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.shiki-dock-btn').forEach(b => b.classList.remove('active'));
     if (btn) btn.classList.add('active');
+    const sel = document.getElementById('rates-filter-status');
+    if (sel) sel.value = status;
     applyListFilters();
 }
 
+function onRatesFilterChange(field, val) {
+    ratesFilters[field] = val;
+    if (field === 'status') {
+        currentStatusFilter = val;
+        localStorage.setItem('currentStatusFilter', val);
+        document.querySelectorAll('.shiki-dock-btn').forEach(b => b.classList.remove('active'));
+        if (val !== 'all') {
+            const btn = document.querySelector(`.shiki-dock-btn[title*="${val}"]`);
+            if (btn) btn.classList.add('active');
+        }
+    }
+    applyListFilters();
+}
+window.onRatesFilterChange = onRatesFilterChange;
+
+function setRatesScorePreset(from, to) {
+    ratesFilters.scoreFrom = from !== null ? String(from) : '';
+    ratesFilters.scoreTo = to !== null ? String(to) : '';
+    const fromInput = document.getElementById('rates-score-from');
+    const toInput = document.getElementById('rates-score-to');
+    if (fromInput) fromInput.value = ratesFilters.scoreFrom;
+    if (toInput) toInput.value = ratesFilters.scoreTo;
+    applyListFilters();
+}
+window.setRatesScorePreset = setRatesScorePreset;
+
 function changeListSort(sortVal) {
-    currentSortFilter = sortVal;
-    localStorage.setItem('currentSortFilter', sortVal);
+    if (currentSortFilter === sortVal) {
+        currentSortDirection = (currentSortDirection === 'asc') ? 'desc' : 'asc';
+    } else {
+        currentSortFilter = sortVal;
+        currentSortDirection = (sortVal === 'rate_score' || sortVal === 'score' || sortVal === 'episodes' || sortVal === 'updated_at' || sortVal === 'rate_updated') ? 'desc' : 'asc';
+    }
+    ratesFilters.order = sortVal;
+    localStorage.setItem('currentSortFilter', currentSortFilter);
+    localStorage.setItem('ratesSortDir', currentSortDirection);
+    const sel = document.getElementById('rates-filter-order');
+    if (sel) sel.value = sortVal;
     applyListFilters();
 }
 
 function setViewMode(mode) {
     currentViewMode = mode;
     localStorage.setItem('ratesViewMode', mode);
-    document.querySelectorAll('.view-mode-btn').forEach(b => b.classList.remove('active'));
-    const btn = document.querySelector(`.view-mode-btn[data-view="${mode}"]`);
+    document.querySelectorAll('.shiki-view-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.querySelector(`.shiki-view-btn[data-view="${mode}"]`);
     if (btn) btn.classList.add('active');
-    const grid = document.getElementById('rates-grid-container');
-    if (grid) {
-        grid.className = `rates-grid rates-view-${mode}`;
-    }
     applyListFilters();
 }
 
-function updateFilterLabels() {
-    const isAnime = currentTargetType === 'Anime';
-    const lblWatching = document.getElementById('lbl-watching');
-    const lblCompleted = document.getElementById('lbl-completed');
-    if (lblWatching) lblWatching.textContent = isAnime ? i18n('rates.watching') : i18n('rates.watching');
-    if (lblCompleted) lblCompleted.textContent = isAnime ? i18n('rates.completed') : i18n('rates.completed');
+function toggleStatusSection(statusKey) {
+    collapsedSections[statusKey] = !collapsedSections[statusKey];
+    sessionStorage.setItem('ratesCollapsedSections', JSON.stringify(collapsedSections));
+    applyListFilters();
 }
+window.toggleStatusSection = toggleStatusSection;
 
 function onRatesSearchInput(val) {
     ratesSearchQuery = val.trim().toLowerCase();
+    const input = document.getElementById('rates-local-search');
+    if (input && input.value !== val) input.value = val;
     applyListFilters();
 }
 window.onRatesSearchInput = onRatesSearchInput;
@@ -5892,353 +5365,925 @@ function clearRatesSearch() {
 }
 window.clearRatesSearch = clearRatesSearch;
 
-async function quickIncrementRate(targetId, targetType, totalCount, e) {
-    if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-
-    const rateItem = ratesDataCache.find(r => r.target_id == targetId && r.target_type == targetType);
-    if (rateItem) {
-        const field = targetType === 'Anime' ? 'episodes' : 'chapters';
-        rateItem[field] = (rateItem[field] || 0) + 1;
-        if (totalCount && rateItem[field] >= totalCount) {
-            rateItem.status = 'completed';
-        }
-        applyListFilters();
-    }
-
-    try {
-        const res = await fetch('/api/rate/increment', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                target_id: parseInt(targetId),
-                target_type: targetType,
-                total_count: totalCount || 0
-            })
-        });
-        const data = await res.json();
-        if (res.ok && data.success) {
-            showToast(`${i18n('mylist.quick_inc')} (${targetType === 'Anime' ? 'эп.' : 'гл.'} ${rateItem ? (targetType === 'Anime' ? rateItem.episodes : rateItem.chapters) : ''})`, 'success', 2000);
-        } else {
-            showToast(data.error || 'Ошибка обновления', 'error');
-        }
-    } catch (err) {
-        showToast(err.message, 'error');
-    }
+function getKindDisplayName(kind, isAnime, isEn) {
+    if (!kind) return isAnime ? (isEn ? 'TV' : 'Сериал') : (isEn ? 'Manga' : 'Манга');
+    const k = kind.toLowerCase();
+    if (k === 'tv' || k === 'tv_13' || k === 'tv_24' || k === 'tv_48') return isEn ? 'TV' : 'Сериал';
+    if (k === 'movie') return isEn ? 'Movie' : 'Фильм';
+    if (k === 'ova') return 'OVA';
+    if (k === 'ona') return 'ONA';
+    if (k === 'special') return isEn ? 'Special' : 'Спешл';
+    if (k === 'tv_special') return isEn ? 'TV Special' : 'TV Спешл';
+    if (k === 'music') return isEn ? 'Music' : 'Клип';
+    if (k === 'pv') return isEn ? 'Promo' : 'Проморолик';
+    if (k === 'manga') return isEn ? 'Manga' : 'Манга';
+    if (k === 'manhwa') return isEn ? 'Manhwa' : 'Манхва';
+    if (k === 'manhua') return isEn ? 'Manhua' : 'Маньхуа';
+    if (k === 'light_novel') return isEn ? 'Light Novel' : 'Ранобэ';
+    if (k === 'novel') return isEn ? 'Novel' : 'Новелла';
+    if (k === 'one_shot') return isEn ? 'One-shot' : 'Ваншот';
+    if (k === 'doujin') return isEn ? 'Doujin' : 'Додзинси';
+    return kind;
 }
-window.quickIncrementRate = quickIncrementRate;
 
 function renderRatesView() {
     const container = document.getElementById('rates');
     if (!container) return;
     if (!Array.isArray(ratesDataCache) || ratesDataCache.length === 0) {
-        container.innerHTML = '<div class="card" style="margin: 20px auto; max-width: 400px; text-align: center;"><p style="color: var(--text-muted);">' + i18n('rates.empty') + '</p></div>';
+        container.innerHTML = '<div style="margin: 40px auto; max-width: 400px; text-align: center; color: #888899;">' + (typeof i18n === 'function' ? i18n('rates.empty', 'Список пуст') : 'Список пуст') + '</div>';
         return;
     }
 
     const isAnime = currentTargetType === 'Anime';
-    const isMobile = isMobileRatesView();
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    const byType = ratesDataCache.filter(r => r.target_type === currentTargetType);
 
-    if (isMobile) {
-        if (!currentStatusFilter || currentStatusFilter === 'all') {
-            currentStatusFilter = 'watching';
-        }
+    // Calculate status counts
+    const counts = {
+        all: byType.length,
+        planned: byType.filter(r => r.status === 'planned').length,
+        watching: byType.filter(r => r.status === 'watching').length,
+        rewatching: byType.filter(r => r.status === 'rewatching').length,
+        completed: byType.filter(r => r.status === 'completed').length,
+        on_hold: byType.filter(r => r.status === 'on_hold').length,
+        dropped: byType.filter(r => r.status === 'dropped').length
+    };
 
-        container.innerHTML = `
-            <div class="mobile-rates-container">
-                <!-- Top Header: Anime / Manga pill switcher + Search button -->
-                <div class="mobile-rates-top-bar">
-                    <div class="mobile-rates-type-pill">
-                        <button type="button" class="mobile-rates-type-btn ${isAnime ? 'active' : ''}" onclick="switchListType('Anime')">Аниме</button>
-                        <button type="button" class="mobile-rates-type-btn ${!isAnime ? 'active' : ''}" onclick="switchListType('Manga')">Манга</button>
+    // Calculate Histograms Data for Right Sidebar
+    const scoresStats = calculateScoresHistogram(byType);
+    const typesStats = calculateTypesHistogram(byType, isAnime, isEn);
+    const ratingsStats = calculateRatingsHistogram(byType, isAnime);
+    const genresCloud = calculateGenresCloud(byType, isAnime, isEn);
+    const studiosCloud = calculateStudiosCloud(byType, isAnime, isEn);
+
+    // User Profile
+    const { nickname, avatar } = getUserProfileInfo();
+    const statusMap = getStatusMap();
+
+    container.innerHTML = `
+        <div class="shiki-page-root">
+            <!-- 1. Top User Navigation Header (← Musanime / Профиль) -->
+            <div class="shiki-top-nav" onclick="if(typeof openTab==='function') openTab('profile');">
+                <div class="shiki-nav-user">
+                    <i class="ti ti-arrow-left shiki-nav-arrow"></i>
+                    <span class="shiki-nav-name">${nickname}</span>
+                </div>
+                <div class="shiki-nav-sub">
+                    ${isEn ? 'Profile' : 'Профиль'}
+                </div>
+            </div>
+
+            <!-- 2. Main Two Column Body -->
+            <div class="shiki-body-columns">
+                <!-- Left Main Column (List) -->
+                <div class="shiki-main-col">
+                    <!-- СПИСОК АНИМЕ + View Mode Icons -->
+                    <div class="shiki-title-row">
+                        <div class="shiki-title-text">${isAnime ? (isEn ? 'ANIME LIST' : 'СПИСОК АНИМЕ') : (isEn ? 'MANGA LIST' : 'СПИСОК МАНГИ')}</div>
+                        <div class="shiki-view-buttons">
+                            <button type="button" class="shiki-view-btn ${currentViewMode === 'table' ? 'active' : ''}" data-view="table" onclick="setViewMode('table')" title="${isEn ? 'Lines' : 'Строки'}">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                            </button>
+                            <button type="button" class="shiki-view-btn ${currentViewMode === 'cards' ? 'active' : ''}" data-view="cards" onclick="setViewMode('cards')" title="${isEn ? 'Grid' : 'Сетка'}">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                            </button>
+                        </div>
                     </div>
-                    <div class="mobile-rates-top-actions">
-                        <button type="button" class="mobile-rates-action-icon" onclick="toggleRatesSearch()" title="Поиск">
-                            <i class="ti ti-search"></i>
+
+                    <!-- Search Input Box -->
+                    <div class="shiki-search-row">
+                        <input type="text" id="rates-local-search" class="shiki-search-input" placeholder="${isEn ? 'search' : 'поиск'}" oninput="onRatesSearchInput(this.value)" value="${ratesSearchQuery}">
+                    </div>
+
+                    <!-- Left Sticky Floating Status Dock -->
+                    <div class="shiki-left-dock">
+                        <button type="button" class="shiki-dock-btn ${currentStatusFilter === 'planned' ? 'active' : ''}" onclick="filterListStatus('planned', this)" title="${statusMap.planned.label}">
+                            ${statusMap.planned.icon}
+                            <span class="shiki-dock-counter">${counts.planned}</span>
                         </button>
+                        <button type="button" class="shiki-dock-btn ${currentStatusFilter === 'watching' ? 'active' : ''}" onclick="filterListStatus('watching', this)" title="${statusMap.watching.label}">
+                            ${statusMap.watching.icon}
+                            <span class="shiki-dock-counter">${counts.watching}</span>
+                        </button>
+                        <button type="button" class="shiki-dock-btn ${currentStatusFilter === 'rewatching' ? 'active' : ''}" onclick="filterListStatus('rewatching', this)" title="${statusMap.rewatching.label}">
+                            ${statusMap.rewatching.icon}
+                            <span class="shiki-dock-counter">${counts.rewatching}</span>
+                        </button>
+                        <button type="button" class="shiki-dock-btn ${currentStatusFilter === 'completed' ? 'active' : ''}" onclick="filterListStatus('completed', this)" title="${statusMap.completed.label}">
+                            ${statusMap.completed.icon}
+                            <span class="shiki-dock-counter">${counts.completed}</span>
+                        </button>
+                        <button type="button" class="shiki-dock-btn ${currentStatusFilter === 'on_hold' ? 'active' : ''}" onclick="filterListStatus('on_hold', this)" title="${statusMap.on_hold.label}">
+                            ${statusMap.on_hold.icon}
+                            <span class="shiki-dock-counter">${counts.on_hold}</span>
+                        </button>
+                        <button type="button" class="shiki-dock-btn ${currentStatusFilter === 'dropped' ? 'active' : ''}" onclick="filterListStatus('dropped', this)" title="${statusMap.dropped.label}">
+                            ${statusMap.dropped.icon}
+                            <span class="shiki-dock-counter">${counts.dropped}</span>
+                        </button>
+                        ${currentStatusFilter !== 'all' ? `
+                            <button type="button" class="shiki-dock-btn reset" onclick="filterListStatus('all', this)" title="${isEn ? 'All' : 'Все'}">
+                                <span style="font-size: 11px; font-weight: bold;">ALL</span>
+                                <span class="shiki-dock-counter all">${counts.all}</span>
+                            </button>
+                        ` : ''}
+                    </div>
+
+                    <!-- Status Sections and Tables -->
+                    <div id="rates-grid-container" class="shiki-list-content"></div>
+                </div>
+
+                <!-- Right Sidebar Column (Avatar, Histograms, Genres, Studios, Filters) -->
+                <div class="shiki-side-col">
+                    <!-- Circular Avatar -->
+                    <div class="shiki-side-avatar-box">
+                        <img src="${avatar}" alt="${nickname}" class="shiki-side-avatar-img" onerror="this.src='https://shikimori.io/assets/globals/missing_avatar.png'">
+                    </div>
+
+                    <!-- ОЦЕНКИ -->
+                    ${scoresStats.length ? `
+                        <div class="shiki-chart-block">
+                            <div class="shiki-chart-title">${isEn ? 'SCORES' : 'ОЦЕНКИ'}</div>
+                            <div class="shiki-chart-body">
+                                ${scoresStats.map(s => `
+                                    <div class="shiki-chart-row">
+                                        <div class="shiki-chart-bar-wrap">
+                                            <div class="shiki-chart-bar score-fill" style="width: ${s.percent}%" title="${s.count}">
+                                                ${s.count > 0 ? `<span class="shiki-chart-val">${s.count}</span>` : ''}
+                                            </div>
+                                        </div>
+                                        <div class="shiki-chart-label">${s.score}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- ТИПЫ -->
+                    ${typesStats.length ? `
+                        <div class="shiki-chart-block">
+                            <div class="shiki-chart-title">${isEn ? 'TYPES' : 'ТИПЫ'}</div>
+                            <div class="shiki-chart-body">
+                                ${typesStats.map(t => `
+                                    <div class="shiki-chart-row">
+                                        <div class="shiki-chart-bar-wrap">
+                                            <div class="shiki-chart-bar type-fill" style="width: ${t.percent}%" title="${t.count}">
+                                                ${t.count > 0 ? `<span class="shiki-chart-val">${t.count}</span>` : ''}
+                                            </div>
+                                        </div>
+                                        <div class="shiki-chart-label type-text">${t.name}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- РЕЙТИНГИ (только для аниме) -->
+                    ${isAnime && ratingsStats.length ? `
+                        <div class="shiki-chart-block">
+                            <div class="shiki-chart-title">${isEn ? 'RATINGS' : 'РЕЙТИНГИ'}</div>
+                            <div class="shiki-chart-body">
+                                ${ratingsStats.map(r => `
+                                    <div class="shiki-chart-row">
+                                        <div class="shiki-chart-bar-wrap">
+                                            ${r.count > 0 ? `
+                                                <div class="shiki-chart-bar rating-fill" style="width: ${r.percent}%" title="${r.count}">
+                                                    <span class="shiki-chart-val">${r.count}</span>
+                                                </div>
+                                            ` : `
+                                                <div class="shiki-chart-bar empty" style="width: 0;"></div>
+                                            `}
+                                        </div>
+                                        <div class="shiki-chart-label rating-text">${r.name}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- ЖАНРЫ -->
+                    ${genresCloud.length ? `
+                        <div class="shiki-chart-block">
+                            <div class="shiki-chart-title">${isEn ? 'GENRES' : 'ЖАНРЫ'}</div>
+                            <div class="shiki-tag-cloud">
+                                ${genresCloud.map(g => `
+                                    <a href="javascript:void(0)" class="category ${g.tier}" onclick="onRatesSearchInput('${g.name.replace(/'/g, "\\'")}')" title="${g.name} (${g.count})">${g.name}</a>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- СТУДИИ / ИЗДАТЕЛИ -->
+                    ${studiosCloud.length ? `
+                        <div class="shiki-chart-block">
+                            <div class="shiki-chart-title">${isAnime ? (isEn ? 'STUDIOS' : 'СТУДИИ') : (isEn ? 'PUBLISHERS' : 'ИЗДАТЕЛИ')}</div>
+                            <div class="shiki-tag-cloud">
+                                ${studiosCloud.map(s => `
+                                    <a href="javascript:void(0)" class="category ${s.tier}" onclick="onRatesSearchInput('${s.name.replace(/'/g, "\\'")}')" title="${s.name} (${s.count})">${s.name}</a>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- ФИЛЬТРЫ -->
+                    <div class="shiki-filters-block">
+                        <div class="shiki-filters-head">${isEn ? 'FILTERS' : 'ФИЛЬТРЫ'}</div>
+                        
+                        <!-- Сортировка -->
+                        <div class="c-ms-field">
+                            <div class="c-ms-title">${isEn ? 'Sort' : 'Сортировка'}</div>
+                            <select id="rates-filter-order" class="c-filter-select" onchange="onRatesFilterChange('order', this.value)">
+                                <option value="rate_updated" ${ratesFilters.order === 'rate_updated' ? 'selected' : ''}>${isEn ? 'by updated date' : 'по дате изменения'}</option>
+                                <option value="rate_id" ${ratesFilters.order === 'rate_id' ? 'selected' : ''}>${isEn ? 'by created date' : 'по дате добавления'}</option>
+                                <option value="name" ${ratesFilters.order === 'name' ? 'selected' : ''}>${isEn ? 'by title' : 'по алфавиту'}</option>
+                                <option value="rate_score" ${ratesFilters.order === 'rate_score' ? 'selected' : ''}>${isEn ? 'by my score' : 'по моей оценке'}</option>
+                                <option value="episodes" ${ratesFilters.order === 'episodes' ? 'selected' : ''}>${isAnime ? (isEn ? 'by episode count' : 'по числу серий') : (isEn ? 'by chapter count' : 'по числу глав')}</option>
+                                <option value="kind" ${ratesFilters.order === 'kind' ? 'selected' : ''}>${isEn ? 'by type' : 'по типу'}</option>
+                                <option value="status" ${ratesFilters.order === 'status' ? 'selected' : ''}>${isEn ? 'by status' : 'по статусу'}</option>
+                            </select>
+                        </div>
+
+                        <!-- Статус -->
+                        <div class="c-ms-field">
+                            <div class="c-ms-title">${isEn ? 'Status' : 'Статус'}</div>
+                            <select id="rates-filter-status" class="c-filter-select" onchange="onRatesFilterChange('status', this.value)">
+                                <option value="all" ${ratesFilters.status === 'all' ? 'selected' : ''}>${isEn ? 'any' : 'любой'}</option>
+                                <option value="planned" ${ratesFilters.status === 'planned' ? 'selected' : ''}>${statusMap.planned.label}</option>
+                                <option value="watching" ${ratesFilters.status === 'watching' ? 'selected' : ''}>${statusMap.watching.label}</option>
+                                <option value="rewatching" ${ratesFilters.status === 'rewatching' ? 'selected' : ''}>${statusMap.rewatching.label}</option>
+                                <option value="completed" ${ratesFilters.status === 'completed' ? 'selected' : ''}>${statusMap.completed.label}</option>
+                                <option value="on_hold" ${ratesFilters.status === 'on_hold' ? 'selected' : ''}>${statusMap.on_hold.label}</option>
+                                <option value="dropped" ${ratesFilters.status === 'dropped' ? 'selected' : ''}>${statusMap.dropped.label}</option>
+                            </select>
+                        </div>
+
+                        <!-- Тип -->
+                        <div class="c-ms-field">
+                            <div class="c-ms-title">${isEn ? 'Type' : 'Тип'}</div>
+                            <select id="rates-filter-kind" class="c-filter-select" onchange="onRatesFilterChange('kind', this.value)">
+                                <option value="all" ${ratesFilters.kind === 'all' ? 'selected' : ''}>${isEn ? 'any' : 'любой'}</option>
+                                ${isAnime ? `
+                                    <option value="tv" ${ratesFilters.kind === 'tv' ? 'selected' : ''}>${isEn ? 'TV' : 'Сериал'}</option>
+                                    <option value="movie" ${ratesFilters.kind === 'movie' ? 'selected' : ''}>${isEn ? 'Movie' : 'Фильм'}</option>
+                                    <option value="ova" ${ratesFilters.kind === 'ova' ? 'selected' : ''}>OVA</option>
+                                    <option value="ona" ${ratesFilters.kind === 'ona' ? 'selected' : ''}>ONA</option>
+                                    <option value="special" ${ratesFilters.kind === 'special' ? 'selected' : ''}>${isEn ? 'Special' : 'Спешл'}</option>
+                                    <option value="tv_special" ${ratesFilters.kind === 'tv_special' ? 'selected' : ''}>${isEn ? 'TV Special' : 'TV Спешл'}</option>
+                                    <option value="music" ${ratesFilters.kind === 'music' ? 'selected' : ''}>${isEn ? 'Music' : 'Клип'}</option>
+                                    <option value="pv" ${ratesFilters.kind === 'pv' ? 'selected' : ''}>${isEn ? 'Promo' : 'Проморолик'}</option>
+                                ` : `
+                                    <option value="manga" ${ratesFilters.kind === 'manga' ? 'selected' : ''}>${isEn ? 'Manga' : 'Манга'}</option>
+                                    <option value="manhwa" ${ratesFilters.kind === 'manhwa' ? 'selected' : ''}>${isEn ? 'Manhwa' : 'Манхва'}</option>
+                                    <option value="manhua" ${ratesFilters.kind === 'manhua' ? 'selected' : ''}>${isEn ? 'Manhua' : 'Маньхуа'}</option>
+                                    <option value="light_novel" ${ratesFilters.kind === 'light_novel' ? 'selected' : ''}>${isEn ? 'Light Novel' : 'Ранобэ'}</option>
+                                    <option value="novel" ${ratesFilters.kind === 'novel' ? 'selected' : ''}>${isEn ? 'Novel' : 'Новелла'}</option>
+                                    <option value="one_shot" ${ratesFilters.kind === 'one_shot' ? 'selected' : ''}>${isEn ? 'One-shot' : 'Ваншот'}</option>
+                                    <option value="doujin" ${ratesFilters.kind === 'doujin' ? 'selected' : ''}>${isEn ? 'Doujinshi' : 'Додзинси'}</option>
+                                `}
+                            </select>
+                        </div>
+
+                        <!-- Жанры -->
+                        <div class="c-ms-field">
+                            <div class="c-ms-title">${isEn ? 'Genres' : 'Жанры'}</div>
+                            <select id="rates-filter-genre" class="c-filter-select" onchange="onRatesFilterChange('genre', this.value)">
+                                <option value="all" ${ratesFilters.genre === 'all' ? 'selected' : ''}>${isEn ? 'any' : 'любой'}</option>
+                                ${genresCloud.map(g => `<option value="${g.name}" ${ratesFilters.genre === g.name ? 'selected' : ''}>${g.name}</option>`).join('')}
+                            </select>
+                        </div>
+
+                        <!-- Темы -->
+                        <div class="c-ms-field">
+                            <div class="c-ms-title">${isEn ? 'Themes' : 'Темы'}</div>
+                            <select id="rates-filter-topic" class="c-filter-select" onchange="onRatesFilterChange('topic', this.value)">
+                                <option value="all" ${ratesFilters.topic === 'all' ? 'selected' : ''}>${isEn ? 'any' : 'любой'}</option>
+                                ${calculateThemesList(byType, isEn).map(t => `<option value="${t}" ${ratesFilters.topic === t ? 'selected' : ''}>${t}</option>`).join('')}
+                            </select>
+                        </div>
+
+                        <!-- Сезон и год / Год -->
+                        <div class="c-ms-field">
+                            <div class="c-ms-title">${isAnime ? (isEn ? 'Season and year' : 'Сезон и год') : (isEn ? 'Year' : 'Год')}</div>
+                            <select id="rates-filter-season" class="c-filter-select" onchange="onRatesFilterChange('season', this.value)">
+                                <option value="all" ${ratesFilters.season === 'all' ? 'selected' : ''}>${isEn ? 'any' : 'любой'}</option>
+                                ${calculateSeasonsList(byType, isEn).map(s => `<option value="${s.val}" ${ratesFilters.season === s.val ? 'selected' : ''}>${s.label}</option>`).join('')}
+                            </select>
+                        </div>
+
+                        ${isAnime ? `
+                            <!-- Длительность серии -->
+                            <div class="c-ms-field">
+                                <div class="c-ms-title">${isEn ? 'Episode duration' : 'Длительность серии'}</div>
+                                <select id="rates-filter-duration" class="c-filter-select" onchange="onRatesFilterChange('duration', this.value)">
+                                    <option value="all" ${ratesFilters.duration === 'all' ? 'selected' : ''}>${isEn ? 'any' : 'любой'}</option>
+                                    <option value="s" ${ratesFilters.duration === 's' ? 'selected' : ''}>${isEn ? 'Under 10 mins (S)' : 'До 10 минут (S)'}</option>
+                                    <option value="m" ${ratesFilters.duration === 'm' ? 'selected' : ''}>${isEn ? 'Under 30 mins (M)' : 'До 30 минут (M)'}</option>
+                                    <option value="l" ${ratesFilters.duration === 'l' ? 'selected' : ''}>${isEn ? 'Over 30 mins (L)' : 'Более 30 минут (L)'}</option>
+                                </select>
+                            </div>
+
+                            <!-- Возрастной рейтинг -->
+                            <div class="c-ms-field">
+                                <div class="c-ms-title">${isEn ? 'Age rating' : 'Возрастной рейтинг'}</div>
+                                <select id="rates-filter-rating" class="c-filter-select" onchange="onRatesFilterChange('rating', this.value)">
+                                    <option value="all" ${ratesFilters.rating === 'all' ? 'selected' : ''}>${isEn ? 'any' : 'любой'}</option>
+                                    <option value="pg" ${ratesFilters.rating === 'pg' ? 'selected' : ''}>PG</option>
+                                    <option value="pg_13" ${ratesFilters.rating === 'pg_13' ? 'selected' : ''}>PG-13</option>
+                                    <option value="r_17" ${ratesFilters.rating === 'r_17' ? 'selected' : ''}>R-17</option>
+                                    <option value="r_plus" ${ratesFilters.rating === 'r_plus' ? 'selected' : ''}>R+</option>
+                                </select>
+                            </div>
+
+                            <!-- Первоисточник -->
+                            <div class="c-ms-field">
+                                <div class="c-ms-title">${isEn ? 'Source' : 'Первоисточник'}</div>
+                                <select id="rates-filter-source" class="c-filter-select" onchange="onRatesFilterChange('source', this.value)">
+                                    <option value="all" ${ratesFilters.source === 'all' ? 'selected' : ''}>${isEn ? 'any' : 'любой'}</option>
+                                    <option value="manga" ${ratesFilters.source === 'manga' ? 'selected' : ''}>${isEn ? 'Manga' : 'Манга'}</option>
+                                    <option value="light_novel" ${ratesFilters.source === 'light_novel' ? 'selected' : ''}>${isEn ? 'Light Novel' : 'Ранобэ'}</option>
+                                    <option value="original" ${ratesFilters.source === 'original' ? 'selected' : ''}>${isEn ? 'Original' : 'Оригинал'}</option>
+                                    <option value="visual_novel" ${ratesFilters.source === 'visual_novel' ? 'selected' : ''}>${isEn ? 'Visual Novel' : 'Визуальная новелла'}</option>
+                                    <option value="game" ${ratesFilters.source === 'game' ? 'selected' : ''}>${isEn ? 'Game' : 'Игра'}</option>
+                                    <option value="web_manga" ${ratesFilters.source === 'web_manga' ? 'selected' : ''}>${isEn ? 'Web Manga' : 'Веб-манга'}</option>
+                                    <option value="novel" ${ratesFilters.source === 'novel' ? 'selected' : ''}>${isEn ? 'Novel' : 'Книга / Новелла'}</option>
+                                    <option value="other" ${ratesFilters.source === 'other' ? 'selected' : ''}>${isEn ? 'Other' : 'Другое'}</option>
+                                </select>
+                            </div>
+                        ` : ''}
+
+                        <!-- Студия / Издатель -->
+                        <div class="c-ms-field">
+                            <div class="c-ms-title">${isAnime ? (isEn ? 'Studio' : 'Студия') : (isEn ? 'Publisher' : 'Издатель')}</div>
+                            <select id="rates-filter-studio" class="c-filter-select" onchange="onRatesFilterChange('studio', this.value)">
+                                <option value="all" ${ratesFilters.studio === 'all' ? 'selected' : ''}>${isEn ? 'any' : 'любой'}</option>
+                                ${studiosCloud.map(s => `<option value="${s.name}" ${ratesFilters.studio === s.name ? 'selected' : ''}>${s.name}</option>`).join('')}
+                            </select>
+                        </div>
+
+                        <!-- Лицензия -->
+                        <div class="c-ms-field">
+                            <div class="c-ms-title">${isEn ? 'License' : 'Лицензия'}</div>
+                            <select id="rates-filter-license" class="c-filter-select" onchange="onRatesFilterChange('license', this.value)">
+                                <option value="all" ${ratesFilters.license === 'all' ? 'selected' : ''}>${isEn ? 'any' : 'любой'}</option>
+                                <option value="has_license" ${ratesFilters.license === 'has_license' ? 'selected' : ''}>${isEn ? 'Any licensed' : 'Любая лицензия'}</option>
+                                <option value="Crunchyroll" ${ratesFilters.license === 'Crunchyroll' ? 'selected' : ''}>Crunchyroll</option>
+                                <option value="Кинопоиск" ${ratesFilters.license === 'Кинопоиск' ? 'selected' : ''}>${isEn ? 'Kinopoisk' : 'Кинопоиск'}</option>
+                                <option value="Wakanim" ${ratesFilters.license === 'Wakanim' ? 'selected' : ''}>Wakanim</option>
+                                <option value="Netflix" ${ratesFilters.license === 'Netflix' ? 'selected' : ''}>Netflix</option>
+                                <option value="Истари Комикс" ${ratesFilters.license === 'Истари Комикс' ? 'selected' : ''}>${isEn ? 'Istari Comics' : 'Истари Комикс'}</option>
+                                <option value="Reanimedia" ${ratesFilters.license === 'Reanimedia' ? 'selected' : ''}>Reanimedia</option>
+                                <option value="AniLibria" ${ratesFilters.license === 'AniLibria' ? 'selected' : ''}>AniLibria</option>
+                                <option value="DEEP" ${ratesFilters.license === 'DEEP' ? 'selected' : ''}>DEEP</option>
+                            </select>
+                        </div>
+
+                        <!-- Рейтинг (Оценка) -->
+                        <div class="c-ms-field">
+                            <div class="c-ms-title">${isEn ? 'Score' : 'Рейтинг'}</div>
+                            <div class="c-score-inputs">
+                                <input type="number" id="rates-score-from" class="c-score-input" placeholder="${isEn ? 'from' : 'от'}" min="0" max="10" value="${ratesFilters.scoreFrom}" oninput="onRatesFilterChange('scoreFrom', this.value)">
+                                <input type="number" id="rates-score-to" class="c-score-input" placeholder="${isEn ? 'to' : 'до'}" min="0" max="10" value="${ratesFilters.scoreTo}" oninput="onRatesFilterChange('scoreTo', this.value)">
+                            </div>
+                            <div class="c-score-presets">
+                                <button type="button" class="c-score-preset" onclick="setRatesScorePreset(8, 10)">${isEn ? 'Best' : 'Лучшее'}</button>
+                                <button type="button" class="c-score-preset" onclick="setRatesScorePreset(6, 7)">${isEn ? 'Good' : 'Хорошее'}</button>
+                                <button type="button" class="c-score-preset" onclick="setRatesScorePreset(4, 5)">${isEn ? 'Average' : 'Средние'}</button>
+                                <button type="button" class="c-score-preset" onclick="setRatesScorePreset(1, 3)">${isEn ? 'Poor' : 'Слабые'}</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <!-- Search box (collapsible) -->
-                <div id="mobile-rates-search-wrap" class="mobile-rates-search-wrap ${ratesSearchQuery ? '' : 'hidden'}">
-                    <div class="mobile-rates-search-box">
-                        <i class="ti ti-search search-icon"></i>
-                        <input type="text" id="rates-local-search" placeholder="${isAnime ? 'Поиск в аниме...' : 'Поиск в манге...'}" oninput="onRatesSearchInput(this.value)" value="${ratesSearchQuery}">
-                        ${ratesSearchQuery ? `<button class="search-clear-btn" onclick="clearRatesSearch()"><i class="ti ti-x"></i></button>` : ''}
-                    </div>
-                </div>
-
-                <!-- Horizontal Underlined Status Tabs (matching screenshot) -->
-                <div class="mobile-rates-status-tabs">
-                    <button type="button" class="mobile-rates-status-tab ${currentStatusFilter === 'watching' ? 'active' : ''}" onclick="filterListStatus('watching', this)">
-                        ${isAnime ? 'Смотрю' : 'Читаю'}
-                    </button>
-                    <button type="button" class="mobile-rates-status-tab ${currentStatusFilter === 'planned' ? 'active' : ''}" onclick="filterListStatus('planned', this)">
-                        В планах
-                    </button>
-                    <button type="button" class="mobile-rates-status-tab ${currentStatusFilter === 'completed' ? 'active' : ''}" onclick="filterListStatus('completed', this)">
-                        ${isAnime ? 'Просмотрено' : 'Прочитано'}
-                    </button>
-                    <button type="button" class="mobile-rates-status-tab ${currentStatusFilter === 'rewatching' ? 'active' : ''}" onclick="filterListStatus('rewatching', this)">
-                        ${isAnime ? 'Пересматриваю' : 'Перечитываю'}
-                    </button>
-                    <button type="button" class="mobile-rates-status-tab ${currentStatusFilter === 'on_hold' ? 'active' : ''}" onclick="filterListStatus('on_hold', this)">
-                        Отложено
-                    </button>
-                    <button type="button" class="mobile-rates-status-tab ${currentStatusFilter === 'dropped' ? 'active' : ''}" onclick="filterListStatus('dropped', this)">
-                        Брошено
-                    </button>
-                </div>
-
-                <!-- 3-Column Poster Grid -->
-                <div id="rates-grid-container" class="mobile-rates-3col-grid"></div>
             </div>
-        `;
-    } else {
-        container.innerHTML = `
-            <div class="list-controls">
-                <div class="type-switch">
-                    <button class="type-btn ${isAnime ? 'active' : ''}" onclick="switchListType('Anime')"><i class="ti ti-movie"></i> ${i18n('rates.anime')}</button>
-                    <button class="type-btn ${!isAnime ? 'active' : ''}" onclick="switchListType('Manga')"><i class="ti ti-book"></i> ${i18n('rates.manga')}</button>
-                </div>
-                <div class="rates-search-box">
-                    <i class="ti ti-search search-icon"></i>
-                    <input type="text" id="rates-local-search" placeholder="${i18n('mylist.search_placeholder')}" oninput="onRatesSearchInput(this.value)" value="${ratesSearchQuery}">
-                    ${ratesSearchQuery ? `<button class="search-clear-btn" onclick="clearRatesSearch()"><i class="ti ti-x"></i></button>` : ''}
-                </div>
-                <div class="filter-sort-bar">
-                    <div class="rates-filters">
-                        <button class="filter-btn ${currentStatusFilter === 'all' ? 'active' : ''}" onclick="filterListStatus('all', this)">${i18n('rates.all')} (<span id="cnt-all">0</span>)</button>
-                        <button id="lbl-watching" class="filter-btn ${currentStatusFilter === 'watching' ? 'active' : ''}" onclick="filterListStatus('watching', this)">${i18n('rates.watching')}</button>
-                        <button id="lbl-completed" class="filter-btn ${currentStatusFilter === 'completed' ? 'active' : ''}" onclick="filterListStatus('completed', this)">${i18n('rates.completed')}</button>
-                        <button class="filter-btn ${currentStatusFilter === 'planned' ? 'active' : ''}" onclick="filterListStatus('planned', this)">${i18n('rates.planned')}</button>
-                        <button class="filter-btn ${currentStatusFilter === 'on_hold' ? 'active' : ''}" onclick="filterListStatus('on_hold', this)">${i18n('rates.on_hold')}</button>
-                        <button class="filter-btn ${currentStatusFilter === 'dropped' ? 'active' : ''}" onclick="filterListStatus('dropped', this)">${i18n('rates.dropped')}</button>
-                    </div>
-                    <select id="rates-sort" class="sort-select" onchange="changeListSort(this.value)">
-                        <option value="updated_at" ${currentSortFilter === 'updated_at' ? 'selected' : ''}>${i18n('rates.sort.updated')}</option>
-                        <option value="score_desc" ${currentSortFilter === 'score_desc' ? 'selected' : ''}>${i18n('rates.sort.score_desc')}</option>
-                        <option value="score_asc" ${currentSortFilter === 'score_asc' ? 'selected' : ''}>${i18n('rates.sort.score_asc')}</option>
-                        <option value="name" ${currentSortFilter === 'name' ? 'selected' : ''}>${i18n('rates.sort.name')}</option>
-                        <option value="episodes" ${currentSortFilter === 'episodes' ? 'selected' : ''}>${i18n('rates.sort.progress')}</option>
-                    </select>
-                </div>
-                <div class="view-mode-bar">
-                    <button class="view-mode-btn ${currentViewMode === 'list' ? 'active' : ''}" data-view="list" onclick="setViewMode('list')" title="${i18n('rates.view.list')}">
-                        <i class="ti ti-list"></i>
-                    </button>
-                    <button class="view-mode-btn ${currentViewMode === 'cards' ? 'active' : ''}" data-view="cards" onclick="setViewMode('cards')" title="${i18n('rates.view.cards')}">
-                        <i class="ti ti-layout-grid"></i>
-                    </button>
-                    <button class="view-mode-btn ${currentViewMode === 'large' ? 'active' : ''}" data-view="large" onclick="setViewMode('large')" title="${i18n('rates.view.large')}">
-                        <i class="ti ti-photo"></i>
-                    </button>
-                </div>
-            </div>
-            <div id="rates-grid-container" class="rates-grid rates-view-${currentViewMode}"></div>
-        `;
-        updateFilterLabels();
-    }
+        </div>
+    `;
 
     applyListFilters();
 }
 
-function sortRatesList(rates, criterion) {
+function calculateScoresHistogram(rates) {
+    const counts = {};
+    for (let i = 10; i >= 1; i--) counts[i] = 0;
+    rates.forEach(r => {
+        const sc = parseInt(r.score, 10);
+        if (sc >= 1 && sc <= 10) counts[sc] = (counts[sc] || 0) + 1;
+    });
+
+    const maxCount = Math.max(1, ...Object.values(counts));
+    const result = [];
+    for (let i = 10; i >= 1; i--) {
+        result.push({
+            score: i,
+            count: counts[i],
+            percent: ((counts[i] / maxCount) * 100).toFixed(1)
+        });
+    }
+    return result;
+}
+
+function calculateTypesHistogram(rates, isAnime, isEn) {
+    const counts = {};
+    rates.forEach(r => {
+        const target = r.target_data || r.anime || r.manga || {};
+        const kindDisplay = getKindDisplayName(target.kind, isAnime, isEn);
+        counts[kindDisplay] = (counts[kindDisplay] || 0) + 1;
+    });
+
+    const maxCount = Math.max(1, ...Object.values(counts));
+    return Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .map(([name, count]) => ({
+            name: name,
+            count: count,
+            percent: ((count / maxCount) * 100).toFixed(1)
+        }));
+}
+
+function calculateRatingsHistogram(rates, isAnime) {
+    if (!isAnime) return [];
+    const counts = { 'PG': 0, 'PG-13': 0, 'R-17': 0, 'R+': 0 };
+    rates.forEach(r => {
+        const target = r.target_data || r.anime || {};
+        let rating = (target.rating || '').toLowerCase().replace('-', '_');
+        if (rating === 'pg_13' || rating === 'pg13') counts['PG-13']++;
+        else if (rating === 'r' || rating === 'r_17' || rating === 'r17') counts['R-17']++;
+        else if (rating === 'r_plus' || rating === 'rplus' || rating === 'r+') counts['R+']++;
+        else if (rating === 'pg') counts['PG']++;
+    });
+
+    const maxCount = Math.max(1, ...Object.values(counts));
+    return ['PG', 'PG-13', 'R-17', 'R+'].map(name => ({
+        name: name,
+        count: counts[name] || 0,
+        percent: (((counts[name] || 0) / maxCount) * 100).toFixed(1)
+    }));
+}
+
+function calculateGenresCloud(rates, isAnime, isEn) {
+    const counts = {};
+    rates.forEach(r => {
+        const target = r.target_data || r.anime || r.manga || {};
+        const genres = target.genres || [];
+        genres.forEach(g => {
+            const name = typeof g === 'object' ? ((isEn && g.name) ? g.name : (g.russian || g.name)) : g;
+            if (name) counts[name] = (counts[name] || 0) + 1;
+        });
+    });
+
+    const entries = Object.entries(counts);
+    if (!entries.length) return [];
+
+    const maxCount = Math.max(1, ...entries.map(e => e[1]));
+    const minCount = Math.min(...entries.map(e => e[1]));
+
+    return entries
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([name, count]) => {
+            let tier = 't0';
+            const ratio = (count - minCount) / Math.max(1, (maxCount - minCount));
+            if (ratio >= 0.75) tier = 't4';
+            else if (ratio >= 0.5) tier = 't3';
+            else if (ratio >= 0.25) tier = 't2';
+            else if (ratio >= 0.1) tier = 't1';
+            return { name, count, tier };
+        });
+}
+
+function calculateStudiosCloud(rates, isAnime, isEn) {
+    const counts = {};
+    rates.forEach(r => {
+        const target = r.target_data || r.anime || r.manga || {};
+        const list = isAnime ? (target.studios || []) : (target.publishers || target.studios || []);
+        list.forEach(s => {
+            const name = typeof s === 'object' ? (s.filtered_name || s.name) : s;
+            if (name) counts[name] = (counts[name] || 0) + 1;
+        });
+    });
+
+    const entries = Object.entries(counts);
+    if (!entries.length) return [];
+
+    const maxCount = Math.max(1, ...entries.map(e => e[1]));
+    const minCount = Math.min(...entries.map(e => e[1]));
+
+    return entries
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([name, count]) => {
+            let tier = 't0';
+            const ratio = (count - minCount) / Math.max(1, (maxCount - minCount));
+            if (ratio >= 0.75) tier = 't4';
+            else if (ratio >= 0.5) tier = 't3';
+            else if (ratio >= 0.25) tier = 't2';
+            else if (ratio >= 0.1) tier = 't1';
+            return { name, count, tier };
+        });
+}
+
+function calculateThemesList(rates, isEn) {
+    const defaultThemesRu = [
+        'Школа', 'Военное', 'Исторический', 'Игры', 'Демоны', 'Вампиры', 'Гарем', 'Этти',
+        'Самураи', 'Космос', 'Супер сила', 'Пародия', 'Безумие', 'Полиция', 'Боевые искусства',
+        'Исекай', 'Гурман', 'Меха', 'Музыка', 'Психологическое', 'Сверхъестественное',
+        'Путешествие во времени', 'Взрослые персонажи', 'Городское фэнтези', 'Жестокость',
+        'Удостоено наград', 'Детектив', 'Магия'
+    ];
+    const defaultThemesEn = [
+        'School', 'Military', 'Historical', 'Game', 'Demons', 'Vampires', 'Harem', 'Ecchi',
+        'Samurai', 'Space', 'Super Power', 'Parody', 'Dementia', 'Police', 'Martial Arts',
+        'Isekai', 'Gourmet', 'Mecha', 'Music', 'Psychological', 'Supernatural',
+        'Time Travel', 'Adult Cast', 'Urban Fantasy', 'Gore', 'Award Winning', 'Detective', 'Magic'
+    ];
+    const list = isEn ? defaultThemesEn : defaultThemesRu;
+    const found = new Set();
+    rates.forEach(r => {
+        const target = r.target_data || r.anime || r.manga || {};
+        const genres = target.genres || [];
+        genres.forEach(g => {
+            const name = typeof g === 'object' ? ((isEn && g.name) ? g.name : (g.russian || g.name)) : g;
+            if (name && list.includes(name)) found.add(name);
+        });
+    });
+    if (found.size > 0) return Array.from(found).sort((a, b) => a.localeCompare(b, isEn ? 'en' : 'ru'));
+    return list.slice(0, 15);
+}
+
+function calculateSeasonsList(rates, isEn) {
+    const seasonsMap = {
+        'winter': isEn ? 'Winter' : 'Зима',
+        'spring': isEn ? 'Spring' : 'Весна',
+        'summer': isEn ? 'Summer' : 'Лето',
+        'fall': isEn ? 'Fall' : 'Осень'
+    };
+    const yearsSet = new Set();
+    const seasonsSet = new Set();
+
+    rates.forEach(r => {
+        const target = r.target_data || r.anime || r.manga || {};
+        const aired = target.aired_on || '';
+        if (aired && aired.length >= 4) {
+            const y = parseInt(aired.substring(0, 4), 10);
+            if (!isNaN(y) && y > 1960 && y < 2030) yearsSet.add(y);
+        }
+        const s = target.season || '';
+        if (s && s.includes('_')) {
+            seasonsSet.add(s);
+        }
+    });
+
+    const result = [];
+    Array.from(seasonsSet).sort().reverse().forEach(s => {
+        const [part, yr] = s.split('_');
+        const pLabel = seasonsMap[part] || part;
+        result.push({ val: s, label: `${pLabel} ${yr}` });
+    });
+
+    Array.from(yearsSet).sort((a, b) => b - a).forEach(y => {
+        result.push({ val: String(y), label: String(y) });
+    });
+
+    if (result.length === 0) {
+        ['2026', '2025', '2024', '2023', '2022', '2021', '2020', '2010-е', '2000-е', '1990-е'].forEach(y => {
+            result.push({ val: y, label: y });
+        });
+    }
+
+    return result;
+}
+
+function sortRatesList(rates, criterion, direction = 'desc') {
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    const mult = direction === 'asc' ? 1 : -1;
+
     return [...rates].sort((a, b) => {
         const targetA = a.target_data || a.anime || a.manga || {};
         const targetB = b.target_data || b.anime || b.manga || {};
         switch (criterion) {
-            case 'score_desc': return (b.score || 0) - (a.score || 0);
-            case 'score_asc': return (a.score || 0) - (b.score || 0);
-            case 'name': return (targetA.russian || targetA.name || '').localeCompare(targetB.russian || targetB.name || '', 'ru');
-            case 'episodes': return ((b.episodes ?? b.chapters ?? 0) - (a.episodes ?? a.chapters ?? 0));
-            default: return new Date(b.updated_at || 0) - new Date(a.updated_at || 0);
+            case 'score':
+            case 'rate_score': {
+                const scA = parseInt(a.score || 0, 10);
+                const scB = parseInt(b.score || 0, 10);
+                if (scA === 0 && scB > 0) return 1;
+                if (scB === 0 && scA > 0) return -1;
+                if (scA === 0 && scB === 0) return 0;
+                return mult * (scA - scB);
+            }
+            case 'name': {
+                const nameA = (isEn && targetA.name) ? targetA.name : (targetA.russian || targetA.name || '');
+                const nameB = (isEn && targetB.name) ? targetB.name : (targetB.russian || targetB.name || '');
+                return mult * nameA.localeCompare(nameB, isEn ? 'en' : 'ru');
+            }
+            case 'episodes': {
+                const curA = parseInt(a.episodes ?? a.chapters ?? 0, 10);
+                const curB = parseInt(b.episodes ?? b.chapters ?? 0, 10);
+                const totalA = parseInt(targetA.episodes ?? targetA.chapters ?? 0, 10);
+                const totalB = parseInt(targetB.episodes ?? targetB.chapters ?? 0, 10);
+                
+                if (curA !== curB) {
+                    return mult * (curA - curB);
+                }
+                return mult * (totalA - totalB);
+            }
+            case 'kind': {
+                const kindA = targetA.kind || '';
+                const kindB = targetB.kind || '';
+                return mult * kindA.localeCompare(kindB);
+            }
+            case 'rate_id':
+            case 'id':
+            case 'default': {
+                const idA = parseInt(a.id || a.target_id || 0, 10);
+                const idB = parseInt(b.id || b.target_id || 0, 10);
+                return mult * (idA - idB);
+            }
+            case 'status': {
+                const stA = a.status || '';
+                const stB = b.status || '';
+                return mult * stA.localeCompare(stB);
+            }
+            case 'updated_at':
+            case 'rate_updated':
+            default: {
+                const dateA = new Date(a.updated_at || 0).getTime();
+                const dateB = new Date(b.updated_at || 0).getTime();
+                return mult * (dateA - dateB);
+            }
         }
     });
 }
 
-const RATES_PAGE_SIZE = 30;
-let currentFilteredRates = [];
-let ratesRenderedCount = 0;
-let ratesObserver = null;
+function filterRateItem(item) {
+    const target = item.target_data || item.anime || item.manga || {};
+    
+    // Status filter
+    const activeStatus = ratesFilters.status !== 'all' ? ratesFilters.status : currentStatusFilter;
+    if (activeStatus !== 'all' && item.status !== activeStatus) {
+        return false;
+    }
+    // Type filter
+    if (ratesFilters.kind !== 'all') {
+        const k = (target.kind || '').toLowerCase();
+        if (ratesFilters.kind === 'tv' && !k.startsWith('tv')) return false;
+        else if (ratesFilters.kind !== 'tv' && k !== ratesFilters.kind) return false;
+    }
+    // Genre filter
+    if (ratesFilters.genre !== 'all') {
+        const genres = target.genres || [];
+        const matches = genres.some(g => {
+            const name = typeof g === 'object' ? (g.name || g.russian) : g;
+            return name === ratesFilters.genre || (g.russian && g.russian === ratesFilters.genre);
+        });
+        if (!matches) return false;
+    }
+    // Theme (Topic) filter
+    if (ratesFilters.topic !== 'all') {
+        const genres = target.genres || [];
+        const matches = genres.some(g => {
+            const name = typeof g === 'object' ? (g.name || g.russian) : g;
+            return name === ratesFilters.topic || (g.russian && g.russian === ratesFilters.topic);
+        });
+        if (!matches) return false;
+    }
+    // Season and year filter
+    if (ratesFilters.season !== 'all') {
+        const selSeason = ratesFilters.season;
+        const targetSeason = target.season || '';
+        const targetAired = target.aired_on || '';
+        if (selSeason.includes('_')) {
+            if (targetSeason !== selSeason) return false;
+        } else if (selSeason.endsWith('-е')) {
+            const decade = parseInt(selSeason, 10);
+            const yr = parseInt(targetAired.substring(0, 4), 10);
+            if (isNaN(yr) || yr < decade || yr > decade + 9) return false;
+        } else {
+            if (!targetAired.startsWith(selSeason) && !targetSeason.includes(selSeason)) return false;
+        }
+    }
+    // Duration filter
+    if (ratesFilters.duration !== 'all') {
+        const dur = parseInt(target.duration || 0, 10);
+        if (ratesFilters.duration === 's' && (dur <= 0 || dur > 10)) return false;
+        if (ratesFilters.duration === 'm' && (dur <= 10 || dur > 30)) return false;
+        if (ratesFilters.duration === 'l' && dur <= 30) return false;
+    }
+    // Source filter
+    if (ratesFilters.source !== 'all') {
+        const origin = (target.origin || target.source || '').toLowerCase();
+        if (origin && !origin.includes(ratesFilters.source)) return false;
+    }
+    // Studio filter
+    if (ratesFilters.studio !== 'all') {
+        const studios = target.studios || [];
+        const matches = studios.some(s => {
+            const name = typeof s === 'object' ? (s.name || s.filtered_name) : s;
+            return name === ratesFilters.studio;
+        });
+        if (!matches) return false;
+    }
+    // License filter
+    if (ratesFilters.license !== 'all') {
+        const licensors = target.licensors || [];
+        if (ratesFilters.license === 'has_license') {
+            if (!licensors || licensors.length === 0) return false;
+        } else {
+            const matches = licensors.some(l => (typeof l === 'string' ? l : (l.name || '')).toLowerCase().includes(ratesFilters.license.toLowerCase()));
+            if (!matches) return false;
+        }
+    }
+    // Rating filter
+    if (ratesFilters.rating !== 'all') {
+        let r = (target.rating || '').toLowerCase().replace('-', '_');
+        if (r === 'r_17') r = 'r';
+        let targetRating = ratesFilters.rating.toLowerCase().replace('-', '_');
+        if (targetRating === 'r_17') targetRating = 'r';
+        if (r !== targetRating) return false;
+    }
+    // Score range
+    const sc = parseInt(item.score || 0, 10);
+    if (ratesFilters.scoreFrom !== '' && sc < parseInt(ratesFilters.scoreFrom, 10)) {
+        return false;
+    }
+    if (ratesFilters.scoreTo !== '' && sc > parseInt(ratesFilters.scoreTo, 10)) {
+        return false;
+    }
+    // Search query
+    if (ratesSearchQuery) {
+        const name = (target.name || '').toLowerCase();
+        const russian = (target.russian || '').toLowerCase();
+        if (!name.includes(ratesSearchQuery) && !russian.includes(ratesSearchQuery)) {
+            return false;
+        }
+    }
+    return true;
+}
 
 function applyListFilters() {
+    const grid = document.getElementById('rates-grid-container');
+    if (!grid) return;
+
     const byType = ratesDataCache.filter(r => r.target_type === currentTargetType);
-    const cntAll = document.getElementById('cnt-all');
-    if (cntAll) cntAll.textContent = byType.length;
+    const isAnime = currentTargetType === 'Anime';
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    const statusMap = getStatusMap();
 
-    let filtered = currentStatusFilter === 'all' ? byType : byType.filter(r => r.status === currentStatusFilter);
-    
-    if (ratesSearchQuery) {
-        filtered = filtered.filter(r => {
-            const target = r.target_data || r.anime || r.manga || {};
-            const name = (target.name || '').toLowerCase();
-            const russian = (target.russian || '').toLowerCase();
-            return name.includes(ratesSearchQuery) || russian.includes(ratesSearchQuery);
+    // Standard Shikimori status order
+    const statusKeys = ['planned', 'watching', 'rewatching', 'completed', 'on_hold', 'dropped'];
+    const activeStatus = ratesFilters.status !== 'all' ? ratesFilters.status : currentStatusFilter;
+    const activeOrder = ratesFilters.order || currentSortFilter || 'rate_updated';
+
+    let sectionsToRender = [];
+
+    if (activeStatus === 'all') {
+        statusKeys.forEach(stKey => {
+            let items = byType.filter(r => r.status === stKey && filterRateItem(r));
+            items = sortRatesList(items, activeOrder, currentSortDirection);
+            if (items.length > 0) {
+                sectionsToRender.push({
+                    key: stKey,
+                    info: statusMap[stKey],
+                    items: items
+                });
+            }
         });
-    }
-
-    filtered = sortRatesList(filtered, currentSortFilter);
-    currentFilteredRates = filtered;
-    ratesRenderedCount = 0;
-    renderListGrid(filtered);
-}
-
-function renderRateItemHtml(rate, viewMode) {
-    const targetObj = rate.target_data || rate.anime || rate.manga || {};
-    const isAnime = rate.target_type === 'Anime';
-    const targetName = targetObj.russian || targetObj.name || `#${rate.target_id}`;
-    const clickFn = isAnime ? `openAnimeModal(${rate.target_id})` : `openMangaModal(${rate.target_id})`;
-
-    if (isMobileRatesView()) {
-        const imgUrl = targetObj.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(targetObj.image) : targetObj.image) : '';
-        const total = isAnime ? targetObj.episodes : (targetObj.chapters || targetObj.volumes);
-        const aired = isAnime ? targetObj.episodes_aired : null;
-        const cur = isAnime ? (rate.episodes ?? 0) : (rate.chapters ?? 0);
-        const unit = isAnime ? 'эп.' : 'гл.';
-        const totalStr = (total && total > 0) ? total : '?';
-
-        let progressText = '';
-        if (aired && aired > 0 && cur > 0 && (total == 0 || aired < total || totalStr === '?')) {
-            progressText = `${cur} / ${aired} из ${totalStr} ${unit}`;
-        } else {
-            progressText = `${cur} из ${totalStr} ${unit}`;
-        }
-
-        return `
-            <div class="mobile-rate-card" onclick="${clickFn}">
-                <div class="mobile-rate-poster-wrap">
-                    ${imgUrl ? `<img src="${imgUrl}" alt="${targetName}" class="mobile-rate-poster" loading="lazy" decoding="async">` : `<div class="mobile-rate-poster placeholder"><i class="ti ti-${isAnime ? 'movie' : 'book'}"></i></div>`}
-                </div>
-                <div class="mobile-rate-title" title="${targetName}">${targetName}</div>
-                <div class="mobile-rate-progress">${progressText}</div>
-            </div>
-        `;
-    }
-
-    const targetUrl = targetObj.url
-        ? (targetObj.url.startsWith('http') ? targetObj.url : 'https://shikimori.io' + targetObj.url)
-        : `https://shikimori.io/${isAnime ? 'animes' : 'mangas'}/${rate.target_id}`;
-    const statusInfo = getStatusMap()[rate.status] || { anime: rate.status, manga: rate.status, class: 'badge-planned' };
-    const totalCount = isAnime ? (targetObj.episodes || 0) : (targetObj.chapters || 0);
-    let progressText = isAnime ? `${rate.episodes ?? 0} / ${targetObj.episodes || '?'} ${i18n('rates.progress.anime')}` : `${rate.chapters ?? 0} / ${targetObj.chapters || '?'} ${i18n('rates.progress.manga')}`;
-    if (rate.rewatches > 0) progressText += ` (${i18n('rates.rewatches')} ${rate.rewatches})`;
-    const onclickAttr = isAnime ? `onclick="event.preventDefault(); openAnimeModal(${rate.target_id});"` : `onclick="event.preventDefault(); openMangaModal(${rate.target_id});"`;
-    const showQuickInc = rate.status === 'watching' || rate.status === 'rewatching';
-
-    if (viewMode === 'list') {
-        return `
-            <div class="rate-list-row">
-                <div class="rate-list-info">
-                    <a href="${targetUrl}" ${onclickAttr} class="rate-title" title="${targetName}">${targetName}</a>
-                    <span class="badge ${statusInfo.class}">${isAnime ? statusInfo.anime : statusInfo.manga}</span>
-                </div>
-                <div class="rate-list-meta">
-                    <span class="label">${i18n('rates.progress')}:</span> <b>${progressText}</b>
-                    ${showQuickInc ? `
-                        <button type="button" class="btn-quick-inc" onclick="quickIncrementRate('${rate.target_id}', '${rate.target_type}', ${totalCount}, event)" title="${i18n('mylist.quick_inc')}">
-                            <i class="ti ti-plus"></i> 1
-                        </button>
-                    ` : ''}
-                    <span class="label">${i18n('rates.score')}:</span> <span class="score-pill">${rate.score ? `<i class="ti ti-star-filled"></i> ${rate.score}/10` : '—'}</span>
-                </div>
-            </div>`;
     } else {
-        const imgUrl = targetObj.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(targetObj.image) : targetObj.image) : '';
-        const posterClass = viewMode === 'large' ? 'rate-poster-large' : 'history-thumb';
-
-        return `
-            <div class="rate-card">
-                ${imgUrl ? `<a href="${targetUrl}" ${onclickAttr}><img src="${imgUrl}" alt="${targetName}" class="${posterClass}" loading="lazy" decoding="async"></a>` : `<div class="history-thumb-placeholder"></div>`}
-                <div class="rate-content">
-                    <div class="rate-header">
-                        <a href="${targetUrl}" ${onclickAttr} class="rate-title" title="${targetName}">${targetName}</a>
-                        <span class="badge ${statusInfo.class}">${isAnime ? statusInfo.anime : statusInfo.manga}</span>
-                    </div>
-                    <div class="info-row" style="padding: 2px 0;">
-                        <span class="label">${i18n('rates.progress')}:</span>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span><b>${progressText}</b></span>
-                            ${showQuickInc ? `
-                                <button type="button" class="btn-quick-inc" onclick="quickIncrementRate('${rate.target_id}', '${rate.target_type}', ${totalCount}, event)" title="${i18n('mylist.quick_inc')}">
-                                    <i class="ti ti-plus"></i> 1
-                                </button>
-                            ` : ''}
-                        </div>
-                    </div>
-                    <div class="info-row" style="padding: 2px 0;"><span class="label">${i18n('rates.score')}:</span><span class="score-pill">${rate.score ? `<i class="ti ti-star-filled"></i> ${rate.score}/10` : '—'}</span></div>
-                    ${rate.text ? `<div style="font-size: 12px; color: var(--text-muted); font-style: italic; margin-top: 2px;">"${rate.text}"</div>` : ''}
-                </div>
-            </div>`;
-    }
-}
-
-function renderListGrid(items) {
-    const grid = document.getElementById('rates-grid-container');
-    if (!grid) return;
-    if (!items.length) {
-        grid.innerHTML = '<p style="color: var(--text-muted); grid-column: 1 / -1;">' + i18n('rates.no_results') + '</p>';
-        const sentinel = document.getElementById('rates-scroll-sentinel');
-        if (sentinel) sentinel.remove();
-        return;
-    }
-
-    const firstChunk = items.slice(0, RATES_PAGE_SIZE);
-    ratesRenderedCount = firstChunk.length;
-
-    grid.innerHTML = firstChunk.map(r => renderRateItemHtml(r, currentViewMode)).join('');
-    setupRatesInfiniteScroll();
-}
-
-function loadMoreRatesChunk() {
-    const grid = document.getElementById('rates-grid-container');
-    if (!grid || ratesRenderedCount >= currentFilteredRates.length) return;
-
-    const nextChunk = currentFilteredRates.slice(ratesRenderedCount, ratesRenderedCount + RATES_PAGE_SIZE);
-    ratesRenderedCount += nextChunk.length;
-
-    const tempWrapper = document.createElement('div');
-    tempWrapper.innerHTML = nextChunk.map(r => renderRateItemHtml(r, currentViewMode)).join('');
-    while (tempWrapper.firstChild) {
-        grid.appendChild(tempWrapper.firstChild);
-    }
-    setupRatesInfiniteScroll();
-}
-
-function setupRatesInfiniteScroll() {
-    let sentinel = document.getElementById('rates-scroll-sentinel');
-    if (ratesRenderedCount >= currentFilteredRates.length) {
-        if (sentinel) sentinel.remove();
-        return;
-    }
-
-    const grid = document.getElementById('rates-grid-container');
-    if (!grid) return;
-
-    if (!sentinel) {
-        sentinel = document.createElement('div');
-        sentinel.id = 'rates-scroll-sentinel';
-        sentinel.style.height = '40px';
-        sentinel.style.gridColumn = '1 / -1';
-        sentinel.style.display = 'flex';
-        sentinel.style.alignItems = 'center';
-        sentinel.style.justifyContent = 'center';
-        sentinel.innerHTML = '<span style="color: var(--text-muted); font-size: 12px;"><i class="ti ti-loader animate-spin"></i> Загрузка...</span>';
-        grid.after(sentinel);
-    }
-
-    if (ratesObserver) ratesObserver.disconnect();
-    ratesObserver = new IntersectionObserver((entries) => {
-        if (entries[0] && entries[0].isIntersecting) {
-            loadMoreRatesChunk();
+        let items = byType.filter(r => r.status === activeStatus && filterRateItem(r));
+        items = sortRatesList(items, activeOrder, currentSortDirection);
+        if (statusMap[activeStatus]) {
+            sectionsToRender.push({
+                key: activeStatus,
+                info: statusMap[activeStatus],
+                items: items
+            });
         }
-    }, { rootMargin: '400px' });
+    }
 
-    ratesObserver.observe(sentinel);
+    if (sectionsToRender.length === 0) {
+        grid.innerHTML = '<div style="padding: 40px 0; color: #777788; font-size: 13px;">' + (isEn ? 'No records found' : 'Записей не найдено') + '</div>';
+        return;
+    }
+
+    if (currentViewMode === 'table') {
+        grid.innerHTML = sectionsToRender.map(sec => renderShikimoriTableSection(sec, isAnime, isEn)).join('');
+    } else {
+        grid.innerHTML = sectionsToRender.map(sec => renderDesktopCardsSection(sec, isAnime, isEn)).join('');
+    }
 }
 
+// 1. SHIKIMORI TABLE SECTION (b-table list-lines)
+function getSortIndicator(col) {
+    if (currentSortFilter === col) {
+        return currentSortDirection === 'asc' ? ' <span class="shiki-sort-arrow asc">▲</span>' : ' <span class="shiki-sort-arrow desc">▼</span>';
+    }
+    return '';
+}
+
+function renderShikimoriTableSection(sec, isAnime, isEn) {
+    const isCollapsed = !!collapsedSections[sec.key];
+    const collapseText = isCollapsed ? (isEn ? `expand (${sec.items.length})` : `развернуть (${sec.items.length})`) : (isEn ? `collapse (${sec.items.length})` : `свернуть (${sec.items.length})`);
+
+    return `
+        <div class="shiki-section-block" data-status="${sec.key}">
+            <div class="shiki-section-head">
+                <span class="shiki-sec-title">${sec.info.name}</span>
+                <button type="button" class="shiki-sec-collapse" onclick="toggleStatusSection('${sec.key}')">
+                    ${collapseText}
+                </button>
+            </div>
+
+            ${!isCollapsed ? `
+                <table class="shiki-table-lines">
+                    <thead>
+                        <tr>
+                            <th class="th-index ${currentSortFilter === 'default' ? 'active-sort' : ''}" onclick="changeListSort('default')" title="${isEn ? 'Sort by order' : 'Сортировка по порядку'}">#${getSortIndicator('default')}</th>
+                            <th class="th-name ${currentSortFilter === 'name' ? 'active-sort' : ''}" onclick="changeListSort('name')" title="${isEn ? 'Sort by title' : 'Сортировка по названию'}">${isEn ? 'Title' : 'Название'}${getSortIndicator('name')}</th>
+                            <th class="th-score ${currentSortFilter === 'rate_score' ? 'active-sort' : ''}" onclick="changeListSort('rate_score')" title="${isEn ? 'Sort by score' : 'Сортировка по оценке'}">${isEn ? 'Score' : 'Оценка'}${getSortIndicator('rate_score')}</th>
+                            <th class="th-episodes ${currentSortFilter === 'episodes' ? 'active-sort' : ''}" onclick="changeListSort('episodes')" title="${isEn ? 'Sort by episodes' : 'Сортировка по эпизодам'}">${isAnime ? (isEn ? 'Episodes' : 'Эпизоды') : (isEn ? 'Chapters' : 'Главы')}${getSortIndicator('episodes')}</th>
+                            <th class="th-type ${currentSortFilter === 'kind' ? 'active-sort' : ''}" onclick="changeListSort('kind')" title="${isEn ? 'Sort by type' : 'Сортировка по типу'}">${isEn ? 'Type' : 'Тип'}${getSortIndicator('kind')}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sec.items.map((rate, idx) => renderShikimoriTableRow(rate, idx + 1, isAnime, isEn)).join('')}
+                    </tbody>
+                </table>
+            ` : ''}
+        </div>
+    `;
+}
+
+function renderShikimoriTableRow(rate, index, isAnime, isEn) {
+    const target = rate.target_data || rate.anime || rate.manga || {};
+    const title = (isEn && target.name) ? target.name : (target.russian || target.name || `#${rate.target_id}`);
+    const clickAction = isAnime ? `openAnimeModal(${rate.target_id})` : `openMangaModal(${rate.target_id})`;
+    const totalCount = isAnime ? (target.episodes || 0) : (target.chapters || 0);
+    const curCount = isAnime ? (rate.episodes ?? 0) : (rate.chapters ?? 0);
+    const scoreVal = rate.score ? rate.score : '–';
+    const kindStr = getKindDisplayName(target.kind, isAnime, isEn);
+
+    // Status tag (e.g. Анонс / Онгоинг)
+    let statusTagHTML = '';
+    if (target.status === 'anons') {
+        statusTagHTML = `<span class="tag-anons">${isEn ? 'Announced' : 'Анонс'}</span>`;
+    } else if (target.status === 'ongoing') {
+        statusTagHTML = `<span class="tag-ongoing">${isEn ? 'Ongoing' : 'Онгоинг'}</span>`;
+    }
+
+    return `
+        <tr class="shiki-row">
+            <td class="td-index">${index}</td>
+            <td class="td-name">
+                <a href="javascript:void(0)" onclick="${clickAction}" class="title-link" title="${title}">${title}</a>
+                ${statusTagHTML}
+            </td>
+            <td class="td-score">${scoreVal}</td>
+            <td class="td-episodes">${curCount} / ${totalCount > 0 ? totalCount : '?'}</td>
+            <td class="td-type">${kindStr}</td>
+        </tr>
+    `;
+}
+
+// 2. CARDS / GRID VIEW SECTION
+function renderDesktopCardsSection(sec, isAnime, isEn) {
+    const isCollapsed = !!collapsedSections[sec.key];
+    const collapseText = isCollapsed ? (isEn ? `expand (${sec.items.length})` : `развернуть (${sec.items.length})`) : (isEn ? `collapse (${sec.items.length})` : `свернуть (${sec.items.length})`);
+
+    return `
+        <div class="shiki-section-block" data-status="${sec.key}">
+            <div class="shiki-section-head">
+                <span class="shiki-sec-title">${sec.info.name}</span>
+                <button type="button" class="shiki-sec-collapse" onclick="toggleStatusSection('${sec.key}')">
+                    ${collapseText}
+                </button>
+            </div>
+
+            ${!isCollapsed ? `
+                <div class="shiki-grid-items">
+                    ${sec.items.map(r => renderRateCardItem(r, isAnime, isEn)).join('')}
+                </div>
+            ` : ''}
+        </div>
+    `;
+}
+
+function renderRateCardItem(rate, isAnime, isEn) {
+    const targetObj = rate.target_data || rate.anime || rate.manga || {};
+    const title = (isEn && targetObj.name) ? targetObj.name : (targetObj.russian || targetObj.name || `#${rate.target_id}`);
+    const clickFn = isAnime ? `openAnimeModal(${rate.target_id})` : `openMangaModal(${rate.target_id})`;
+    const imgUrl = targetObj.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(targetObj.image) : targetObj.image) : '';
+    const totalCount = isAnime ? (targetObj.episodes || 0) : (targetObj.chapters || 0);
+    const curCount = isAnime ? (rate.episodes ?? 0) : (rate.chapters ?? 0);
+    const unit = isEn ? (isAnime ? 'eps' : 'ch.') : (isAnime ? 'эп.' : 'гл.');
+
+    return `
+        <div class="shiki-grid-card" onclick="${clickFn}">
+            <div class="shiki-grid-poster-wrap">
+                ${imgUrl ? `<img src="${imgUrl}" alt="${title}" class="shiki-grid-poster" loading="lazy" decoding="async">` : `<div class="shiki-grid-poster placeholder"><i class="ti ti-${isAnime ? 'movie' : 'book'}"></i></div>`}
+                ${rate.score ? `<span class="shiki-grid-score">${rate.score}</span>` : ''}
+            </div>
+            <div class="shiki-grid-info">
+                <div class="shiki-grid-title" title="${title}">${title}</div>
+                <div class="shiki-grid-ep">${curCount} / ${totalCount > 0 ? totalCount : '?'} ${unit}</div>
+            </div>
+        </div>
+    `;
+}
 ;
 /* --- js/explore.js --- */
 let searchDebounceTimer = null;
@@ -6585,13 +6630,14 @@ function formatTimeAgo(dateStr) {
         const diffMins = Math.floor(diffMs / 60000);
         const diffHours = Math.floor(diffMs / 3600000);
         const diffDays = Math.floor(diffMs / 86400000);
+        const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
 
-        if (diffMins < 1) return 'только что';
-        if (diffMins < 60) return `${diffMins} мин. назад`;
-        if (diffHours < 24) return `${diffHours} ч. назад`;
-        if (diffDays === 1) return 'день назад';
-        if (diffDays < 7) return `${diffDays} дн. назад`;
-        return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+        if (diffMins < 1) return typeof i18n === 'function' ? i18n('time.just_now') : 'только что';
+        if (diffMins < 60) return `${diffMins} ${typeof i18n === 'function' ? i18n('time.min_ago') : 'мин. назад'}`;
+        if (diffHours < 24) return `${diffHours} ${typeof i18n === 'function' ? i18n('time.hours_ago') : 'ч. назад'}`;
+        if (diffDays === 1) return typeof i18n === 'function' ? i18n('time.day_ago') : 'день назад';
+        if (diffDays < 7) return `${diffDays} ${typeof i18n === 'function' ? i18n('time.days_ago') : 'дн. назад'}`;
+        return date.toLocaleDateString(isEn ? 'en-US' : 'ru-RU', { day: 'numeric', month: 'short' });
     } catch(e) {
         return dateStr;
     }
@@ -6616,41 +6662,44 @@ window.quickFilterCatalog = function(filterType, value) {
 let currentPortalCategory = 'anime';
 let currentMyListSubTab = 'anime';
 
-const portalCategoryTags = {
-    anime: [
-        { label: 'ОСЕНЬ 2026', action: "quickFilterCatalog('season', 'fall_2026')" },
-        { label: 'ЛЕТО 2026', action: "quickFilterCatalog('season', 'summer_2026')" },
-        { label: 'АНИМЕ 2026', action: "quickFilterCatalog('season', '2026')" },
-        { label: 'АНИМЕ 2025', action: "quickFilterCatalog('season', '2025')" },
-        { label: 'ОНГОИНГИ', action: "quickFilterCatalog('status', 'ongoing')" },
-        { label: 'ИЗБРАННОЕ', action: "openTab('favourites')" },
-        { label: 'РЕКОМЕНДАЦИИ', action: "openTab('recommendations')" },
-        { label: 'МАНГА', action: "openTab('catalog-manga')" },
-        { label: 'МАНХВА', action: "quickFilterCatalog('kind', 'manhwa')" },
-        { label: 'МАНЬХУА', action: "quickFilterCatalog('kind', 'manhua')" },
-        { label: 'ВАНШОТ', action: "quickFilterCatalog('kind', 'one_shot')" },
-        { label: 'ДОДЗИНСИ', action: "quickFilterCatalog('kind', 'doujin')" }
-    ],
-    manga: [
-        { label: 'МАНГА', action: "openTab('catalog-manga')" },
-        { label: 'МАНХВА', action: "quickFilterCatalog('kind', 'manhwa')" },
-        { label: 'МАНЬХУА', action: "quickFilterCatalog('kind', 'manhua')" },
-        { label: 'ВАНШОТ', action: "quickFilterCatalog('kind', 'one_shot')" },
-        { label: 'ДОДЗИНСИ', action: "quickFilterCatalog('kind', 'doujin')" },
-        { label: 'ОНГОИНГИ', action: "quickFilterCatalog('status', 'ongoing')" },
-        { label: 'ИЗБРАННОЕ', action: "openTab('favourites')" },
-        { label: 'ТОП МАНГИ', action: "openTab('top100')" },
-        { label: 'РЕКОМЕНДАЦИИ', action: "openTab('recommendations')" }
-    ],
-    ranobe: [
-        { label: 'РАНОБЭ', action: "openTab('catalog-ranobe')" },
-        { label: 'НОВЕЛЛЫ', action: "openTab('catalog-ranobe')" },
-        { label: 'ОНГОИНГИ', action: "quickFilterCatalog('status', 'ongoing')" },
-        { label: 'ИЗБРАННОЕ', action: "openTab('favourites')" },
-        { label: 'ТОП РАНОБЭ', action: "openTab('top100')" },
-        { label: 'РЕКОМЕНДАЦИИ', action: "openTab('recommendations')" }
-    ]
-};
+function getPortalCategoryTags() {
+    const fn = (typeof i18n === 'function') ? i18n : (k => k);
+    return {
+        anime: [
+            { label: fn('explore.pill.fall_2026'), action: "quickFilterCatalog('season', 'fall_2026')" },
+            { label: fn('explore.pill.summer_2026'), action: "quickFilterCatalog('season', 'summer_2026')" },
+            { label: fn('explore.pill.anime_2026'), action: "quickFilterCatalog('season', '2026')" },
+            { label: fn('explore.pill.anime_2025'), action: "quickFilterCatalog('season', '2025')" },
+            { label: fn('explore.pill.ongoing'), action: "quickFilterCatalog('status', 'ongoing')" },
+            { label: fn('explore.pill.favourites'), action: "openTab('favourites')" },
+            { label: fn('explore.pill.recommendations'), action: "openTab('recommendations')" },
+            { label: fn('explore.pill.manga'), action: "openTab('catalog-manga')" },
+            { label: fn('explore.pill.manhwa'), action: "quickFilterCatalog('kind', 'manhwa')" },
+            { label: fn('explore.pill.manhua'), action: "quickFilterCatalog('kind', 'manhua')" },
+            { label: fn('explore.pill.one_shot'), action: "quickFilterCatalog('kind', 'one_shot')" },
+            { label: fn('explore.pill.doujin'), action: "quickFilterCatalog('kind', 'doujin')" }
+        ],
+        manga: [
+            { label: fn('explore.pill.manga'), action: "openTab('catalog-manga')" },
+            { label: fn('explore.pill.manhwa'), action: "quickFilterCatalog('kind', 'manhwa')" },
+            { label: fn('explore.pill.manhua'), action: "quickFilterCatalog('kind', 'manhua')" },
+            { label: fn('explore.pill.one_shot'), action: "quickFilterCatalog('kind', 'one_shot')" },
+            { label: fn('explore.pill.doujin'), action: "quickFilterCatalog('kind', 'doujin')" },
+            { label: fn('explore.pill.ongoing'), action: "quickFilterCatalog('status', 'ongoing')" },
+            { label: fn('explore.pill.favourites'), action: "openTab('favourites')" },
+            { label: fn('explore.pill.top_manga'), action: "openTab('top100')" },
+            { label: fn('explore.pill.recommendations'), action: "openTab('recommendations')" }
+        ],
+        ranobe: [
+            { label: fn('explore.pill.ranobe'), action: "openTab('catalog-ranobe')" },
+            { label: fn('explore.pill.novels'), action: "openTab('catalog-ranobe')" },
+            { label: fn('explore.pill.ongoing'), action: "quickFilterCatalog('status', 'ongoing')" },
+            { label: fn('explore.pill.favourites'), action: "openTab('favourites')" },
+            { label: fn('explore.pill.top_ranobe'), action: "openTab('top100')" },
+            { label: fn('explore.pill.recommendations'), action: "openTab('recommendations')" }
+        ]
+    };
+}
 
 window.switchPortalCategory = function(cat) {
     currentPortalCategory = cat;
@@ -6659,7 +6708,8 @@ window.switchPortalCategory = function(cat) {
     });
     const container = document.getElementById('shiki-filter-tags-grid');
     if (!container) return;
-    const tags = portalCategoryTags[cat] || portalCategoryTags['anime'];
+    const catTags = getPortalCategoryTags();
+    const tags = catTags[cat] || catTags['anime'];
     container.innerHTML = tags.map(t => `<button type="button" class="shiki-filter-pill" onclick="${t.action}">${t.label}</button>`).join('');
 };
 
@@ -6675,17 +6725,68 @@ window.openCatalogCategory = function(cat) {
     switchPortalCategory(cat);
 };
 
-function buildNewsItemCard(item) {
+function formatNewsTag(tag) {
+    if (!tag) return typeof i18n === 'function' ? i18n('news.tag.news') : 'Новость';
+    const tLower = tag.toLowerCase();
+    if (tLower === 'новость' || tLower === 'news') return typeof i18n === 'function' ? i18n('news.tag.news') : tag;
+    if (tLower === 'трейлер' || tLower === 'trailer') return typeof i18n === 'function' ? i18n('news.tag.trailer') : tag;
+    if (tLower === 'постер' || tLower === 'poster') return typeof i18n === 'function' ? i18n('news.tag.poster') : tag;
+    if (tLower === 'премьера' || tLower === 'premiere') return typeof i18n === 'function' ? i18n('news.tag.premiere') : tag;
+    if (tLower === 'аниме' || tLower === 'anime') return typeof i18n === 'function' ? i18n('news.tag.anime') : tag;
+    return tag;
+}
+
+function formatContentTag(tag) {
+    if (!tag) return typeof i18n === 'function' ? i18n('explore.collection') : 'Коллекция';
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    if (!isEn) return tag;
+    const tLower = tag.toLowerCase();
+    if (tLower.includes('коллекц') || tLower.includes('collection')) return 'Collection';
+    if (tLower.includes('реценз') || tLower.includes('review') || tLower.includes('critique')) return 'Review';
+    if (tLower.includes('стать') || tLower.includes('article')) return 'Article';
+    return tag;
+}
+
+function formatTopicTag(tag) {
+    if (!tag) return typeof i18n === 'function' ? i18n('news.tag.news') : 'Новость';
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    if (!isEn) return tag;
+    const tLower = tag.toLowerCase();
+    if (tLower.includes('обсуждение аниме') || tLower.includes('anime discussion')) return 'Anime Discussion';
+    if (tLower.includes('обсуждение манги') || tLower.includes('manga discussion')) return 'Manga Discussion';
+    if (tLower.includes('обсуждение') || tLower.includes('discussion')) return 'Discussion';
+    if (tLower.includes('новость') || tLower.includes('новости') || tLower.includes('news')) return 'News';
+    if (tLower.includes('коллекц') || tLower.includes('collection')) return 'Collection';
+    if (tLower.includes('реценз') || tLower.includes('review') || tLower.includes('critique')) return 'Review';
+    if (tLower.includes('стать') || tLower.includes('article')) return 'Article';
+    if (tLower.includes('офтопик') || tLower.includes('offtopic')) return 'Off-topic';
+    return tag;
+}
+
+function formatGenresText(genresStr) {
+    if (!genresStr) return '';
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    if (!isEn) return genresStr;
+    const list = genresStr.split(',').map(g => g.trim());
+    return list.map(g => (typeof t === 'function' ? t(g) : g)).join(', ');
+}
+
+function buildNewsItemCard(item, idx) {
+    const isAboveFold = (typeof idx === 'number' && idx < 2);
+    const imgAttrs = isAboveFold 
+        ? 'fetchpriority="high" decoding="async"' 
+        : 'loading="lazy" decoding="async"';
+
     return `
         <a href="${item.url}" target="_blank" class="shiki-featured-news-card">
             <div class="shiki-news-thumb-wrap">
-                ${item.image ? `<img src="${item.image}" alt="${(item.title || '').replace(/"/g, '&quot;')}" class="shiki-news-thumb" loading="lazy">` : `<div class="shiki-news-thumb placeholder"><i class="ti ti-news"></i></div>`}
+                ${item.image ? `<img src="${item.image}" alt="${(item.title || '').replace(/"/g, '&quot;')}" class="shiki-news-thumb" ${imgAttrs}>` : `<div class="shiki-news-thumb placeholder"><i class="ti ti-news"></i></div>`}
                 ${item.is_youtube ? `<span class="shiki-youtube-badge"><i class="ti ti-brand-youtube-filled"></i> youtube</span>` : ''}
             </div>
             <div class="shiki-news-card-body">
                 <div class="shiki-news-card-title">${item.title}</div>
                 <div class="shiki-news-card-tags">
-                    ${(item.tags && item.tags.length) ? item.tags.map(t => `<span class="shiki-news-tag">${t}</span>`).join('') : '<span class="shiki-news-tag">Новость</span>'}
+                    ${(item.tags && item.tags.length) ? item.tags.map(t => `<span class="shiki-news-tag">${formatNewsTag(t)}</span>`).join('') : `<span class="shiki-news-tag">${formatNewsTag('Новость')}</span>`}
                 </div>
                 <div class="shiki-news-card-meta">
                     <span>${formatTimeAgo(item.date)}</span>
@@ -6738,22 +6839,30 @@ function renderExplore(data) {
         return 'shiki-tag-collection';
     };
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    const catTags = getPortalCategoryTags();
+
     let html = `
         <div class="shiki-portal-container">
             <!-- 1. СЕЙЧАС НА ЭКРАНАХ -->
             ${onScreens.length ? `
                 <div class="shiki-portal-section" data-section="explore-on-screens">
-                    <div class="shiki-section-heading-purple">СЕЙЧАС НА ЭКРАНАХ</div>
+                    <div class="shiki-section-heading-purple">${i18n('explore.on_screens')}</div>
                     <div class="shiki-on-screens-grid">
-                        ${onScreens.slice(0, 8).map(anime => `
+                        ${onScreens.slice(0, 8).map((anime, idx) => {
+                            const title = (isEn && anime.name) ? anime.name : (anime.russian || anime.name);
+                            const imgAttrs = idx < 4 
+                                ? 'fetchpriority="high" decoding="async"' 
+                                : 'loading="lazy" decoding="async"';
+                            return `
                             <div class="shiki-on-screen-card" onclick="openAnimeModal(${anime.id})">
                                 <div class="shiki-poster-wrap">
-                                    <img src="${anime.image}" alt="${(anime.russian || anime.name || '').replace(/"/g, '&quot;')}" class="shiki-on-screen-poster" loading="lazy">
+                                    <img src="${anime.image}" alt="${(title || '').replace(/"/g, '&quot;')}" class="shiki-on-screen-poster" ${imgAttrs}>
                                 </div>
-                                <div class="shiki-on-screen-title" title="${anime.russian || anime.name}">${anime.russian || anime.name}</div>
+                                <div class="shiki-on-screen-title" title="${title}">${title}</div>
                                 <div class="shiki-on-screen-studio" title="${anime.studios || ''}">${anime.studios || ''}</div>
                             </div>
-                        `).join('')}
+                        `;}).join('')}
                     </div>
                 </div>
             ` : ''}
@@ -6763,11 +6872,11 @@ function renderExplore(data) {
                 <!-- Левая колонка: Мой список -->
                 <div class="shiki-my-list-block">
                     <div class="shiki-my-list-header">
-                        <span class="shiki-my-list-title">МОЙ СПИСОК</span>
+                        <span class="shiki-my-list-title">${i18n('explore.my_list')}</span>
                         <div class="shiki-my-list-links">
-                            <a href="javascript:void(0)" data-type="anime" class="active" onclick="switchMyListSubTab('anime')">аниме</a> /
-                            <a href="javascript:void(0)" data-type="manga" onclick="switchMyListSubTab('manga')">манга</a> /
-                            <a href="javascript:void(0)" data-type="history" onclick="switchMyListSubTab('history')">история</a>
+                            <a href="javascript:void(0)" data-type="anime" class="active" onclick="switchMyListSubTab('anime')">${i18n('explore.subtab.anime')}</a> /
+                            <a href="javascript:void(0)" data-type="manga" onclick="switchMyListSubTab('manga')">${i18n('explore.subtab.manga')}</a> /
+                            <a href="javascript:void(0)" data-type="history" onclick="switchMyListSubTab('history')">${i18n('explore.subtab.history')}</a>
                         </div>
                     </div>
                     <div id="shiki-my-recent-card-container">
@@ -6778,16 +6887,16 @@ function renderExplore(data) {
                 <!-- Правая колонка: Категории и быстрые фильтры -->
                 <div class="shiki-category-tags-block">
                     <div class="shiki-category-tabs">
-                        <span class="shiki-cat-tab active" data-cat="anime" onclick="switchPortalCategory('anime')">АНИМЕ</span>
-                        <span class="shiki-cat-tab" data-cat="manga" onclick="switchPortalCategory('manga')">МАНГА</span>
-                        <span class="shiki-cat-tab" data-cat="ranobe" onclick="switchPortalCategory('ranobe')">РАНОБЭ</span>
+                        <span class="shiki-cat-tab active" data-cat="anime" onclick="switchPortalCategory('anime')">${i18n('explore.cat.anime')}</span>
+                        <span class="shiki-cat-tab" data-cat="manga" onclick="switchPortalCategory('manga')">${i18n('explore.cat.manga')}</span>
+                        <span class="shiki-cat-tab" data-cat="ranobe" onclick="switchPortalCategory('ranobe')">${i18n('explore.cat.ranobe')}</span>
                     </div>
                     <div class="shiki-filter-tags-grid" id="shiki-filter-tags-grid">
-                        ${portalCategoryTags.anime.map(t => `<button type="button" class="shiki-filter-pill" onclick="${t.action}">${t.label}</button>`).join('')}
+                        ${catTags.anime.map(t => `<button type="button" class="shiki-filter-pill" onclick="${t.action}">${t.label}</button>`).join('')}
                     </div>
                     <div class="shiki-forum-row">
                         <button type="button" class="shiki-forum-btn" onclick="openTab('forum')">
-                            <span>Форум</span> <i class="ti ti-arrow-right"></i>
+                            <span>${i18n('explore.forum_btn')}</span> <i class="ti ti-arrow-right"></i>
                         </button>
                     </div>
                 </div>
@@ -6797,7 +6906,7 @@ function renderExplore(data) {
             ${latest.length ? `
                 <div class="shiki-portal-section" data-section="explore-news">
                     <div class="shiki-section-header-row">
-                        <h2 class="shiki-section-title-white">Новости</h2>
+                        <h2 class="shiki-section-title-white">${i18n('explore.news')}</h2>
                     </div>
                     <div class="shiki-featured-news-grid">
                         ${latest.map(buildNewsItemCard).join('')}
@@ -6810,11 +6919,11 @@ function renderExplore(data) {
                 <!-- Левая колонка: Контент -->
                 <div class="shiki-content-col" data-section="explore-content">
                     <div class="shiki-content-header-row">
-                        <h2 class="shiki-section-title-white">Контент</h2>
+                        <h2 class="shiki-section-title-white">${i18n('explore.content')}</h2>
                         <div class="shiki-content-filter-links">
-                            <a href="javascript:void(0)" onclick="openTab('collections')">коллекции</a> /
-                            <a href="javascript:void(0)" onclick="openTab('critiques')">рецензии</a> /
-                            <a href="javascript:void(0)" onclick="openTab('articles')">статьи</a>
+                            <a href="javascript:void(0)" onclick="openTab('collections')">${i18n('explore.collections')}</a> /
+                            <a href="javascript:void(0)" onclick="openTab('critiques')">${i18n('explore.reviews')}</a> /
+                            <a href="javascript:void(0)" onclick="openTab('articles')">${i18n('explore.articles')}</a>
                         </div>
                     </div>
                     <div class="shiki-content-cards-grid">
@@ -6822,7 +6931,7 @@ function renderExplore(data) {
                             <a href="${item.url}" target="_blank" class="shiki-content-item-card">
                                 <div class="shiki-content-item-title">${item.title}</div>
                                 <div class="shiki-content-item-footer">
-                                    <span class="shiki-content-tag ${getTagClass(item.tag)}">${item.tag || 'Коллекция'}</span>
+                                    <span class="shiki-content-tag ${getTagClass(item.tag)}">${formatContentTag(item.tag)}</span>
                                     <span class="shiki-content-comments"><i class="ti ti-message-circle"></i> ${item.comments_count || 0}</span>
                                 </div>
                             </a>
@@ -6833,7 +6942,7 @@ function renderExplore(data) {
                 <!-- Правая колонка: Темы дня -->
                 <div class="shiki-topics-col" data-section="explore-hot">
                     <div class="shiki-topics-header-row">
-                        <h2 class="shiki-section-title-white">Темы дня</h2>
+                        <h2 class="shiki-section-title-white">${i18n('explore.hot_topics')}</h2>
                     </div>
                     <div class="shiki-topics-stack">
                         ${hotList.slice(0, 5).map(item => `
@@ -6841,8 +6950,8 @@ function renderExplore(data) {
                                 <div class="shiki-topic-item-title">${item.title}</div>
                                 <div class="shiki-topic-item-footer">
                                     <div class="shiki-topic-author-row">
-                                        <span class="shiki-topic-tag">${item.tag || 'Новость'}</span>
-                                        <span class="shiki-topic-meta-text">${formatTimeAgo(item.date)} ${item.author ? `от 👤 ${item.author}` : ''}</span>
+                                        <span class="shiki-topic-tag">${formatTopicTag(item.tag || 'Новость')}</span>
+                                        <span class="shiki-topic-meta-text">${formatTimeAgo(item.date)} ${item.author ? (isEn ? `by 👤 ${item.author}` : `от 👤 ${item.author}`) : ''}</span>
                                     </div>
                                     <span class="shiki-topic-comments"><i class="ti ti-message-circle"></i> ${item.comments_count || 0}</span>
                                 </div>
@@ -6855,17 +6964,18 @@ function renderExplore(data) {
             <!-- 5. ОБНОВЛЕНИЯ АНИМЕ -->
             ${animeUpdates.length ? `
                 <div class="shiki-portal-section" data-section="explore-anime-updates">
-                    <div class="shiki-section-heading-purple">ОБНОВЛЕНИЯ АНИМЕ</div>
+                    <div class="shiki-section-heading-purple">${i18n('explore.anime_updates')}</div>
                     <div class="shiki-anime-updates-grid">
                         ${animeUpdates.slice(0, 8).map(anime => {
-                            const statusText = anime.status === 'released' ? 'Релиз' : (anime.status === 'anons' ? 'Анонс' : 'Онгоинг');
+                            const title = (isEn && anime.name) ? anime.name : (anime.russian || anime.name);
+                            const statusText = anime.status === 'released' ? i18n('explore.status.released') : (anime.status === 'anons' ? i18n('explore.status.anons') : i18n('explore.status.ongoing'));
                             const statusClass = anime.status === 'released' ? 'status-released' : 'status-anons';
-                            const kindText = anime.kind === 'MOVIE' ? 'Фильм' : (anime.kind === 'TV' ? 'Сериал' : (anime.kind === 'CLIP' ? 'Клип' : anime.kind));
+                            const kindText = anime.kind === 'MOVIE' ? (isEn ? 'Movie' : 'Фильм') : (anime.kind === 'TV' ? (isEn ? 'TV Series' : 'Сериал') : (anime.kind === 'CLIP' ? (isEn ? 'Clip' : 'Клип') : anime.kind));
                             return `
                                 <div class="shiki-anime-update-card" onclick="openAnimeModal(${anime.id})">
-                                    <img src="${anime.image}" alt="${(anime.russian || anime.name || '').replace(/"/g, '&quot;')}" class="shiki-update-poster" loading="lazy">
+                                    <img src="${anime.image}" alt="${(title || '').replace(/"/g, '&quot;')}" class="shiki-update-poster" loading="lazy">
                                     <div class="shiki-update-info">
-                                        <div class="shiki-update-title" title="${anime.russian || anime.name}">${anime.russian || anime.name}</div>
+                                        <div class="shiki-update-title" title="${title}">${title}</div>
                                         <div class="shiki-update-row-1">
                                             <span class="shiki-update-badge ${statusClass}">${statusText}</span>
                                             <span class="shiki-update-time">${formatTimeAgo(anime.updated_at)}</span>
@@ -6873,7 +6983,7 @@ function renderExplore(data) {
                                         <div class="shiki-update-row-2">
                                             ${kindText ? `<span class="shiki-kind-badge">${kindText}</span>` : ''}
                                             ${anime.rating ? `<span class="shiki-kind-badge">${anime.rating}</span>` : ''}
-                                            ${anime.genres ? `<span class="shiki-genres-text">${anime.genres}</span>` : ''}
+                                            ${anime.genres ? `<span class="shiki-genres-text">${formatGenresText(anime.genres)}</span>` : ''}
                                         </div>
                                     </div>
                                 </div>
@@ -6887,14 +6997,14 @@ function renderExplore(data) {
             ${other.length ? `
                 <div class="shiki-portal-section" data-section="explore-more-news">
                     <div class="shiki-section-header-row">
-                        <h2 class="shiki-section-title-white">Ещё новости</h2>
+                        <h2 class="shiki-section-title-white">${i18n('explore.more_news')}</h2>
                     </div>
                     <div id="other-news-list" class="shiki-more-news-grid">
                         ${other.map(buildNewsItemCard).join('')}
                     </div>
                     <div id="news-infinite-sentinel" style="height: 20px; margin-top: 10px;"></div>
                     <div id="news-infinite-loader" class="news-infinite-loader hidden">
-                        <i class="ti ti-loader animate-spin"></i> Загрузка ещё новостей...
+                        <i class="ti ti-loader animate-spin"></i> ${i18n('explore.loading_more')}
                     </div>
                 </div>
             ` : ''}
@@ -6939,11 +7049,12 @@ function renderContinueWatching() {
             </div>
             <div class="continue-watching-carousel">
                 ${items.map(item => {
+                    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
                     const total = item.total_episodes || 0;
                     const percent = total > 0 ? Math.min(100, Math.round((item.episode / total) * 100)) : 0;
                     const epText = `${i18n('player.ep_short')} ${item.episode}${total ? ` / ${total}` : ''}`;
                     const imgUrl = item.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(item.image) : item.image) : '';
-                    const title = item.russian || item.title || 'Anime';
+                    const title = (isEn && item.name) ? item.name : (item.russian || item.title || 'Anime');
 
                     return `
                         <div class="continue-watching-item" onclick="openAnimeModal(${item.id})">
@@ -7097,7 +7208,8 @@ function renderAiringCalendarUI(activeDay) {
 
             <div class="calendar-items-grid">
                 ${filtered.length > 0 ? filtered.map(item => {
-                    const title = item.russian || item.name;
+                    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+                    const title = (isEn && item.name) ? item.name : (item.russian || item.name);
                     const imgUrl = item.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(item.image) : item.image) : '';
                     const time = item.time_str ? `${item.time_str}` : '';
                     const nextEp = item.next_episode ? `${item.next_episode} ${i18n('calendar.ep_next')}` : '';
@@ -7126,6 +7238,20 @@ function renderAiringCalendarUI(activeDay) {
 }
 
 function formatRateStatusLabel(st, isManga = false) {
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    if (isEn) {
+        const mapEn = {
+            'completed': isManga ? 'Read' : 'Completed',
+            'watching': 'Watching',
+            'reading': 'Reading',
+            'planned': 'Planned',
+            'on_hold': 'On Hold',
+            'dropped': 'Dropped',
+            'rewatching': 'Rewatching',
+            'rereading': 'Rereading'
+        };
+        return mapEn[st] || st || (isManga ? 'Read' : 'Completed');
+    }
     const map = {
         'completed': isManga ? 'Прочитано' : 'Просмотрено',
         'watching': 'Смотрю',
@@ -7141,14 +7267,17 @@ function formatRateStatusLabel(st, isManga = false) {
 
 function formatChaptersCountText(num) {
     const n = Math.abs(Number(num) || 1);
-    if (n % 10 === 1 && n % 100 !== 11) return `${n} глава`;
-    if ([2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100)) return `${n} главы`;
-    return `${n} глав`;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    if (isEn) return `${n} ${typeof i18n === 'function' ? i18n('explore.chapter') : 'ch.'}`;
+    if (n % 10 === 1 && n % 100 !== 11) return `${n} ${typeof i18n === 'function' ? i18n('explore.chapter') : 'глава'}`;
+    if ([2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100)) return `${n} ${typeof i18n === 'function' ? i18n('explore.chapters_few') : 'главы'}`;
+    return `${n} ${typeof i18n === 'function' ? i18n('explore.chapters_many') : 'глав'}`;
 }
 
 async function updateMyRecentWatchedCard(type = 'anime') {
     const container = document.getElementById('shiki-my-recent-card-container');
     if (!container) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
 
     let recentItem = null;
 
@@ -7164,11 +7293,11 @@ async function updateMyRecentWatchedCard(type = 'anime') {
                     const chCount = first.chapters || first.volumes || target.chapters || target.volumes || 1;
                     recentItem = {
                         id: target.id,
-                        title: target.russian || target.name || 'Манга',
+                        title: (isEn && target.name) ? target.name : (target.russian || target.name || (isEn ? 'Manga' : 'Манга')),
                         image: target.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(target.image) : target.image) : '',
                         status: formatRateStatusLabel(first.status, true),
                         score: first.score || 8,
-                        time: typeof formatTimeAgo === 'function' ? formatTimeAgo(first.updated_at) : 'недавно',
+                        time: typeof formatTimeAgo === 'function' ? formatTimeAgo(first.updated_at) : (typeof i18n === 'function' ? i18n('explore.recently') : 'недавно'),
                         episodes: formatChaptersCountText(chCount),
                         isManga: true
                     };
@@ -7183,11 +7312,11 @@ async function updateMyRecentWatchedCard(type = 'anime') {
             if (animeHistory && animeHistory.target) {
                 recentItem = {
                     id: animeHistory.target.id,
-                    title: animeHistory.target.russian || animeHistory.target.name,
+                    title: (isEn && animeHistory.target.name) ? animeHistory.target.name : (animeHistory.target.russian || animeHistory.target.name),
                     image: animeHistory.target.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(animeHistory.target.image) : animeHistory.target.image) : '',
                     status: formatRateStatusLabel(animeHistory.description || 'completed', false),
                     score: animeHistory.target.score || 9,
-                    time: typeof formatTimeAgo === 'function' ? formatTimeAgo(animeHistory.created_at) : '2 дня назад',
+                    time: typeof formatTimeAgo === 'function' ? formatTimeAgo(animeHistory.created_at) : (typeof i18n === 'function' ? i18n('explore.recently') : 'недавно'),
                     episodes: (animeHistory.target.episodes ? `${animeHistory.target.episodes} / ${animeHistory.target.episodes}` : '28 / 28')
                 };
             }
@@ -7209,11 +7338,11 @@ async function updateMyRecentWatchedCard(type = 'anime') {
                         const isMangaItem = (item.target_type === 'Manga' || type === 'manga');
                         recentItem = {
                             id: item.target.id,
-                            title: item.target.russian || item.target.name,
+                            title: (isEn && item.target.name) ? item.target.name : (item.target.russian || item.target.name),
                             image: item.target.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(item.target.image) : item.target.image) : '',
                             status: formatRateStatusLabel(item.description || 'completed', isMangaItem),
                             score: item.target.score || 9,
-                            time: typeof formatTimeAgo === 'function' ? formatTimeAgo(item.created_at) : 'недавно',
+                            time: typeof formatTimeAgo === 'function' ? formatTimeAgo(item.created_at) : (typeof i18n === 'function' ? i18n('explore.recently') : 'недавно'),
                             episodes: isMangaItem ? formatChaptersCountText(item.target.chapters || 1) : (item.target.episodes ? `${item.target.episodes} / ${item.target.episodes}` : '28 / 28'),
                             isManga: isMangaItem
                         };
@@ -7238,7 +7367,7 @@ async function updateMyRecentWatchedCard(type = 'anime') {
                         <span>${recentItem.episodes}</span>
                     </div>
                     <div class="shiki-my-list-stars">${starsHtml}</div>
-                    <div class="shiki-my-list-time">${recentItem.time || 'недавно'}</div>
+                    <div class="shiki-my-list-time">${recentItem.time || (typeof i18n === 'function' ? i18n('explore.recently') : 'недавно')}</div>
                 </div>
             </div>
         `;
@@ -7247,12 +7376,12 @@ async function updateMyRecentWatchedCard(type = 'anime') {
             <div class="shiki-my-list-card" onclick="openTab('rates')">
                 <div class="shiki-my-list-thumb placeholder"><i class="${type === 'manga' ? 'ti ti-book-2' : 'ti ti-list-check'}"></i></div>
                 <div class="shiki-my-list-info">
-                    <div class="shiki-my-list-item-title">${type === 'manga' ? 'Мои списки манги' : 'Мои списки аниме'}</div>
+                    <div class="shiki-my-list-item-title">${type === 'manga' ? (typeof i18n === 'function' ? i18n('explore.my_manga_lists') : 'Мои списки манги') : (typeof i18n === 'function' ? i18n('explore.my_anime_lists') : 'Мои списки аниме')}</div>
                     <div class="shiki-my-list-status-row">
-                        <span class="shiki-status-badge-green">Открыть</span>
-                        <span>Перейти к спискам</span>
+                        <span class="shiki-status-badge-green">${typeof i18n === 'function' ? i18n('explore.open') : 'Открыть'}</span>
+                        <span>${typeof i18n === 'function' ? i18n('explore.go_to_lists') : 'Перейти к спискам'}</span>
                     </div>
-                    <div class="shiki-my-list-time">Нажмите для просмотра</div>
+                    <div class="shiki-my-list-time">${typeof i18n === 'function' ? i18n('explore.click_to_view') : 'Нажмите для просмотра'}</div>
                 </div>
             </div>
         `;
@@ -7350,8 +7479,9 @@ function renderCatalogGrid(items, hasMore = false) {
         return;
     }
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     container.innerHTML = items.map(item => {
-        const title = item.russian || item.name;
+        const title = (isEn && item.name) ? item.name : (item.russian || item.name);
         const imgUrl = item.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(item.image) : item.image) : '';
         const genres = (item.genres || []).slice(0, 2).join(', ');
 
@@ -7451,11 +7581,51 @@ document.addEventListener('DOMContentLoaded', () => {
 ;
 /* --- js/portal_modules.js --- */
 /**
- * Shikimori MX - Standalone Portal Modules
- * Interactive modules with Infinite Scroll and Shikimori API integrations.
+ * Shikimori MX - Модули разделов сайта (Портальные страницы)
+ * Аниме, Топ 100, Манга, Ранобэ, Форум, Клубы, Коллекции, Рецензии, Статьи, Пользователи, Рекомендации, Календарь
  */
 
-const DEFAULT_NO_POSTER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='150' viewBox='0 0 100 150'%3E%3Crect width='100' height='150' fill='%231a1a24'/%3E%3Ctext x='50%25' y='50%25' fill='%23555' font-family='sans-serif' font-size='12' text-anchor='middle' dominant-baseline='middle'%3ENo Poster%3C/text%3E%3C/svg%3E";
+const DEFAULT_NO_POSTER = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="225" height="320" viewBox="0 0 225 320"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%231a102f"/><stop offset="100%" stop-color="%230d0818"/></linearGradient></defs><rect width="225" height="320" rx="8" fill="url(%23g)"/><circle cx="112.5" cy="135" r="36" fill="rgba(168,85,247,0.15)" stroke="rgba(168,85,247,0.3)" stroke-width="2"/><path d="M98 148 L112.5 120 L127 148 Z" fill="rgba(168,85,247,0.4)"/><circle cx="112.5" cy="115" r="5" fill="%23a855f7"/><text x="112.5" y="195" fill="rgba(255,255,255,0.7)" font-family="sans-serif" font-size="12" font-weight="600" text-anchor="middle">SHIKI MX</text><text x="112.5" y="215" fill="rgba(255,255,255,0.35)" font-family="sans-serif" font-size="10" text-anchor="middle">Нет постера</text></svg>`;
+
+// ==========================================
+// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ И ДЕБАУНС ПОИСКА
+// ==========================================
+
+window.debounce = function(fn, delay = 350) {
+    let timer = null;
+    return function(...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+};
+
+window.handleAnimeSearchInput = window.debounce(() => window.loadCatalogAnimeTab(1), 350);
+window.handleMangaSearchInput = window.debounce(() => window.loadCatalogMangaTab(1), 350);
+window.handleRanobeSearchInput = window.debounce(() => window.loadCatalogRanobeTab(1), 350);
+window.handleClubsSearchInput = window.debounce(() => window.loadClubsTab(1), 350);
+window.handleUsersSearchInput = window.debounce(() => window.loadUsersTab(1), 350);
+
+function updateTabSentinel(container, tabId, hasMore, isLoading) {
+    if (!container) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    let parent = container.parentElement || container;
+    let sentinel = parent.querySelector(`.portal-infinite-sentinel[data-tab="${tabId}"]`);
+    
+    if (hasMore) {
+        if (!sentinel) {
+            sentinel = document.createElement('div');
+            sentinel.className = 'portal-infinite-sentinel';
+            sentinel.dataset.tab = tabId;
+            parent.appendChild(sentinel);
+        }
+        sentinel.innerHTML = `<div class="portal-infinite-spinner ${isLoading ? '' : 'hidden'}"><i class="ti ti-loader animate-spin"></i> <span>${isEn ? 'Loading more...' : 'Загрузка...'}</span></div>`;
+        if (typeof globalSentinelObserver !== 'undefined' && globalSentinelObserver) {
+            globalSentinelObserver.observe(sentinel);
+        }
+    } else {
+        if (sentinel) sentinel.remove();
+    }
+}
 
 // ==========================================
 // 1. БАЗА ДАННЫХ: АНИМЕ КАТАЛОГ
@@ -7470,6 +7640,8 @@ window.loadCatalogAnimeTab = async function(page = 1, append = false) {
     const container = document.getElementById('catalog-anime-list');
     if (!container) return;
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+
     if (!animeGenresLoaded) {
         const genreSelect = document.getElementById('anime-cat-genre');
         if (genreSelect && genreSelect.options.length <= 1) {
@@ -7480,7 +7652,7 @@ window.loadCatalogAnimeTab = async function(page = 1, append = false) {
                     genres.forEach(g => {
                         const opt = document.createElement('option');
                         opt.value = g.id;
-                        opt.textContent = g.name || g.russian || g.english;
+                        opt.textContent = isEn ? (g.english || g.name) : (g.russian || g.name);
                         genreSelect.appendChild(opt);
                     });
                     animeGenresLoaded = true;
@@ -7495,8 +7667,12 @@ window.loadCatalogAnimeTab = async function(page = 1, append = false) {
     if (!append) {
         animeCatalogPage = 1;
         hasMoreAnimeCatalog = true;
-        container.innerHTML = '<div class="loader"><i class="ti ti-loader animate-spin"></i> Загрузка аниме...</div>';
+        container.innerHTML = `<div class="loader"><i class="ti ti-loader animate-spin"></i> ${isEn ? 'Loading anime...' : 'Загрузка аниме...'}</div>`;
+    } else {
+        animeCatalogPage = page;
     }
+
+    updateTabSentinel(container, 'catalog-anime', hasMoreAnimeCatalog, true);
 
     const genre = document.getElementById('anime-cat-genre')?.value || '';
     const season = document.getElementById('anime-cat-season')?.value || '';
@@ -7527,27 +7703,32 @@ window.loadCatalogAnimeTab = async function(page = 1, append = false) {
             container.innerHTML = '';
         }
 
-        if (items.length === 0 && !append) {
-            container.innerHTML = '<div class="portal-empty-state"><i class="ti ti-movie-off"></i><p>Ничего не найдено по заданным фильтрам</p></div>';
+        if (items.length === 0) {
             hasMoreAnimeCatalog = false;
+            if (!append) {
+                container.innerHTML = `<div class="portal-empty-state"><i class="ti ti-movie-off"></i><p>${isEn ? 'No anime found' : 'Ничего не найдено по заданным фильтрам'}</p></div>`;
+            }
+            updateTabSentinel(container, 'catalog-anime', false, false);
             return;
         }
 
-        if (items.length < 24) {
+        if (items.length < 5) {
             hasMoreAnimeCatalog = false;
         }
 
         const cardsHtml = items.map(anime => {
-            const genresText = anime.genres ? anime.genres.slice(0, 2).join(', ') : '';
+            const genresText = anime.genres ? (typeof formatGenresText === 'function' ? formatGenresText(anime.genres.slice(0, 2).join(', ')) : anime.genres.slice(0, 2).join(', ')) : '';
+            const posterUrl = anime.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(anime.image) : anime.image) : DEFAULT_NO_POSTER;
+            const title = (isEn && anime.name) ? anime.name : (anime.russian || anime.name);
             return `
                 <div class="portal-media-card" onclick="openAnimeModal(${anime.id})">
                     <div class="portal-media-poster-wrap">
-                        <img src="${anime.image || DEFAULT_NO_POSTER}" alt="${(anime.russian || anime.name || '').replace(/"/g, '&quot;')}" class="portal-media-poster" loading="lazy">
+                        <img src="${posterUrl}" alt="${(title || '').replace(/"/g, '&quot;')}" class="portal-media-poster" loading="lazy">
                         ${anime.score ? `<span class="portal-score-badge"><i class="ti ti-star-filled"></i> ${anime.score}</span>` : ''}
                         ${anime.kind ? `<span class="portal-kind-badge">${anime.kind}</span>` : ''}
                     </div>
                     <div class="portal-media-info">
-                        <div class="portal-media-title" title="${anime.russian || anime.name}">${anime.russian || anime.name}</div>
+                        <div class="portal-media-title" title="${(title || '').replace(/"/g, '&quot;')}">${title}</div>
                         <div class="portal-media-meta">
                             <span>${anime.year || ''}</span>
                             <span class="portal-media-genres">${genresText}</span>
@@ -7558,8 +7739,9 @@ window.loadCatalogAnimeTab = async function(page = 1, append = false) {
         }).join('');
 
         container.insertAdjacentHTML('beforeend', cardsHtml);
+        updateTabSentinel(container, 'catalog-anime', hasMoreAnimeCatalog, false);
     } catch(err) {
-        if (!append) container.innerHTML = `<p style="color: var(--danger);">Ошибка загрузки: ${err.message}</p>`;
+        if (!append) container.innerHTML = `<p style="color: var(--danger);">${typeof i18n === 'function' ? i18n('error') : 'Ошибка'}: ${err.message}</p>`;
     } finally {
         isAnimeCatalogLoading = false;
     }
@@ -7575,10 +7757,7 @@ window.loadMoreCatalogAnime = function() {
 // 2. БАЗА ДАННЫХ: ТОП 100
 // ==========================================
 
-let currentTop100Type = 'anime';
-
 window.loadTop100Tab = async function(type = 'anime') {
-    currentTop100Type = type;
     const container = document.getElementById('top100-list');
     if (!container) return;
 
@@ -7586,14 +7765,15 @@ window.loadTop100Tab = async function(type = 'anime') {
         btn.classList.toggle('active', btn.dataset.type === type);
     });
 
-    container.innerHTML = '<div class="loader"><i class="ti ti-loader animate-spin"></i> Загрузка Топ 100...</div>';
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    container.innerHTML = `<div class="loader"><i class="ti ti-loader animate-spin"></i> ${isEn ? 'Loading Top 100...' : 'Загрузка Топ 100...'}</div>`;
 
     try {
         const res = await fetch(`/api/top100?type=${type}&limit=100`);
         const items = await res.json();
 
         if (!Array.isArray(items) || items.length === 0) {
-            container.innerHTML = '<div class="portal-empty-state"><i class="ti ti-trophy"></i><p>Список пуст</p></div>';
+            container.innerHTML = `<div class="portal-empty-state"><i class="ti ti-trophy"></i><p>${isEn ? 'List is empty' : 'Список пуст'}</p></div>`;
             return;
         }
 
@@ -7609,23 +7789,49 @@ window.loadTop100Tab = async function(type = 'anime') {
                     else if (rank === 2) medalBadge = '<span class="top100-medal silver">🥈 2</span>';
                     else if (rank === 3) medalBadge = '<span class="top100-medal bronze">🥉 3</span>';
 
-                    const episodesOrChapters = isManga 
-                        ? (item.chapters ? `${item.chapters} гл.` : (item.volumes ? `${item.volumes} том.` : 'Манга'))
-                        : (item.episodes ? `${item.episodes} эп.` : (item.kind === 'MOVIE' ? 'Фильм' : 'Сериал'));
+                    let episodesOrChapters = '';
+                    if (isManga) {
+                        if (item.chapters) episodesOrChapters = `${item.chapters} ${isEn ? 'ch.' : 'гл.'}`;
+                        else if (item.volumes) episodesOrChapters = `${item.volumes} ${isEn ? 'vol.' : 'том.'}`;
+                        else episodesOrChapters = isEn ? 'Manga' : 'Манга';
+                    } else {
+                        if (item.episodes) episodesOrChapters = `${item.episodes} ${isEn ? 'eps' : 'эп.'}`;
+                        else if (item.kind === 'MOVIE') episodesOrChapters = isEn ? 'Movie' : 'Фильм';
+                        else episodesOrChapters = isEn ? 'Series' : 'Сериал';
+                    }
+
+                    let kindLabel = item.kind || '';
+                    if (isEn) {
+                        if (kindLabel === 'TV') kindLabel = 'TV Series';
+                        else if (kindLabel === 'MOVIE') kindLabel = 'Movie';
+                        else if (kindLabel === 'OVA') kindLabel = 'OVA';
+                        else if (kindLabel === 'ONA') kindLabel = 'ONA';
+                        else if (kindLabel === 'SPECIAL') kindLabel = 'Special';
+                        else if (kindLabel === 'MANGA') kindLabel = 'Manga';
+                        else if (kindLabel === 'MANHWA') kindLabel = 'Manhwa';
+                        else if (kindLabel === 'MANHUA') kindLabel = 'Manhua';
+                        else if (kindLabel === 'LIGHT NOVEL' || kindLabel === 'NOVEL') kindLabel = 'Novel';
+                    }
+
+                    const genresList = (item.genres && item.genres.length) 
+                        ? (typeof formatGenresText === 'function' ? formatGenresText(item.genres.slice(0, 2).join(', ')) : item.genres.slice(0, 2).join(', ')) 
+                        : '';
+                    const posterUrl = item.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(item.image) : item.image) : DEFAULT_NO_POSTER;
+                    const title = (isEn && item.name) ? item.name : (item.russian || item.name);
 
                     return `
-                        <div class="top100-row" onclick="${clickHandler}(${item.id})">
+                        <div class="top100-row-card top100-row" onclick="${clickHandler}(${item.id})">
                             <div class="top100-rank-col">${medalBadge}</div>
                             <div class="top100-poster-col">
-                                <img src="${item.image || DEFAULT_NO_POSTER}" alt="${item.russian || item.name}" class="top100-poster" loading="lazy">
+                                <img src="${posterUrl}" alt="${(title || '').replace(/"/g, '&quot;')}" class="top100-poster" loading="lazy">
                             </div>
                             <div class="top100-info-col">
-                                <div class="top100-title">${item.russian || item.name}</div>
-                                <div class="top100-meta-tags">
-                                    <span class="top100-kind-badge">${item.kind || ''}</span>
+                                <div class="top100-item-title top100-title" title="${(title || '').replace(/"/g, '&quot;')}">${title}</div>
+                                <div class="top100-item-meta top100-meta-tags">
+                                    ${kindLabel ? `<span class="top100-kind-tag top100-kind-badge">${kindLabel}</span>` : ''}
                                     <span>${episodesOrChapters}</span>
-                                    <span>${item.year || ''}</span>
-                                    ${(item.genres && item.genres.length) ? `<span class="top100-genres">${item.genres.slice(0, 2).join(', ')}</span>` : ''}
+                                    ${item.year ? `<span>${item.year}</span>` : ''}
+                                    ${genresList ? `<span class="top100-genres">${genresList}</span>` : ''}
                                 </div>
                             </div>
                             <div class="top100-score-col">
@@ -7637,7 +7843,7 @@ window.loadTop100Tab = async function(type = 'anime') {
             </div>
         `;
     } catch(err) {
-        container.innerHTML = `<p style="color: var(--danger);">Ошибка загрузки топа: ${err.message}</p>`;
+        container.innerHTML = `<p style="color: var(--danger);">${typeof i18n === 'function' ? i18n('error') : 'Ошибка'}: ${err.message}</p>`;
     }
 };
 
@@ -7656,11 +7862,17 @@ window.loadCatalogMangaTab = async function(page = 1, append = false) {
     if (isMangaCatalogLoading) return;
     isMangaCatalogLoading = true;
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+
     if (!append) {
         mangaCatalogPage = 1;
         hasMoreMangaCatalog = true;
-        container.innerHTML = '<div class="loader"><i class="ti ti-loader animate-spin"></i> Загрузка манги...</div>';
+        container.innerHTML = `<div class="loader"><i class="ti ti-loader animate-spin"></i> ${isEn ? 'Loading manga...' : 'Загрузка манги...'}</div>`;
+    } else {
+        mangaCatalogPage = page;
     }
+
+    updateTabSentinel(container, 'catalog-manga', hasMoreMangaCatalog, true);
 
     const kind = document.getElementById('manga-cat-kind')?.value || '';
     const status = document.getElementById('manga-cat-status')?.value || '';
@@ -7683,35 +7895,46 @@ window.loadCatalogMangaTab = async function(page = 1, append = false) {
         if (!append) container.innerHTML = '';
 
         if (!Array.isArray(items) || items.length === 0) {
-            if (!append) container.innerHTML = '<div class="portal-empty-state"><i class="ti ti-book-off"></i><p>Манга не найдена</p></div>';
             hasMoreMangaCatalog = false;
+            if (!append) {
+                container.innerHTML = `<div class="portal-empty-state"><i class="ti ti-book-off"></i><p>${isEn ? 'No manga found' : 'Манга не найдена'}</p></div>`;
+            }
+            updateTabSentinel(container, 'catalog-manga', false, false);
             return;
         }
 
-        if (items.length < 24) {
+        if (items.length < 5) {
             hasMoreMangaCatalog = false;
         }
 
-        const cardsHtml = items.map(manga => `
-            <div class="portal-media-card" onclick="openMangaModal(${manga.id})">
-                <div class="portal-media-poster-wrap">
-                    <img src="${manga.image || DEFAULT_NO_POSTER}" alt="${(manga.russian || manga.name || '').replace(/"/g, '&quot;')}" class="portal-media-poster" loading="lazy">
-                    ${manga.score ? `<span class="portal-score-badge"><i class="ti ti-star-filled"></i> ${manga.score}</span>` : ''}
-                    ${manga.kind ? `<span class="portal-kind-badge">${manga.kind}</span>` : ''}
-                </div>
-                <div class="portal-media-info">
-                    <div class="portal-media-title" title="${manga.russian || manga.name}">${manga.russian || manga.name}</div>
-                    <div class="portal-media-meta">
-                        <span>${manga.chapters ? manga.chapters + ' гл.' : 'Манга'}</span>
-                        <span class="portal-media-genres">${(manga.genres || []).slice(0, 2).join(', ')}</span>
+        const cardsHtml = items.map(manga => {
+            const posterUrl = manga.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(manga.image) : manga.image) : DEFAULT_NO_POSTER;
+            const title = (isEn && manga.name) ? manga.name : (manga.russian || manga.name);
+            const chaptersText = manga.chapters ? `${manga.chapters} ${isEn ? 'ch.' : 'гл.'}` : (isEn ? 'Manga' : 'Манга');
+            const genresText = (manga.genres && manga.genres.length) ? (typeof formatGenresText === 'function' ? formatGenresText(manga.genres.slice(0, 2).join(', ')) : manga.genres.slice(0, 2).join(', ')) : '';
+
+            return `
+                <div class="portal-media-card" onclick="openMangaModal(${manga.id})">
+                    <div class="portal-media-poster-wrap">
+                        <img src="${posterUrl}" alt="${(title || '').replace(/"/g, '&quot;')}" class="portal-media-poster" loading="lazy">
+                        ${manga.score ? `<span class="portal-score-badge"><i class="ti ti-star-filled"></i> ${manga.score}</span>` : ''}
+                        ${manga.kind ? `<span class="portal-kind-badge">${manga.kind}</span>` : ''}
+                    </div>
+                    <div class="portal-media-info">
+                        <div class="portal-media-title" title="${(title || '').replace(/"/g, '&quot;')}">${title}</div>
+                        <div class="portal-media-meta">
+                            <span>${chaptersText}</span>
+                            <span class="portal-media-genres">${genresText}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
 
         container.insertAdjacentHTML('beforeend', cardsHtml);
+        updateTabSentinel(container, 'catalog-manga', hasMoreMangaCatalog, false);
     } catch(err) {
-        if (!append) container.innerHTML = `<p style="color: var(--danger);">Ошибка загрузки: ${err.message}</p>`;
+        if (!append) container.innerHTML = `<p style="color: var(--danger);">${typeof i18n === 'function' ? i18n('error') : 'Ошибка'}: ${err.message}</p>`;
     } finally {
         isMangaCatalogLoading = false;
     }
@@ -7738,11 +7961,17 @@ window.loadCatalogRanobeTab = async function(page = 1, append = false) {
     if (isRanobeCatalogLoading) return;
     isRanobeCatalogLoading = true;
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+
     if (!append) {
         ranobeCatalogPage = 1;
         hasMoreRanobeCatalog = true;
-        container.innerHTML = '<div class="loader"><i class="ti ti-loader animate-spin"></i> Загрузка ранобэ...</div>';
+        container.innerHTML = `<div class="loader"><i class="ti ti-loader animate-spin"></i> ${isEn ? 'Loading light novels...' : 'Загрузка ранобэ...'}</div>`;
+    } else {
+        ranobeCatalogPage = page;
     }
+
+    updateTabSentinel(container, 'catalog-ranobe', hasMoreRanobeCatalog, true);
 
     const status = document.getElementById('ranobe-cat-status')?.value || '';
     const order = document.getElementById('ranobe-cat-order')?.value || 'ranked';
@@ -7763,35 +7992,46 @@ window.loadCatalogRanobeTab = async function(page = 1, append = false) {
         if (!append) container.innerHTML = '';
 
         if (!Array.isArray(items) || items.length === 0) {
-            if (!append) container.innerHTML = '<div class="portal-empty-state"><i class="ti ti-notebook"></i><p>Ранобэ не найдены</p></div>';
             hasMoreRanobeCatalog = false;
+            if (!append) {
+                container.innerHTML = `<div class="portal-empty-state"><i class="ti ti-notebook"></i><p>${isEn ? 'No light novels found' : 'Ранобэ не найдены'}</p></div>`;
+            }
+            updateTabSentinel(container, 'catalog-ranobe', false, false);
             return;
         }
 
-        if (items.length < 24) {
+        if (items.length < 5) {
             hasMoreRanobeCatalog = false;
         }
 
-        const cardsHtml = items.map(ranobe => `
-            <div class="portal-media-card" onclick="openMangaModal(${ranobe.id})">
-                <div class="portal-media-poster-wrap">
-                    <img src="${ranobe.image || DEFAULT_NO_POSTER}" alt="${(ranobe.russian || ranobe.name || '').replace(/"/g, '&quot;')}" class="portal-media-poster" loading="lazy">
-                    ${ranobe.score ? `<span class="portal-score-badge"><i class="ti ti-star-filled"></i> ${ranobe.score}</span>` : ''}
-                    <span class="portal-kind-badge">РАНОБЭ</span>
-                </div>
-                <div class="portal-media-info">
-                    <div class="portal-media-title" title="${ranobe.russian || ranobe.name}">${ranobe.russian || ranobe.name}</div>
-                    <div class="portal-media-meta">
-                        <span>${ranobe.volumes ? ranobe.volumes + ' том.' : 'Новелла'}</span>
-                        <span class="portal-media-genres">${(ranobe.genres || []).slice(0, 2).join(', ')}</span>
+        const cardsHtml = items.map(ranobe => {
+            const posterUrl = ranobe.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(ranobe.image) : ranobe.image) : DEFAULT_NO_POSTER;
+            const title = (isEn && ranobe.name) ? ranobe.name : (ranobe.russian || ranobe.name);
+            const volumesText = ranobe.volumes ? `${ranobe.volumes} ${isEn ? 'vol.' : 'том.'}` : (isEn ? 'Novel' : 'Новелла');
+            const genresText = (ranobe.genres && ranobe.genres.length) ? (typeof formatGenresText === 'function' ? formatGenresText(ranobe.genres.slice(0, 2).join(', ')) : ranobe.genres.slice(0, 2).join(', ')) : '';
+
+            return `
+                <div class="portal-media-card" onclick="openMangaModal(${ranobe.id})">
+                    <div class="portal-media-poster-wrap">
+                        <img src="${posterUrl}" alt="${(title || '').replace(/"/g, '&quot;')}" class="portal-media-poster" loading="lazy">
+                        ${ranobe.score ? `<span class="portal-score-badge"><i class="ti ti-star-filled"></i> ${ranobe.score}</span>` : ''}
+                        <span class="portal-kind-badge">${isEn ? 'NOVEL' : 'РАНОБЭ'}</span>
+                    </div>
+                    <div class="portal-media-info">
+                        <div class="portal-media-title" title="${(title || '').replace(/"/g, '&quot;')}">${title}</div>
+                        <div class="portal-media-meta">
+                            <span>${volumesText}</span>
+                            <span class="portal-media-genres">${genresText}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
 
         container.insertAdjacentHTML('beforeend', cardsHtml);
+        updateTabSentinel(container, 'catalog-ranobe', hasMoreRanobeCatalog, false);
     } catch(err) {
-        if (!append) container.innerHTML = `<p style="color: var(--danger);">Ошибка загрузки: ${err.message}</p>`;
+        if (!append) container.innerHTML = `<p style="color: var(--danger);">${typeof i18n === 'function' ? i18n('error') : 'Ошибка'}: ${err.message}</p>`;
     } finally {
         isRanobeCatalogLoading = false;
     }
@@ -7812,6 +8052,22 @@ let forumPage = 1;
 let isForumLoading = false;
 let hasMoreForum = true;
 
+function formatForumCategoryName(name) {
+    if (!name) return '';
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    if (!isEn) return name;
+    const n = name.toLowerCase();
+    if (n.includes('аниме и манга') || n.includes('animanga')) return 'Anime & Manga';
+    if (n.includes('новост') || n.includes('news')) return 'News';
+    if (n.includes('реценз') || n.includes('critique') || n.includes('review')) return 'Reviews';
+    if (n.includes('коллекц') || n.includes('collection')) return 'Collections';
+    if (n.includes('стать') || n.includes('article')) return 'Articles';
+    if (n.includes('офтопик') || n.includes('offtopic')) return 'Off-topic';
+    if (n.includes('клуб') || n.includes('club')) return 'Clubs';
+    if (n.includes('сайт') || n.includes('site')) return 'Site';
+    return name;
+}
+
 window.loadForumTab = async function(category = 'all', page = 1, append = false) {
     if (category !== currentForumCategory && !append) {
         currentForumCategory = category;
@@ -7826,14 +8082,20 @@ window.loadForumTab = async function(category = 'all', page = 1, append = false)
         btn.classList.toggle('active', btn.dataset.forum === currentForumCategory);
     });
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+
     if (isForumLoading) return;
     isForumLoading = true;
 
     if (!append) {
         forumPage = 1;
         hasMoreForum = true;
-        container.innerHTML = '<div class="loader"><i class="ti ti-loader animate-spin"></i> Загрузка тем форума...</div>';
+        container.innerHTML = `<div class="loader"><i class="ti ti-loader animate-spin"></i> ${isEn ? 'Loading forum topics...' : 'Загрузка тем форума...'}</div>`;
+    } else {
+        forumPage = page;
     }
+
+    updateTabSentinel(container, 'forum', hasMoreForum, true);
 
     try {
         const res = await fetch(`/api/forum/topics?forum=${currentForumCategory}&page=${forumPage}&limit=25`);
@@ -7842,44 +8104,48 @@ window.loadForumTab = async function(category = 'all', page = 1, append = false)
         if (!append) container.innerHTML = '';
 
         if (!Array.isArray(topics) || topics.length === 0) {
-            if (!append) container.innerHTML = '<div class="portal-empty-state"><i class="ti ti-messages-off"></i><p>Темы не найдены</p></div>';
             hasMoreForum = false;
+            if (!append) {
+                container.innerHTML = `<div class="portal-empty-state"><i class="ti ti-messages-off"></i><p>${isEn ? 'No topics found' : 'Темы не найдены'}</p></div>`;
+            }
+            updateTabSentinel(container, 'forum', false, false);
             return;
         }
 
-        if (topics.length < 25) {
+        if (topics.length < 5) {
             hasMoreForum = false;
         }
 
-        let tableEl = container.querySelector('.forum-topics-table');
-        if (!tableEl) {
-            tableEl = document.createElement('div');
-            tableEl.className = 'forum-topics-table';
-            container.appendChild(tableEl);
+        let stackEl = container.querySelector('.forum-topics-stack');
+        if (!stackEl) {
+            stackEl = document.createElement('div');
+            stackEl.className = 'forum-topics-stack';
+            container.appendChild(stackEl);
         }
 
-        const rowsHtml = topics.map(t => `
-            <a href="${t.url}" target="_blank" class="forum-topic-row">
-                <div class="forum-topic-user">
-                    ${t.author_avatar ? `<img src="${t.author_avatar}" alt="${t.author}" class="forum-user-avatar">` : `<div class="forum-user-avatar placeholder"><i class="ti ti-user"></i></div>`}
-                </div>
-                <div class="forum-topic-main">
-                    <div class="forum-topic-title">${t.title}</div>
-                    <div class="forum-topic-sub">
-                        <span class="forum-badge">${t.forum_name}</span>
-                        <span>от <strong>${t.author}</strong></span>
-                        <span>${formatTimeAgo ? formatTimeAgo(t.created_at) : (t.created_at || '').slice(0, 10)}</span>
+        const cardsHtml = topics.map(t => {
+            const catName = formatForumCategoryName(t.forum_name || (isEn ? 'Anime & Manga' : 'Аниме и Манга'));
+            return `
+                <div class="forum-topic-card">
+                    <div class="forum-topic-main">
+                        <div class="forum-topic-meta-top">
+                            <span class="forum-topic-badge">${catName}</span>
+                            <span class="forum-topic-author">${isEn ? 'by' : 'от'} ${t.author || 'Пользователь'}</span>
+                            <span class="forum-topic-time">${formatTimeAgo ? formatTimeAgo(t.created_at) : t.created_at}</span>
+                        </div>
+                        <a href="${t.url}" target="_blank" class="forum-topic-title">${t.title}</a>
+                    </div>
+                    <div class="forum-topic-stats">
+                        <span class="forum-comments-badge"><i class="ti ti-message-circle"></i> ${t.comments_count}</span>
                     </div>
                 </div>
-                <div class="forum-topic-comments">
-                    <i class="ti ti-message-circle"></i> ${t.comments_count}
-                </div>
-            </a>
-        `).join('');
+            `;
+        }).join('');
 
-        tableEl.insertAdjacentHTML('beforeend', rowsHtml);
+        stackEl.insertAdjacentHTML('beforeend', cardsHtml);
+        updateTabSentinel(container, 'forum', hasMoreForum, false);
     } catch(err) {
-        if (!append) container.innerHTML = `<p style="color: var(--danger);">Ошибка загрузки форума: ${err.message}</p>`;
+        if (!append) container.innerHTML = `<p style="color: var(--danger);">${typeof i18n === 'function' ? i18n('error') : 'Ошибка'}: ${err.message}</p>`;
     } finally {
         isForumLoading = false;
     }
@@ -7906,11 +8172,17 @@ window.loadClubsTab = async function(page = 1, append = false) {
     if (isClubsLoading) return;
     isClubsLoading = true;
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+
     if (!append) {
         clubsPage = 1;
         hasMoreClubs = true;
-        container.innerHTML = '<div class="loader"><i class="ti ti-loader animate-spin"></i> Загрузка клубов...</div>';
+        container.innerHTML = `<div class="loader"><i class="ti ti-loader animate-spin"></i> ${isEn ? 'Loading clubs...' : 'Загрузка клубов...'}</div>`;
+    } else {
+        clubsPage = page;
     }
+
+    updateTabSentinel(container, 'clubs', hasMoreClubs, true);
 
     const search = document.getElementById('clubs-search-input')?.value || '';
 
@@ -7921,12 +8193,15 @@ window.loadClubsTab = async function(page = 1, append = false) {
         if (!append) container.innerHTML = '';
 
         if (!Array.isArray(clubs) || clubs.length === 0) {
-            if (!append) container.innerHTML = '<div class="portal-empty-state"><i class="ti ti-circles-relation"></i><p>Клубы не найдены</p></div>';
             hasMoreClubs = false;
+            if (!append) {
+                container.innerHTML = `<div class="portal-empty-state"><i class="ti ti-circles-relation"></i><p>${isEn ? 'No clubs found' : 'Клубы не найдены'}</p></div>`;
+            }
+            updateTabSentinel(container, 'clubs', false, false);
             return;
         }
 
-        if (clubs.length < 24) {
+        if (clubs.length < 5) {
             hasMoreClubs = false;
         }
 
@@ -7937,23 +8212,31 @@ window.loadClubsTab = async function(page = 1, append = false) {
             container.appendChild(gridEl);
         }
 
-        const cardsHtml = clubs.map(c => `
-            <a href="${c.url}" target="_blank" class="portal-club-card">
-                <div class="portal-club-logo-wrap">
-                    ${c.logo ? `<img src="${c.logo}" alt="${c.name}" class="portal-club-logo" loading="lazy">` : `<div class="portal-club-logo placeholder"><i class="ti ti-users"></i></div>`}
-                </div>
-                <div class="portal-club-body">
-                    <div class="portal-club-name" title="${c.name}">${c.name}</div>
-                    <div class="portal-club-meta">
-                        <span><i class="ti ti-users"></i> ${c.members_label || 'Открытый клуб'}</span>
+        const cardsHtml = clubs.map(c => {
+            const logoUrl = c.logo ? (typeof buildImgUrl === 'function' ? buildImgUrl(c.logo) : c.logo) : '';
+            const isPublic = c.join_policy === 'free' || c.members_label === 'Открытый клуб';
+            const policyText = isEn 
+                ? (isPublic ? 'Public club' : 'By application')
+                : (c.members_label || (isPublic ? 'Открытый клуб' : 'По заявкам'));
+            return `
+                <a href="${c.url}" target="_blank" class="portal-club-card">
+                    <div class="portal-club-logo-wrap">
+                        ${logoUrl ? `<img src="${logoUrl}" alt="${c.name}" class="portal-club-logo" loading="lazy">` : `<div class="portal-club-logo placeholder"><i class="ti ti-users"></i></div>`}
                     </div>
-                </div>
-            </a>
-        `).join('');
+                    <div class="portal-club-body">
+                        <div class="portal-club-name" title="${c.name}">${c.name}</div>
+                        <div class="portal-club-meta">
+                            <span><i class="ti ti-users"></i> ${policyText}</span>
+                        </div>
+                    </div>
+                </a>
+            `;
+        }).join('');
 
         gridEl.insertAdjacentHTML('beforeend', cardsHtml);
+        updateTabSentinel(container, 'clubs', hasMoreClubs, false);
     } catch(err) {
-        if (!append) container.innerHTML = `<p style="color: var(--danger);">Ошибка загрузки клубов: ${err.message}</p>`;
+        if (!append) container.innerHTML = `<p style="color: var(--danger);">${typeof i18n === 'function' ? i18n('error') : 'Ошибка'}: ${err.message}</p>`;
     } finally {
         isClubsLoading = false;
     }
@@ -7980,11 +8263,17 @@ window.loadCollectionsTab = async function(page = 1, append = false) {
     if (isCollectionsLoading) return;
     isCollectionsLoading = true;
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+
     if (!append) {
         collectionsPage = 1;
         hasMoreCollections = true;
-        container.innerHTML = '<div class="loader"><i class="ti ti-loader animate-spin"></i> Загрузка коллекций...</div>';
+        container.innerHTML = `<div class="loader"><i class="ti ti-loader animate-spin"></i> ${isEn ? 'Loading collections...' : 'Загрузка коллекций...'}</div>`;
+    } else {
+        collectionsPage = page;
     }
+
+    updateTabSentinel(container, 'collections', hasMoreCollections, true);
 
     try {
         const res = await fetch(`/api/collections/catalog?page=${collectionsPage}&limit=24`);
@@ -7993,12 +8282,15 @@ window.loadCollectionsTab = async function(page = 1, append = false) {
         if (!append) container.innerHTML = '';
 
         if (!Array.isArray(collections) || collections.length === 0) {
-            if (!append) container.innerHTML = '<div class="portal-empty-state"><i class="ti ti-layout-grid"></i><p>Коллекции не найдены</p></div>';
             hasMoreCollections = false;
+            if (!append) {
+                container.innerHTML = `<div class="portal-empty-state"><i class="ti ti-layout-grid"></i><p>${isEn ? 'No collections found' : 'Коллекции не найдены'}</p></div>`;
+            }
+            updateTabSentinel(container, 'collections', false, false);
             return;
         }
 
-        if (collections.length < 24) {
+        if (collections.length < 5) {
             hasMoreCollections = false;
         }
 
@@ -8009,24 +8301,28 @@ window.loadCollectionsTab = async function(page = 1, append = false) {
             container.appendChild(gridEl);
         }
 
-        const cardsHtml = collections.map(c => `
-            <a href="${c.url}" target="_blank" class="portal-collection-card">
-                <div class="portal-collection-thumb-wrap">
-                    ${c.image ? `<img src="${c.image}" alt="${c.title}" class="portal-collection-thumb" loading="lazy">` : `<div class="portal-collection-thumb placeholder"><i class="ti ti-layout-grid"></i></div>`}
-                </div>
-                <div class="portal-collection-body">
-                    <div class="portal-collection-title">${c.title}</div>
-                    <div class="portal-collection-meta">
-                        <span>👤 ${c.author || 'Автор'}</span>
-                        <span><i class="ti ti-message-circle"></i> ${c.comments_count}</span>
+        const cardsHtml = collections.map(c => {
+            const imgUrl = c.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(c.image) : c.image) : '';
+            return `
+                <a href="${c.url}" target="_blank" class="portal-collection-card">
+                    <div class="portal-collection-thumb-wrap">
+                        ${imgUrl ? `<img src="${imgUrl}" alt="${c.title}" class="portal-collection-thumb" loading="lazy">` : `<div class="portal-collection-thumb placeholder"><i class="ti ti-layout-grid"></i></div>`}
                     </div>
-                </div>
-            </a>
-        `).join('');
+                    <div class="portal-collection-body">
+                        <div class="portal-collection-title">${c.title}</div>
+                        <div class="portal-collection-meta">
+                            <span>👤 ${c.author || (isEn ? 'Author' : 'Автор')}</span>
+                            <span><i class="ti ti-message-circle"></i> ${c.comments_count}</span>
+                        </div>
+                    </div>
+                </a>
+            `;
+        }).join('');
 
         gridEl.insertAdjacentHTML('beforeend', cardsHtml);
+        updateTabSentinel(container, 'collections', hasMoreCollections, false);
     } catch(err) {
-        if (!append) container.innerHTML = `<p style="color: var(--danger);">Ошибка загрузки коллекций: ${err.message}</p>`;
+        if (!append) container.innerHTML = `<p style="color: var(--danger);">${typeof i18n === 'function' ? i18n('error') : 'Ошибка'}: ${err.message}</p>`;
     } finally {
         isCollectionsLoading = false;
     }
@@ -8053,11 +8349,17 @@ window.loadCritiquesTab = async function(page = 1, append = false) {
     if (isCritiquesLoading) return;
     isCritiquesLoading = true;
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+
     if (!append) {
         critiquesPage = 1;
         hasMoreCritiques = true;
-        container.innerHTML = '<div class="loader"><i class="ti ti-loader animate-spin"></i> Загрузка рецензий...</div>';
+        container.innerHTML = `<div class="loader"><i class="ti ti-loader animate-spin"></i> ${isEn ? 'Loading reviews...' : 'Загрузка рецензий...'}</div>`;
+    } else {
+        critiquesPage = page;
     }
+
+    updateTabSentinel(container, 'critiques', hasMoreCritiques, true);
 
     try {
         const res = await fetch(`/api/critiques/catalog?page=${critiquesPage}&limit=24`);
@@ -8066,12 +8368,15 @@ window.loadCritiquesTab = async function(page = 1, append = false) {
         if (!append) container.innerHTML = '';
 
         if (!Array.isArray(critiques) || critiques.length === 0) {
-            if (!append) container.innerHTML = '<div class="portal-empty-state"><i class="ti ti-pencil"></i><p>Рецензии не найдены</p></div>';
             hasMoreCritiques = false;
+            if (!append) {
+                container.innerHTML = `<div class="portal-empty-state"><i class="ti ti-pencil"></i><p>${isEn ? 'No reviews found' : 'Рецензии не найдены'}</p></div>`;
+            }
+            updateTabSentinel(container, 'critiques', false, false);
             return;
         }
 
-        if (critiques.length < 24) {
+        if (critiques.length < 5) {
             hasMoreCritiques = false;
         }
 
@@ -8086,7 +8391,7 @@ window.loadCritiquesTab = async function(page = 1, append = false) {
             <div class="critique-card">
                 <div class="critique-header">
                     <div class="critique-author-row">
-                        <span class="critique-badge"><i class="ti ti-pencil"></i> Рецензия</span>
+                        <span class="critique-badge"><i class="ti ti-pencil"></i> ${isEn ? 'Review' : 'Рецензия'}</span>
                         <span class="critique-author">👤 ${c.author}</span>
                         <span class="critique-date">${formatTimeAgo ? formatTimeAgo(c.date) : c.date}</span>
                     </div>
@@ -8094,15 +8399,16 @@ window.loadCritiquesTab = async function(page = 1, append = false) {
                 </div>
                 ${c.snippet ? `<div class="critique-snippet">${c.snippet}...</div>` : ''}
                 <div class="critique-footer">
-                    <a href="${c.url}" target="_blank" class="critique-read-more">Читать полностью <i class="ti ti-arrow-right"></i></a>
+                    <a href="${c.url}" target="_blank" class="critique-read-more">${isEn ? 'Read full review' : 'Читать полностью'} <i class="ti ti-arrow-right"></i></a>
                     <span class="critique-comments"><i class="ti ti-message-circle"></i> ${c.comments_count}</span>
                 </div>
             </div>
         `).join('');
 
         stackEl.insertAdjacentHTML('beforeend', cardsHtml);
+        updateTabSentinel(container, 'critiques', hasMoreCritiques, false);
     } catch(err) {
-        if (!append) container.innerHTML = `<p style="color: var(--danger);">Ошибка загрузки рецензий: ${err.message}</p>`;
+        if (!append) container.innerHTML = `<p style="color: var(--danger);">${typeof i18n === 'function' ? i18n('error') : 'Ошибка'}: ${err.message}</p>`;
     } finally {
         isCritiquesLoading = false;
     }
@@ -8129,11 +8435,17 @@ window.loadArticlesTab = async function(page = 1, append = false) {
     if (isArticlesLoading) return;
     isArticlesLoading = true;
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+
     if (!append) {
         articlesPage = 1;
         hasMoreArticles = true;
-        container.innerHTML = '<div class="loader"><i class="ti ti-loader animate-spin"></i> Загрузка статей...</div>';
+        container.innerHTML = `<div class="loader"><i class="ti ti-loader animate-spin"></i> ${isEn ? 'Loading articles...' : 'Загрузка статей...'}</div>`;
+    } else {
+        articlesPage = page;
     }
+
+    updateTabSentinel(container, 'articles', hasMoreArticles, true);
 
     try {
         const res = await fetch(`/api/articles/catalog?page=${articlesPage}&limit=24`);
@@ -8142,12 +8454,15 @@ window.loadArticlesTab = async function(page = 1, append = false) {
         if (!append) container.innerHTML = '';
 
         if (!Array.isArray(articles) || articles.length === 0) {
-            if (!append) container.innerHTML = '<div class="portal-empty-state"><i class="ti ti-file-text"></i><p>Статьи не найдены</p></div>';
             hasMoreArticles = false;
+            if (!append) {
+                container.innerHTML = `<div class="portal-empty-state"><i class="ti ti-file-text"></i><p>${isEn ? 'No articles found' : 'Статьи не найдены'}</p></div>`;
+            }
+            updateTabSentinel(container, 'articles', false, false);
             return;
         }
 
-        if (articles.length < 24) {
+        if (articles.length < 5) {
             hasMoreArticles = false;
         }
 
@@ -8158,24 +8473,28 @@ window.loadArticlesTab = async function(page = 1, append = false) {
             container.appendChild(gridEl);
         }
 
-        const cardsHtml = articles.map(a => `
-            <a href="${a.url}" target="_blank" class="article-card">
-                ${a.image ? `<img src="${a.image}" alt="${a.title}" class="article-thumb" loading="lazy">` : `<div class="article-thumb placeholder"><i class="ti ti-file-text"></i></div>`}
-                <div class="article-body">
-                    <div class="article-tag">Статья</div>
-                    <div class="article-title">${a.title}</div>
-                    ${a.snippet ? `<div class="article-snippet">${a.snippet}...</div>` : ''}
-                    <div class="article-footer">
-                        <span>👤 ${a.author}</span>
-                        <span><i class="ti ti-message-circle"></i> ${a.comments_count}</span>
+        const cardsHtml = articles.map(a => {
+            const imgUrl = a.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(a.image) : a.image) : '';
+            return `
+                <a href="${a.url}" target="_blank" class="article-card">
+                    ${imgUrl ? `<img src="${imgUrl}" alt="${a.title}" class="article-thumb" loading="lazy">` : `<div class="article-thumb placeholder"><i class="ti ti-file-text"></i></div>`}
+                    <div class="article-body">
+                        <div class="article-tag">${isEn ? 'Article' : 'Статья'}</div>
+                        <div class="article-title">${a.title}</div>
+                        ${a.snippet ? `<div class="article-snippet">${a.snippet}...</div>` : ''}
+                        <div class="article-footer">
+                            <span>👤 ${a.author}</span>
+                            <span><i class="ti ti-message-circle"></i> ${a.comments_count}</span>
+                        </div>
                     </div>
-                </div>
-            </a>
-        `).join('');
+                </a>
+            `;
+        }).join('');
 
         gridEl.insertAdjacentHTML('beforeend', cardsHtml);
+        updateTabSentinel(container, 'articles', hasMoreArticles, false);
     } catch(err) {
-        if (!append) container.innerHTML = `<p style="color: var(--danger);">Ошибка загрузки статей: ${err.message}</p>`;
+        if (!append) container.innerHTML = `<p style="color: var(--danger);">${typeof i18n === 'function' ? i18n('error') : 'Ошибка'}: ${err.message}</p>`;
     } finally {
         isArticlesLoading = false;
     }
@@ -8202,11 +8521,17 @@ window.loadUsersTab = async function(page = 1, append = false) {
     if (isUsersLoading) return;
     isUsersLoading = true;
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+
     if (!append) {
         usersPage = 1;
         hasMoreUsers = true;
-        container.innerHTML = '<div class="loader"><i class="ti ti-loader animate-spin"></i> Загрузка пользователей...</div>';
+        container.innerHTML = `<div class="loader"><i class="ti ti-loader animate-spin"></i> ${isEn ? 'Loading users...' : 'Загрузка пользователей...'}</div>`;
+    } else {
+        usersPage = page;
     }
+
+    updateTabSentinel(container, 'users', hasMoreUsers, true);
 
     const search = document.getElementById('users-search-input')?.value || '';
 
@@ -8217,12 +8542,15 @@ window.loadUsersTab = async function(page = 1, append = false) {
         if (!append) container.innerHTML = '';
 
         if (!Array.isArray(users) || users.length === 0) {
-            if (!append) container.innerHTML = '<div class="portal-empty-state"><i class="ti ti-user-off"></i><p>Пользователи не найдены</p></div>';
             hasMoreUsers = false;
+            if (!append) {
+                container.innerHTML = `<div class="portal-empty-state"><i class="ti ti-user-off"></i><p>${isEn ? 'No users found' : 'Пользователи не найдены'}</p></div>`;
+            }
+            updateTabSentinel(container, 'users', false, false);
             return;
         }
 
-        if (users.length < 36) {
+        if (users.length < 5) {
             hasMoreUsers = false;
         }
 
@@ -8233,21 +8561,25 @@ window.loadUsersTab = async function(page = 1, append = false) {
             container.appendChild(gridEl);
         }
 
-        const cardsHtml = users.map(u => `
-            <a href="${u.url}" target="_blank" class="user-portal-card">
-                ${u.avatar ? `<img src="${u.avatar}" alt="${u.nickname}" class="user-portal-avatar" loading="lazy">` : `<div class="user-portal-avatar placeholder"><i class="ti ti-user"></i></div>`}
-                <div class="user-portal-info">
-                    <div class="user-portal-nick" title="${u.nickname}">${u.nickname}</div>
-                    <div class="user-portal-status">
-                        ${u.last_online_at ? `<span class="online-indicator"></span> ${formatTimeAgo ? formatTimeAgo(u.last_online_at) : 'онлайн'}` : 'Участник'}
+        const cardsHtml = users.map(u => {
+            const avatarUrl = u.avatar ? (typeof buildImgUrl === 'function' ? buildImgUrl(u.avatar) : u.avatar) : '';
+            return `
+                <a href="${u.url}" target="_blank" class="user-portal-card">
+                    ${avatarUrl ? `<img src="${avatarUrl}" alt="${u.nickname}" class="user-portal-avatar" loading="lazy">` : `<div class="user-portal-avatar placeholder"><i class="ti ti-user"></i></div>`}
+                    <div class="user-portal-info">
+                        <div class="user-portal-nick" title="${u.nickname}">${u.nickname}</div>
+                        <div class="user-portal-status">
+                            ${u.last_online_at ? `<span class="online-indicator"></span> ${formatTimeAgo ? formatTimeAgo(u.last_online_at) : (isEn ? 'online' : 'онлайн')}` : (isEn ? 'Member' : 'Участник')}
+                        </div>
                     </div>
-                </div>
-            </a>
-        `).join('');
+                </a>
+            `;
+        }).join('');
 
         gridEl.insertAdjacentHTML('beforeend', cardsHtml);
+        updateTabSentinel(container, 'users', hasMoreUsers, false);
     } catch(err) {
-        if (!append) container.innerHTML = `<p style="color: var(--danger);">Ошибка загрузки пользователей: ${err.message}</p>`;
+        if (!append) container.innerHTML = `<p style="color: var(--danger);">${typeof i18n === 'function' ? i18n('error') : 'Ошибка'}: ${err.message}</p>`;
     } finally {
         isUsersLoading = false;
     }
@@ -8267,39 +8599,44 @@ window.loadRecommendationsTab = async function() {
     const container = document.getElementById('recommendations-grid-container');
     if (!container) return;
 
-    container.innerHTML = '<div class="loader"><i class="ti ti-loader animate-spin"></i> Подбор рекомендаций...</div>';
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    container.innerHTML = `<div class="loader"><i class="ti ti-loader animate-spin"></i> ${isEn ? 'Loading recommendations...' : 'Подбор рекомендаций...'}</div>`;
 
     try {
         const res = await fetch('/api/recommendations');
         const items = await res.json();
 
         if (!Array.isArray(items) || items.length === 0) {
-            container.innerHTML = '<div class="portal-empty-state"><i class="ti ti-thumb-up"></i><p>Не удалось составить рекомендации</p></div>';
+            container.innerHTML = `<div class="portal-empty-state"><i class="ti ti-thumb-up"></i><p>${isEn ? 'No recommendations found' : 'Не удалось составить рекомендации'}</p></div>`;
             return;
         }
 
         container.innerHTML = `
             <div class="portal-media-grid">
-                ${items.map(anime => `
-                    <div class="portal-media-card" onclick="openAnimeModal(${anime.id})">
-                        <div class="portal-media-poster-wrap">
-                            <img src="${anime.image || DEFAULT_NO_POSTER}" alt="${anime.russian || anime.name}" class="portal-media-poster" loading="lazy">
-                            <span class="portal-score-badge"><i class="ti ti-star-filled"></i> ${anime.score || '7.5+'}</span>
-                            <span class="portal-kind-badge">${anime.kind || 'TV'}</span>
-                        </div>
-                        <div class="portal-media-info">
-                            <div class="portal-media-title" title="${anime.russian || anime.name}">${anime.russian || anime.name}</div>
-                            <div class="portal-media-meta">
-                                <span>${anime.year || ''}</span>
-                                <span class="badge-rec-match">Рекомендовано</span>
+                ${items.map(anime => {
+                    const posterUrl = anime.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(anime.image) : anime.image) : DEFAULT_NO_POSTER;
+                    const title = (isEn && anime.name) ? anime.name : (anime.russian || anime.name);
+                    return `
+                        <div class="portal-media-card" onclick="openAnimeModal(${anime.id})">
+                            <div class="portal-media-poster-wrap">
+                                <img src="${posterUrl}" alt="${(title || '').replace(/"/g, '&quot;')}" class="portal-media-poster" loading="lazy">
+                                <span class="portal-score-badge"><i class="ti ti-star-filled"></i> ${anime.score || '7.5+'}</span>
+                                <span class="portal-kind-badge">${anime.kind || 'TV'}</span>
+                            </div>
+                            <div class="portal-media-info">
+                                <div class="portal-media-title" title="${(title || '').replace(/"/g, '&quot;')}">${title}</div>
+                                <div class="portal-media-meta">
+                                    <span>${anime.year || ''}</span>
+                                    <span class="badge-rec-match">${isEn ? 'Recommended' : 'Рекомендовано'}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `).join('')}
+                    `;
+                }).join('')}
             </div>
         `;
     } catch(err) {
-        container.innerHTML = `<p style="color: var(--danger);">Ошибка: ${err.message}</p>`;
+        container.innerHTML = `<p style="color: var(--danger);">${typeof i18n === 'function' ? i18n('error') : 'Ошибка'}: ${err.message}</p>`;
     }
 };
 
@@ -8314,8 +8651,10 @@ window.loadFullCalendarTab = async function() {
     const container = document.getElementById('full-calendar-container');
     if (!container) return;
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+
     if (!fullCalendarCache) {
-        container.innerHTML = '<div class="loader"><i class="ti ti-loader animate-spin"></i> Загрузка расписания онгоингов...</div>';
+        container.innerHTML = `<div class="loader"><i class="ti ti-loader animate-spin"></i> ${isEn ? 'Loading ongoing schedule...' : 'Загрузка расписания онгоингов...'}</div>`;
         try {
             const res = await fetch('/api/calendar');
             fullCalendarCache = await res.json();
@@ -8336,7 +8675,11 @@ function renderFullCalendarUI(activeDay) {
     const container = document.getElementById('full-calendar-container');
     if (!container || !fullCalendarCache) return;
 
-    const days = [
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+
+    const days = isEn ? [
+        'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+    ] : [
         'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'
     ];
     const todayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
@@ -8349,36 +8692,94 @@ function renderFullCalendarUI(activeDay) {
                 ${days.map((day, idx) => `
                     <button type="button" class="cal-nav-btn ${idx === activeDay ? 'active' : ''} ${idx === todayIndex ? 'today' : ''}" onclick="setFullCalendarDay(${idx})">
                         <span>${day}</span>
-                        ${idx === todayIndex ? `<span class="cal-today-tag">Сегодня</span>` : ''}
+                        ${idx === todayIndex ? `<span class="cal-today-tag">${isEn ? 'Today' : 'Сегодня'}</span>` : ''}
                     </button>
                 `).join('')}
             </div>
 
             <div class="calendar-cards-grid">
-                ${filtered.length > 0 ? filtered.map(item => `
-                    <div class="calendar-grid-card" onclick="openAnimeModal(${item.id})">
-                        <div class="cal-card-poster-wrap">
-                            <img src="${item.image}" alt="${item.russian || item.name}" class="cal-card-poster" loading="lazy">
-                            ${item.time_str ? `<span class="cal-time-tag"><i class="ti ti-clock"></i> ${item.time_str}</span>` : ''}
-                            ${item.score ? `<span class="cal-score-tag"><i class="ti ti-star-filled"></i> ${item.score}</span>` : ''}
-                        </div>
-                        <div class="cal-card-body">
-                            <div class="cal-card-title" title="${item.russian || item.name}">${item.russian || item.name}</div>
-                            <div class="cal-card-meta">
-                                <span class="cal-next-badge">${item.next_episode ? item.next_episode + ' эп.' : 'Новая серия'}</span>
-                                <span class="cal-kind-tag">${item.kind || 'TV'}</span>
+                ${filtered.length > 0 ? filtered.map(item => {
+                    const title = (isEn && item.name) ? item.name : (item.russian || item.name);
+                    const posterUrl = item.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(item.image) : item.image) : DEFAULT_NO_POSTER;
+                    const nextEpText = item.next_episode 
+                        ? (isEn ? `Ep ${item.next_episode}` : `${item.next_episode} эп.`) 
+                        : (isEn ? 'New episode' : 'Новая серия');
+                    return `
+                        <div class="calendar-grid-card" onclick="openAnimeModal(${item.id})">
+                            <div class="cal-card-poster-wrap">
+                                <img src="${posterUrl}" alt="${(title || '').replace(/"/g, '&quot;')}" class="cal-card-poster" loading="lazy">
+                                ${item.time_str ? `<span class="cal-time-tag"><i class="ti ti-clock"></i> ${item.time_str}</span>` : ''}
+                                ${item.score ? `<span class="cal-score-tag"><i class="ti ti-star-filled"></i> ${item.score}</span>` : ''}
+                            </div>
+                            <div class="cal-card-body">
+                                <div class="cal-card-title" title="${(title || '').replace(/"/g, '&quot;')}">${title}</div>
+                                <div class="cal-card-meta">
+                                    <span class="cal-next-badge">${nextEpText}</span>
+                                    <span class="cal-kind-tag">${item.kind || 'TV'}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `).join('') : `<div class="portal-empty-state"><i class="ti ti-calendar-off"></i><p>В этот день нет релизов</p></div>`}
+                    `;
+                }).join('') : `<div class="portal-empty-state"><i class="ti ti-calendar-off"></i><p>${isEn ? 'No releases on this day' : 'В этот день нет релизов'}</p></div>`}
             </div>
         </div>
     `;
 }
 
 // ==========================================
-// 13. ГЛОБАЛЬНЫЙ INFINITE SCROLL ДЛЯ ВСЕХ МОДУЛЕЙ
+// 13. ГЛОБАЛЬНЫЙ БЕСКОНЕЧНЫЙ СКРОЛЛ (SENTINEL + SCROLL LISTENER)
 // ==========================================
+
+let globalSentinelObserver = null;
+
+function triggerInfiniteScroll(targetTab) {
+    if (!targetTab) {
+        const activeTabEl = document.querySelector('.tab-content.active');
+        targetTab = activeTabEl ? activeTabEl.id : (localStorage.getItem('activeTab') || 'profile');
+    }
+
+    if (targetTab === 'catalog-anime') {
+        if (!isAnimeCatalogLoading && hasMoreAnimeCatalog) loadMoreCatalogAnime();
+    } else if (targetTab === 'catalog-manga') {
+        if (!isMangaCatalogLoading && hasMoreMangaCatalog) loadMoreCatalogManga();
+    } else if (targetTab === 'catalog-ranobe') {
+        if (!isRanobeCatalogLoading && hasMoreRanobeCatalog) loadMoreCatalogRanobe();
+    } else if (targetTab === 'forum') {
+        if (!isForumLoading && hasMoreForum) loadMoreForum();
+    } else if (targetTab === 'clubs') {
+        if (!isClubsLoading && hasMoreClubs) loadMoreClubs();
+    } else if (targetTab === 'collections') {
+        if (!isCollectionsLoading && hasMoreCollections) loadMoreCollections();
+    } else if (targetTab === 'critiques') {
+        if (!isCritiquesLoading && hasMoreCritiques) loadMoreCritiques();
+    } else if (targetTab === 'articles') {
+        if (!isArticlesLoading && hasMoreArticles) loadMoreArticles();
+    } else if (targetTab === 'users') {
+        if (!isUsersLoading && hasMoreUsers) loadMoreUsers();
+    }
+}
+
+function initGlobalInfiniteScroll() {
+    if ('IntersectionObserver' in window) {
+        if (globalSentinelObserver) globalSentinelObserver.disconnect();
+        globalSentinelObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const tabId = entry.target.dataset.tab;
+                    triggerInfiniteScroll(tabId);
+                }
+            });
+        }, {
+            root: null,
+            rootMargin: '600px',
+            threshold: 0.01
+        });
+
+        document.querySelectorAll('.portal-infinite-sentinel').forEach(el => {
+            globalSentinelObserver.observe(el);
+        });
+    }
+}
 
 let infiniteScrollThrottleTimer = null;
 
@@ -8387,54 +8788,22 @@ function handleGlobalInfiniteScroll() {
     infiniteScrollThrottleTimer = setTimeout(() => {
         infiniteScrollThrottleTimer = null;
         
-        const scrollPosition = window.innerHeight + window.scrollY;
-        const threshold = document.documentElement.scrollHeight - 600;
+        const scrollY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+        const innerHeight = window.innerHeight || document.documentElement.clientHeight;
+        const scrollHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight);
 
-        if (scrollPosition >= threshold) {
-            const activeTab = localStorage.getItem('activeTab') || 'profile';
-
-            if (activeTab === 'catalog-anime') {
-                if (!isAnimeCatalogLoading && hasMoreAnimeCatalog) {
-                    loadMoreCatalogAnime();
-                }
-            } else if (activeTab === 'catalog-manga') {
-                if (!isMangaCatalogLoading && hasMoreMangaCatalog) {
-                    loadMoreCatalogManga();
-                }
-            } else if (activeTab === 'catalog-ranobe') {
-                if (!isRanobeCatalogLoading && hasMoreRanobeCatalog) {
-                    loadMoreCatalogRanobe();
-                }
-            } else if (activeTab === 'forum') {
-                if (!isForumLoading && hasMoreForum) {
-                    loadMoreForum();
-                }
-            } else if (activeTab === 'clubs') {
-                if (!isClubsLoading && hasMoreClubs) {
-                    loadMoreClubs();
-                }
-            } else if (activeTab === 'collections') {
-                if (!isCollectionsLoading && hasMoreCollections) {
-                    loadMoreCollections();
-                }
-            } else if (activeTab === 'critiques') {
-                if (!isCritiquesLoading && hasMoreCritiques) {
-                    loadMoreCritiques();
-                }
-            } else if (activeTab === 'articles') {
-                if (!isArticlesLoading && hasMoreArticles) {
-                    loadMoreArticles();
-                }
-            } else if (activeTab === 'users') {
-                if (!isUsersLoading && hasMoreUsers) {
-                    loadMoreUsers();
-                }
-            }
+        if (scrollY + innerHeight >= scrollHeight - 800) {
+            triggerInfiniteScroll();
         }
-    }, 150);
+    }, 120);
 }
 
 window.addEventListener('scroll', handleGlobalInfiniteScroll, { passive: true });
+window.addEventListener('resize', handleGlobalInfiniteScroll, { passive: true });
+
+document.addEventListener('DOMContentLoaded', () => {
+    initGlobalInfiniteScroll();
+});
 
 ;
 /* --- js/settings.js --- */

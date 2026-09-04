@@ -1,0 +1,1148 @@
+# ==============================================================================
+# Shiki MX App - Translation Dictionary Reference (translations.txt)
+# ==============================================================================
+
+# ==============================================================================
+# 1. RUSSIAN TRANSLATIONS (RU)
+# ==============================================================================
+
+[ru]
+# Header & Navigation
+nav.main = Главная
+nav.my_pages = Мои страницы
+nav.sections = Разделы сайта
+nav.group_database = БАЗА ДАННЫХ
+nav.group_community = СООБЩЕСТВО
+nav.group_misc = РАЗНОЕ
+tab.profile = Главная
+tab.rates = Списки
+tab.anime_list = Список аниме
+tab.manga_list = Список манги
+tab.favourites = Избранное
+tab.friends = Друзья
+tab.history = История
+tab.anime = Аниме
+tab.top100 = Топ 100
+tab.manga = Манга
+tab.ranobe = Ранобэ
+tab.forum = Форум
+tab.clubs = Клубы
+tab.collections = Коллекции
+tab.critiques = Рецензии
+tab.articles = Статьи
+tab.users = Пользователи
+tab.recommendations = Рекомендации
+tab.calendar = Календарь
+search.title = Поиск
+search.placeholder = Поиск аниме, манги...
+search.clear = Очистить
+search.hotkey_tip = Нажмите / для быстрого перехода к поиску
+theme.title = Сменить тему
+theme.dark = Тёмная
+theme.light = Светлая
+lang.title = Язык
+lang.interface = Язык интерфейса
+logout = Выйти
+
+# Auth
+login.shikimori = Войти
+login.via_shikimori = Войти через Shikimori
+auth.required = Требуется авторизация
+auth.not_authorized = Авторизация не выполнена
+auth.not_authorized.desc = Войдите через Shikimori, чтобы просмотреть свой профиль, списки и обзор.
+
+# Profile
+profile.info = Информация
+profile.stats = Статистика
+profile.friends_clubs = Друзья и клубы
+profile.activity = Активность
+profile.about = О себе
+profile.all = Все
+profile.full_history = Вся история
+profile.show_full = Показать полностью
+profile.collapse = Свернуть
+profile.expand = Показать полностью
+profile.about_empty = Информация о себе не заполнена.
+profile.stats_unavailable = Статистика недоступна
+profile.id = ID:
+profile.name = Имя:
+profile.age = Возраст:
+profile.sex = Пол:
+profile.last_visit = Последний визит:
+profile.anime_completed = Просмотрено аниме:
+profile.anime_watching = Смотрю аниме:
+profile.manga_completed = Прочитано манги:
+profile.manga_watching = Читаю мангу:
+
+# Explore Portal
+explore.on_screens = СЕЙЧАС НА ЭКРАНАХ
+explore.my_list = МОЙ СПИСОК
+explore.subtab.anime = аниме
+explore.subtab.manga = манга
+explore.subtab.history = история
+explore.cat.anime = АНИМЕ
+explore.cat.manga = МАНГА
+explore.cat.ranobe = РАНОБЭ
+explore.news = Новости
+explore.anime_updates = ОБНОВЛЕНИЯ АНИМЕ
+explore.content = Контент
+explore.hot_topics = Темы дня
+explore.main_news = Главные новости
+explore.more_news = Ещё новости
+explore.no_content = Нет доступного контента
+explore.no_hot = Нет популярных тем
+explore.searching = Поиск...
+explore.no_results = Ничего не найдено
+explore.min_chars = Введите минимум 2 символа
+explore.topic = Тема
+explore.collection = Коллекция
+explore.review = Рецензия
+explore.discussion = Обсуждение
+explore.article = Статья
+explore.loading = Загрузка...
+explore.loading_more = Подгрузка новостей...
+explore.news_feed = Новостная лента
+explore.collections = коллекции
+explore.reviews = рецензии
+explore.articles = статьи
+explore.search_error = Ошибка поиска
+explore.status.released = Завершено
+explore.status.ongoing = Онгоинг
+explore.status.anons = Анонс
+explore.type = Тип:
+explore.year = год
+explore.genres = Жанры:
+explore.no_more_news = Больше новостей нет
+explore.load_more_error = Ошибка подгрузки новостей:
+explore.forum_btn = Форум
+explore.open = Открыть
+explore.go_to_lists = Перейти к спискам
+explore.click_to_view = Нажмите для просмотра
+explore.my_manga_lists = Мои списки манги
+explore.my_anime_lists = Мои списки аниме
+explore.recently = недавно
+explore.chapter = глава
+explore.chapters_few = главы
+explore.chapters_many = глав
+
+# Quick Category Filter Pills
+explore.pill.fall_2026 = ОСЕНЬ 2026
+explore.pill.summer_2026 = ЛЕТО 2026
+explore.pill.spring_2026 = ВЕСНА 2026
+explore.pill.winter_2026 = ЗИМА 2026
+explore.pill.anime_2026 = АНИМЕ 2026
+explore.pill.anime_2025 = АНИМЕ 2025
+explore.pill.ongoing = ОНГОИНГИ
+explore.pill.favourites = ИЗБРАННОЕ
+explore.pill.recommendations = РЕКОМЕНДАЦИИ
+explore.pill.manga = МАНГА
+explore.pill.manhwa = МАНХВА
+explore.pill.manhua = МАНЬХУА
+explore.pill.one_shot = ВАНШОТ
+explore.pill.doujin = ДОДЗИНСИ
+explore.pill.top_manga = ТОП МАНГИ
+explore.pill.top_100 = ТОП 100
+explore.pill.ranobe = РАНОБЭ
+explore.pill.novels = НОВЕЛЛЫ
+explore.pill.top_ranobe = ТОП РАНОБЭ
+
+# Relative Time
+time.just_now = только что
+time.min_ago = мин. назад
+time.hours_ago = ч. назад
+time.day_ago = день назад
+time.days_ago = дн. назад
+
+# News Tags
+news.tag.news = Новость
+news.tag.trailer = Трейлер
+news.tag.poster = Постер
+news.tag.premiere = Премьера
+news.tag.anime = Аниме
+
+# Portal Modules
+portal.anime_title = Каталог Аниме
+portal.manga_title = Каталог Манги
+portal.ranobe_title = Каталог Ранобэ
+portal.top100_title = Топ 100
+portal.forum_title = Форум
+portal.clubs_title = Клубы
+portal.collections_title = Коллекции пользователей
+portal.critiques_title = Рецензии и отзывы
+portal.articles_title = Статьи и аналитика
+portal.users_title = Пользователи
+portal.recommendations_title = Рекомендации аниме
+portal.calendar_title = Календарь релизов онгоингов
+portal.top_anime = Топ Аниме
+portal.top_movie = Топ Фильмов
+portal.top_ongoing = Топ Онгоингов
+portal.top_manga = Топ Манги
+portal.search_anime = Поиск аниме...
+portal.search_manga = Поиск манги...
+portal.search_ranobe = Поиск ранобэ...
+portal.search_clubs = Поиск клубов...
+portal.search_users = Поиск по никнейму...
+forum.all = Все темы
+forum.animanga = Аниме и Манга
+forum.news = Новости
+forum.critiques = Рецензии
+forum.collections = Коллекции
+forum.articles = Статьи
+forum.offtopic = Офтопик
+
+# Settings
+settings.title = Настройки
+settings.background = Фон сайта
+settings.background.hint = Выберите цвет фона или установите любое фото.
+settings.color = Цвет
+settings.image = Фото
+settings.bg_color = Цвет фона
+settings.image_url = URL изображения
+settings.or = или
+settings.upload = Загрузить с устройства
+settings.reset = Сбросить
+settings.section_visibility = Видимость разделов
+settings.section_visibility.hint = Выберите, какие разделы отображать на вкладке «Профиль & Обзор».
+settings.navbar_view = Вид навигации
+settings.navbar_view.hint = Выберите, как отображать элементы навигации.
+settings.navbar_view.full = Иконка + название
+settings.navbar_view.icons = Только иконки
+settings.navbar_view.titles = Только названия
+
+# About modal
+about.title = О сайте
+about.features = Возможности приложения
+about.tech_stack = Технологический стек
+about.changelog = Чейнджлог (История изменений)
+
+# Common
+loading = Загрузка...
+rates.loading = Загрузка списков...
+favourites.loading = Загрузка избранного...
+friends.loading = Загрузка друзей и клубов...
+history.loading = Загрузка истории...
+common.load_error = Ошибка загрузки
+error = Ошибка
+close = Закрыть
+
+# Rates
+rates.watching = Смотрю
+rates.completed = Просмотрено
+rates.planned = Запланировано
+rates.on_hold = Отложено
+rates.dropped = Брошено
+rates.rewatching = Пересматриваю
+rates.anime = Аниме
+rates.manga = Манга
+rates.all = Все
+rates.empty = Список пуст
+rates.no_results = Записей не найдено
+rates.sort.updated = По дате обновления
+rates.sort.score_desc = По оценке (сначала высокие)
+rates.sort.score_asc = По оценке (сначала низкие)
+rates.sort.name = По названию (А-Я)
+rates.sort.progress = По прогрессу
+rates.progress.anime = эп.
+rates.progress.manga = гл.
+rates.rewatches = повторов:
+rates.view.table = Таблица
+rates.view.list = Список
+rates.view.cards = Карточки
+rates.view.large = Постеры
+rates.progress = Прогресс
+rates.score = Оценка
+rates.scores = Оценки
+rates.types = Типы
+rates.ratings = Рейтинги
+rates.anime_list = СПИСОК АНИМЕ
+rates.manga_list = СПИСОК МАНГИ
+rates.col.index = #
+rates.col.name = Название
+rates.col.score = Оценка
+rates.col.episodes = Эпизоды
+rates.col.chapters = Главы
+rates.col.type = Тип
+rates.col.actions = Действия
+rates.collapse = свернуть
+rates.expand = развернуть
+
+# Friends
+friends.empty = Список пуст
+friends.load_error = Ошибка загрузки
+friends.friends = Друзья
+friends.clubs = Клубы
+friends.private_club = Закрытый клуб
+friends.public_club = Публичный клуб
+friends.open_shikimori = Открыть на Shikimori
+friends.about = О себе
+friends.about_empty = Информация о себе не заполнена.
+friends.id = ID:
+friends.sex = Пол:
+friends.age = Возраст:
+friends.last_online = Был(а) в сети:
+friends.online_today = В сети сегодня
+friends.anime = Аниме
+friends.manga = Манга
+friends.watched = Просмотрено:
+friends.watching = Смотрит:
+friends.read = Прочитано:
+friends.reading = Читает:
+
+# Favourites
+favourites.empty = Пусто
+favourites.characters = Любимые персонажи
+favourites.animes = Любимое аниме
+favourites.mangas = Любимая манга
+
+# History
+history.empty = История пуста
+history.load_error = Не удалось загрузить историю
+history.full = Вся история
+
+# Anime modal
+anime.loading = Загрузка информации...
+anime.load_error = Не удалось загрузить данные
+anime.playback_error = Ошибка воспроизведения
+anime.no_players = Нет доступных плееров
+anime.sources = Источники:
+anime.open_shikimori = Открыть на Shikimori
+anime.episode = Эпизод
+anime.translation = Озвучка / Субтитры:
+anime.player = Плеер / Зеркало:
+anime.description = Описание
+anime.search_error = Ошибка поиска
+anime.no_results = Ничего не найдено
+anime.search_players = Ищем в Kodik, AniLibria, AnimeGo, Animevost...
+anime.player_1 = Плеер 1 (Shikimori)
+anime.player_2 = Плеер 2 (Anicli)
+anime.type = Тип:
+anime.status = Статус:
+anime.episodes = Эпизоды:
+anime.duration = Длительность:
+anime.min = мин.
+anime.aired = Выпуск:
+anime.rating = Рейтинг:
+anime.studios = Студии:
+anime.genres = Жанры:
+anime.scored_by = Оценили:
+anime.characters = Персонажи:
+anime.show_all_characters = Показать всех
+anime.hide_characters = Скрыть
+anime.franchise = Франшиза:
+anime.related = Относится:
+anime.screenshots = Скриншоты:
+anime.external_scores = Оценки на других сайтах:
+anime.videos = Видео:
+anime.licensed_by = Лицензиары:
+anime.my_progress = Мой прогресс:
+anime.chapters = Главы:
+anime.volumes = Тома:
+anime.publisher = Издательство:
+
+# Lightbox
+lightbox.close = Закрыть (Esc)
+lightbox.prev = Назад (←)
+lightbox.next = Вперед (→)
+lightbox.zoom = Нажмите для увеличения
+video.link = Видео
+
+# Manga modal
+manga.loading = Загрузка информации о манге...
+manga.load_error = Не удалось загрузить данные о манге
+manga.type = Тип:
+manga.status = Статус:
+manga.volumes = Томов:
+manga.chapters = Глав:
+manga.publisher = Издательство:
+manga.aired = Выпуск:
+manga.genres = Жанры:
+
+# Character modal
+character.loading = Загрузка персонажа...
+character.load_error = Не удалось загрузить персонажа
+character.info = Информация о персонаже
+character.anime = Аниме:
+character.manga = Манга:
+
+# Club modal
+club.loading = Загрузка информации о клубе...
+club.load_error = Не удалось загрузить данные клуба
+club.members = Участников:
+club.type = Тип:
+club.description = Описание клуба
+
+# Player & Continue Watching
+player.continue_watching = Продолжить просмотр
+player.continue_desc = Вы остановились здесь
+player.ep_short = сер.
+player.skip_intro = +85 сек
+player.next_ep = След. серия
+player.prev_ep = Пред. серия
+player.mini_player = PiP
+player.restore = Развернуть
+player.close = Закрыть
+
+# My List widget
+mylist.title = Мой список
+mylist.not_in_list = Не в списке
+mylist.status = Статус:
+mylist.episodes = Серии:
+mylist.chapters = Главы:
+mylist.volumes = Тома:
+mylist.score = Оценка:
+mylist.note = Заметка / впечатления:
+mylist.note_placeholder = Напишите заметку...
+mylist.save = Сохранить
+mylist.saving = Сохранение...
+mylist.saved = Успешно сохранено в Shikimori
+mylist.delete = Удалить из списка
+mylist.deleted = Удалено из списка
+mylist.quick_inc = +1
+mylist.search_placeholder = Поиск по вашим спискам...
+mylist.delete_confirm = Удалить из списка?
+mylist.delete_error = Ошибка удаления
+mylist.save_error = Ошибка при сохранении
+mylist.update_error = Ошибка обновления
+
+# Airing Calendar
+calendar.title = Расписание онгоингов
+calendar.today = Сегодня
+calendar.airing_soon = Скоро выйдет
+calendar.ep_next = серия
+calendar.empty_day = В этот день нет запланированных релизов
+calendar.mon = Пн
+calendar.tue = Вт
+calendar.wed = Ср
+calendar.thu = Чт
+calendar.fri = Пт
+calendar.sat = Сб
+calendar.sun = Вс
+
+# Catalog
+catalog.title = Каталог аниме
+catalog.filter.genre = Жанр
+catalog.filter.all_genres = Все жанры
+catalog.filter.season = Сезон / Год
+catalog.filter.all_seasons = Все сезоны
+catalog.season.fall_2026 = Осень 2026
+catalog.season.summer_2026 = Лето 2026
+catalog.season.spring_2026 = Весна 2026
+catalog.season.winter_2026 = Зима 2026
+catalog.season.fall_2025 = Осень 2025
+catalog.season.y2026 = 2026 год
+catalog.season.y2025 = 2025 год
+catalog.season.y2024 = 2024 год
+catalog.filter.type = Тип
+catalog.filter.all_types = Все типы
+catalog.kind.tv = ТВ Сериал
+catalog.kind.movie = Фильм
+catalog.kind.ova = OVA
+catalog.kind.ona = ONA
+catalog.kind.special = Спешл
+catalog.kind.manga = Манга
+catalog.kind.manhwa = Манхва
+catalog.kind.manhua = Маньхуа
+catalog.kind.one_shot = Ваншот
+catalog.kind.doujin = Додзинси
+catalog.filter.status = Статус
+catalog.filter.all_statuses = Все статусы
+catalog.status.ongoing = Онгоинг
+catalog.status.released = Вышло
+catalog.status.anons = Анонс
+catalog.status.ongoing_manga = Выходит
+catalog.status.released_manga = Издано
+catalog.filter.score = Мин. оценка
+catalog.filter.all_scores = Любая
+catalog.filter.sort = Сортировка
+catalog.sort.ranked = По рейтингу
+catalog.sort.popularity = По популярности
+catalog.sort.aired_on = По дате выхода
+catalog.sort.name = По названию
+catalog.load_more = Загрузить ещё
+catalog.empty = Ничего не найдено по выбранным фильтрам
+
+# Community & Forum
+forum.loading = Загрузка тем форума...
+forum.no_topics = Темы не найдены
+forum.cat.animanga = Аниме и Манга
+forum.cat.news = Новости
+forum.cat.critiques = Рецензии
+forum.cat.collections = Коллекции
+forum.cat.articles = Статьи
+forum.cat.offtopic = Офтопик
+community.author = Автор
+community.public_club = Открытый клуб
+community.by_application = По заявкам
+community.member = Участник
+community.read_full = Читать полностью
+community.rec_badge = Рекомендовано
+community.loading_rec = Подбор рекомендаций...
+community.no_rec = Не удалось составить рекомендации
+
+# Randomizer & Recommendations
+random.title = Рандомайзер
+random.btn = Мне повезёт!
+random.tooltip = Случайное аниме (Мне повезёт!)
+random.finding = Подбираем случайное аниме...
+random.error = Не удалось подобрать тайтл
+recommendations.title = Рекомендуем посмотреть
+
+# PWA
+pwa.title = Приложение (PWA)
+pwa.desc = Установите Shiki MX как быстрое приложение для рабочего стола или смартфона.
+pwa.install = Установить приложение
+pwa.installed = Приложение установлено
+pwa.offline_toast = Вы находитесь в офлайн-режиме
+
+# Genres & Tags
+Экшен = Экшен
+Экшн = Экшен
+Приключения = Приключения
+Комедия = Комедия
+Драма = Драма
+Фэнтези = Фэнтези
+Фантастика = Фантастика
+Магия = Магия
+Сверхъестественное = Сверхъестественное
+Ужасы = Ужасы
+Детектив = Детектив
+Психологическое = Психологическое
+Романтика = Романтика
+Школа = Школа
+Сёнен = Сёнен
+Сэйнэн = Сэйнэн
+Сёдзё = Сёдзё
+Дзёсэй = Дзёсэй
+Дзёсей = Дзёсей
+Меха = Меха
+Музыка = Музыка
+Повседневность = Повседневность
+Спорт = Спорт
+Триллер = Триллер
+Военное = Военное
+Исторический = Исторический
+Игры = Игры
+Демоны = Демоны
+Вампиры = Вампиры
+Гарем = Гарем
+Этти = Этти
+Самураи = Самураи
+Космос = Космос
+Супер сила = Супер сила
+Пародия = Пародия
+Безумие = Безумие
+Полиция = Полиция
+Боевые искусства = Боевые искусства
+Исекай = Исекай
+Гурман = Гурман
+Трейлер = Трейлер
+Постер = Постер
+Премьера = Премьера
+Новость = Новость
+Аниме = Аниме
+Манга = Манга
+Коллекция = Коллекция
+Рецензия = Рецензия
+Статья = Статья
+Обсуждение = Обсуждение
+Обсуждение Аниме = Обсуждение Аниме
+Обсуждение Манги = Обсуждение Манги
+Обсуждение Ранобэ = Обсуждение Ранобэ
+Офтопик = Офтопик
+Аниме и Манга = Аниме и Манга
+# Rates Filters
+filters.title = Фильтры
+filters.sort = Сортировка
+filters.status = Статус
+filters.type = Тип
+filters.genres = Жанры
+filters.topics = Темы
+filters.season_year = Сезон и год
+filters.duration = Длительность серии
+filters.rating = Возрастной рейтинг
+filters.source = Первоисточник
+filters.studio = Студия
+filters.license = Лицензия
+filters.score = Рейтинг
+filters.from = от
+filters.to = до
+filters.any = любой
+filters.preset_best = Лучшее
+filters.preset_good = Хорошее
+filters.preset_mid = Средние
+filters.preset_poor = Слабые
+
+# ==============================================================================
+# 2. ENGLISH TRANSLATIONS (EN)
+# ==============================================================================
+
+[en]
+# Header & Navigation
+nav.main = Home
+nav.my_pages = My pages
+nav.sections = Site sections
+nav.group_database = DATABASE
+nav.group_community = COMMUNITY
+nav.group_misc = MISC
+tab.profile = Home
+tab.rates = Lists
+tab.anime_list = Anime list
+tab.manga_list = Manga list
+tab.favourites = Favorites
+tab.friends = Friends
+tab.history = History
+tab.anime = Anime
+tab.top100 = Top 100
+tab.manga = Manga
+tab.ranobe = Light Novels
+tab.forum = Forum
+tab.clubs = Clubs
+tab.collections = Collections
+tab.critiques = Reviews
+tab.articles = Articles
+tab.users = Users
+tab.recommendations = Recommendations
+tab.calendar = Calendar
+search.title = Search
+search.placeholder = Search anime, manga...
+search.clear = Clear
+search.hotkey_tip = Press / to search
+theme.title = Change theme
+theme.dark = Dark
+theme.light = Light
+lang.title = Language
+lang.interface = Interface language
+logout = Log out
+
+# Auth
+login.shikimori = Log in
+login.via_shikimori = Log in with Shikimori
+auth.required = Authorization required
+auth.not_authorized = Authorization not completed
+auth.not_authorized.desc = Log in with Shikimori to view your profile, lists and explore.
+
+# Profile
+profile.info = Information
+profile.stats = Statistics
+profile.friends_clubs = Friends and clubs
+profile.activity = Activity
+profile.about = About
+profile.all = All
+profile.full_history = Full history
+profile.show_full = Show full
+profile.collapse = Collapse
+profile.expand = Show more
+profile.about_empty = About section is not filled.
+profile.stats_unavailable = Statistics unavailable
+profile.id = ID:
+profile.name = Name:
+profile.age = Age:
+profile.sex = Gender:
+profile.last_visit = Last visit:
+profile.anime_completed = Anime watched:
+profile.anime_watching = Watching anime:
+profile.manga_completed = Manga read:
+profile.manga_watching = Reading manga:
+
+# Explore Portal
+explore.on_screens = NOW ON SCREENS
+explore.my_list = MY LIST
+explore.subtab.anime = anime
+explore.subtab.manga = manga
+explore.subtab.history = history
+explore.cat.anime = ANIME
+explore.cat.manga = MANGA
+explore.cat.ranobe = LIGHT NOVELS
+explore.news = News
+explore.anime_updates = ANIME UPDATES
+explore.content = Content
+explore.hot_topics = Hot topics
+explore.main_news = Main news
+explore.more_news = More news
+explore.no_content = No content available
+explore.no_hot = No popular topics
+explore.searching = Searching...
+explore.no_results = No results found
+explore.min_chars = Enter at least 2 characters
+explore.topic = Topic
+explore.collection = Collection
+explore.review = Review
+explore.discussion = Discussion
+explore.article = Article
+explore.loading = Loading...
+explore.loading_more = Loading more news...
+explore.news_feed = News feed
+explore.collections = collections
+explore.reviews = reviews
+explore.articles = articles
+explore.search_error = Search error
+explore.status.released = Released
+explore.status.ongoing = Ongoing
+explore.status.anons = Announced
+explore.type = Type:
+explore.year = year
+explore.genres = Genres:
+explore.no_more_news = No more news
+explore.load_more_error = Error loading more news:
+explore.forum_btn = Forum
+explore.open = Open
+explore.go_to_lists = Go to lists
+explore.click_to_view = Click to view
+explore.my_manga_lists = My manga lists
+explore.my_anime_lists = My anime lists
+explore.recently = recently
+explore.chapter = ch.
+explore.chapters_few = ch.
+explore.chapters_many = ch.
+
+# Quick Category Filter Pills
+explore.pill.fall_2026 = FALL 2026
+explore.pill.summer_2026 = SUMMER 2026
+explore.pill.spring_2026 = SPRING 2026
+explore.pill.winter_2026 = WINTER 2026
+explore.pill.anime_2026 = ANIME 2026
+explore.pill.anime_2025 = ANIME 2025
+explore.pill.ongoing = ONGOING
+explore.pill.favourites = FAVORITES
+explore.pill.recommendations = RECOMMENDED
+explore.pill.manga = MANGA
+explore.pill.manhwa = MANHWA
+explore.pill.manhua = MANHUA
+explore.pill.one_shot = ONE-SHOT
+explore.pill.doujin = DOUJINSHI
+explore.pill.top_manga = TOP MANGA
+explore.pill.top_100 = TOP 100
+explore.pill.ranobe = LIGHT NOVELS
+explore.pill.novels = NOVELS
+explore.pill.top_ranobe = TOP NOVELS
+
+# Relative Time
+time.just_now = just now
+time.min_ago = m ago
+time.hours_ago = h ago
+time.day_ago = 1 day ago
+time.days_ago = d ago
+
+# News Tags
+news.tag.news = News
+news.tag.trailer = Trailer
+news.tag.poster = Poster
+news.tag.premiere = Premiere
+news.tag.anime = Anime
+
+# Portal Modules
+portal.anime_title = Anime Catalog
+portal.manga_title = Manga Catalog
+portal.ranobe_title = Light Novels Catalog
+portal.top100_title = Top 100
+portal.forum_title = Forum
+portal.clubs_title = Clubs
+portal.collections_title = User Collections
+portal.critiques_title = Reviews & Critiques
+portal.articles_title = Articles & Insights
+portal.users_title = Users
+portal.recommendations_title = Anime Recommendations
+portal.calendar_title = Ongoing Release Calendar
+portal.top_anime = Top Anime
+portal.top_movie = Top Movies
+portal.top_ongoing = Top Ongoing
+portal.top_manga = Top Manga
+portal.search_anime = Search anime...
+portal.search_manga = Search manga...
+portal.search_ranobe = Search light novels...
+portal.search_clubs = Search clubs...
+portal.search_users = Search by nickname...
+forum.all = All Topics
+forum.animanga = Anime & Manga
+forum.news = News
+forum.critiques = Critiques
+forum.collections = Collections
+forum.articles = Articles
+forum.offtopic = Off-topic
+
+# Settings
+settings.title = Settings
+settings.background = Site background
+settings.background.hint = Choose a background color or set any image.
+settings.color = Color
+settings.image = Image
+settings.bg_color = Background color
+settings.image_url = Image URL
+settings.or = or
+settings.upload = Upload from device
+settings.reset = Reset
+settings.section_visibility = Section visibility
+settings.section_visibility.hint = Choose which sections to display on the «Profile & Explore» tab.
+settings.navbar_view = Navigation view
+settings.navbar_view.hint = Choose how navigation elements are displayed.
+settings.navbar_view.full = Icon + label
+settings.navbar_view.icons = Icons only
+settings.navbar_view.titles = Labels only
+
+# About modal
+about.title = About
+about.features = Features
+about.tech_stack = Tech stack
+about.changelog = Changelog (Change history)
+
+# Common
+loading = Loading...
+rates.loading = Loading lists...
+favourites.loading = Loading favorites...
+friends.loading = Loading friends and clubs...
+history.loading = Loading history...
+common.load_error = Loading error
+error = Error
+close = Close
+
+# Rates
+rates.watching = Watching
+rates.completed = Completed
+rates.planned = Planned
+rates.on_hold = On hold
+rates.dropped = Dropped
+rates.rewatching = Rewatching
+rates.anime = Anime
+rates.manga = Manga
+rates.all = All
+rates.empty = List is empty
+rates.no_results = No records found
+rates.sort.updated = By update date
+rates.sort.score_desc = By score (highest first)
+rates.sort.score_asc = By score (lowest first)
+rates.sort.name = By name (A-Z)
+rates.sort.progress = By progress
+rates.progress.anime = eps
+rates.progress.manga = ch
+rates.rewatches = rewatches:
+rates.view.table = Table
+rates.view.list = List
+rates.view.cards = Cards
+rates.view.large = Posters
+rates.progress = Progress
+rates.score = Score
+rates.scores = Scores
+rates.types = Types
+rates.ratings = Ratings
+rates.anime_list = ANIME LIST
+rates.manga_list = MANGA LIST
+rates.col.index = #
+rates.col.name = Title
+rates.col.score = Score
+rates.col.episodes = Episodes
+rates.col.chapters = Chapters
+rates.col.type = Type
+rates.col.actions = Actions
+rates.collapse = collapse
+rates.expand = expand
+
+# Friends
+friends.empty = List is empty
+friends.load_error = Loading error
+friends.friends = Friends
+friends.clubs = Clubs
+friends.private_club = Private club
+friends.public_club = Public club
+friends.open_shikimori = Open on Shikimori
+friends.about = About
+friends.about_empty = About section is not filled.
+friends.id = ID:
+friends.sex = Gender:
+friends.age = Age:
+friends.last_online = Last seen:
+friends.online_today = Online today
+friends.anime = Anime
+friends.manga = Manga
+friends.watched = Watched:
+friends.watching = Watching:
+friends.read = Read:
+friends.reading = Reading:
+
+# Favourites
+favourites.empty = Empty
+favourites.characters = Favorite characters
+favourites.animes = Favorite anime
+favourites.mangas = Favorite manga
+
+# History
+history.empty = History is empty
+history.load_error = Failed to load history
+history.full = Full history
+
+# Anime modal
+anime.loading = Loading information...
+anime.load_error = Failed to load data
+anime.playback_error = Playback error
+anime.no_players = No available players found
+anime.sources = Sources:
+anime.open_shikimori = Open on Shikimori
+anime.episode = Episode
+anime.translation = Dub / Sub:
+anime.player = Player / Mirror:
+anime.description = Description
+anime.search_error = Search error
+anime.no_results = No results found
+anime.search_players = Searching in Kodik, AniLibria, AnimeGo, Animevost...
+anime.player_1 = Player 1 (Shikimori)
+anime.player_2 = Player 2 (Anicli)
+anime.type = Type:
+anime.status = Status:
+anime.episodes = Episodes:
+anime.duration = Duration:
+anime.min = min.
+anime.aired = Aired:
+anime.rating = Rating:
+anime.studios = Studios:
+anime.genres = Genres:
+anime.scored_by = Rated by:
+anime.characters = Characters:
+anime.show_all_characters = Show all
+anime.hide_characters = Hide
+anime.franchise = Franchise:
+anime.related = Related:
+anime.screenshots = Screenshots:
+anime.external_scores = External scores:
+anime.videos = Videos:
+anime.licensed_by = Licensed by:
+anime.my_progress = My progress:
+anime.chapters = Chapters:
+anime.volumes = Volumes:
+anime.publisher = Publisher:
+
+# Lightbox
+lightbox.close = Close (Esc)
+lightbox.prev = Previous (←)
+lightbox.next = Next (→)
+lightbox.zoom = Click to zoom
+video.link = Video
+
+# Manga modal
+manga.loading = Loading manga information...
+manga.load_error = Failed to load manga data
+manga.type = Type:
+manga.status = Status:
+manga.volumes = Volumes:
+manga.chapters = Chapters:
+manga.publisher = Publisher:
+manga.aired = Aired:
+manga.genres = Genres:
+
+# Character modal
+character.loading = Loading character...
+character.load_error = Failed to load character
+character.info = Character information
+character.anime = Anime:
+character.manga = Manga:
+
+# Club modal
+club.loading = Loading club information...
+club.load_error = Failed to load club data
+club.members = Members:
+club.type = Type:
+club.description = Club description
+
+# Player & Continue Watching
+player.continue_watching = Continue Watching
+player.continue_desc = Pick up where you left off
+player.ep_short = ep.
+player.skip_intro = +85 sec
+player.next_ep = Next Episode
+player.prev_ep = Prev Episode
+player.mini_player = PiP
+player.restore = Restore
+player.close = Close
+
+# My List widget
+mylist.title = My List
+mylist.not_in_list = Not in list
+mylist.status = Status:
+mylist.episodes = Episodes:
+mylist.chapters = Chapters:
+mylist.volumes = Volumes:
+mylist.score = Score:
+mylist.note = Note / Review:
+mylist.note_placeholder = Write your personal note...
+mylist.save = Save
+mylist.saving = Saving...
+mylist.saved = Successfully saved to Shikimori
+mylist.delete = Remove from list
+mylist.deleted = Removed from list
+mylist.quick_inc = +1
+mylist.search_placeholder = Search your lists...
+mylist.delete_confirm = Remove from list?
+mylist.delete_error = Error removing item
+mylist.save_error = Error saving item
+mylist.update_error = Error updating
+
+# Airing Calendar
+calendar.title = Airing Schedule
+calendar.today = Today
+calendar.airing_soon = Airing soon
+calendar.ep_next = ep.
+calendar.empty_day = No scheduled releases on this day
+calendar.mon = Mon
+calendar.tue = Tue
+calendar.wed = Wed
+calendar.thu = Thu
+calendar.fri = Fri
+calendar.sat = Sat
+calendar.sun = Sun
+
+# Catalog
+catalog.title = Anime Catalog
+catalog.filter.genre = Genre
+catalog.filter.all_genres = All genres
+catalog.filter.season = Season / Year
+catalog.filter.all_seasons = All seasons
+catalog.season.fall_2026 = Fall 2026
+catalog.season.summer_2026 = Summer 2026
+catalog.season.spring_2026 = Spring 2026
+catalog.season.winter_2026 = Winter 2026
+catalog.season.fall_2025 = Fall 2025
+catalog.season.y2026 = Year 2026
+catalog.season.y2025 = Year 2025
+catalog.season.y2024 = Year 2024
+catalog.filter.type = Type
+catalog.filter.all_types = All types
+catalog.kind.tv = TV Series
+catalog.kind.movie = Movie
+catalog.kind.ova = OVA
+catalog.kind.ona = ONA
+catalog.kind.special = Special
+catalog.kind.manga = Manga
+catalog.kind.manhwa = Manhwa
+catalog.kind.manhua = Manhua
+catalog.kind.one_shot = One-shot
+catalog.kind.doujin = Doujinshi
+catalog.filter.status = Status
+catalog.filter.all_statuses = All statuses
+catalog.status.ongoing = Ongoing
+catalog.status.released = Released
+catalog.status.anons = Announced
+catalog.status.ongoing_manga = Publishing
+catalog.status.released_manga = Published
+catalog.filter.score = Min Score
+catalog.filter.all_scores = Any
+catalog.filter.sort = Sort
+catalog.sort.ranked = By Rating
+catalog.sort.popularity = By Popularity
+catalog.sort.aired_on = By Release Date
+catalog.sort.name = By Name
+catalog.load_more = Load More
+catalog.empty = No anime found matching selected filters
+
+# Community & Forum
+forum.loading = Loading forum topics...
+forum.no_topics = No topics found
+forum.cat.animanga = Anime & Manga
+forum.cat.news = News
+forum.cat.critiques = Reviews
+forum.cat.collections = Collections
+forum.cat.articles = Articles
+forum.cat.offtopic = Off-topic
+community.author = Author
+community.public_club = Public club
+community.by_application = By application
+community.member = Member
+community.read_full = Read full review
+community.rec_badge = Recommended
+community.loading_rec = Loading recommendations...
+community.no_rec = No recommendations found
+
+# Randomizer & Recommendations
+random.title = Random Anime
+random.btn = I'm Feeling Lucky!
+random.tooltip = Random Anime (I'm Feeling Lucky!)
+random.finding = Picking a random anime...
+random.error = Could not find anime
+recommendations.title = Recommended for You
+
+# PWA
+pwa.title = App (PWA)
+pwa.desc = Install Shiki MX as a fast app on desktop or mobile.
+pwa.install = Install Application
+pwa.installed = App installed
+pwa.offline_toast = You are currently offline
+
+# Genres & Tags
+Экшен = Action
+Экшн = Action
+Приключения = Adventure
+Комедия = Comedy
+Драма = Drama
+Фэнтези = Fantasy
+Фантастика = Sci-Fi
+Магия = Magic
+Сверхъестественное = Supernatural
+Ужасы = Horror
+Детектив = Mystery
+Психологическое = Psychological
+Романтика = Romance
+Школа = School
+Сёнен = Shounen
+Сэйнэн = Seinen
+Сёдзё = Shoujo
+Дзёсэй = Josei
+Дзёсей = Josei
+Меха = Mecha
+Музыка = Music
+Повседневность = Slice of Life
+Спорт = Sports
+Триллер = Thriller
+Военное = Military
+Исторический = Historical
+Игры = Games
+Демоны = Demons
+Вампиры = Vampires
+Гарем = Harem
+Этти = Ecchi
+Самураи = Samurai
+Космос = Space
+Супер сила = Super Power
+Пародия = Parody
+Безумие = Dementia
+Полиция = Police
+Боевые искусства = Martial Arts
+Исекай = Isekai
+Гурман = Gourmet
+Трейлер = Trailer
+Постер = Poster
+Премьера = Premiere
+Новость = News
+Аниме = Anime
+Манга = Manga
+Коллекция = Collection
+Рецензия = Review
+Статья = Article
+Обсуждение = Discussion
+Обсуждение Аниме = Anime Discussion
+Обсуждение Манги = Manga Discussion
+Обсуждение Ранобэ = Light Novel Discussion
+Офтопик = Off-topic
+Аниме и Манга = Anime & Manga
+Новости = News
+Рецензии = Reviews
+Статьи = Articles
+
+# Rates Filters
+filters.title = Filters
+filters.sort = Sort
+filters.status = Status
+filters.type = Type
+filters.genres = Genres
+filters.topics = Themes
+filters.season_year = Season and year
+filters.duration = Episode duration
+filters.rating = Age rating
+filters.source = Source
+filters.studio = Studio
+filters.license = License
+filters.score = Score
+filters.from = from
+filters.to = to
+filters.any = any
+filters.preset_best = Best
+filters.preset_good = Good
+filters.preset_mid = Average
+filters.preset_poor = Poor
+

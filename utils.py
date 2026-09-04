@@ -10,7 +10,7 @@ import hashlib
 from flask import session
 from database import get_connection
 from dotenv import load_dotenv
-from markupsafe import Markup
+from markupsafe import Markup, escape
 from concurrent.futures import ThreadPoolExecutor
 
 load_dotenv()
@@ -146,16 +146,17 @@ def fetch_graphql(query, variables=None, headers=None, ttl=1800):
     cache_payload = json.dumps({"query": query.strip(), "variables": variables or {}}, sort_keys=True)
     cache_key = f"graphql:{hashlib.md5(cache_payload.encode('utf-8')).hexdigest()}"
 
-    conn = None
     try:
         conn = get_connection()
-        row = conn.execute("SELECT data, expires_at FROM api_cache WHERE url = ?", (cache_key,)).fetchone()
-        if row:
-            if now < row['expires_at']:
-                conn.close()
-                return json.loads(row['data'])
-            conn.execute("DELETE FROM api_cache WHERE url = ?", (cache_key,))
-            conn.commit()
+        try:
+            row = conn.execute("SELECT data, expires_at FROM api_cache WHERE url = ?", (cache_key,)).fetchone()
+            if row:
+                if now < row['expires_at']:
+                    return json.loads(row['data'])
+                conn.execute("DELETE FROM api_cache WHERE url = ?", (cache_key,))
+                conn.commit()
+        finally:
+            conn.close()
     except Exception as exc:
         logger.error("Ошибка чтения GraphQL кэша: %s", exc)
 
@@ -192,29 +193,30 @@ def fetch_graphql(query, variables=None, headers=None, ttl=1800):
 
     if data is not None:
         try:
-            if conn is None:
-                conn = get_connection()
-            conn.execute(
-                "INSERT OR REPLACE INTO api_cache (url, data, expires_at) VALUES (?, ?, ?)",
-                (cache_key, json.dumps(data), now + ttl)
-            )
-            conn.commit()
+            conn = get_connection()
+            try:
+                conn.execute(
+                    "INSERT OR REPLACE INTO api_cache (url, data, expires_at) VALUES (?, ?, ?)",
+                    (cache_key, json.dumps(data), now + ttl)
+                )
+                conn.commit()
+            finally:
+                conn.close()
         except Exception as exc:
             logger.error("Ошибка записи GraphQL кэша: %s", exc)
     else:
         # Резервный возврат устаревших данных
         try:
-            if conn is None:
-                conn = get_connection()
-            row = conn.execute("SELECT data FROM api_cache WHERE url = ?", (cache_key,)).fetchone()
-            if row:
-                logger.warning("Возврат устаревшего GraphQL кэша после сбоя")
-                data = json.loads(row['data'])
+            conn = get_connection()
+            try:
+                row = conn.execute("SELECT data FROM api_cache WHERE url = ?", (cache_key,)).fetchone()
+                if row:
+                    logger.warning("Возврат устаревшего GraphQL кэша после сбоя")
+                    data = json.loads(row['data'])
+            finally:
+                conn.close()
         except Exception:
             pass
-
-    if conn:
-        conn.close()
 
     return data
 
@@ -223,33 +225,34 @@ def fetch_cached_api(url, headers, ttl=1800):
     _cleanup_api_cache()
     now = time.time()
     
-    conn = None
     try:
         conn = get_connection()
-        row = conn.execute("SELECT data, expires_at FROM api_cache WHERE url = ?", (url,)).fetchone()
-        if row:
-            if now < row['expires_at']:
-                conn.close()
-                return json.loads(row['data'])
-            conn.execute("DELETE FROM api_cache WHERE url = ?", (url,))
-            conn.commit()
+        try:
+            row = conn.execute("SELECT data, expires_at FROM api_cache WHERE url = ?", (url,)).fetchone()
+            if row:
+                if now < row['expires_at']:
+                    return json.loads(row['data'])
+                conn.execute("DELETE FROM api_cache WHERE url = ?", (url,))
+                conn.commit()
+        finally:
+            conn.close()
     except Exception as exc:
         logger.error("Error reading API cache: %s", exc)
     
     data = fetch_with_retry(url, headers)
     if data is not None:
         try:
-            if conn is None:
-                conn = get_connection()
-            conn.execute("INSERT OR REPLACE INTO api_cache (url, data, expires_at) VALUES (?, ?, ?)", (url, json.dumps(data), now + ttl))
-            conn.commit()
+            conn = get_connection()
+            try:
+                conn.execute("INSERT OR REPLACE INTO api_cache (url, data, expires_at) VALUES (?, ?, ?)", (url, json.dumps(data), now + ttl))
+                conn.commit()
+            finally:
+                conn.close()
         except Exception as exc:
             logger.error("Error writing API cache: %s", exc)
     else:
         logger.warning("Failed to fetch API data: %s", url)
         
-    if conn:
-        conn.close()
     return data
 
 def fetch_user_rate(target_id, target_type):
@@ -281,7 +284,7 @@ def fetch_user_rate(target_id, target_type):
 
 
 def invalidate_user_rates_cache():
-    """Clear cached rates when user modifies a rate."""
+    """Clear cached rates and history when user modifies a rate."""
     user_id = session.get("user_id")
     if not user_id:
         return
@@ -289,10 +292,22 @@ def invalidate_user_rates_cache():
     try:
         conn = get_connection()
         conn.execute("DELETE FROM api_cache WHERE url LIKE ?", (f"{prefix}%{user_id}%",))
+        conn.execute("DELETE FROM api_cache WHERE url = ?", (f"history:user_{user_id}",))
+        conn.execute("DELETE FROM api_cache WHERE url = ?", (f"rates:user_{user_id}",))
         conn.commit()
         conn.close()
     except Exception as exc:
         logger.error("Error invalidating API cache: %s", exc)
+    try:
+        from routes.history import invalidate_user_history_cache
+        invalidate_user_history_cache(user_id)
+    except Exception:
+        pass
+    try:
+        from routes.rates import invalidate_user_rates_mem_cache
+        invalidate_user_rates_mem_cache(user_id)
+    except Exception:
+        pass
 
 
 
@@ -386,21 +401,46 @@ def resolve_single_anime_poster_graphql(anime_id, headers=None):
     return ""
 
 
+def resolve_franchise_poster(item_id, is_manga=False):
+    """Fallback to franchise / predecessor poster if current title has no poster on Shikimori."""
+    if not item_id:
+        return ""
+    media_type = "mangas" if is_manga else "animes"
+    url = f"{SHIKIMORI_BASE}/api/{media_type}/{item_id}/franchise"
+    headers = {"User-Agent": APP_NAME}
+    try:
+        data = fetch_cached_api(url, headers, ttl=86400)
+        if data and isinstance(data, dict):
+            nodes = data.get("nodes", [])
+            for n in nodes:
+                img = n.get("image_url") or ""
+                if img and "missing_" not in img:
+                    cleaned = re.sub(r"/(x96|x48|preview)/", "/original/", img)
+                    return fix_image_url(cleaned, high_res=True)
+    except Exception as e:
+        logger.debug("Franchise poster lookup error for %s (%s): %s", item_id, media_type, e)
+    return ""
+
+
+
 
 def parse_shikimori_bbcode(text):
     if not text:
         return ""
-    text = re.sub(r'\[center\](.*?)\[/center\]', r'<div style="text-align: center;">\1</div>', text, flags=re.DOTALL)
-    text = re.sub(r'\[size=(\d+)\](.*?)\[/size\]', r'<span style="font-size: \1px;">\2</span>', text, flags=re.DOTALL)
+    escaped_text = str(escape(text))
+    escaped_text = re.sub(r'\[center\](.*?)\[/center\]', r'<div style="text-align: center;">\1</div>', escaped_text, flags=re.DOTALL)
+    escaped_text = re.sub(r'\[size=(\d{1,3})\](.*?)\[/size\]', r'<span style="font-size: \1px;">\2</span>', escaped_text, flags=re.DOTALL)
 
     def replace_shiki_tag(m):
         tag_type, attr_str = m.group(1), m.group(2)
         ids_match = re.search(r'ids=([\d,]+)', attr_str)
         cols_match = re.search(r'columns=(\d+)', attr_str)
         ids = ids_match.group(1) if ids_match else ''
+        ids = re.sub(r'[^0-9,]', '', ids)
         cols = cols_match.group(1) if cols_match else ('8' if tag_type == 'characters' else '5')
+        cols = re.sub(r'[^0-9]', '', cols)
         wall_class = ' wall-grid' if 'wall' in attr_str else ''
         return f'<div class="shiki-grid{wall_class}" data-type="{tag_type}" data-ids="{ids}" style="--cols: {cols}"></div>'
 
-    text = re.sub(r'\[(animes|characters)\s+([^\]]+)\]', replace_shiki_tag, text)
-    return Markup(text)
+    escaped_text = re.sub(r'\[(animes|characters)\s+([^\]]+)\]', replace_shiki_tag, escaped_text)
+    return Markup(escaped_text)

@@ -4,6 +4,7 @@ import time
 import json
 import difflib
 import logging
+import threading
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from importlib import import_module
@@ -16,22 +17,24 @@ STREAM_CACHE = {}
 STREAM_CACHE_MAX_ENTRIES = 200
 _STREAM_CACHE_CLEANUP_INTERVAL = 300
 _last_stream_cache_cleanup = 0
+_stream_cache_lock = threading.Lock()
 
 
 def _cleanup_stream_cache(force=False):
     global _last_stream_cache_cleanup
     now = time.time()
-    if not force and now - _last_stream_cache_cleanup < _STREAM_CACHE_CLEANUP_INTERVAL:
-        return
-    _last_stream_cache_cleanup = now
-    expired = [k for k, (_, exp) in STREAM_CACHE.items() if now >= exp]
-    for k in expired:
-        del STREAM_CACHE[k]
-    if len(STREAM_CACHE) > STREAM_CACHE_MAX_ENTRIES:
-        sorted_items = sorted(STREAM_CACHE.items(), key=lambda x: x[1][1])
-        keep = dict(sorted_items[-STREAM_CACHE_MAX_ENTRIES:])
-        STREAM_CACHE.clear()
-        STREAM_CACHE.update(keep)
+    with _stream_cache_lock:
+        if not force and now - _last_stream_cache_cleanup < _STREAM_CACHE_CLEANUP_INTERVAL:
+            return
+        _last_stream_cache_cleanup = now
+        expired = [k for k, (_, exp) in STREAM_CACHE.items() if now >= exp]
+        for k in expired:
+            del STREAM_CACHE[k]
+        if len(STREAM_CACHE) > STREAM_CACHE_MAX_ENTRIES:
+            sorted_items = sorted(STREAM_CACHE.items(), key=lambda x: x[1][1])
+            keep = dict(sorted_items[-STREAM_CACHE_MAX_ENTRIES:])
+            STREAM_CACHE.clear()
+            STREAM_CACHE.update(keep)
 
 AVAILABLE_ANICLI_MODULES = [
     'animego',
@@ -44,8 +47,8 @@ _ROMAN_MAP = {'i': 1, 'v': 5, 'x': 10, 'l': 50}
 
 _STOPWORDS = {
     'the', 'a', 'an', 'of', 'and', 'in', 'on', 'at', 'to', 'for', 'is', 'are',
-    'wa', 'ni', 'de', 'wo', 'ga', 'no', 'to', 'kara', 'desu', 'san', 'kun', 'chan',
-    'sama', 'senpai', 'sensei', 'kun', 'chan', 'san'
+    'wa', 'ni', 'de', 'wo', 'ga', 'no', 'kara', 'desu', 'san', 'kun', 'chan',
+    'sama', 'senpai', 'sensei'
 }
 
 def roman_to_int(s: str) -> int:
@@ -579,11 +582,12 @@ class VideoAggregator:
         _cleanup_stream_cache()
 
         # 1. Быстрая проверка в RAM кэше
-        if cache_key in STREAM_CACHE:
-            cached_data, expire = STREAM_CACHE[cache_key]
-            if now < expire:
-                logger.debug("Stream RAM cache hit for anime_id=%s", anime_id)
-                return cached_data
+        with _stream_cache_lock:
+            if cache_key in STREAM_CACHE:
+                cached_data, expire = STREAM_CACHE[cache_key]
+                if now < expire:
+                    logger.debug("Stream RAM cache hit for anime_id=%s", anime_id)
+                    return cached_data
 
         # 2. Быстрая проверка в постоянном SQLite кэше
         try:
@@ -594,7 +598,8 @@ class VideoAggregator:
                 if now < row['expires_at']:
                     conn.close()
                     data = json.loads(row['data'])
-                    STREAM_CACHE[cache_key] = (data, now + 14400)
+                    with _stream_cache_lock:
+                        STREAM_CACHE[cache_key] = (data, now + 14400)
                     logger.info("Stream SQLite cache hit for anime_id=%s (instant load)", anime_id)
                     return data
                 conn.execute("DELETE FROM api_cache WHERE url = ?", (cache_key,))
@@ -679,7 +684,8 @@ class VideoAggregator:
         }
 
         if sorted_episodes:
-            STREAM_CACHE[cache_key] = (payload, now + 14400)
+            with _stream_cache_lock:
+                STREAM_CACHE[cache_key] = (payload, now + 14400)
             # Сохранение в постоянный SQLite кэш на 24 часа
             try:
                 from database import get_connection

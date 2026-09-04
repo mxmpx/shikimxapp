@@ -263,10 +263,11 @@ async function toggleAnicliPlayer(title, episode = 1, animeId = 0) {
     container.dataset.playerType = 'anicli';
 
     const isMobile = window.innerWidth <= 768;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     if (isMobile) {
         container.innerHTML = `
             <div class="mobile-player-fullscreen-header">
-                <button type="button" class="mobile-player-close-btn" onclick="handleMobilePlayerBack()" title="Назад">
+                <button type="button" class="mobile-player-close-btn" onclick="handleMobilePlayerBack()" title="${isEn ? 'Back' : 'Назад'}">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="19" y1="12" x2="5" y2="12"></line>
                         <polyline points="12 19 5 12 12 5"></polyline>
@@ -276,7 +277,7 @@ async function toggleAnicliPlayer(title, episode = 1, animeId = 0) {
                     <div class="p-title">${title}</div>
                     <div class="p-sub" id="mobile-player-sub-title">Kodik • WinMedia</div>
                 </div>
-                <button type="button" class="mobile-player-close-btn" id="mobile-player-filter-btn" onclick="openMobileEpisodesFilterSheet()" title="Фильтр и порядок">
+                <button type="button" class="mobile-player-close-btn" id="mobile-player-filter-btn" onclick="openMobileEpisodesFilterSheet()" title="${isEn ? 'Filter & Order' : 'Фильтр и порядок'}">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                         <line x1="4" y1="6" x2="20" y2="6"></line>
                         <line x1="7" y1="12" x2="17" y2="12"></line>
@@ -291,26 +292,26 @@ async function toggleAnicliPlayer(title, episode = 1, animeId = 0) {
             <div id="mobile-episodes-filter-sheet" class="mobile-episodes-filter-sheet hidden" onclick="if(event.target===this) closeMobileEpisodesFilterSheet();">
                 <div class="mobile-episodes-filter-card" onclick="event.stopPropagation();">
                     <div class="filter-sheet-header">
-                        <div class="filter-sheet-title">Фильтр и порядок</div>
+                        <div class="filter-sheet-title">${isEn ? 'Filter & Order' : 'Фильтр и порядок'}</div>
                         <button type="button" class="filter-sheet-close-btn" onclick="closeMobileEpisodesFilterSheet()">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                         </button>
                     </div>
 
                     <div class="filter-sheet-section">
-                        <div class="filter-sheet-label">Фильтр серий</div>
+                        <div class="filter-sheet-label">${isEn ? 'Episodes filter' : 'Фильтр серий'}</div>
                         <div class="filter-sheet-chips">
-                            <button type="button" class="filter-chip" id="filter-chip-all" onclick="setMobileEpFilter('all')">Все</button>
-                            <button type="button" class="filter-chip" id="filter-chip-unwatched" onclick="setMobileEpFilter('unwatched')">Непросмотренные</button>
-                            <button type="button" class="filter-chip" id="filter-chip-watched" onclick="setMobileEpFilter('watched')">Просмотренные</button>
+                            <button type="button" class="filter-chip" id="filter-chip-all" onclick="setMobileEpFilter('all')">${isEn ? 'All' : 'Все'}</button>
+                            <button type="button" class="filter-chip" id="filter-chip-unwatched" onclick="setMobileEpFilter('unwatched')">${isEn ? 'Unwatched' : 'Непросмотренные'}</button>
+                            <button type="button" class="filter-chip" id="filter-chip-watched" onclick="setMobileEpFilter('watched')">${isEn ? 'Watched' : 'Просмотренные'}</button>
                         </div>
                     </div>
 
                     <div class="filter-sheet-section">
-                        <div class="filter-sheet-label">Порядок серий</div>
+                        <div class="filter-sheet-label">${isEn ? 'Episode order' : 'Порядок серий'}</div>
                         <div class="filter-sheet-chips">
-                            <button type="button" class="filter-chip" id="order-chip-asc" onclick="setMobileEpOrder(false)">По возрастанию (1 → N)</button>
-                            <button type="button" class="filter-chip" id="order-chip-desc" onclick="setMobileEpOrder(true)">По убыванию (N → 1)</button>
+                            <button type="button" class="filter-chip" id="order-chip-asc" onclick="setMobileEpOrder(false)">${isEn ? 'Ascending (1 → N)' : 'По возрастанию (1 → N)'}</button>
+                            <button type="button" class="filter-chip" id="order-chip-desc" onclick="setMobileEpOrder(true)">${isEn ? 'Descending (N → 1)' : 'По убыванию (N → 1)'}</button>
                         </div>
                     </div>
                 </div>
@@ -766,8 +767,9 @@ function renderMobileEpisodesList() {
         availableEpNums.reverse();
     }
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     if (!availableEpNums.length) {
-        listContainer.innerHTML = '<div style="padding: 36px 16px; text-align: center; color: #888888; font-size: 14px;">Серии не найдены</div>';
+        listContainer.innerHTML = `<div style="padding: 36px 16px; text-align: center; color: #888888; font-size: 14px;">${isEn ? 'No episodes found' : 'Серии не найдены'}</div>`;
         return;
     }
 
@@ -775,14 +777,14 @@ function renderMobileEpisodesList() {
         // ГАЛОЧКА: отображает статус просмотрено ли по данным из Shikimori (НЕ МЕНЯЕТСЯ ЗДЕСЬ!)
         const isWatchedOnShikimori = num <= shikimoriWatchedCount;
 
-        // Отметка "Просмотрено полностью" (Скриншот 3)
+        // Отметка "Просмотрено полностью"
         const isFullyWatched = fullyWatchedList.includes(num);
 
         return `
             <div class="mobile-ep-row ${num === window.currentAnicliEp ? 'current-playing' : ''}" data-ep="${num}">
                 <div class="mobile-ep-info" onclick="onAnicliEpisodeChange(${num})">
-                    <div class="mobile-ep-title">Серия ${num}</div>
-                    ${isFullyWatched ? `<div class="mobile-ep-sub">Просмотрено полностью</div>` : ''}
+                    <div class="mobile-ep-title">${isEn ? 'Episode ' + num : 'Серия ' + num}</div>
+                    ${isFullyWatched ? `<div class="mobile-ep-sub">${isEn ? 'Watched completely' : 'Просмотрено полностью'}</div>` : ''}
                 </div>
                 <div class="mobile-ep-actions">
                     <div class="mobile-ep-check ${isWatchedOnShikimori ? 'watched' : ''}">
@@ -793,14 +795,14 @@ function renderMobileEpisodesList() {
                         ` : ''}
                     </div>
                     ${isFullyWatched ? `
-                        <button type="button" class="mobile-ep-btn delete" onclick="unmarkEpisodeWatched(event, ${animeId}, ${num})" title="Удалить отметку о просмотре">
+                        <button type="button" class="mobile-ep-btn delete" onclick="unmarkEpisodeWatched(event, ${animeId}, ${num})" title="${isEn ? 'Remove watched mark' : 'Удалить отметку о просмотре'}">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="#f09080">
                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                                 <line x1="3" y1="6" x2="21" y2="6" stroke="#f09080" stroke-width="2" stroke-linecap="round"></line>
                             </svg>
                         </button>
                     ` : `
-                        <button type="button" class="mobile-ep-btn add" onclick="markEpisodeWatched(event, ${animeId}, ${num})" title="Отметить просмотренной">
+                        <button type="button" class="mobile-ep-btn add" onclick="markEpisodeWatched(event, ${animeId}, ${num})" title="${isEn ? 'Mark as watched' : 'Отметить просмотренной'}">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="12" y1="5" x2="12" y2="19"></line>
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -862,9 +864,9 @@ function initAnicliPlayerUI(container, initialEpisode = 1) {
                     ${isMobile ? `
                         <div id="mobile-episodes-list-container" class="mobile-episodes-list-container"></div>
                     ` : `
-                        <div class="anicli-step-title"><i class="ti ti-list-numbers"></i> Шаг 1: Выберите серию</div>
+                        <div class="anicli-step-title"><i class="ti ti-list-numbers"></i> ${isEn ? 'Step 1: Select episode' : 'Шаг 1: Выберите серию'}</div>
                         <div class="anicli-chip-list" id="anicli-ep-chips">
-                            ${availableEpNums.map(num => `<div class="anicli-chip" data-ep="${num}" onclick="onAnicliEpisodeChange(${num})">${num} серия</div>`).join('')}
+                            ${availableEpNums.map(num => `<div class="anicli-chip" data-ep="${num}" onclick="onAnicliEpisodeChange(${num})">${isEn ? 'Episode ' + num : num + ' серия'}</div>`).join('')}
                         </div>
                     `}
                 </div>
@@ -875,8 +877,8 @@ function initAnicliPlayerUI(container, initialEpisode = 1) {
                         <div id="mobile-trans-container" class="mobile-trans-container"></div>
                     ` : `
                         <div class="anicli-step-title" style="justify-content: space-between;">
-                            <span><i class="ti ti-headphones"></i> Шаг 2: Выберите озвучку <span id="wizard-ep-lbl" style="opacity: 0.6; font-size: 12px; margin-left: 8px;"></span></span>
-                            <button class="btn-secondary" style="padding: 2px 8px; font-size: 12px;" onclick="goToAnicliStep(1)"><i class="ti ti-arrow-left"></i> Назад</button>
+                            <span><i class="ti ti-headphones"></i> ${isEn ? 'Step 2: Select voiceover' : 'Шаг 2: Выберите озвучку'} <span id="wizard-ep-lbl" style="opacity: 0.6; font-size: 12px; margin-left: 8px;"></span></span>
+                            <button class="btn-secondary" style="padding: 2px 8px; font-size: 12px;" onclick="goToAnicliStep(1)"><i class="ti ti-arrow-left"></i> ${isEn ? 'Back' : 'Назад'}</button>
                         </div>
                         <div class="anicli-chip-list" id="anicli-trans-chips"></div>
                     `}
@@ -888,8 +890,8 @@ function initAnicliPlayerUI(container, initialEpisode = 1) {
                         <div id="mobile-players-container" class="mobile-players-container"></div>
                     ` : `
                         <div class="anicli-step-title" style="justify-content: space-between;">
-                            <span><i class="ti ti-video"></i> Шаг 3: Выберите источник <span id="wizard-trans-lbl" style="opacity: 0.6; font-size: 12px; margin-left: 8px;"></span></span>
-                            <button class="btn-secondary" style="padding: 2px 8px; font-size: 12px;" onclick="goToAnicliStep(2)"><i class="ti ti-arrow-left"></i> Назад</button>
+                            <span><i class="ti ti-video"></i> ${isEn ? 'Step 3: Select source' : 'Шаг 3: Выберите источник'} <span id="wizard-trans-lbl" style="opacity: 0.6; font-size: 12px; margin-left: 8px;"></span></span>
+                            <button class="btn-secondary" style="padding: 2px 8px; font-size: 12px;" onclick="goToAnicliStep(2)"><i class="ti ti-arrow-left"></i> ${isEn ? 'Back' : 'Назад'}</button>
                         </div>
                         <div class="anicli-chip-list" id="anicli-player-chips"></div>
                     `}
@@ -901,7 +903,7 @@ function initAnicliPlayerUI(container, initialEpisode = 1) {
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                             <div style="color: var(--text-main); font-size: 13px; font-weight: 600;" id="video-active-info"></div>
                             ${!isMobile ? `
-                                <button class="btn-secondary" style="padding: 4px 10px; font-size: 12px;" onclick="goToAnicliStep(1)"><i class="ti ti-settings"></i> Изменить</button>
+                                <button class="btn-secondary" style="padding: 4px 10px; font-size: 12px;" onclick="goToAnicliStep(1)"><i class="ti ti-settings"></i> ${isEn ? 'Change' : 'Изменить'}</button>
                             ` : ''}
                         </div>
 
@@ -1051,12 +1053,12 @@ function renderMobileTranslations() {
         ${lastWatched ? `
             <div class="mobile-last-watched-card">
                 <div class="last-watched-info">
-                    <div class="last-watched-heading">Последнее просмотренное</div>
-                    <div class="last-watched-title">${lastWatched.trans} &bull; Серия ${lastWatched.ep}</div>
-                    <div class="last-watched-sub">${lastWatched.fullyWatched ? 'Просмотрено полностью' : `Серия ${lastWatched.ep}`}</div>
+                    <div class="last-watched-heading">${isEn ? 'Recently watched' : 'Последнее просмотренное'}</div>
+                    <div class="last-watched-title">${lastWatched.trans} &bull; ${isEn ? 'Episode' : 'Серия'} ${lastWatched.ep}</div>
+                    <div class="last-watched-sub">${lastWatched.fullyWatched ? (isEn ? 'Watched completely' : 'Просмотрено полностью') : (isEn ? `Episode ${lastWatched.ep}` : `Серия ${lastWatched.ep}`)}</div>
                 </div>
-                <button type="button" class="last-watched-continue-btn" onclick="onAnicliTranslationChange('${lastWatched.trans.replace(/'/g, "\\'")}')">
-                    Продолжить
+                <button type="button" class="last-watched-continue-btn" onclick="onAnicliTranslationChange(this.getAttribute('data-trans'))" data-trans="${lastWatched.trans.replace(/"/g, '&quot;')}">
+                    ${isEn ? 'Continue' : 'Продолжить'}
                 </button>
             </div>
         ` : ''}
@@ -1065,9 +1067,10 @@ function renderMobileTranslations() {
             ${filteredTrans.map(tr => {
                 const initials = getInitials(tr);
                 const isSub = isSubtitles(tr);
-                const typeText = isSub ? 'Субтитры' : 'Озвучка';
+                const typeText = isSub ? (isEn ? 'Subtitles' : 'Субтитры') : (isEn ? 'Dubbing' : 'Озвучка');
+                const safeTr = tr.replace(/"/g, '&quot;');
                 return `
-                    <div class="mobile-trans-row ${tr === window.currentAnicliTrans ? 'active' : ''}" onclick="onAnicliTranslationChange('${tr.replace(/'/g, "\\'")}')">
+                    <div class="mobile-trans-row ${tr === window.currentAnicliTrans ? 'active' : ''}" onclick="onAnicliTranslationChange(this.getAttribute('data-trans'))" data-trans="${safeTr}">
                         <div class="mobile-trans-avatar">${initials}</div>
                         <div class="mobile-trans-details">
                             <div class="mobile-trans-name">${tr}</div>
@@ -1077,7 +1080,7 @@ function renderMobileTranslations() {
                 `;
             }).join('')}
             ${!filteredTrans.length ? `
-                <div style="padding: 32px 16px; text-align: center; color: #888; font-size: 13.5px;">Ничего не найдено для выбранного фильтра</div>
+                <div style="padding: 32px 16px; text-align: center; color: #888; font-size: 13.5px;">${isEn ? 'Nothing found for selected filter' : 'Ничего не найдено для выбранного фильтра'}</div>
             ` : ''}
         </div>
     `;
@@ -1181,7 +1184,8 @@ function populateAnicliTranslations(epNum) {
     const availableTrans = Object.keys(epData);
     
     transChips.innerHTML = availableTrans.map(tr => {
-        return `<div class="anicli-chip" onclick="onAnicliTranslationChange('${tr.replace(/'/g, "\\'")}')">${tr}</div>`;
+        const safeTr = tr.replace(/"/g, '&quot;');
+        return `<div class="anicli-chip" onclick="onAnicliTranslationChange(this.getAttribute('data-trans'))" data-trans="${safeTr}">${tr}</div>`;
     }).join('');
 }
 
@@ -1231,12 +1235,13 @@ function renderMobilePlayers(epNum, transName) {
         <div class="mobile-players-list">
             ${players.map((p, idx) => {
                 const initials = getInitials(p.player);
+                const safePlayer = p.player.replace(/"/g, '&quot;');
                 return `
-                    <div class="mobile-player-row" onclick="onAnicliPlayerChange('${p.url}', this, '${p.player.replace(/'/g, "\\'")}')">
+                    <div class="mobile-player-row" onclick="onAnicliPlayerChange(this.getAttribute('data-url'), this, this.getAttribute('data-player'))" data-url="${p.url}" data-player="${safePlayer}">
                         <div class="mobile-player-avatar">${initials}</div>
                         <div class="mobile-player-details">
                             <div class="mobile-player-name">${p.player}</div>
-                            <div class="mobile-player-sub">Видеопоток &bull; Быстрая загрузка</div>
+                            <div class="mobile-player-sub">${isEn ? 'Video stream • Fast loading' : 'Видеопоток • Быстрая загрузка'}</div>
                         </div>
                         <div class="mobile-player-arrow">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="#f7a863">
@@ -1452,7 +1457,7 @@ function renderAnimeUserRateWidget(a) {
         <div class="user-rate-widget-card" id="user-rate-widget-${a.id}">
             <div class="user-rate-widget-header">
                 <h4><i class="ti ti-bookmark"></i> ${i18n('mylist.title')}</h4>
-                ${currentStatus ? `<span class="badge badge-${currentStatus}">${statusMap[currentStatus] ? statusMap[currentStatus].anime : currentStatus}</span>` : `<span class="badge" style="background: rgba(255,255,255,0.08); color: var(--text-muted);">${i18n('mylist.not_in_list')}</span>`}
+                ${currentStatus ? `<span class="badge badge-${currentStatus}">${statusMap[currentStatus] ? (statusMap[currentStatus].label || statusMap[currentStatus].name) : currentStatus}</span>` : `<span class="badge" style="background: rgba(255,255,255,0.08); color: var(--text-muted);">${i18n('mylist.not_in_list')}</span>`}
             </div>
             <div class="user-rate-widget-body">
                 <div class="user-rate-row">
@@ -1771,18 +1776,19 @@ function buildMobileRateSheetHTML(a) {
     const currentText = rate ? (rate.text || '') : '';
     const rateId = rate ? rate.id : '';
     const totalEpisodes = a.episodes || 0;
-    const title = a.russian || a.name;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    const title = (isEn && a.name) ? a.name : (a.russian || a.name);
 
     const createdAtStr = rate && rate.created_at ? formatTimestampRussian(rate.created_at) : '';
     const updatedAtStr = rate && rate.updated_at ? formatTimestampRussian(rate.updated_at) : '';
 
     const statuses = [
-        { id: 'watching', label: 'Смотрю', icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>' },
-        { id: 'planned', label: 'В планах', icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>' },
-        { id: 'completed', label: 'Просмотрено', icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' },
-        { id: 'on_hold', label: 'Отложено', icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="10" y1="15" x2="10" y2="9"></line><line x1="14" y1="15" x2="14" y2="9"></line></svg>' },
-        { id: 'dropped', label: 'Брошено', icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' },
-        { id: 'rewatching', label: 'Пересматриваю', icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>' }
+        { id: 'watching', label: typeof i18n === 'function' ? i18n('rates.watching') : (isEn ? 'Watching' : 'Смотрю'), icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>' },
+        { id: 'planned', label: typeof i18n === 'function' ? i18n('rates.planned') : (isEn ? 'Planned' : 'В планах'), icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>' },
+        { id: 'completed', label: typeof i18n === 'function' ? i18n('rates.completed') : (isEn ? 'Completed' : 'Просмотрено'), icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' },
+        { id: 'on_hold', label: typeof i18n === 'function' ? i18n('rates.on_hold') : (isEn ? 'On hold' : 'Отложено'), icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="10" y1="15" x2="10" y2="9"></line><line x1="14" y1="15" x2="14" y2="9"></line></svg>' },
+        { id: 'dropped', label: typeof i18n === 'function' ? i18n('rates.dropped') : (isEn ? 'Dropped' : 'Брошено'), icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' },
+        { id: 'rewatching', label: typeof i18n === 'function' ? i18n('rates.rewatching') : (isEn ? 'Rewatching' : 'Пересматриваю'), icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>' }
     ];
 
     return `
@@ -1795,12 +1801,12 @@ function buildMobileRateSheetHTML(a) {
                             ${a.image ? `<img src="${a.image}" alt="${title}" class="rate-sheet-poster">` : `<div class="rate-sheet-poster placeholder"><i class="ti ti-movie"></i></div>`}
                         </div>
                         <div class="rate-sheet-header-text">
-                            <div class="rate-sheet-main-title">Прогресс</div>
+                            <div class="rate-sheet-main-title">${isEn ? 'Progress' : 'Прогресс'}</div>
                             <div class="rate-sheet-sub-title">${title}</div>
                         </div>
                     </div>
                     ${rateId ? `
-                        <button type="button" class="rate-sheet-delete-btn" onclick="deleteUserRateAction('${a.id}', 'Anime', '${rateId}')" title="Удалить из списка">
+                        <button type="button" class="rate-sheet-delete-btn" onclick="deleteUserRateAction('${a.id}', 'Anime', '${rateId}')" title="${isEn ? 'Delete from list' : 'Удалить из списка'}">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e07a68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="3 6 5 6 21 6"></polyline>
                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -1827,7 +1833,7 @@ function buildMobileRateSheetHTML(a) {
                 <div class="rate-sheet-counters-row">
                     <!-- Эпизоды -->
                     <div class="rate-counter-card">
-                        <div class="rate-counter-label">Эпизоды</div>
+                        <div class="rate-counter-label">${isEn ? 'Episodes' : 'Эпизоды'}</div>
                         <div class="rate-counter-val" id="mobile-rate-episodes-val-${a.id}" data-total="${totalEpisodes}">${currentEpisodes}</div>
                         <div class="rate-counter-btns">
                             <button type="button" class="rate-counter-btn" onclick="stepMobileCounter('${a.id}', 'episodes', -1)">−</button>
@@ -1837,7 +1843,7 @@ function buildMobileRateSheetHTML(a) {
 
                     <!-- Повторения -->
                     <div class="rate-counter-card">
-                        <div class="rate-counter-label">Повторения</div>
+                        <div class="rate-counter-label">${isEn ? 'Rewatches' : 'Повторения'}</div>
                         <div class="rate-counter-val" id="mobile-rate-rewatches-val-${a.id}">${currentRewatches}</div>
                         <div class="rate-counter-btns">
                             <button type="button" class="rate-counter-btn" onclick="stepMobileCounter('${a.id}', 'rewatches', -1)">−</button>
@@ -1848,7 +1854,7 @@ function buildMobileRateSheetHTML(a) {
 
                 <!-- 4. Оценка со слайдером и точками 0..10 -->
                 <div class="rate-sheet-score-section">
-                    <div class="rate-sheet-section-title">Оценка</div>
+                    <div class="rate-sheet-section-title">${isEn ? 'Score' : 'Оценка'}</div>
                     <div class="rate-sheet-slider-row">
                         <div class="rate-sheet-slider-wrap">
                             <input type="range" min="0" max="10" step="1" value="${currentScore}" id="mobile-rate-score-slider-${a.id}" class="rate-sheet-slider" oninput="updateMobileRateScore('${a.id}', this.value)">
@@ -1863,8 +1869,8 @@ function buildMobileRateSheetHTML(a) {
 
                 <!-- 5. Заметка -->
                 <div class="rate-sheet-note-section">
-                    <div class="rate-sheet-section-title">Заметка</div>
-                    <textarea id="mobile-rate-note-input-${a.id}" class="rate-sheet-note-input" placeholder="Личная заметка..." rows="2">${currentText}</textarea>
+                    <div class="rate-sheet-section-title">${isEn ? 'Note' : 'Заметка'}</div>
+                    <textarea id="mobile-rate-note-input-${a.id}" class="rate-sheet-note-input" placeholder="${isEn ? 'Personal note...' : 'Личная заметка...'}" rows="2">${currentText}</textarea>
                 </div>
 
                 <!-- 6. Футер с датами и кнопкой сохранить -->
@@ -1873,7 +1879,7 @@ function buildMobileRateSheetHTML(a) {
                         ${createdAtStr ? `<div class="rate-timestamp-item"><span class="t-icon">+</span> <span>${createdAtStr}</span></div>` : ''}
                         ${updatedAtStr ? `<div class="rate-timestamp-item"><span class="t-icon">✏</span> <span>${updatedAtStr}</span></div>` : ''}
                     </div>
-                    <button type="button" class="rate-sheet-save-btn" onclick="saveMobileUserRate('${a.id}', ${rateId ? `'${rateId}'` : 'null'})" title="Сохранить">
+                    <button type="button" class="rate-sheet-save-btn" onclick="saveMobileUserRate('${a.id}', ${rateId ? `'${rateId}'` : 'null'})" title="${isEn ? 'Save' : 'Сохранить'}">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="#ffffff">
                             <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2zM7 5v4h10V5H7zm5 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
                         </svg>
@@ -1905,30 +1911,31 @@ function initMobileAnimeModalScroll() {
 }
 
 function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetHTML) {
-    const title = a.russian || a.name;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    const title = (isEn && a.name) ? a.name : (a.russian || a.name);
     const scoreVal = a.score ? parseFloat(a.score) : 0;
     const secondaryScore = a.scores_stats && a.scores_stats.length ? (scoreVal ? (scoreVal * 0.958).toFixed(2) : '') : '';
 
     const statusMapRu = {
-        'planned': 'В планах',
-        'watching': 'Смотрю',
-        'completed': 'Просмотрено',
-        'on_hold': 'Отложено',
-        'dropped': 'Брошено',
-        'rewatching': 'Пересматриваю'
+        'planned': isEn ? 'Planned' : 'В планах',
+        'watching': isEn ? 'Watching' : 'Смотрю',
+        'completed': isEn ? 'Completed' : 'Просмотрено',
+        'on_hold': isEn ? 'On hold' : 'Отложено',
+        'dropped': isEn ? 'Dropped' : 'Брошено',
+        'rewatching': isEn ? 'Rewatching' : 'Пересматриваю'
     };
 
-    let userRateLabel = 'В список';
+    let userRateLabel = isEn ? 'Add to list' : 'В список';
     let userRateHasScore = false;
     if (a.user_rate) {
-        const st = statusMapRu[a.user_rate.status] || a.user_rate.status || 'В списке';
+        const st = statusMapRu[a.user_rate.status] || a.user_rate.status || (isEn ? 'In list' : 'В списке');
         const sc = a.user_rate.score ? ` • ${a.user_rate.score} ★` : '';
-        const ep = (!a.user_rate.score && a.user_rate.episodes) ? ` • ${a.user_rate.episodes} эп.` : '';
+        const ep = (!a.user_rate.score && a.user_rate.episodes) ? ` • ${a.user_rate.episodes} ${isEn ? 'eps' : 'эп.'}` : '';
         userRateLabel = `${st}${sc}${ep}`;
         userRateHasScore = true;
     }
 
-    const descText = a.description || 'Описание отсутствует.';
+    const descText = a.description || (isEn ? 'No description available.' : 'Описание отсутствует.');
     const isLongDesc = descText.length > 200;
 
     const statusesStats = a.statuses_stats || [];
@@ -1957,11 +1964,11 @@ function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetH
         <div class="mobile-anime-container">
             <!-- 1. Верхний бар с кнопкой назад и поделиться -->
             <div class="mobile-anime-top-bar" id="mobile-anime-top-bar">
-                <button type="button" class="mobile-anime-top-btn" onclick="handleModalBack()" title="Назад">
+                <button type="button" class="mobile-anime-top-btn" onclick="handleModalBack()" title="${isEn ? 'Back' : 'Назад'}">
                     <i class="ti ti-arrow-left"></i>
                 </button>
                 <div class="mobile-anime-top-title" id="mobile-anime-top-title">${title}</div>
-                <button type="button" class="mobile-anime-top-btn" onclick="copyAnimeShikimoriLink('${a.shikimori_url || ('https://shikimori.io/animes/' + a.id)}')" title="Скопировать ссылку на Shikimori">
+                <button type="button" class="mobile-anime-top-btn" onclick="copyAnimeShikimoriLink('${a.shikimori_url || ('https://shikimori.io/animes/' + a.id)}')" title="${isEn ? 'Share link' : 'Скопировать ссылку на Shikimori'}">
                     <i class="ti ti-share"></i>
                 </button>
             </div>
@@ -1987,19 +1994,19 @@ function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetH
 
                     <div class="mobile-anime-meta-grid">
                         <div class="mobile-anime-meta-col">
-                            <div class="meta-label">ФОРМАТ</div>
-                            <div class="meta-val">${(a.kind || 'ТВ')} • ${(a.status || 'Вышло')}</div>
+                            <div class="meta-label">${isEn ? 'FORMAT' : 'ФОРМАТ'}</div>
+                            <div class="meta-val">${(a.kind || 'TV')} • ${(a.status || (isEn ? 'Released' : 'Вышло'))}</div>
                         </div>
                         <div class="mobile-anime-meta-col">
-                            <div class="meta-label">СЕЗОН</div>
+                            <div class="meta-label">${isEn ? 'SEASON' : 'СЕЗОН'}</div>
                             <div class="meta-val">${getSeasonFromDate(a.aired_on)}</div>
                         </div>
                         <div class="mobile-anime-meta-col">
-                            <div class="meta-label">ЭПИЗОДЫ</div>
-                            <div class="meta-val">${a.episodes ? a.episodes + ' эп.' : (a.episodes_aired ? a.episodes_aired + ' эп.' : '—')}</div>
+                            <div class="meta-label">${isEn ? 'EPISODES' : 'ЭПИЗОДЫ'}</div>
+                            <div class="meta-val">${a.episodes ? a.episodes + (isEn ? ' eps' : ' эп.') : (a.episodes_aired ? a.episodes_aired + (isEn ? ' eps' : ' эп.') : '—')}</div>
                         </div>
                         <div class="mobile-anime-meta-col">
-                            <div class="meta-label">РЕЙТИНГ</div>
+                            <div class="meta-label">${isEn ? 'RATING' : 'РЕЙТИНГ'}</div>
                             <div class="meta-val">${a.rating ? a.rating.replace('_', '-') : 'PG-13'}</div>
                         </div>
                     </div>
@@ -2022,7 +2029,7 @@ function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetH
                         `}
                         <span>${userRateLabel}</span>
                     </button>
-                    <button type="button" class="mobile-anime-play-btn" onclick="toggleAnicliPlayer('${safeTitle}', ${targetEpisode}, ${a.id})" title="Смотреть в Плеере 2 (Anicli)">
+                    <button type="button" class="mobile-anime-play-btn" onclick="toggleAnicliPlayer('${safeTitle}', ${targetEpisode}, ${a.id})" title="${isEn ? 'Watch in Player 2 (Anicli)' : 'Смотреть в Плеере 2 (Anicli)'}">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="#1b2612" style="margin-left: 2px; display: block;">
                             <path d="M7 4v16l13-8z"/>
                         </svg>
@@ -2034,11 +2041,11 @@ function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetH
 
                 <!-- 4. Карточка описания -->
                 <div class="mobile-anime-desc-card">
-                    <div class="mobile-anime-desc-heading">Описание</div>
+                    <div class="mobile-anime-desc-heading">${isEn ? 'Description' : 'Описание'}</div>
                     <div class="mobile-anime-desc-body ${isLongDesc ? 'collapsed' : ''}" id="mobile-desc-body-${a.id}">
                         ${descText}
                     </div>
-                    ${isLongDesc ? `<div class="mobile-anime-desc-toggle" onclick="toggleMobileAnimeDesc('${a.id}', this)">Развернуть</div>` : ''}
+                    ${isLongDesc ? `<div class="mobile-anime-desc-toggle" onclick="toggleMobileAnimeDesc('${a.id}', this)">${isEn ? 'Show more' : 'Развернуть'}</div>` : ''}
                 </div>
 
                 <!-- 5. Горизонтальная прокрутка жанров -->
@@ -2051,20 +2058,20 @@ function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetH
                 <!-- 6. Раздел В списках с цветной полосой -->
                 ${totalInLists > 0 ? `
                     <div class="mobile-anime-section">
-                        <div class="mobile-anime-section-title">В списках</div>
+                        <div class="mobile-anime-section-title">${isEn ? 'In lists' : 'В списках'}</div>
                         <div class="mobile-in-lists-bar">
-                            <div class="bar-seg seg-planned" style="flex: ${plannedCount || 0.05};" title="В планах"></div>
-                            <div class="bar-seg seg-completed" style="flex: ${completedCount || 0.05};" title="Просмотрено"></div>
-                            <div class="bar-seg seg-watching" style="flex: ${watchingCount || 0.05};" title="Смотрю"></div>
-                            <div class="bar-seg seg-dropped" style="flex: ${droppedCount || 0.05};" title="Брошено"></div>
-                            <div class="bar-seg seg-onhold" style="flex: ${onHoldCount || 0.05};" title="Отложено"></div>
+                            <div class="bar-seg seg-planned" style="flex: ${plannedCount || 0.05};" title="${isEn ? 'Planned' : 'В планах'}"></div>
+                            <div class="bar-seg seg-completed" style="flex: ${completedCount || 0.05};" title="${isEn ? 'Completed' : 'Просмотрено'}"></div>
+                            <div class="bar-seg seg-watching" style="flex: ${watchingCount || 0.05};" title="${isEn ? 'Watching' : 'Смотрю'}"></div>
+                            <div class="bar-seg seg-dropped" style="flex: ${droppedCount || 0.05};" title="${isEn ? 'Dropped' : 'Брошено'}"></div>
+                            <div class="bar-seg seg-onhold" style="flex: ${onHoldCount || 0.05};" title="${isEn ? 'On hold' : 'Отложено'}"></div>
                         </div>
                         <div class="mobile-in-lists-legend">
-                            <div class="legend-item"><span class="dot dot-planned"></span> <span class="label">В планах</span> <span class="val">${plannedCount.toLocaleString()}</span></div>
-                            <div class="legend-item"><span class="dot dot-completed"></span> <span class="label">Просмотрено</span> <span class="val">${completedCount.toLocaleString()}</span></div>
-                            <div class="legend-item"><span class="dot dot-watching"></span> <span class="label">Смотрю</span> <span class="val">${watchingCount.toLocaleString()}</span></div>
-                            <div class="legend-item"><span class="dot dot-dropped"></span> <span class="label">Брошено</span> <span class="val">${droppedCount.toLocaleString()}</span></div>
-                            <div class="legend-item"><span class="dot dot-onhold"></span> <span class="label">Отложено</span> <span class="val">${onHoldCount.toLocaleString()}</span></div>
+                            <div class="legend-item"><span class="dot dot-planned"></span> <span class="label">${isEn ? 'Planned' : 'В планах'}</span> <span class="val">${plannedCount.toLocaleString()}</span></div>
+                            <div class="legend-item"><span class="dot dot-completed"></span> <span class="label">${isEn ? 'Completed' : 'Просмотрено'}</span> <span class="val">${completedCount.toLocaleString()}</span></div>
+                            <div class="legend-item"><span class="dot dot-watching"></span> <span class="label">${isEn ? 'Watching' : 'Смотрю'}</span> <span class="val">${watchingCount.toLocaleString()}</span></div>
+                            <div class="legend-item"><span class="dot dot-dropped"></span> <span class="label">${isEn ? 'Dropped' : 'Брошено'}</span> <span class="val">${droppedCount.toLocaleString()}</span></div>
+                            <div class="legend-item"><span class="dot dot-onhold"></span> <span class="label">${isEn ? 'On hold' : 'Отложено'}</span> <span class="val">${onHoldCount.toLocaleString()}</span></div>
                         </div>
                     </div>
                 ` : ''}
@@ -2073,7 +2080,7 @@ function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetH
                 ${charactersList.length ? `
                     <div class="mobile-anime-section">
                         <div class="mobile-anime-section-header">
-                            <div class="mobile-anime-section-title">Персонажи</div>
+                            <div class="mobile-anime-section-title">${isEn ? 'Characters' : 'Персонажи'}</div>
                             <i class="ti ti-chevron-right section-chevron"></i>
                         </div>
                         <div class="mobile-characters-scroll">
@@ -2098,8 +2105,8 @@ function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetH
                     <div class="mobile-anime-section">
                         <div class="mobile-anime-section-header">
                             <div class="mobile-anime-section-title">
-                                Связанное <span class="mobile-count-pill">${relatedList.length}</span>
-                                <span class="mobile-chronology-badge">Хронология</span>
+                                ${isEn ? 'Related' : 'Связанное'} <span class="mobile-count-pill">${relatedList.length}</span>
+                                <span class="mobile-chronology-badge">${isEn ? 'Chronology' : 'Хронология'}</span>
                             </div>
                             <i class="ti ti-chevron-right section-chevron"></i>
                         </div>
@@ -2117,7 +2124,7 @@ function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetH
                                         </div>
                                         <div class="mobile-related-info">
                                             <div class="mobile-related-title">${r.name}</div>
-                                            <div class="mobile-related-kind">${r.kind || 'Продолжение'}</div>
+                                            <div class="mobile-related-kind">${r.kind || (isEn ? 'Sequel' : 'Продолжение')}</div>
                                         </div>
                                         <div class="mobile-related-action">
                                             <i class="ti ti-eye"></i>
@@ -2132,11 +2139,11 @@ function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetH
                 <!-- 9. Кадры -->
                 ${screenshotsList.length ? `
                     <div class="mobile-anime-section">
-                        <div class="mobile-anime-section-title">Кадры</div>
+                        <div class="mobile-anime-section-title">${isEn ? 'Screenshots' : 'Кадры'}</div>
                         <div class="mobile-screenshots-scroll">
                             ${screenshotsList.map((src, idx) => `
                                 <div class="mobile-screenshot-card" onclick="openScreenshotLightbox(${idx})">
-                                    <img src="${src}" alt="Кадр ${idx + 1}" class="mobile-screenshot-img" loading="lazy">
+                                    <img src="${src}" alt="${isEn ? 'Screenshot ' + (idx + 1) : 'Кадр ' + (idx + 1)}" class="mobile-screenshot-img" loading="lazy">
                                 </div>
                             `).join('')}
                         </div>
@@ -2145,53 +2152,53 @@ function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetH
 
                 <!-- 10. Детали -->
                 <div class="mobile-anime-section mobile-details-section">
-                    <div class="mobile-anime-section-title">Детали</div>
+                    <div class="mobile-anime-section-title">${isEn ? 'Details' : 'Детали'}</div>
                     <div class="mobile-detail-row">
-                        <span class="detail-label">Студия</span>
+                        <span class="detail-label">${isEn ? 'Studio' : 'Студия'}</span>
                         <span class="detail-val"><span class="studio-badge">${studiosList}</span></span>
                     </div>
                     <div class="mobile-detail-row">
-                        <span class="detail-label">Первоисточник</span>
-                        <span class="detail-val">Манга</span>
+                        <span class="detail-label">${isEn ? 'Source' : 'Первоисточник'}</span>
+                        <span class="detail-val">${isEn ? 'Manga' : 'Манга'}</span>
                     </div>
                     <div class="mobile-detail-row">
-                        <span class="detail-label">Длительность эпизода</span>
-                        <span class="detail-val">${a.duration ? a.duration + ' мин.' : '24 мин.'}</span>
+                        <span class="detail-label">${isEn ? 'Episode duration' : 'Длительность эпизода'}</span>
+                        <span class="detail-val">${a.duration ? a.duration + (isEn ? ' min.' : ' мин.') : (isEn ? '24 min.' : '24 мин.')}</span>
                     </div>
                     <div class="mobile-detail-row">
-                        <span class="detail-label">Начало показа</span>
+                        <span class="detail-label">${isEn ? 'Aired from' : 'Начало показа'}</span>
                         <span class="detail-val">${formatRussianDate(a.aired_on)}</span>
                     </div>
                     <div class="mobile-detail-row">
-                        <span class="detail-label">Конец показа</span>
+                        <span class="detail-label">${isEn ? 'Aired to' : 'Конец показа'}</span>
                         <span class="detail-val">${formatRussianDate(a.released_on)}</span>
                     </div>
 
                     <div class="mobile-detail-separator"></div>
 
                     <div class="mobile-detail-row">
-                        <span class="detail-label">Ромадзи</span>
+                        <span class="detail-label">${isEn ? 'Romaji' : 'Ромадзи'}</span>
                         <span class="detail-val">${a.name || '—'}</span>
                     </div>
                     <div class="mobile-detail-row">
-                        <span class="detail-label">По-русски</span>
+                        <span class="detail-label">${isEn ? 'Russian' : 'По-русски'}</span>
                         <span class="detail-val">${a.russian || a.name || '—'}</span>
                     </div>
                     ${englishTitle ? `
                         <div class="mobile-detail-row">
-                            <span class="detail-label">По-английски</span>
+                            <span class="detail-label">${isEn ? 'English' : 'По-английски'}</span>
                             <span class="detail-val">${englishTitle}</span>
                         </div>
                     ` : ''}
                     ${japaneseTitle ? `
                         <div class="mobile-detail-row">
-                            <span class="detail-label">По-японски</span>
+                            <span class="detail-label">${isEn ? 'Japanese' : 'По-японски'}</span>
                             <span class="detail-val">${japaneseTitle}</span>
                         </div>
                     ` : ''}
                     ${synonymsText ? `
                         <div class="mobile-detail-row">
-                            <span class="detail-label">Другие названия</span>
+                            <span class="detail-label">${isEn ? 'Synonyms' : 'Другие названия'}</span>
                             <span class="detail-val">${synonymsText}</span>
                         </div>
                     ` : ''}
@@ -2204,35 +2211,35 @@ function buildMobileAnimeDetailHTML(a, targetEpisode, safeTitle, userRateWidgetH
                     <div class="mobile-nav-link-item" onclick="window.open('${a.shikimori_url || '#'}', '_blank')">
                         <div class="mobile-nav-link-left">
                             <i class="ti ti-messages"></i>
-                            <span>Обсуждение</span>
+                            <span>${isEn ? 'Discussions' : 'Обсуждение'}</span>
                         </div>
                         <i class="ti ti-chevron-right"></i>
                     </div>
                     <div class="mobile-nav-link-item" onclick="window.open('${a.shikimori_url || '#'}/similar', '_blank')">
                         <div class="mobile-nav-link-left">
                             <i class="ti ti-copy"></i>
-                            <span>Похожее</span>
+                            <span>${isEn ? 'Similar' : 'Похожее'}</span>
                         </div>
                         <i class="ti ti-chevron-right"></i>
                     </div>
                     <div class="mobile-nav-link-item" onclick="window.open('${a.shikimori_url || '#'}', '_blank')">
                         <div class="mobile-nav-link-left">
                             <i class="ti ti-link"></i>
-                            <span>Ссылки</span>
+                            <span>${isEn ? 'Links' : 'Ссылки'}</span>
                         </div>
                         <i class="ti ti-chevron-right"></i>
                     </div>
                     <div class="mobile-nav-link-item" onclick="toggleAnicliPlayer('${safeTitle}', ${targetEpisode}, ${a.id})">
                         <div class="mobile-nav-link-left">
                             <i class="ti ti-movie"></i>
-                            <span>Видео</span>
+                            <span>${isEn ? 'Videos' : 'Видео'}</span>
                         </div>
                         <i class="ti ti-chevron-right"></i>
                     </div>
                 </div>
             </div>
 
-            <!-- 12. Всплывающий боттом-шит прогресса (Скриншот 2) -->
+            <!-- 12. Всплывающий боттом-шит прогресса -->
             ${buildMobileRateSheetHTML(a)}
         </div>
     `;
@@ -2464,17 +2471,6 @@ async function searchAnime(query) {
     }
 }
 
-async function getSerialInfo(animeId, source = 'shikimori') {
-    try {
-        const response = await fetch(`/api/serial/${source}/${animeId}`);
-        if (!response.ok) throw new Error('Failed to fetch serial info');
-        return await response.json();
-    } catch (error) {
-        console.error('Ошибка получения информации серий:', error);
-        return null;
-    }
-}
-
 // ==================== CHARACTER MODAL ====================
 
 async function openCharacterModal(charId) {
@@ -2500,13 +2496,14 @@ async function openCharacterModal(charId) {
 function toggleCharDesc(id, btn) {
     const desc = document.getElementById('char-desc-' + id);
     if (!desc) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     const isCollapsed = desc.classList.contains('collapsed');
     if (isCollapsed) {
         desc.classList.remove('collapsed');
-        btn.textContent = 'Свернуть';
+        btn.textContent = isEn ? 'Show less' : 'Свернуть';
     } else {
         desc.classList.add('collapsed');
-        btn.textContent = 'Развернуть';
+        btn.textContent = isEn ? 'Show more' : 'Развернуть';
     }
 }
 window.toggleCharDesc = toggleCharDesc;
@@ -2515,6 +2512,7 @@ function renderCharacterDetail(char) {
     const body = document.getElementById('anime-modal-body');
     if (!body) return;
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     const poster = char.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(char.image) : char.image) : '';
     const animes = char.animes || [];
     const mangas = char.mangas || [];
@@ -2523,11 +2521,11 @@ function renderCharacterDetail(char) {
 
     body.innerHTML = `
         <div class="char-view-top-bar">
-            <button type="button" class="char-view-nav-btn" onclick="handleModalBack()" title="Назад">
+            <button type="button" class="char-view-nav-btn" onclick="handleModalBack()" title="${isEn ? 'Back' : 'Назад'}">
                 <i class="ti ti-arrow-left"></i>
             </button>
-            <div class="char-view-nav-title">Персонаж</div>
-            <button type="button" class="char-view-nav-btn" onclick="copyCharacterLink('${char.shikimori_url || ('https://shikimori.io/characters/' + char.id)}')" title="Поделиться">
+            <div class="char-view-nav-title">${isEn ? 'Character' : 'Персонаж'}</div>
+            <button type="button" class="char-view-nav-btn" onclick="copyCharacterLink('${char.shikimori_url || ('https://shikimori.io/characters/' + char.id)}')" title="${isEn ? 'Share' : 'Поделиться'}">
                 <i class="ti ti-share"></i>
             </button>
         </div>
@@ -2552,7 +2550,7 @@ function renderCharacterDetail(char) {
                         ${descText}
                     </div>
                     ${isLongDesc ? `
-                        <div class="char-view-desc-toggle" onclick="toggleCharDesc('${char.id}', this)">Развернуть</div>
+                        <div class="char-view-desc-toggle" onclick="toggleCharDesc('${char.id}', this)">${isEn ? 'Show more' : 'Развернуть'}</div>
                     ` : ''}
                 </div>
             ` : ''}
@@ -2560,7 +2558,7 @@ function renderCharacterDetail(char) {
             <!-- 3. Anime section -->
             ${animes.length > 0 ? `
                 <div class="char-view-media-section">
-                    <h3 class="char-section-title">Аниме</h3>
+                    <h3 class="char-section-title">${isEn ? 'Anime' : 'Аниме'}</h3>
                     <div class="char-media-carousel">
                         ${animes.map(a => {
                             const aImg = a.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(a.image) : a.image) : '';
@@ -2583,7 +2581,7 @@ function renderCharacterDetail(char) {
             <!-- 4. Manga section -->
             ${mangas.length > 0 ? `
                 <div class="char-view-media-section">
-                    <h3 class="char-section-title">Манга и ранобэ</h3>
+                    <h3 class="char-section-title">${isEn ? 'Manga & Light Novels' : 'Манга и ранобэ'}</h3>
                     <div class="char-media-carousel">
                         ${mangas.map(m => {
                             const mImg = m.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(m.image) : m.image) : '';
@@ -2634,11 +2632,12 @@ function renderClubDetail(club) {
     const body = document.getElementById('anime-modal-body');
     if (!body) return;
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     const logo = club.image || '';
 
     body.innerHTML = `
         <div class="mobile-anime-top-bar" id="mobile-anime-top-bar">
-            <button type="button" class="mobile-anime-top-btn" onclick="handleModalBack()" title="Назад">
+            <button type="button" class="mobile-anime-top-btn" onclick="handleModalBack()" title="${isEn ? 'Back' : 'Назад'}">
                 <i class="ti ti-arrow-left"></i>
             </button>
             <div class="mobile-anime-top-title" id="mobile-anime-top-title">${club.name || ''}</div>

@@ -26,7 +26,10 @@ async function loadRecentHistory(retries = 2) {
             return;
         }
 
-        container.innerHTML = data.slice(0, 4).map(renderHistoryItemHtml).join('');
+        const renderFn = typeof renderHistoryItemHtml === 'function' ? renderHistoryItemHtml : (typeof renderDesktopHistoryItemHtml === 'function' ? renderDesktopHistoryItemHtml : null);
+        if (renderFn) {
+            container.innerHTML = data.slice(0, 4).map(renderFn).join('');
+        }
     } catch (err) {
         if (retries > 0) {
             setTimeout(() => loadRecentHistory(retries - 1), 1500);

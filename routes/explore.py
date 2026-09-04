@@ -1,11 +1,15 @@
 import re
+import time
+import json
 import logging
 import random
+import threading
 import requests
 from flask import Blueprint, jsonify, request
+from database import get_connection
 from utils import (
     SHIKIMORI_BASE, APP_NAME, fetch_cached_api, fix_image_url,
-    fetch_graphql, resolve_posters_graphql
+    fetch_graphql, resolve_posters_graphql, resolve_franchise_poster
 )
 from concurrent.futures import ThreadPoolExecutor
 from errors import AppError, api_route
@@ -281,12 +285,56 @@ def parse_topic_item(t, default_tag=""):
         "date": t.get("created_at", "")[:10] if t.get("created_at") else ""
     }
 
-@explore_bp.route("/api/tab/explore")
-@api_route
-def tab_explore():
+EXPLORE_FEED_CACHE_KEY = "explore:tab_feed_v2"
+EXPLORE_FEED_TTL = 1800  # 30 minutes
+
+_explore_lock = threading.Lock()
+_explore_mem_cache = {
+    "data": None,
+    "expires_at": 0.0
+}
+
+
+def _get_cached_explore_from_db():
+    try:
+        conn = get_connection()
+        try:
+            row = conn.execute(
+                "SELECT data, expires_at FROM api_cache WHERE url = ?",
+                (EXPLORE_FEED_CACHE_KEY,)
+            ).fetchone()
+            if row:
+                return json.loads(row["data"]), float(row["expires_at"])
+        finally:
+            conn.close()
+    except Exception as exc:
+        logger.error("Error reading explore feed cache from DB: %s", exc)
+    return None, 0.0
+
+
+def _save_explore_to_db_and_mem(feed):
+    now = time.time()
+    expires_at = now + EXPLORE_FEED_TTL
+    _explore_mem_cache["data"] = feed
+    _explore_mem_cache["expires_at"] = expires_at
+    try:
+        conn = get_connection()
+        try:
+            conn.execute(
+                "INSERT OR REPLACE INTO api_cache (url, data, expires_at) VALUES (?, ?, ?)",
+                (EXPLORE_FEED_CACHE_KEY, json.dumps(feed), expires_at)
+            )
+            conn.commit()
+        finally:
+            conn.close()
+    except Exception as exc:
+        logger.error("Error writing explore feed cache to DB: %s", exc)
+
+
+def _fetch_explore_feed_raw():
     headers = {"User-Agent": APP_NAME}
     
-    # 1. Fetch GraphQL data for on_screens and anime_updates
+    # GraphQL query for on_screens and anime_updates
     gql_query = """
     query HomeExploreData {
       on_screens: animes(status: "ongoing", order: popularity, limit: 16) {
@@ -312,8 +360,44 @@ def tab_explore():
       }
     }
     """
-    gql_data = fetch_graphql(gql_query, ttl=600) or {}
     
+    urls = {
+        "news": f"{SHIKIMORI_BASE}/api/topics?forum=news&page=1&limit=13",
+        "collections": f"{SHIKIMORI_BASE}/api/topics?forum=collections&limit=6",
+        "critiques": f"{SHIKIMORI_BASE}/api/topics?forum=critiques&limit=6",
+        "articles": f"{SHIKIMORI_BASE}/api/topics?forum=articles&limit=6",
+        "hot": f"{SHIKIMORI_BASE}/api/topics?forum=animanga&limit=8"
+    }
+
+    results = {}
+    gql_data = {}
+
+    def fetch_gql():
+        return fetch_graphql(gql_query, ttl=1800) or {}
+
+    def fetch_topic(key_url):
+        key, url = key_url
+        return key, fetch_cached_api(url, headers, ttl=1800)
+
+    # 1. Fetch GraphQL + all 5 REST endpoints in parallel (6 workers)
+    with ThreadPoolExecutor(max_workers=6) as executor:
+        gql_future = executor.submit(fetch_gql)
+        topic_futures = [executor.submit(fetch_topic, item) for item in urls.items()]
+
+        try:
+            gql_data = gql_future.result() or {}
+        except Exception as exc:
+            logger.warning("Explore GraphQL fetch failed: %s", exc)
+
+        for f in topic_futures:
+            try:
+                k, data = f.result()
+                results[k] = data if isinstance(data, list) else []
+                if not isinstance(data, list):
+                    logger.warning("Explore feed %s returned non-list", k)
+            except Exception as exc:
+                logger.warning("Explore topic fetch failed: %s", exc)
+
     on_screens = []
     for a in gql_data.get("on_screens", []) or []:
         p = a.get("poster") or {}
@@ -346,26 +430,6 @@ def tab_explore():
             "genres": ", ".join(genres[:2]) if genres else ""
         })
 
-    # 2. Fetch REST topics
-    urls = {
-        "news": f"{SHIKIMORI_BASE}/api/topics?forum=news&page=1&limit=13",
-        "collections": f"{SHIKIMORI_BASE}/api/topics?forum=collections&limit=6",
-        "critiques": f"{SHIKIMORI_BASE}/api/topics?forum=critiques&limit=6",
-        "articles": f"{SHIKIMORI_BASE}/api/topics?forum=articles&limit=6",
-        "hot": f"{SHIKIMORI_BASE}/api/topics?forum=animanga&limit=8"
-    }
-
-    results = {}
-    def fetch_url(key_url):
-        key, url = key_url
-        return key, fetch_cached_api(url, headers, ttl=900)
-
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        for k, data in executor.map(fetch_url, urls.items()):
-            results[k] = data if isinstance(data, list) else []
-            if not isinstance(data, list):
-                logger.warning("Explore feed %s returned non-list", k)
-
     content_items = []
     for t in results.get("collections", []): content_items.append(parse_topic_item(t, "Коллекция"))
     for t in results.get("critiques", []): content_items.append(parse_topic_item(t, "Рецензия"))
@@ -384,27 +448,120 @@ def tab_explore():
         "Explore feed loaded: on_screens=%d updates=%d content=%d hot=%d news=%d",
         len(on_screens), len(anime_updates), len(content_items), len(hot_items), len(parsed_news),
     )
-    return jsonify({
+
+    feed = {
         "on_screens": on_screens,
         "anime_updates": anime_updates,
         "content": content_items,
         "hot": hot_items,
         "latest": parsed_news[:3],
         "other": parsed_news[3:]
-    })
+    }
+    return feed
 
 
-@explore_bp.route("/api/calendar")
+def _refresh_explore_feed_sync():
+    feed = _fetch_explore_feed_raw()
+    _save_explore_to_db_and_mem(feed)
+    return feed
+
+
+@explore_bp.route("/api/tab/explore")
 @api_route
-def get_airing_calendar():
-    """Fetch airing anime calendar from Shikimori, grouped by day of the week."""
+def tab_explore():
+    now = time.time()
+
+    # 1. Fast in-memory cache hit (<0.1ms)
+    if _explore_mem_cache["data"] and now < _explore_mem_cache["expires_at"]:
+        return jsonify(_explore_mem_cache["data"])
+
+    # 2. Database cache check (<2ms)
+    db_data, db_expires_at = _get_cached_explore_from_db()
+    if db_data:
+        _explore_mem_cache["data"] = db_data
+        _explore_mem_cache["expires_at"] = db_expires_at
+
+        if now < db_expires_at:
+            return jsonify(db_data)
+
+        # Stale-While-Revalidate: Return cached data instantly, refresh in background
+        def _bg_worker():
+            if _explore_lock.acquire(blocking=False):
+                try:
+                    logger.debug("Background refreshing stale explore feed...")
+                    _refresh_explore_feed_sync()
+                    logger.debug("Background explore feed refresh complete.")
+                except Exception as exc:
+                    logger.error("Background explore feed refresh failed: %s", exc)
+                finally:
+                    _explore_lock.release()
+
+        threading.Thread(target=_bg_worker, daemon=True).start()
+        logger.info("Serving stale explore feed (SWR) while background refresh runs")
+        return jsonify(db_data)
+
+    # 3. Cold start: fetch in parallel with 6 workers
+    with _explore_lock:
+        if _explore_mem_cache["data"] and now < _explore_mem_cache["expires_at"]:
+            return jsonify(_explore_mem_cache["data"])
+        feed = _refresh_explore_feed_sync()
+        return jsonify(feed)
+
+
+CALENDAR_CACHE_KEY = "explore:calendar_grid_v2"
+CALENDAR_CACHE_TTL = 1800  # 30 minutes
+
+_calendar_lock = threading.Lock()
+_calendar_mem_cache = {
+    "data": None,
+    "expires_at": 0.0
+}
+
+
+def _get_cached_calendar_from_db():
+    try:
+        conn = get_connection()
+        try:
+            row = conn.execute(
+                "SELECT data, expires_at FROM api_cache WHERE url = ?",
+                (CALENDAR_CACHE_KEY,)
+            ).fetchone()
+            if row:
+                return json.loads(row["data"]), float(row["expires_at"])
+        finally:
+            conn.close()
+    except Exception as exc:
+        logger.error("Error reading calendar cache from DB: %s", exc)
+    return None, 0.0
+
+
+def _save_calendar_to_db_and_mem(items):
+    now = time.time()
+    expires_at = now + CALENDAR_CACHE_TTL
+    _calendar_mem_cache["data"] = items
+    _calendar_mem_cache["expires_at"] = expires_at
+    try:
+        conn = get_connection()
+        try:
+            conn.execute(
+                "INSERT OR REPLACE INTO api_cache (url, data, expires_at) VALUES (?, ?, ?)",
+                (CALENDAR_CACHE_KEY, json.dumps(items), expires_at)
+            )
+            conn.commit()
+        finally:
+            conn.close()
+    except Exception as exc:
+        logger.error("Error writing calendar cache to DB: %s", exc)
+
+
+def _fetch_calendar_raw():
     headers = {"User-Agent": APP_NAME}
     url = f"{SHIKIMORI_BASE}/api/calendar"
     data = fetch_cached_api(url, headers, ttl=1800) or []
 
     if not isinstance(data, list):
         logger.warning("Calendar API returned non-list")
-        return jsonify([])
+        return []
 
     anime_ids = [str(entry["anime"]["id"]) for entry in data if entry.get("anime") and entry["anime"].get("id")]
     poster_map = resolve_posters_graphql(anime_ids, headers)
@@ -454,7 +611,51 @@ def get_airing_calendar():
         })
 
     logger.debug("Airing calendar loaded: %d items", len(items))
-    return jsonify(items)
+    _save_calendar_to_db_and_mem(items)
+    return items
+
+
+@explore_bp.route("/api/calendar")
+@api_route
+def get_airing_calendar():
+    """Fetch airing anime calendar from Shikimori, grouped by day of the week."""
+    now = time.time()
+
+    # 1. Fast in-memory check
+    if _calendar_mem_cache["data"] and now < _calendar_mem_cache["expires_at"]:
+        return jsonify(_calendar_mem_cache["data"])
+
+    # 2. Database check
+    db_data, db_expires_at = _get_cached_calendar_from_db()
+    if db_data is not None:
+        _calendar_mem_cache["data"] = db_data
+        _calendar_mem_cache["expires_at"] = db_expires_at
+
+        if now < db_expires_at:
+            return jsonify(db_data)
+
+        # Stale-While-Revalidate
+        def _bg_worker():
+            if _calendar_lock.acquire(blocking=False):
+                try:
+                    logger.debug("Background refreshing stale calendar...")
+                    _fetch_calendar_raw()
+                    logger.debug("Background calendar refresh complete.")
+                except Exception as exc:
+                    logger.error("Background calendar refresh failed: %s", exc)
+                finally:
+                    _calendar_lock.release()
+
+        threading.Thread(target=_bg_worker, daemon=True).start()
+        logger.info("Serving stale calendar feed (SWR) while background refresh runs")
+        return jsonify(db_data)
+
+    # 3. Cold start
+    with _calendar_lock:
+        if _calendar_mem_cache["data"] and now < _calendar_mem_cache["expires_at"]:
+            return jsonify(_calendar_mem_cache["data"])
+        items = _fetch_calendar_raw()
+        return jsonify(items)
 
 
 @explore_bp.route("/api/catalog")
@@ -537,7 +738,7 @@ def get_catalog():
                 "kind": (item.get("kind") or "").upper(),
                 "status": item.get("status"),
                 "episodes": item.get("episodes"),
-                "episodes_aired": item.get("episodes_aired"),
+                "episodes_aired": item.get("episodesAired") or item.get("episodes_aired"),
                 "year": year,
                 "genres": genres,
             })
@@ -741,12 +942,26 @@ def get_top100():
           }
         }
         """
-        gql_data = fetch_graphql(query, {"page": page, "limit": limit}, ttl=1800)
-        items = gql_data.get("mangas", []) if gql_data else []
+        items = []
+        if limit > 50:
+            gql1 = fetch_graphql(query, {"page": 1, "limit": 50}, ttl=1800)
+            gql2 = fetch_graphql(query, {"page": 2, "limit": 50}, ttl=1800)
+            items = (gql1.get("mangas", []) if gql1 else []) + (gql2.get("mangas", []) if gql2 else [])
+        else:
+            gql_data = fetch_graphql(query, {"page": page, "limit": limit}, ttl=1800)
+            items = gql_data.get("mangas", []) if gql_data else []
+
         if not items:
             headers = {"User-Agent": APP_NAME}
-            url = f"{SHIKIMORI_BASE}/api/mangas?order=ranked&page={page}&limit={limit}"
-            items = fetch_cached_api(url, headers, ttl=1800) or []
+            if limit > 50:
+                url1 = f"{SHIKIMORI_BASE}/api/mangas?order=ranked&page=1&limit=50"
+                url2 = f"{SHIKIMORI_BASE}/api/mangas?order=ranked&page=2&limit=50"
+                r1 = fetch_cached_api(url1, headers, ttl=1800) or []
+                r2 = fetch_cached_api(url2, headers, ttl=1800) or []
+                items = (r1 if isinstance(r1, list) else []) + (r2 if isinstance(r2, list) else [])
+            else:
+                url = f"{SHIKIMORI_BASE}/api/mangas?order=ranked&page={page}&limit={limit}"
+                items = fetch_cached_api(url, headers, ttl=1800) or []
 
         results = []
         base_rank = (page - 1) * limit
@@ -754,12 +969,15 @@ def get_top100():
             p = item.get("poster") or {}
             poster = p.get("mainUrl") or p.get("originalUrl") or item.get("image") or ""
             genres = [g.get("russian") or g.get("name") for g in item.get("genres", []) if g]
+            img_url = fix_image_url(poster)
+            if not img_url:
+                img_url = resolve_franchise_poster(item.get("id"), is_manga=True)
             results.append({
                 "rank": base_rank + idx,
                 "id": item.get("id"),
                 "name": item.get("name"),
                 "russian": item.get("russian") or item.get("name"),
-                "image": fix_image_url(poster),
+                "image": img_url,
                 "score": item.get("score"),
                 "kind": (item.get("kind") or "").upper(),
                 "status": item.get("status"),
@@ -799,14 +1017,30 @@ def get_top100():
     if kind_filter: vars_dict["kind"] = kind_filter
     if status_filter: vars_dict["status"] = status_filter
 
-    gql_data = fetch_graphql(query, vars_dict, ttl=1800)
-    items = gql_data.get("animes", []) if gql_data else []
+    items = []
+    if limit > 50:
+        vars1 = dict(vars_dict, page=1, limit=50)
+        vars2 = dict(vars_dict, page=2, limit=50)
+        gql1 = fetch_graphql(query, vars1, ttl=1800)
+        gql2 = fetch_graphql(query, vars2, ttl=1800)
+        items = (gql1.get("animes", []) if gql1 else []) + (gql2.get("animes", []) if gql2 else [])
+    else:
+        gql_data = fetch_graphql(query, vars_dict, ttl=1800)
+        items = gql_data.get("animes", []) if gql_data else []
+
     if not items:
         headers = {"User-Agent": APP_NAME}
         kind_q = f"&kind={kind_filter}" if kind_filter else ""
         status_q = f"&status={status_filter}" if status_filter else ""
-        url = f"{SHIKIMORI_BASE}/api/animes?order=ranked&page={page}&limit={limit}{kind_q}{status_q}"
-        items = fetch_cached_api(url, headers, ttl=1800) or []
+        if limit > 50:
+            url1 = f"{SHIKIMORI_BASE}/api/animes?order=ranked&page=1&limit=50{kind_q}{status_q}"
+            url2 = f"{SHIKIMORI_BASE}/api/animes?order=ranked&page=2&limit=50{kind_q}{status_q}"
+            r1 = fetch_cached_api(url1, headers, ttl=1800) or []
+            r2 = fetch_cached_api(url2, headers, ttl=1800) or []
+            items = (r1 if isinstance(r1, list) else []) + (r2 if isinstance(r2, list) else [])
+        else:
+            url = f"{SHIKIMORI_BASE}/api/animes?order=ranked&page={page}&limit={limit}{kind_q}{status_q}"
+            items = fetch_cached_api(url, headers, ttl=1800) or []
 
     results = []
     base_rank = (page - 1) * limit
@@ -815,17 +1049,20 @@ def get_top100():
         poster = p.get("mainUrl") or p.get("originalUrl") or item.get("image") or ""
         genres = [g.get("russian") or g.get("name") for g in item.get("genres", []) if g]
         year = str(item.get("airedOn", {}).get("year") or "") if isinstance(item.get("airedOn"), dict) else (item.get("aired_on") or "")[:4]
+        img_url = fix_image_url(poster)
+        if not img_url:
+            img_url = resolve_franchise_poster(item.get("id"), is_manga=False)
         results.append({
             "rank": base_rank + idx,
             "id": item.get("id"),
             "name": item.get("name"),
             "russian": item.get("russian") or item.get("name"),
-            "image": fix_image_url(poster),
+            "image": img_url,
             "score": item.get("score"),
             "kind": (item.get("kind") or "").upper(),
             "status": item.get("status"),
             "episodes": item.get("episodes"),
-            "episodes_aired": item.get("episodes_aired"),
+            "episodes_aired": item.get("episodesAired") or item.get("episodes_aired"),
             "year": year,
             "genres": genres,
             "is_manga": False
@@ -1063,37 +1300,34 @@ def get_collections_catalog():
 @explore_bp.route("/api/critiques/catalog")
 @api_route
 def get_critiques_catalog():
-    """Get critiques and reviews from topics."""
+    """Get critiques and reviews from topics with continuous multi-page support."""
     page = int(request.args.get("page", 1))
     limit = min(int(request.args.get("limit", 20)), 30)
 
     headers = {"User-Agent": APP_NAME}
-    url = f"{SHIKIMORI_BASE}/api/topics?forum=critiques&page={page}&limit={limit}"
-    data = fetch_cached_api(url, headers, ttl=1800) or []
-    if not isinstance(data, list):
-        data = []
+    data = []
 
-    # If few critiques on page 1, supplement with reviews forum topics
-    if len(data) < 10 and page == 1:
-        rev_url = f"{SHIKIMORI_BASE}/api/topics?forum=reviews&page=1&limit={limit}"
-        rev_data = fetch_cached_api(rev_url, headers, ttl=1800) or []
-        if isinstance(rev_data, list):
-            existing_ids = {t.get("id") for t in data}
-            for t in rev_data:
+    if page == 1:
+        # Page 1: load official critiques forum topics first
+        crit_url = f"{SHIKIMORI_BASE}/api/topics?forum=critiques&page=1&limit={limit}"
+        crit_data = fetch_cached_api(crit_url, headers, ttl=1800) or []
+        if isinstance(crit_data, list):
+            data.extend(crit_data)
+
+        # Supplement with animanga forum discussions
+        existing_ids = {t.get("id") for t in data}
+        animanga_url = f"{SHIKIMORI_BASE}/api/topics?forum=animanga&page=1&limit={limit}"
+        ani_data = fetch_cached_api(animanga_url, headers, ttl=1800) or []
+        if isinstance(ani_data, list):
+            for t in ani_data:
                 if t.get("id") not in existing_ids:
                     data.append(t)
-                    existing_ids.add(t.get("id"))
-
-        # Also pull interesting discussion critiques from animanga
-        if len(data) < 15:
-            animanga_url = f"{SHIKIMORI_BASE}/api/topics?forum=animanga&page=1&limit=20"
-            ani_data = fetch_cached_api(animanga_url, headers, ttl=1800) or []
-            if isinstance(ani_data, list):
-                for t in ani_data:
-                    body = t.get("body") or ""
-                    if len(body) > 300 and t.get("id") not in existing_ids:
-                        data.append(t)
-                        existing_ids.add(t.get("id"))
+    else:
+        # Page 2+: load next pages from animanga discussion & reviews forum
+        animanga_url = f"{SHIKIMORI_BASE}/api/topics?forum=animanga&page={page}&limit={limit}"
+        ani_data = fetch_cached_api(animanga_url, headers, ttl=1800) or []
+        if isinstance(ani_data, list):
+            data = ani_data
 
     results = []
     for t in data:

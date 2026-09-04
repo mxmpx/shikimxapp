@@ -12,7 +12,7 @@
         }
         const profileTab = document.querySelector('.tab-btn[onclick*="profile"] .tab-label');
         if (profileTab) {
-            const lang = (typeof getSavedLanguage === 'function') ? getSavedLanguage() : (localStorage.getItem('shiki_lang') || 'ru');
+            const lang = (typeof getSavedLanguage === 'function') ? getSavedLanguage() : (localStorage.getItem('app_language') || localStorage.getItem('shiki_lang') || 'ru');
             profileTab.textContent = lang === 'en' ? 'Explore' : 'Обзор';
         }
     }
@@ -40,14 +40,16 @@ window.closeMobileProfileMenu = function(event) {
 /* Обновление меток темы и языка внутри меню профиля и настроек */
 function updateMobileProfileBadges() {
     const theme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || 'dark';
+    const darkLabel = typeof i18n === 'function' ? i18n('theme.dark') : 'Тёмная';
+    const lightLabel = typeof i18n === 'function' ? i18n('theme.light') : 'Светлая';
     const themeVal = document.getElementById('mobile-profile-theme-val');
     const themeIcon = document.getElementById('mobile-profile-theme-icon');
-    if (themeVal) themeVal.textContent = (theme === 'dark') ? 'Тёмная' : 'Светлая';
+    if (themeVal) themeVal.textContent = (theme === 'dark') ? darkLabel : lightLabel;
     if (themeIcon) themeIcon.className = (theme === 'dark') ? 'ti ti-sun action-icon' : 'ti ti-moon action-icon';
 
     const settingsThemeVal = document.getElementById('mobile-settings-theme-val');
     const settingsThemeIcon = document.getElementById('mobile-settings-theme-icon');
-    if (settingsThemeVal) settingsThemeVal.textContent = (theme === 'dark') ? 'Тёмная' : 'Светлая';
+    if (settingsThemeVal) settingsThemeVal.textContent = (theme === 'dark') ? darkLabel : lightLabel;
     if (settingsThemeIcon) settingsThemeIcon.className = (theme === 'dark') ? 'ti ti-sun action-icon' : 'ti ti-moon action-icon';
 
     const lang = (typeof getSavedLanguage === 'function') ? getSavedLanguage() : (localStorage.getItem('app_language') || 'ru');
@@ -117,7 +119,8 @@ window.openMobileFriendsModal = async function() {
     if (!body) return;
 
     if (!body.dataset.loaded) {
-        body.innerHTML = '<div class="loader" style="padding: 40px; text-align: center;"><i class="ti ti-loader animate-spin" style="font-size: 32px; color: var(--primary);"></i><p style="color: var(--text-muted); margin-top: 12px;">' + (typeof t === 'function' ? t('friends.loading') : 'Загрузка друзей и клубов...') + '</p></div>';
+        const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+        body.innerHTML = '<div class="loader" style="padding: 40px; text-align: center;"><i class="ti ti-loader animate-spin" style="font-size: 32px; color: var(--primary);"></i><p style="color: var(--text-muted); margin-top: 12px;">' + (typeof t === 'function' ? t('friends.loading') : (isEn ? 'Loading friends and clubs...' : 'Загрузка друзей и клубов...')) + '</p></div>';
         try {
             const res = await fetch('/api/tab/friends');
             if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -125,8 +128,8 @@ window.openMobileFriendsModal = async function() {
             renderMobileFriendsAndClubs(data);
             body.dataset.loaded = 'true';
         } catch(err) {
-            console.error('Ошибка загрузки друзей:', err);
-            body.innerHTML = '<p style="color: var(--danger); padding: 20px; text-align: center;">Не удалось загрузить друзей и клубы</p>';
+            console.error('Error loading friends:', err);
+            body.innerHTML = `<p style="color: var(--danger); padding: 20px; text-align: center;">${isEn ? 'Failed to load friends and clubs' : 'Не удалось загрузить друзей и клубы'}</p>`;
         }
     }
 };
@@ -140,11 +143,12 @@ window.closeMobileFriendsModal = function(event) {
 function renderMobileFriendsAndClubs(data) {
     const body = document.getElementById('mobile-friends-body');
     if (!body) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     const friends = data.friends || [];
     const clubs = data.clubs || [];
 
     let friendsHtml = '<div class="mobile-profile-section">' +
-        '<div class="mobile-section-title"><i class="ti ti-users"></i> <span>' + (typeof t === 'function' ? t('friends.friends') : 'Друзья') + ' (' + friends.length + ')</span></div>';
+        '<div class="mobile-section-title"><i class="ti ti-users"></i> <span>' + (typeof t === 'function' ? t('friends.friends') : (isEn ? 'Friends' : 'Друзья')) + ' (' + friends.length + ')</span></div>';
     if (friends.length > 0) {
         friendsHtml += '<div class="mobile-friends-grid">' + friends.map(function(f) {
             const name = f.nickname || f.name || '';
@@ -155,12 +159,12 @@ function renderMobileFriendsAndClubs(data) {
             '</div>';
         }).join('') + '</div>';
     } else {
-        friendsHtml += '<p style="color: var(--text-muted); font-size: 13px; margin: 0;">' + (typeof t === 'function' ? t('friends.empty') : 'Список пуст') + '</p>';
+        friendsHtml += '<p style="color: var(--text-muted); font-size: 13px; margin: 0;">' + (typeof t === 'function' ? t('friends.empty') : (isEn ? 'List is empty' : 'Список пуст')) + '</p>';
     }
     friendsHtml += '</div>';
 
     let clubsHtml = '<div class="mobile-profile-section">' +
-        '<div class="mobile-section-title"><i class="ti ti-building-community"></i> <span>' + (typeof t === 'function' ? t('friends.clubs') : 'Клубы') + ' (' + clubs.length + ')</span></div>';
+        '<div class="mobile-section-title"><i class="ti ti-building-community"></i> <span>' + (typeof t === 'function' ? t('friends.clubs') : (isEn ? 'Clubs' : 'Клубы')) + ' (' + clubs.length + ')</span></div>';
     if (clubs.length > 0) {
         clubsHtml += '<div class="mobile-friends-grid">' + clubs.map(function(c) {
             const name = c.name || '';
@@ -172,7 +176,7 @@ function renderMobileFriendsAndClubs(data) {
             '</div>';
         }).join('') + '</div>';
     } else {
-        clubsHtml += '<p style="color: var(--text-muted); font-size: 13px; margin: 0;">' + (typeof t === 'function' ? t('friends.empty') : 'Список пуст') + '</p>';
+        clubsHtml += '<p style="color: var(--text-muted); font-size: 13px; margin: 0;">' + (typeof t === 'function' ? t('friends.empty') : (isEn ? 'List is empty' : 'Список пуст')) + '</p>';
     }
     clubsHtml += '</div>';
 
@@ -219,31 +223,36 @@ window.handleMobileAboutClick = function() {
     }
 };
 
-/* Инициализация каталога для мобильного вида */
+/* Инициализация каталога для мобильного вида - ленивая загрузка */
 function initMobileCatalog() {
     const container = document.getElementById('catalog-section-container');
     if (!container) return;
 
-    if (typeof loadGenres === 'function') {
-        const genreSelect = document.getElementById('cat-filter-genre');
-        if (genreSelect && genreSelect.options.length <= 1) {
-            loadGenres().then(genres => {
-                if (genres && genres.length) {
-                    const currentVal = genreSelect.value;
-                    const allText = (typeof i18n === 'function') ? i18n('catalog.filter.all_genres') : 'Все жанры';
-                    genreSelect.innerHTML = `<option value="">${allText}</option>` +
-                        genres.map(g => `<option value="${g.id}">${g.russian || g.name}</option>`).join('');
-                    genreSelect.value = currentVal;
+    if (typeof setupSectionLazyLoader === 'function') {
+        setupSectionLazyLoader('catalog-section-container', async () => {
+            if (typeof loadGenres === 'function') {
+                const genreSelect = document.getElementById('cat-filter-genre');
+                if (genreSelect && genreSelect.options.length <= 1) {
+                    try {
+                        const genres = await loadGenres();
+                        if (genres && genres.length) {
+                            const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+                            const currentVal = genreSelect.value;
+                            const allText = (typeof i18n === 'function') ? i18n('catalog.filter.all_genres') : 'Все жанры';
+                            genreSelect.innerHTML = `<option value="">${allText}</option>` +
+                                genres.map(g => `<option value="${g.id}">${isEn ? (g.english || g.name) : (g.russian || g.name)}</option>`).join('');
+                            genreSelect.value = currentVal;
+                        }
+                    } catch(e) {}
                 }
-            }).catch(e => console.error('Ошибка загрузки жанров:', e));
-        }
-    }
-
-    if (typeof loadCatalog === 'function') {
-        const grid = document.getElementById('catalog-grid-container');
-        if (grid && (!grid.children.length || grid.querySelector('.loader'))) {
-            loadCatalog(1, false);
-        }
+            }
+            if (typeof loadCatalog === 'function') {
+                const grid = document.getElementById('catalog-grid-container');
+                if (grid && (!grid.children.length || grid.querySelector('.loader'))) {
+                    loadCatalog(1, false);
+                }
+            }
+        }, '300px');
     }
 }
 
@@ -323,9 +332,10 @@ window.handleMobileSearch = function(val) {
         return;
     }
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     if (overlay) overlay.classList.remove('hidden');
     if (resultsContainer) {
-        resultsContainer.innerHTML = `<div class="mobile-search-loading"><i class="ti ti-loader animate-spin"></i> Поиск...</div>`;
+        resultsContainer.innerHTML = `<div class="mobile-search-loading"><i class="ti ti-loader animate-spin"></i> ${isEn ? 'Searching...' : 'Поиск...'}</div>`;
     }
 
     clearTimeout(mobileSearchDebounceTimer);
@@ -340,7 +350,7 @@ window.handleMobileSearch = function(val) {
         } catch (err) {
             if (err.name === 'AbortError') return;
             if (resultsContainer) {
-                resultsContainer.innerHTML = `<div class="mobile-search-no-results" style="color: var(--danger);">Ошибка при поиске</div>`;
+                resultsContainer.innerHTML = `<div class="mobile-search-no-results" style="color: var(--danger);">${isEn ? 'Search error' : 'Ошибка при поиске'}</div>`;
             }
         }
     }, 180);
@@ -350,20 +360,22 @@ window.renderMobileSearchResults = function(items) {
     const container = document.getElementById('mobile-search-results');
     if (!container) return;
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+
     if (!Array.isArray(items) || items.length === 0) {
-        container.innerHTML = '<div class="mobile-search-no-results"><i class="ti ti-search-off" style="font-size: 20px;"></i> Ничего не найдено</div>';
+        container.innerHTML = `<div class="mobile-search-no-results"><i class="ti ti-search-off" style="font-size: 20px;"></i> ${isEn ? 'No results found' : 'Ничего не найдено'}</div>`;
         return;
     }
 
     const statusMap = {
-        'released': 'Вышло',
-        'ongoing': 'Онгоинг',
-        'anons': 'Анонс'
+        'released': isEn ? 'Released' : 'Вышло',
+        'ongoing': isEn ? 'Ongoing' : 'Онгоинг',
+        'anons': isEn ? 'Announced' : 'Анонс'
     };
 
     container.innerHTML = items.map(item => {
-        const title = item.russian || item.name || '';
-        const origTitle = (item.russian && item.name && item.name !== item.russian) ? item.name : '';
+        const title = (isEn && item.name) ? item.name : (item.russian || item.name || '');
+        const origTitle = isEn ? (item.russian || '') : ((item.russian && item.name && item.name !== item.russian) ? item.name : '');
         const img = item.image || '';
         const statusStr = statusMap[item.status] || item.status || '';
         const isAnime = (item.content_type === 'anime') || (item.type === 'anime') || (item.url && item.url.includes('/animes/'));
@@ -425,7 +437,8 @@ window.handleSectionsBack = function() {
         backBtn.classList.add('hidden');
         backBtn.style.setProperty('display', 'none', 'important');
     }
-    if (title) title.textContent = 'Разделы';
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+    if (title) title.textContent = isEn ? 'Sections' : 'Разделы';
     if (icon) icon.className = 'ti ti-layout-grid mobile-sections-logo-icon';
 };
 
@@ -436,6 +449,7 @@ window.openSectionDetail = async function(sectionKey) {
     const backBtn = document.getElementById('mobile-sections-back-btn');
     const title = document.getElementById('mobile-sections-header-title');
     const icon = document.getElementById('mobile-sections-header-icon');
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
 
     if (!detailView || !detailContent) return;
 
@@ -448,22 +462,22 @@ window.openSectionDetail = async function(sectionKey) {
 
     if (typeof pushNavState === 'function') pushNavState();
 
-    detailContent.innerHTML = '<div class="loader" style="padding: 40px; text-align: center;"><i class="ti ti-loader animate-spin" style="font-size: 32px; color: var(--primary);"></i><p style="color: var(--text-muted); margin-top: 12px;">Загрузка...</p></div>';
+    detailContent.innerHTML = '<div class="loader" style="padding: 40px; text-align: center;"><i class="ti ti-loader animate-spin" style="font-size: 32px; color: var(--primary);"></i><p style="color: var(--text-muted); margin-top: 12px;">' + (isEn ? 'Loading...' : 'Загрузка...') + '</p></div>';
 
     if (sectionKey === 'calendar') {
-        if (title) title.textContent = 'Расписание онгоингов';
+        if (title) title.textContent = isEn ? 'Ongoing Schedule' : 'Расписание онгоингов';
         if (icon) icon.className = 'ti ti-calendar-event mobile-sections-logo-icon';
         await renderModalCalendar(modalCalendarDay);
     } else if (sectionKey === 'content') {
-        if (title) title.textContent = 'Контент';
+        if (title) title.textContent = isEn ? 'Content' : 'Контент';
         if (icon) icon.className = 'ti ti-grid-dots mobile-sections-logo-icon';
         await renderModalContent();
     } else if (sectionKey === 'hot') {
-        if (title) title.textContent = 'Темы дня';
+        if (title) title.textContent = isEn ? 'Hot Topics' : 'Темы дня';
         if (icon) icon.className = 'ti ti-flame mobile-sections-logo-icon';
         await renderModalHot();
     } else if (sectionKey === 'news') {
-        if (title) title.textContent = 'Новости';
+        if (title) title.textContent = isEn ? 'News' : 'Новости';
         if (icon) icon.className = 'ti ti-news mobile-sections-logo-icon';
         modalNewsPage = 1;
         await renderModalNews(1);
@@ -475,19 +489,20 @@ async function renderModalCalendar(activeDay) {
     modalCalendarDay = activeDay;
     const detailContent = document.getElementById('sections-detail-content');
     if (!detailContent) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
 
     if (!window.calendarDataCache) {
         try {
             const res = await fetch('/api/calendar');
             window.calendarDataCache = await res.json();
         } catch(e) {
-            detailContent.innerHTML = '<p style="color: var(--danger); padding: 20px;">Ошибка загрузки календаря</p>';
+            detailContent.innerHTML = `<p style="color: var(--danger); padding: 20px;">${isEn ? 'Error loading calendar' : 'Ошибка загрузки календаря'}</p>`;
             return;
         }
     }
 
     const data = Array.isArray(window.calendarDataCache) ? window.calendarDataCache : [];
-    const daysShort = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    const daysShort = isEn ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] : ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
     const todayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
     const filtered = data.filter(item => item.day_of_week === activeDay);
 
@@ -502,11 +517,11 @@ async function renderModalCalendar(activeDay) {
         </div>
         <div class="calendar-items-grid">
             ${filtered.length > 0 ? filtered.map(item => {
-                const title = item.russian || item.name || '';
+                const title = (isEn && item.name) ? item.name : (item.russian || item.name || '');
                 const safeTitle = title.replace(/"/g, '&quot;');
                 const imgUrl = item.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(item.image) : item.image) : '';
                 const time = item.time_str ? item.time_str : '';
-                const nextEp = item.next_episode ? `${item.next_episode} эп.` : '';
+                const nextEp = item.next_episode ? (isEn ? `Ep ${item.next_episode}` : `${item.next_episode} эп.`) : '';
 
                 return `
                     <div class="calendar-item-card" onclick="window._openedFromSections = 'calendar'; closeMobileSectionsMenu(); openAnimeModal(${item.id});" style="cursor: pointer;">
@@ -524,7 +539,7 @@ async function renderModalCalendar(activeDay) {
                         </div>
                     </div>
                 `;
-            }).join('') : '<p style="color: var(--text-muted); padding: 30px; text-align: center; grid-column: 1 / -1;">В этот день нет запланированных серий</p>'}
+            }).join('') : `<p style="color: var(--text-muted); padding: 30px; text-align: center; grid-column: 1 / -1;">${isEn ? 'No scheduled episodes for this day' : 'В этот день нет запланированных серий'}</p>`}
         </div>
     `;
 }
@@ -534,6 +549,7 @@ window.renderModalCalendar = renderModalCalendar;
 async function renderModalContent() {
     const detailContent = document.getElementById('sections-detail-content');
     if (!detailContent) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
 
     let exploreData = window._exploreDataCache;
     if (!exploreData) {
@@ -542,36 +558,36 @@ async function renderModalContent() {
             exploreData = await res.json();
             window._exploreDataCache = exploreData;
         } catch(e) {
-            detailContent.innerHTML = '<p style="color: var(--danger); padding: 20px;">Ошибка загрузки контента</p>';
+            detailContent.innerHTML = `<p style="color: var(--danger); padding: 20px;">${isEn ? 'Error loading content' : 'Ошибка загрузки контента'}</p>`;
             return;
         }
     }
 
     const contentList = exploreData.content || [];
     const badgeMap = {
-        'collection': 'Коллекция',
-        'critique': 'Отзыв',
-        'article': 'Статья',
-        'news': 'Новость',
-        '': 'Тема'
+        'collection': isEn ? 'Collection' : 'Коллекция',
+        'critique': isEn ? 'Critique' : 'Отзыв',
+        'article': isEn ? 'Article' : 'Статья',
+        'news': isEn ? 'News' : 'Новость',
+        '': isEn ? 'Topic' : 'Тема'
     };
 
     detailContent.innerHTML = `
         <div style="display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
-            <a href="https://shikimori.io/collections" target="_blank" class="btn-secondary" style="padding: 6px 12px; font-size: 12.5px; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px;"><i class="ti ti-folder"></i> Коллекции</a>
-            <a href="https://shikimori.io/forum/critiques" target="_blank" class="btn-secondary" style="padding: 6px 12px; font-size: 12.5px; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px;"><i class="ti ti-message-2"></i> Отзывы</a>
-            <a href="https://shikimori.io/articles" target="_blank" class="btn-secondary" style="padding: 6px 12px; font-size: 12.5px; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px;"><i class="ti ti-article"></i> Статьи</a>
+            <a href="https://shikimori.io/collections" target="_blank" class="btn-secondary" style="padding: 6px 12px; font-size: 12.5px; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px;"><i class="ti ti-folder"></i> ${isEn ? 'Collections' : 'Коллекции'}</a>
+            <a href="https://shikimori.io/forum/critiques" target="_blank" class="btn-secondary" style="padding: 6px 12px; font-size: 12.5px; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px;"><i class="ti ti-message-2"></i> ${isEn ? 'Critiques' : 'Отзывы'}</a>
+            <a href="https://shikimori.io/articles" target="_blank" class="btn-secondary" style="padding: 6px 12px; font-size: 12.5px; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px;"><i class="ti ti-article"></i> ${isEn ? 'Articles' : 'Статьи'}</a>
         </div>
         <div class="topics-list" style="display: flex; flex-direction: column; gap: 8px;">
             ${contentList.length ? contentList.map(item => `
                 <a href="${item.url}" target="_blank" class="topic-row-item" title="${(item.title || '').replace(/"/g, '&quot;')}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-radius: 16px; background: var(--card-bg); border: 1px solid var(--card-border); text-decoration: none; color: var(--text-main);">
                     <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; padding-right: 10px;">
                         <span style="font-size: 14px; font-weight: 500; line-height: 1.3;">${item.title}</span>
-                        <span class="topic-badge badge-${(item.tag || '').toLowerCase()}" style="font-size: 11px; padding: 2px 6px; border-radius: 6px; align-self: flex-start; background: var(--primary-container); color: var(--on-primary-container);">${badgeMap[(item.tag || '').toLowerCase()] || 'Тема'}</span>
+                        <span class="topic-badge badge-${(item.tag || '').toLowerCase()}" style="font-size: 11px; padding: 2px 6px; border-radius: 6px; align-self: flex-start; background: var(--primary-container); color: var(--on-primary-container);">${badgeMap[(item.tag || '').toLowerCase()] || (isEn ? 'Topic' : 'Тема')}</span>
                     </div>
                     <span style="font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; flex-shrink: 0;"><i class="ti ti-message-circle"></i> ${item.comments_count || 0}</span>
                 </a>
-            `).join('') : '<p style="color: var(--text-muted); padding: 20px; text-align: center;">Нет данных</p>'}
+            `).join('') : `<p style="color: var(--text-muted); padding: 20px; text-align: center;">${isEn ? 'No data' : 'Нет данных'}</p>`}
         </div>
     `;
 }
@@ -580,6 +596,7 @@ async function renderModalContent() {
 async function renderModalHot() {
     const detailContent = document.getElementById('sections-detail-content');
     if (!detailContent) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
 
     let exploreData = window._exploreDataCache;
     if (!exploreData) {
@@ -588,7 +605,7 @@ async function renderModalHot() {
             exploreData = await res.json();
             window._exploreDataCache = exploreData;
         } catch(e) {
-            detailContent.innerHTML = '<p style="color: var(--danger); padding: 20px;">Ошибка загрузки тем дня</p>';
+            detailContent.innerHTML = `<p style="color: var(--danger); padding: 20px;">${isEn ? 'Error loading hot topics' : 'Ошибка загрузки тем дня'}</p>`;
             return;
         }
     }
@@ -604,7 +621,7 @@ async function renderModalHot() {
                     </div>
                     <span style="font-size: 12px; color: #f87171; display: flex; align-items: center; gap: 4px; flex-shrink: 0; font-weight: 600;"><i class="ti ti-flame"></i> ${item.comments_count || 0}</span>
                 </a>
-            `).join('') : '<p style="color: var(--text-muted); padding: 20px; text-align: center;">Нет горячих тем на сегодня</p>'}
+            `).join('') : `<p style="color: var(--text-muted); padding: 20px; text-align: center;">${isEn ? 'No hot topics for today' : 'Нет горячих тем на сегодня'}</p>`}
         </div>
     `;
 }
@@ -613,13 +630,14 @@ async function renderModalHot() {
 async function renderModalNews(page = 1) {
     const detailContent = document.getElementById('sections-detail-content');
     if (!detailContent) return;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
 
     if (page === 1) {
         detailContent.innerHTML = `
             <div id="modal-news-cards-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
             <div style="text-align: center; margin: 16px 0 24px 0;">
                 <button type="button" id="modal-load-more-news-btn" class="btn-secondary" style="padding: 10px 20px; border-radius: 14px; font-size: 13px; font-weight: 600;" onclick="loadMoreModalNews()">
-                    <i class="ti ti-refresh"></i> Загрузить ещё новости
+                    <i class="ti ti-refresh"></i> ${isEn ? 'Load more news' : 'Загрузить ещё новости'}
                 </button>
             </div>
         `;

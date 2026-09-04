@@ -1,460 +1,731 @@
-.list-controls {
+/* ==========================================================================
+   SHIKI MX APP — PIXEL-PERFECT SHIKIMORI USER LIST STYLES
+   Exact 1-to-1 Match to Reference Design
+   ========================================================================== */
+
+.shiki-page-root {
     display: flex;
     flex-direction: column;
     gap: 14px;
-    margin-bottom: 20px;
-    background: var(--card-bg);
-    padding: 18px;
-    border-radius: var(--radius-card);
-    border: 1px solid var(--card-border);
+    width: 100%;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 10px 20px 60px 20px;
+    color: #d0d0d8;
+    box-sizing: border-box;
 }
 
-.type-switch {
-    display: flex;
-    gap: 8px;
-}
-
-.type-btn {
-    background: var(--sub-bg);
-    border: 1px solid var(--card-border);
-    color: var(--text-muted);
-    padding: 8px 20px;
-    border-radius: var(--radius-pill);
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.type-btn.active {
-    background: var(--primary);
-    color: var(--on-primary);
-    border-color: var(--primary);
-}
-
-.filter-sort-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
-.view-mode-bar {
-    display: flex;
-    gap: 6px;
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid var(--card-border);
-}
-
-.view-mode-btn {
-    background: var(--sub-bg);
-    border: 1px solid var(--card-border);
-    color: var(--text-muted);
-    padding: 6px 12px;
-    border-radius: var(--radius-pill);
-    cursor: pointer;
-    font-size: 13px;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.view-mode-btn:hover {
-    color: var(--text-main);
-    border-color: var(--primary);
-}
-
-.view-mode-btn.active {
-    background: var(--primary-container);
-    color: var(--on-primary-container);
-    border-color: var(--primary);
-}
-
-.rates-filters {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.filter-btn {
-    background: var(--sub-bg);
-    border: 1px solid var(--card-border);
-    color: var(--text-muted);
-    padding: 6px 14px;
-    border-radius: var(--radius-pill);
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    transition: all 0.2s;
-}
-
-.filter-btn:hover {
-    color: var(--text-main);
-    border-color: var(--primary);
-}
-
-.filter-btn.active {
-    background: var(--primary-container);
-    color: var(--on-primary-container);
-    border-color: var(--primary);
-}
-
-.sort-select {
-    background-color: var(--sub-bg);
-    color: var(--text-main);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius-pill);
-    padding: 8px 36px 8px 16px;
-    font-size: 13px;
-    font-weight: 600;
-    outline: none;
-    cursor: pointer;
-    transition: all 0.2s;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23d199ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-}
-
-.sort-select:hover,
-.sort-select:focus {
-    border-color: var(--primary);
-    background-color: var(--primary-container);
-    color: var(--on-primary-container);
-}
-
-.rates-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 14px;
-}
-
-.rates-view-list {
-    grid-template-columns: 1fr;
-    gap: 8px;
-}
-
-.rates-view-large {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
-}
-
-.rate-card {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius-inner);
-    padding: 14px;
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s;
-    content-visibility: auto;
-    contain-intrinsic-size: auto 100px;
-}
-
-.rate-card:hover {
-    border-color: var(--primary);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-}
-
-
-.rate-content {
-    flex-grow: 1;
-    min-width: 0;
-    display: flex;
+/* 1. Top Navigation: ← Musanime / Профиль */
+.shiki-top-nav {
+    display: inline-flex;
     flex-direction: column;
-    gap: 4px;
-}
-
-.rate-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-}
-
-.rate-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--primary);
+    gap: 2px;
+    cursor: pointer;
+    user-select: none;
+    width: fit-content;
+    margin-bottom: 6px;
     text-decoration: none;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    transition: color 0.2s;
 }
 
-.rate-title:hover {
-    color: var(--primary-hover);
-    text-decoration: underline;
-}
-
-.badge {
-    padding: 3px 10px;
-    border-radius: var(--radius-pill);
-    font-size: 11px;
-    font-weight: 700;
-    white-space: nowrap;
-    border: 1px solid transparent;
-}
-
-.badge-watching {
-    background: var(--primary-container);
-    color: var(--on-primary-container);
-    border-color: rgba(209, 153, 255, 0.3);
-}
-
-.badge-completed {
-    background: rgba(163, 247, 191, 0.15);
-    color: var(--success);
-    border-color: rgba(163, 247, 191, 0.3);
-}
-
-.badge-planned {
-    background: var(--sub-bg);
-    color: var(--text-muted);
-    border-color: var(--card-border);
-}
-
-.badge-on_hold {
-    background: rgba(255, 224, 130, 0.15);
-    color: var(--warning);
-    border-color: rgba(255, 224, 130, 0.3);
-}
-
-.badge-dropped {
-    background: rgba(255, 158, 158, 0.15);
-    color: var(--danger);
-    border-color: rgba(255, 158, 158, 0.3);
-}
-
-.score-pill {
+.shiki-nav-user {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    color: var(--warning);
-    font-weight: 700;
+    gap: 8px;
 }
 
-.rate-card .history-thumb,
-.rate-card .history-thumb-placeholder {
-    width: 52px;
-    height: 74px;
-    border-radius: 10px;
-    flex-shrink: 0;
-}
-
-.rate-poster-large {
-    width: 100%;
-    height: 280px;
-    object-fit: cover;
-    border-radius: var(--radius-inner);
-}
-
-.rate-list-row {
-    display: flex;
+.shiki-nav-arrow {
+    font-size: 18px;
+    color: var(--text-muted);
+    transition: transform 0.15s ease, color 0.15s ease;
+    display: inline-flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius-inner);
-    padding: 12px 16px;
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s;
-    content-visibility: auto;
-    contain-intrinsic-size: auto 55px;
 }
 
-.rate-list-row:hover {
-    border-color: var(--primary);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-
-.rate-list-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex: 1;
-    min-width: 0;
-}
-
-.rate-list-meta {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-shrink: 0;
-}
-
-.rates-view-list .rate-card {
-    flex-direction: row;
-    align-items: center;
-    padding: 10px 16px;
-}
-
-.rates-view-list .rate-card .history-thumb,
-.rates-view-list .rate-card .history-thumb-placeholder {
-    display: none;
-}
-
-.rates-view-list .rate-content {
-    flex-direction: row;
-    align-items: center;
-    gap: 16px;
-}
-
-.rates-view-list .rate-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-}
-
-.rates-view-list .info-row {
-    padding: 0;
-    white-space: nowrap;
-}
-
-.rates-view-large .rate-card {
-    flex-direction: column;
-    position: relative;
-    overflow: hidden;
-    padding: 0;
-}
-
-.rates-view-large .rate-content {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
-    color: #fff;
-    padding: 24px 12px 12px;
-    transform: translateY(100%);
-    transition: transform 0.3s ease;
-}
-
-.rates-view-large .rate-card:hover .rate-content {
-    transform: translateY(0);
-}
-
-.rates-view-large .rate-title {
-    color: #fff;
-}
-
-.rates-view-large .rate-title:hover {
+.shiki-top-nav:hover .shiki-nav-arrow {
+    transform: translateX(-3px);
     color: var(--primary);
 }
 
-.rates-view-large .badge {
-    background: rgba(0, 0, 0, 0.5);
-    color: #fff;
-    border-color: rgba(255, 255, 255, 0.2);
+.shiki-nav-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+    transition: color 0.15s ease;
 }
 
-.rates-view-large .info-row {
-    color: #ddd;
+.shiki-top-nav:hover .shiki-nav-name {
+    color: var(--primary);
 }
 
-.rates-view-large .info-row .label {
-    color: #aaa;
+.shiki-nav-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    padding-left: 26px;
+    line-height: 1.2;
+    transition: color 0.15s ease;
 }
 
-.rates-view-large .score-pill {
-    color: var(--warning);
+.shiki-top-nav:hover .shiki-nav-sub {
+    color: #ffffff;
 }
 
-.rates-view-large .history-thumb,
-.rates-view-large .history-thumb-placeholder {
+/* 2. Main Two Column Layout (Left 75% | Right 25%) */
+.shiki-body-columns {
+    display: flex;
+    gap: 36px;
+    align-items: flex-start;
     width: 100%;
-    height: 280px;
-    border-radius: var(--radius-inner);
 }
 
-/* ==================== LISTS LIVE SEARCH & QUICK +1 ==================== */
-.rates-search-box {
+.shiki-main-col {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
     position: relative;
+}
+
+.shiki-side-col {
+    width: 250px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 3. Title Row (СПИСОК АНИМЕ + View Mode Icons) */
+.shiki-title-row {
     display: flex;
     align-items: center;
-    width: 100%;
+    justify-content: space-between;
 }
 
-.rates-search-box .search-icon {
-    position: absolute;
-    left: 14px;
-    color: var(--text-muted);
-    font-size: 16px;
-    pointer-events: none;
+.shiki-title-text {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: #9999aa;
+    text-transform: uppercase;
 }
 
-.rates-search-box input {
-    width: 100%;
-    background: var(--sub-bg);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius-pill);
-    padding: 9px 38px 9px 38px;
-    color: var(--text-main);
-    font-size: 13.5px;
-    outline: none;
-    transition: all 0.2s;
+.shiki-view-buttons {
+    display: flex;
+    gap: 4px;
 }
 
-.rates-search-box input:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 2px var(--hover-bg-alpha);
-    background: var(--card-bg);
-}
-
-.rates-search-box .search-clear-btn {
-    position: absolute;
-    right: 12px;
+.shiki-view-btn {
     background: none;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-size: 14px;
-    padding: 4px;
+    border: 1px solid #282832;
+    color: #666677;
+    width: 28px;
+    height: 28px;
+    border-radius: 2px;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.rates-search-box .search-clear-btn:hover {
-    color: var(--text-main);
-}
-
-/* Quick +1 Button */
-.btn-quick-inc {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    padding: 3px 9px;
-    background: var(--sub-bg);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius-pill);
-    color: var(--primary);
-    font-size: 11.5px;
-    font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: var(--shadow-sm);
+    transition: all 0.15s ease;
 }
 
-.btn-quick-inc:hover {
-    background: var(--primary);
-    color: var(--on-primary);
-    border-color: var(--primary);
-    transform: scale(1.08);
+.shiki-view-btn:hover {
+    color: #ffffff;
+    border-color: #444455;
 }
 
-.btn-quick-inc:active {
-    transform: scale(0.96);
+.shiki-view-btn.active {
+    background: #004d40;
+    border-color: #004d40;
+    color: #00e5a3;
 }
 
+/* 4. Search Row */
+.shiki-search-row {
+    width: 100%;
+    margin-bottom: 6px;
+}
+
+.shiki-search-input {
+    width: 100%;
+    background: #141418;
+    border: 1px solid #22222a;
+    border-radius: 3px;
+    padding: 8px 12px;
+    color: #e0e0e0;
+    font-size: 13px;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.shiki-search-input:focus {
+    border-color: #383848;
+}
+
+.shiki-search-input::placeholder {
+    color: #555566;
+}
+
+/* 5. Left Sticky Floating Status Dock */
+.shiki-left-dock {
+    position: fixed;
+    left: 8px;
+    top: 220px;
+    z-index: 95;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: #0c0c0e;
+    border: 1px solid #1c1c24;
+    padding: 10px 4px;
+    border-radius: 16px 0 0 16px;
+    box-shadow: -4px 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.shiki-dock-btn {
+    position: relative;
+    background: none;
+    border: none;
+    color: #666677;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+
+.shiki-dock-btn:hover {
+    color: #ffffff;
+}
+
+.shiki-dock-btn.active {
+    color: #00e5a3;
+}
+
+.shiki-dock-counter {
+    position: absolute;
+    top: -3px;
+    right: -4px;
+    background: #00e5a3;
+    color: #000000;
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 1px 4px;
+    border-radius: 6px;
+    line-height: 1.1;
+    min-width: 14px;
+    text-align: center;
+}
+
+.shiki-dock-counter.all {
+    background: #9333ea;
+    color: #ffffff;
+}
+
+/* 6. Status Section Block & Headings */
+.shiki-list-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+}
+
+.shiki-section-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
+.shiki-section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 4px;
+}
+
+.shiki-sec-title {
+    font-size: 12.5px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: #9333ea;
+    text-transform: uppercase;
+}
+
+.shiki-sec-collapse {
+    background: none;
+    border: none;
+    color: #9333ea;
+    font-size: 12px;
+    cursor: pointer;
+    border-bottom: 1px dotted #9333ea;
+    padding: 0;
+    line-height: 1.2;
+}
+
+.shiki-sec-collapse:hover {
+    opacity: 0.8;
+}
+
+/* 7. Authentic Shikimori Table Lines */
+.shiki-table-lines {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.shiki-table-lines thead th {
+    padding: 6px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #888899;
+    text-align: left;
+    border-bottom: 1px solid #1f1f26;
+    user-select: none;
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+
+.shiki-table-lines thead th:hover {
+    color: #ffffff;
+}
+
+.shiki-table-lines thead th.active-sort {
+    color: #00e5a3;
+}
+
+.shiki-sort-arrow {
+    font-size: 8.5px;
+    margin-left: 3px;
+    color: #00e5a3;
+    display: inline-block;
+}
+
+.shiki-table-lines thead th.th-score,
+.shiki-table-lines thead th.th-episodes,
+.shiki-table-lines thead th.th-type {
+    text-align: right;
+}
+
+.shiki-row {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.shiki-row:hover {
+    background: rgba(255, 255, 255, 0.015);
+}
+
+.shiki-row td {
+    padding: 6px 8px;
+    vertical-align: middle;
+}
+
+.td-index {
+    width: 24px;
+    color: #555566;
+    font-size: 12px;
+    text-align: left;
+}
+
+.td-name {
+    min-width: 260px;
+}
+
+.title-link {
+    color: #d6d6e0;
+    font-size: 13px;
+    text-decoration: none;
+    font-weight: 400;
+    transition: color 0.12s ease;
+}
+
+.title-link:hover {
+    color: #9333ea;
+}
+
+.tag-anons {
+    border: 1px solid #d97706;
+    color: #f59e0b;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 0 4px;
+    border-radius: 2px;
+    margin-left: 6px;
+    vertical-align: middle;
+    display: inline-block;
+    line-height: 1.2;
+}
+
+.tag-ongoing {
+    border: 1px solid #16a34a;
+    color: #22c55e;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 0 4px;
+    border-radius: 2px;
+    margin-left: 6px;
+    vertical-align: middle;
+    display: inline-block;
+    line-height: 1.2;
+}
+
+.td-score {
+    width: 70px;
+    color: #777788;
+    text-align: right;
+    padding-right: 18px;
+}
+
+.td-episodes {
+    width: 90px;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 12.5px;
+    text-align: right;
+    padding-right: 18px;
+}
+
+.td-type {
+    width: 90px;
+    color: #888899;
+    font-size: 12px;
+    text-align: right;
+}
+
+/* 8. Right Sidebar (Avatar & Mini-Charts) */
+.shiki-side-avatar-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+.shiki-side-avatar-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #282832;
+    background: #141418;
+}
+
+.shiki-chart-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
+.shiki-chart-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #888899;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.shiki-chart-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+}
+
+.shiki-chart-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    height: 16px;
+    width: 100%;
+}
+
+.shiki-chart-bar-wrap {
+    flex: 1;
+    height: 14px;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.shiki-chart-bar {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 4px;
+    box-sizing: border-box;
+}
+
+.score-fill,
+.type-fill,
+.rating-fill {
+    background: #a855f7;
+}
+
+.shiki-chart-val {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #000000;
+    line-height: 1;
+}
+
+.shiki-chart-label {
+    width: 18px;
+    font-size: 11px;
+    color: #888899;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.shiki-chart-label.type-text {
+    width: 80px;
+    font-size: 10.5px;
+}
+
+.shiki-chart-label.rating-text {
+    width: 48px;
+    font-size: 10.5px;
+}
+
+/* 8.1. Tag Cloud (Genres & Studios) */
+.shiki-tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    align-items: baseline;
+    line-height: 1.4;
+    padding-top: 2px;
+}
+
+.shiki-tag-cloud .category {
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.15s ease, opacity 0.15s ease;
+    line-height: 1.3;
+}
+
+.shiki-tag-cloud .category.t4 {
+    font-size: 15px;
+    font-weight: 800;
+    color: #85b8ff;
+}
+
+.shiki-tag-cloud .category.t3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #72a7f8;
+}
+
+.shiki-tag-cloud .category.t2 {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #5b92e5;
+}
+
+.shiki-tag-cloud .category.t1 {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: #4a7ecc;
+}
+
+.shiki-tag-cloud .category.t0 {
+    font-size: 11px;
+    font-weight: 400;
+    color: #3b68aa;
+}
+
+.shiki-tag-cloud .category:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+/* 8.2. Filters Block */
+.shiki-filters-block {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    margin-top: 6px;
+}
+
+.shiki-filters-head {
+    font-size: 11px;
+    font-weight: 800;
+    color: #888899;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.c-ms-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+}
+
+.c-ms-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #777788;
+}
+
+.c-filter-select {
+    width: 100%;
+    background: #141418;
+    border: 1px solid #22222a;
+    border-radius: 4px;
+    padding: 6px 8px;
+    color: #d0d0d8;
+    font-size: 12px;
+    outline: none;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease;
+}
+
+.c-filter-select:focus {
+    border-color: #383848;
+}
+
+.c-filter-select option {
+    background: #141418;
+    color: #d0d0d8;
+}
+
+.c-score-inputs {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+}
+
+.c-score-input {
+    flex: 1;
+    background: #141418;
+    border: 1px solid #22222a;
+    border-radius: 4px;
+    padding: 6px 8px;
+    color: #d0d0d8;
+    font-size: 12px;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease;
+}
+
+.c-score-input:focus {
+    border-color: #383848;
+}
+
+.c-score-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.c-score-preset {
+    background: #141418;
+    border: 1px solid #22222a;
+    border-radius: 10px;
+    color: #888899;
+    font-size: 11px;
+    padding: 2px 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.c-score-preset:hover {
+    color: #ffffff;
+    border-color: #9333ea;
+    background: rgba(147, 51, 234, 0.1);
+}
+
+/* 9. Cards / Grid View */
+.shiki-grid-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 12px;
+    width: 100%;
+}
+
+.shiki-grid-card {
+    display: flex;
+    flex-direction: column;
+    background: #141418;
+    border: 1px solid #22222a;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+}
+
+.shiki-grid-card:hover {
+    border-color: #9333ea;
+}
+
+.shiki-grid-poster-wrap {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    position: relative;
+    background: #1a1a20;
+}
+
+.shiki-grid-poster {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.shiki-grid-score {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(0, 0, 0, 0.85);
+    color: #ffd700;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 1px 4px;
+    border-radius: 2px;
+}
+
+.shiki-grid-info {
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.shiki-grid-title {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: #e0e0e0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.shiki-grid-ep {
+    font-size: 10.5px;
+    color: #777788;
+}
+
+/* 10. Mobile Responsive */
+@media (max-width: 900px) {
+    .shiki-side-col {
+        display: none;
+    }
+    .shiki-left-dock {
+        display: none;
+    }
+    .shiki-body-columns {
+        gap: 0;
+    }
+}

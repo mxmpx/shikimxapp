@@ -2013,7 +2013,9 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    width: 100%;
 }
+.top100-row,
 .top100-row-card {
     background: #18181c;
     border: 1px solid rgba(255, 255, 255, 0.06);
@@ -2023,12 +2025,17 @@
     align-items: center;
     gap: 16px;
     cursor: pointer;
-    transition: border-color 0.15s ease, background-color 0.15s ease;
+    box-sizing: border-box;
+    width: 100%;
+    transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
 }
+.top100-row:hover,
 .top100-row-card:hover {
     border-color: #a855f7;
     background: #1e1e24;
+    transform: translateX(2px);
 }
+[data-theme="light"] .top100-row,
 [data-theme="light"] .top100-row-card {
     background: #ffffff;
     border-color: rgba(0, 0, 0, 0.08);
@@ -2038,6 +2045,7 @@
     font-weight: 700;
     display: flex;
     align-items: center;
+    flex-shrink: 0;
 }
 .top100-rank-num {
     font-size: 16px;
@@ -2053,13 +2061,19 @@
 .top100-medal.silver { background: rgba(228, 228, 231, 0.2); color: #e4e4e7; }
 .top100-medal.bronze { background: rgba(251, 146, 60, 0.2); color: #fb923c; }
 
+.top100-poster-col {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
 .top100-poster {
     width: 48px;
-    height: 64px;
-    border-radius: 4px;
+    height: 68px;
+    border-radius: 6px;
     object-fit: cover;
     background: #27272a;
     flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 .top100-info-col {
     flex: 1;
@@ -2068,6 +2082,7 @@
     flex-direction: column;
     gap: 4px;
 }
+.top100-title,
 .top100-item-title {
     font-size: 14px;
     font-weight: 600;
@@ -2076,16 +2091,20 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+[data-theme="light"] .top100-title,
 [data-theme="light"] .top100-item-title {
     color: #18181b;
 }
+.top100-meta-tags,
 .top100-item-meta {
     display: flex;
     align-items: center;
     gap: 10px;
     font-size: 12px;
-    color: #71717a;
+    color: #a1a1aa;
+    flex-wrap: wrap;
 }
+.top100-kind-badge,
 .top100-kind-tag {
     background: rgba(168, 85, 247, 0.15);
     color: #c084fc;
@@ -2097,6 +2116,13 @@
     font-size: 15px;
     font-weight: 700;
     color: #facc15;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+.top100-score-val {
     display: flex;
     align-items: center;
     gap: 4px;
@@ -2897,6 +2923,40 @@
     font-weight: 600;
 }
 
+/* Infinite Scroll Sentinel & Spinner */
+.portal-infinite-sentinel {
+    width: 100%;
+    min-height: 40px;
+    margin: 24px 0 16px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
+.portal-infinite-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px 20px;
+    background: var(--card-bg, rgba(255, 255, 255, 0.04));
+    border-radius: 100px;
+    border: 1px solid var(--border-sub, rgba(255, 255, 255, 0.08));
+    animation: fadeIn 0.2s ease;
+}
 
+.portal-infinite-spinner.hidden {
+    display: none !important;
+}
 
+.portal-end-of-list {
+    width: 100%;
+    text-align: center;
+    padding: 24px 0;
+    color: var(--text-muted, #71717a);
+    font-size: 13px;
+    font-weight: 500;
+}
