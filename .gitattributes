@@ -1,0 +1,12 @@
+# GitHub Linguist Overrides
+# Настройка отображения статистики языков в репозитории
+
+# Сторонние иконки и шрифты
+static/css/tabler-icons.min.css linguist-vendored=true
+static/css/fonts.css linguist-vendored=true
+static/fonts/* linguist-vendored=true
+
+# Документация и вспомогательные файлы
+docs/* linguist-documentation=true
+app_info.txt linguist-documentation=true
+translations.txt linguist-documentation=true
