@@ -7,7 +7,8 @@ from flask import Blueprint, session, jsonify, request
 from database import get_connection
 from utils import (
     SHIKIMORI_BASE, APP_NAME, get_auth_headers, fetch_cached_api,
-    resolve_posters_graphql, fetch_graphql, fix_image_url
+    resolve_posters_graphql, resolve_manga_posters_graphql, resolve_franchise_poster,
+    fetch_graphql, fix_image_url, fetch_with_retry
 )
 from concurrent.futures import ThreadPoolExecutor
 from errors import AppError, api_route
@@ -19,7 +20,20 @@ RATES_CACHE_TTL = 1800  # 30 minutes
 
 _rates_locks = {}
 _rates_locks_guard = threading.Lock()
-_rates_mem_cache = {}  # user_id -> {"data": [...], "expires_at": float}
+_rates_mem_cache = {}  # user_id -> {"data": [...], "by_target": {...}, "expires_at": float}
+
+
+def _build_rates_index(rates_list):
+    """Index rates list into a dictionary by target: {f'{target_type}_{target_id}': item}."""
+    index = {}
+    if not isinstance(rates_list, list):
+        return index
+    for item in rates_list:
+        tid = str(item.get("target_id") or (item.get("anime") or {}).get("id") or (item.get("manga") or {}).get("id") or "")
+        ttype = str(item.get("target_type") or ("Anime" if item.get("anime") else "Manga")).capitalize()
+        if tid:
+            index[f"{ttype}_{tid}"] = item
+    return index
 
 
 def _get_rates_lock(user_id):
@@ -46,7 +60,15 @@ def _get_cached_rates_from_db(user_id):
                 (f"rates:user_{user_id}",)
             ).fetchone()
             if row:
-                return json.loads(row["data"]), float(row["expires_at"])
+                rates_data = json.loads(row["data"])
+                expires_at = float(row["expires_at"])
+                uid = str(user_id)
+                _rates_mem_cache[uid] = {
+                    "data": rates_data,
+                    "by_target": _build_rates_index(rates_data),
+                    "expires_at": expires_at
+                }
+                return rates_data, expires_at
         finally:
             conn.close()
     except Exception as exc:
@@ -58,8 +80,10 @@ def _save_rates_to_db_and_mem(user_id, rates_list):
     now = time.time()
     expires_at = now + RATES_CACHE_TTL
     uid = str(user_id)
+    by_target = _build_rates_index(rates_list)
     _rates_mem_cache[uid] = {
         "data": rates_list,
+        "by_target": by_target,
         "expires_at": expires_at
     }
     try:
@@ -76,197 +100,198 @@ def _save_rates_to_db_and_mem(user_id, rates_list):
         logger.error("Error writing rates cache to DB: %s", exc)
 
 
+def _normalize_rate_entry(item, target_type):
+    target = item.get("anime") if target_type == "Anime" else item.get("manga")
+    if not target or not isinstance(target, dict):
+        return None
+
+    target_id = target.get("id")
+    if not target_id:
+        return None
+
+    img_obj = target.get("image") or {}
+    img_url = ""
+    if isinstance(img_obj, dict):
+        # Choose lightweight preview image (preview or x96 or main), avoiding heavy originals
+        img_url = img_obj.get("preview") or img_obj.get("x96") or img_obj.get("main") or img_obj.get("original") or ""
+    elif isinstance(img_obj, str):
+        img_url = img_obj
+
+    aired_date = target.get("aired_on") or target.get("released_on") or ""
+
+    return {
+        "id": item.get("id"),
+        "user_id": (item.get("user") or {}).get("id") if isinstance(item.get("user"), dict) else None,
+        "target_id": target_id,
+        "target_type": target_type,
+        "score": item.get("score", 0),
+        "status": item.get("status", "planned"),
+        "episodes": item.get("episodes", 0),
+        "chapters": item.get("chapters", 0),
+        "volumes": item.get("volumes", 0),
+        "text": item.get("text", "") or "",
+        "rewatches": item.get("rewatches", 0),
+        "created_at": item.get("created_at"),
+        "updated_at": item.get("updated_at"),
+        "target_data": {
+            "id": target_id,
+            "name": target.get("name", ""),
+            "russian": target.get("russian", "") or target.get("name", ""),
+            "kind": target.get("kind", ""),
+            "score": target.get("score"),
+            "status": target.get("status", ""),
+            "episodes": target.get("episodes", 0),
+            "episodes_aired": target.get("episodes_aired", 0),
+            "chapters": target.get("chapters", 0),
+            "volumes": target.get("volumes", 0),
+            "duration": target.get("duration", 0),
+            "season": target.get("season", ""),
+            "aired_on": aired_date,
+            "licensors": target.get("licensors", []),
+            "genres": target.get("genres", []),
+            "studios": target.get("studios", []),
+            "image": fix_image_url(img_url)
+        }
+    }
+
+
+def _has_missing_posters(rates):
+    if not isinstance(rates, list):
+        return False
+    for r in rates:
+        if not isinstance(r, dict):
+            continue
+        td = r.get("target_data") or {}
+        if not td.get("image"):
+            return True
+    return False
+
+
+def enrich_rates_posters(rates_list, headers=None):
+    """Enrich anime and manga rate entries with GraphQL posters if image is missing."""
+    if not isinstance(rates_list, list) or not rates_list:
+        return False
+
+    missing_anime = []
+    missing_manga = []
+
+    for item in rates_list:
+        if not isinstance(item, dict):
+            continue
+        tdata = item.get("target_data")
+        if not tdata or not isinstance(tdata, dict):
+            continue
+        if not tdata.get("image"):
+            tid = item.get("target_id")
+            ttype = item.get("target_type")
+            if ttype == "Anime" and tid:
+                missing_anime.append(str(tid))
+            elif ttype == "Manga" and tid:
+                missing_manga.append(str(tid))
+
+    if not missing_anime and not missing_manga:
+        return False
+
+    updated = False
+
+    # 1. Resolve missing anime posters via GraphQL
+    if missing_anime:
+        try:
+            anime_posters = resolve_posters_graphql(missing_anime, headers=headers)
+        except Exception as exc:
+            logger.debug("Failed batch resolving anime posters for rates: %s", exc)
+            anime_posters = {}
+
+        for item in rates_list:
+            if item.get("target_type") == "Anime":
+                tid = str(item.get("target_id"))
+                tdata = item.get("target_data") or {}
+                if not tdata.get("image"):
+                    if tid in anime_posters and anime_posters[tid]:
+                        tdata["image"] = anime_posters[tid]
+                        updated = True
+                    else:
+                        fr = resolve_franchise_poster(tid, is_manga=False)
+                        if fr:
+                            tdata["image"] = fr
+                            updated = True
+
+    # 2. Resolve missing manga posters via GraphQL
+    if missing_manga:
+        try:
+            manga_posters = resolve_manga_posters_graphql(missing_manga, headers=headers)
+        except Exception as exc:
+            logger.debug("Failed batch resolving manga posters for rates: %s", exc)
+            manga_posters = {}
+
+        for item in rates_list:
+            if item.get("target_type") == "Manga":
+                tid = str(item.get("target_id"))
+                tdata = item.get("target_data") or {}
+                if not tdata.get("image"):
+                    if tid in manga_posters and manga_posters[tid]:
+                        tdata["image"] = manga_posters[tid]
+                        updated = True
+                    else:
+                        fr = resolve_franchise_poster(tid, is_manga=True)
+                        if fr:
+                            tdata["image"] = fr
+                            updated = True
+
+    return updated
+
+
 def _fetch_fresh_rates_sync(user_id, headers):
+    uid = str(user_id)
     rates = []
+
+    # 1. Fetch anime rates via /api/users/{uid}/anime_rates (fast & includes full anime data)
+    anime_raw = []
     page = 1
     while True:
-        try:
-            r = requests.get(
-                f"{SHIKIMORI_BASE}/api/v2/user_rates",
-                headers=headers,
-                params={"user_id": user_id, "limit": 500, "page": page},
-                timeout=10,
-            )
-        except requests.RequestException as exc:
-            logger.error("Failed to fetch user rates: %s", exc)
-            raise AppError("Не удалось загрузить списки", 502, logging.ERROR)
-
-        if r.status_code != 200:
-            logger.warning("User rates API returned %s", r.status_code)
-            raise AppError("Не удалось загрузить списки", r.status_code)
-
-        chunk = r.json() if isinstance(r.json(), list) else []
-        if not chunk:
+        url = f"{SHIKIMORI_BASE}/api/users/{uid}/anime_rates?limit=5000&page={page}"
+        data = fetch_with_retry(url, headers)
+        if not data or not isinstance(data, list):
             break
-        rates.extend(chunk)
-        if len(chunk) < 500 or page >= 20:
+        anime_raw.extend(data)
+        if len(data) < 5000 or page >= 10:
             break
         page += 1
 
+    # 2. Fetch manga rates via /api/users/{uid}/manga_rates (fast & includes full manga data)
+    manga_raw = []
+    page = 1
+    while True:
+        url = f"{SHIKIMORI_BASE}/api/users/{uid}/manga_rates?limit=5000&page={page}"
+        data = fetch_with_retry(url, headers)
+        if not data or not isinstance(data, list):
+            break
+        manga_raw.extend(data)
+        if len(data) < 5000 or page >= 10:
+            break
+        page += 1
+
+    for item in anime_raw:
+        entry = _normalize_rate_entry(item, "Anime")
+        if entry:
+            rates.append(entry)
+
+    for item in manga_raw:
+        entry = _normalize_rate_entry(item, "Manga")
+        if entry:
+            rates.append(entry)
+
+    # 3. If primary endpoints returned empty, check stale cache before returning empty
     if not rates:
-        logger.debug("Empty rates list for user_id=%s", user_id)
-        _save_rates_to_db_and_mem(user_id, [])
-        return []
+        db_data, _ = _get_cached_rates_from_db(uid)
+        if db_data and len(db_data) > 0:
+            logger.warning("Fresh rates fetch empty/failed for user_id=%s, serving stale cache (%d items)", uid, len(db_data))
+            return db_data
 
-    anime_ids = list({str(item["target_id"]) for item in rates if item.get("target_type") == "Anime" and item.get("target_id")})
-    manga_ids = list({str(item["target_id"]) for item in rates if item.get("target_type") == "Manga" and item.get("target_id")})
+    # Batch enrich any missing posters via GraphQL & franchise/related fallback
+    enrich_rates_posters(rates, headers)
 
-    anime_map = {}
-    manga_map = {}
-
-    def fetch_anime_chunk(chunk):
-        query = """
-        query BatchRatesDetails($ids: String!) {
-          animes(ids: $ids, limit: 50) {
-            id
-            name
-            russian
-            kind
-            score
-            status
-            episodes
-            episodesAired
-            duration
-            season
-            rating
-            licensors
-            airedOn {
-              year
-              date
-            }
-            genres {
-              id
-              name
-              russian
-            }
-            studios {
-              id
-              name
-            }
-            poster {
-              originalUrl
-              mainUrl
-            }
-          }
-        }
-        """
-        data = fetch_graphql(query, {"ids": ",".join(chunk)}, ttl=3600)
-        if data and isinstance(data.get("animes"), list):
-            res = []
-            for a in data["animes"]:
-                poster = a.get("poster") or {}
-                img_url = poster.get("originalUrl") or poster.get("mainUrl") or ""
-                aired_date = (a.get("airedOn") or {}).get("date") or str((a.get("airedOn") or {}).get("year") or "")
-                res.append({
-                    "id": int(a["id"]) if a.get("id") else 0,
-                    "name": a.get("name", ""),
-                    "russian": a.get("russian", "") or a.get("name", ""),
-                    "kind": a.get("kind", ""),
-                    "score": a.get("score"),
-                    "status": a.get("status", ""),
-                    "episodes": a.get("episodes", 0),
-                    "episodes_aired": a.get("episodesAired", 0),
-                    "duration": a.get("duration", 0),
-                    "season": a.get("season", ""),
-                    "aired_on": aired_date,
-                    "licensors": a.get("licensors", []),
-                    "rating": a.get("rating", ""),
-                    "genres": a.get("genres", []),
-                    "studios": a.get("studios", []),
-                    "image": img_url
-                })
-            return res
-        return fetch_cached_api(f"{SHIKIMORI_BASE}/api/animes?ids={','.join(chunk)}&limit=100", headers, ttl=3600)
-
-    def fetch_manga_chunk(chunk):
-        query = """
-        query BatchMangaRatesDetails($ids: String!) {
-          mangas(ids: $ids, limit: 50) {
-            id
-            name
-            russian
-            kind
-            score
-            status
-            chapters
-            volumes
-            licensors
-            airedOn {
-              year
-              date
-            }
-            genres {
-              id
-              name
-              russian
-            }
-            publishers {
-              id
-              name
-            }
-            poster {
-              originalUrl
-              mainUrl
-            }
-          }
-        }
-        """
-        data = fetch_graphql(query, {"ids": ",".join(chunk)}, ttl=3600)
-        if data and isinstance(data.get("mangas"), list):
-            res = []
-            for m in data["mangas"]:
-                poster = m.get("poster") or {}
-                img_url = poster.get("originalUrl") or poster.get("mainUrl") or ""
-                aired_date = (m.get("airedOn") or {}).get("date") or str((m.get("airedOn") or {}).get("year") or "")
-                res.append({
-                    "id": int(m["id"]) if m.get("id") else 0,
-                    "name": m.get("name", ""),
-                    "russian": m.get("russian", "") or m.get("name", ""),
-                    "kind": m.get("kind", ""),
-                    "score": m.get("score"),
-                    "status": m.get("status", ""),
-                    "chapters": m.get("chapters", 0),
-                    "volumes": m.get("volumes", 0),
-                    "aired_on": aired_date,
-                    "licensors": m.get("licensors", []),
-                    "genres": m.get("genres", []),
-                    "publishers": m.get("publishers", []),
-                    "studios": m.get("publishers", []),
-                    "image": img_url
-                })
-            return res
-        return fetch_cached_api(f"{SHIKIMORI_BASE}/api/mangas?ids={','.join(chunk)}&limit=100", headers, ttl=3600)
-
-    with ThreadPoolExecutor(max_workers=6) as executor:
-        anime_chunks = [anime_ids[i:i + 50] for i in range(0, len(anime_ids), 50)]
-        manga_chunks = [manga_ids[i:i + 50] for i in range(0, len(manga_ids), 50)]
-
-        anime_futures = [executor.submit(fetch_anime_chunk, chunk) for chunk in anime_chunks]
-        manga_futures = [executor.submit(fetch_manga_chunk, chunk) for chunk in manga_chunks]
-
-        anime_results = [f.result() for f in anime_futures]
-        manga_results = [f.result() for f in manga_futures]
-
-    # Assemble anime map
-    for data in anime_results:
-        if isinstance(data, list):
-            for a in data:
-                anime_map[a["id"]] = a
-
-    # Assemble manga map
-    for data in manga_results:
-        if isinstance(data, list):
-            for m in data:
-                manga_map[m["id"]] = m
-
-    for rate in rates:
-        t_id, t_type = rate.get("target_id"), rate.get("target_type")
-        if t_type == "Anime" and t_id in anime_map:
-            rate["target_data"] = anime_map[t_id]
-        elif t_type == "Manga" and t_id in manga_map:
-            rate["target_data"] = manga_map[t_id]
-
-    logger.info("Loaded %d rates for user_id=%s (parallelized)", len(rates), user_id)
+    logger.info("Loaded %d fresh rates for user_id=%s (fast 2-request pipeline + GraphQL posters)", len(rates), user_id)
     _save_rates_to_db_and_mem(user_id, rates)
     return rates
 
@@ -285,11 +310,18 @@ def tab_rates():
     # 1. Fast in-memory check (<0.1ms)
     mem = _rates_mem_cache.get(uid)
     if mem and now < mem["expires_at"]:
-        return jsonify(mem["data"])
+        rates_data = mem["data"]
+        if _has_missing_posters(rates_data):
+            if enrich_rates_posters(rates_data, headers):
+                _save_rates_to_db_and_mem(uid, rates_data)
+        return jsonify(rates_data)
 
     # 2. Database check (<2ms)
     db_data, db_expires_at = _get_cached_rates_from_db(uid)
     if db_data is not None:
+        if _has_missing_posters(db_data):
+            if enrich_rates_posters(db_data, headers):
+                _save_rates_to_db_and_mem(uid, db_data)
         _rates_mem_cache[uid] = {
             "data": db_data,
             "expires_at": db_expires_at
@@ -319,7 +351,11 @@ def tab_rates():
     with user_lock:
         mem = _rates_mem_cache.get(uid)
         if mem and now < mem["expires_at"]:
-            return jsonify(mem["data"])
+            rates_data = mem["data"]
+            if _has_missing_posters(rates_data):
+                if enrich_rates_posters(rates_data, headers):
+                    _save_rates_to_db_and_mem(uid, rates_data)
+            return jsonify(rates_data)
         rates = _fetch_fresh_rates_sync(uid, headers)
         return jsonify(rates)
 
@@ -399,6 +435,41 @@ def grid_data():
                         "url": item.get("url") or f"/characters/{item.get('id')}"
                     }
         logger.debug("Grid data loaded via GraphQL: type=characters, count=%d", len(items_dict))
+        return jsonify([items_dict[i] for i in ids_list if i in items_dict])
+
+    if grid_type in ("mangas", "manga"):
+        items_dict = {}
+        for i in range(0, len(ids_list), 50):
+            chunk = ids_list[i:i + 50]
+            query = """
+            query BatchMangasGrid($ids: String!) {
+              mangas(ids: $ids, limit: 50) {
+                id
+                name
+                russian
+                kind
+                score
+                poster {
+                  mainUrl
+                  originalUrl
+                }
+              }
+            }
+            """
+            data = fetch_graphql(query, {"ids": ",".join(chunk)}, ttl=3600)
+            if data and isinstance(data.get("mangas"), list):
+                for item in data["mangas"]:
+                    p = item.get("poster") or {}
+                    poster = p.get("mainUrl") or p.get("originalUrl") or ""
+                    items_dict[str(item["id"])] = {
+                        "id": item.get("id"),
+                        "name": item.get("name"),
+                        "russian": item.get("russian") or item.get("name"),
+                        "kind": item.get("kind"),
+                        "score": item.get("score"),
+                        "image": fix_image_url(poster)
+                    }
+        logger.debug("Grid data loaded via GraphQL: type=mangas, count=%d", len(items_dict))
         return jsonify([items_dict[i] for i in ids_list if i in items_dict])
 
     logger.warning("Unknown grid type requested: %s", grid_type)

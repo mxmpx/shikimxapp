@@ -104,7 +104,9 @@ def cache_img():
 
     if os.path.exists(filepath):
         logger.debug("Image cache hit: %s", filename)
-        return send_from_directory(cache_dir, filename)
+        response = send_from_directory(cache_dir, filename)
+        response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+        return response
 
     try:
         r = requests.get(img_url, headers={"User-Agent": APP_NAME}, timeout=10)
@@ -112,7 +114,9 @@ def cache_img():
             with open(filepath, "wb") as f:
                 f.write(r.content)
             logger.debug("Image cached: %s", filename)
-            return send_from_directory(cache_dir, filename)
+            response = send_from_directory(cache_dir, filename)
+            response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+            return response
         logger.warning("Image download failed (%s): %s", r.status_code, img_url)
     except requests.RequestException as exc:
         logger.warning("Image cache error for %s: %s", img_url, exc)

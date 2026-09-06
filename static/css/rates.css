@@ -1,6 +1,6 @@
 /* ==========================================================================
    SHIKI MX APP — PIXEL-PERFECT SHIKIMORI USER LIST STYLES
-   Exact 1-to-1 Match to Reference Design
+   Upgraded with Global Design System tokens & Responsive Adaptation
    ========================================================================== */
 
 .shiki-page-root {
@@ -11,7 +11,7 @@
     max-width: 1300px;
     margin: 0 auto;
     padding: 10px 20px 60px 20px;
-    color: #d0d0d8;
+    color: var(--text-main);
     box-sizing: border-box;
 }
 
@@ -49,7 +49,7 @@
 .shiki-nav-name {
     font-size: 18px;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--text-main);
     line-height: 1.2;
     transition: color 0.15s ease;
 }
@@ -67,7 +67,7 @@
 }
 
 .shiki-top-nav:hover .shiki-nav-sub {
-    color: #ffffff;
+    color: var(--text-main);
 }
 
 /* 2. Main Two Column Layout (Left 75% | Right 25%) */
@@ -93,6 +93,7 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
+    transition: width 0.2s ease;
 }
 
 /* 3. Title Row (СПИСОК АНИМЕ + View Mode Icons) */
@@ -100,28 +101,51 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 10px;
 }
 
 .shiki-title-text {
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.8px;
-    color: #9999aa;
+    color: var(--text-muted);
     text-transform: uppercase;
 }
 
 .shiki-view-buttons {
     display: flex;
-    gap: 4px;
+    align-items: center;
+    gap: 6px;
+}
+
+.shiki-filters-toggle-btn {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    background: var(--sub-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-main);
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.shiki-filters-toggle-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--hover-bg-alpha);
 }
 
 .shiki-view-btn {
-    background: none;
-    border: 1px solid #282832;
-    color: #666677;
-    width: 28px;
-    height: 28px;
-    border-radius: 2px;
+    background: var(--sub-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -130,14 +154,14 @@
 }
 
 .shiki-view-btn:hover {
-    color: #ffffff;
-    border-color: #444455;
+    color: var(--text-main);
+    border-color: var(--primary);
 }
 
 .shiki-view-btn.active {
-    background: #004d40;
-    border-color: #004d40;
-    color: #00e5a3;
+    background: var(--primary-container);
+    border-color: var(--primary);
+    color: var(--on-primary-container);
 }
 
 /* 4. Search Row */
@@ -148,23 +172,24 @@
 
 .shiki-search-input {
     width: 100%;
-    background: #141418;
-    border: 1px solid #22222a;
-    border-radius: 3px;
-    padding: 8px 12px;
-    color: #e0e0e0;
+    background: var(--sub-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 9px 14px;
+    color: var(--text-main);
     font-size: 13px;
     outline: none;
     box-sizing: border-box;
-    transition: border-color 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .shiki-search-input:focus {
-    border-color: #383848;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--hover-shadow-alpha);
 }
 
 .shiki-search-input::placeholder {
-    color: #555566;
+    color: var(--text-muted);
 }
 
 /* 5. Left Sticky Floating Status Dock */
@@ -176,18 +201,20 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
-    background: #0c0c0e;
-    border: 1px solid #1c1c24;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
     padding: 10px 4px;
     border-radius: 16px 0 0 16px;
-    box-shadow: -4px 4px 20px rgba(0, 0, 0, 0.5);
+    box-shadow: var(--shadow-md);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 
 .shiki-dock-btn {
     position: relative;
     background: none;
     border: none;
-    color: #666677;
+    color: var(--text-muted);
     width: 34px;
     height: 34px;
     border-radius: 50%;
@@ -195,23 +222,24 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: color 0.15s ease;
+    transition: color 0.15s ease, background-color 0.15s ease;
 }
 
 .shiki-dock-btn:hover {
-    color: #ffffff;
+    color: var(--text-main);
+    background-color: var(--hover-bg-alpha);
 }
 
 .shiki-dock-btn.active {
-    color: #00e5a3;
+    color: var(--primary);
 }
 
 .shiki-dock-counter {
     position: absolute;
     top: -3px;
     right: -4px;
-    background: #00e5a3;
-    color: #000000;
+    background: var(--primary);
+    color: var(--on-primary);
     font-size: 9.5px;
     font-weight: 800;
     padding: 1px 4px;
@@ -222,8 +250,8 @@
 }
 
 .shiki-dock-counter.all {
-    background: #9333ea;
-    color: #ffffff;
+    background: var(--primary-container);
+    color: var(--on-primary-container);
 }
 
 /* 6. Status Section Block & Headings */
@@ -252,23 +280,24 @@
     font-size: 12.5px;
     font-weight: 800;
     letter-spacing: 0.8px;
-    color: #9333ea;
+    color: var(--primary);
     text-transform: uppercase;
 }
 
 .shiki-sec-collapse {
     background: none;
     border: none;
-    color: #9333ea;
+    color: var(--primary);
     font-size: 12px;
     cursor: pointer;
-    border-bottom: 1px dotted #9333ea;
+    border-bottom: 1px dotted var(--primary);
     padding: 0;
     line-height: 1.2;
+    transition: opacity 0.15s ease;
 }
 
 .shiki-sec-collapse:hover {
-    opacity: 0.8;
+    opacity: 0.75;
 }
 
 /* 7. Authentic Shikimori Table Lines */
@@ -279,29 +308,29 @@
 }
 
 .shiki-table-lines thead th {
-    padding: 6px 8px;
+    padding: 8px 8px;
     font-size: 11px;
     font-weight: 700;
-    color: #888899;
+    color: var(--text-muted);
     text-align: left;
-    border-bottom: 1px solid #1f1f26;
+    border-bottom: 1px solid var(--border-sub);
     user-select: none;
     cursor: pointer;
     transition: color 0.15s ease;
 }
 
 .shiki-table-lines thead th:hover {
-    color: #ffffff;
+    color: var(--text-main);
 }
 
 .shiki-table-lines thead th.active-sort {
-    color: #00e5a3;
+    color: var(--primary);
 }
 
 .shiki-sort-arrow {
     font-size: 8.5px;
     margin-left: 3px;
-    color: #00e5a3;
+    color: var(--primary);
     display: inline-block;
 }
 
@@ -312,21 +341,22 @@
 }
 
 .shiki-row {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid var(--border-sub);
+    transition: background-color 0.12s ease;
 }
 
 .shiki-row:hover {
-    background: rgba(255, 255, 255, 0.015);
+    background: var(--hover-bg-alpha);
 }
 
 .shiki-row td {
-    padding: 6px 8px;
+    padding: 8px 8px;
     vertical-align: middle;
 }
 
 .td-index {
-    width: 24px;
-    color: #555566;
+    width: 28px;
+    color: var(--text-muted);
     font-size: 12px;
     text-align: left;
 }
@@ -336,24 +366,24 @@
 }
 
 .title-link {
-    color: #d6d6e0;
+    color: var(--text-main);
     font-size: 13px;
     text-decoration: none;
-    font-weight: 400;
+    font-weight: 500;
     transition: color 0.12s ease;
 }
 
 .title-link:hover {
-    color: #9333ea;
+    color: var(--primary);
 }
 
 .tag-anons {
-    border: 1px solid #d97706;
-    color: #f59e0b;
+    border: 1px solid var(--warning);
+    color: var(--warning);
     font-size: 9px;
     font-weight: 700;
     padding: 0 4px;
-    border-radius: 2px;
+    border-radius: 4px;
     margin-left: 6px;
     vertical-align: middle;
     display: inline-block;
@@ -361,12 +391,12 @@
 }
 
 .tag-ongoing {
-    border: 1px solid #16a34a;
-    color: #22c55e;
+    border: 1px solid var(--success);
+    color: var(--success);
     font-size: 9px;
     font-weight: 700;
     padding: 0 4px;
-    border-radius: 2px;
+    border-radius: 4px;
     margin-left: 6px;
     vertical-align: middle;
     display: inline-block;
@@ -375,14 +405,14 @@
 
 .td-score {
     width: 70px;
-    color: #777788;
+    color: var(--text-muted);
     text-align: right;
     padding-right: 18px;
 }
 
 .td-episodes {
     width: 90px;
-    color: #ffffff;
+    color: var(--text-main);
     font-weight: 700;
     font-size: 12.5px;
     text-align: right;
@@ -391,7 +421,7 @@
 
 .td-type {
     width: 90px;
-    color: #888899;
+    color: var(--text-muted);
     font-size: 12px;
     text-align: right;
 }
@@ -410,8 +440,10 @@
     height: 120px;
     border-radius: 50%;
     object-fit: cover;
-    border: 1px solid #282832;
-    background: #141418;
+    border: 2px solid var(--card-border);
+    background: var(--sub-bg);
+    box-shadow: var(--shadow-sm);
+    transition: width 0.2s ease, height 0.2s ease;
 }
 
 .shiki-chart-block {
@@ -424,7 +456,7 @@
 .shiki-chart-title {
     font-size: 11px;
     font-weight: 800;
-    color: #888899;
+    color: var(--text-muted);
     letter-spacing: 0.8px;
     text-transform: uppercase;
     margin-bottom: 2px;
@@ -433,7 +465,7 @@
 .shiki-chart-body {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 3px;
     width: 100%;
 }
 
@@ -449,7 +481,9 @@
 .shiki-chart-bar-wrap {
     flex: 1;
     height: 14px;
-    background: transparent;
+    background: var(--border-sub);
+    border-radius: 3px;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -462,25 +496,27 @@
     justify-content: flex-end;
     padding-right: 4px;
     box-sizing: border-box;
+    border-radius: 3px;
+    transition: width 0.3s ease;
 }
 
 .score-fill,
 .type-fill,
 .rating-fill {
-    background: #a855f7;
+    background: var(--primary);
 }
 
 .shiki-chart-val {
     font-size: 9.5px;
     font-weight: 700;
-    color: #000000;
+    color: var(--on-primary);
     line-height: 1;
 }
 
 .shiki-chart-label {
-    width: 18px;
+    width: 20px;
     font-size: 11px;
-    color: #888899;
+    color: var(--text-muted);
     text-align: right;
     flex-shrink: 0;
 }
@@ -499,7 +535,7 @@
 .shiki-tag-cloud {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px 8px;
+    gap: 5px 8px;
     align-items: baseline;
     line-height: 1.4;
     padding-top: 2px;
@@ -513,38 +549,42 @@
 }
 
 .shiki-tag-cloud .category.t4 {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 800;
-    color: #85b8ff;
+    color: var(--primary);
 }
 
 .shiki-tag-cloud .category.t3 {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
-    color: #72a7f8;
+    color: var(--primary);
+    opacity: 0.9;
 }
 
 .shiki-tag-cloud .category.t2 {
-    font-size: 12.5px;
+    font-size: 12px;
     font-weight: 600;
-    color: #5b92e5;
+    color: var(--text-main);
+    opacity: 0.85;
 }
 
 .shiki-tag-cloud .category.t1 {
     font-size: 11.5px;
     font-weight: 500;
-    color: #4a7ecc;
+    color: var(--text-muted);
 }
 
 .shiki-tag-cloud .category.t0 {
     font-size: 11px;
     font-weight: 400;
-    color: #3b68aa;
+    color: var(--text-muted);
+    opacity: 0.75;
 }
 
 .shiki-tag-cloud .category:hover {
-    color: #ffffff;
+    color: var(--primary-hover);
     text-decoration: underline;
+    opacity: 1;
 }
 
 /* 8.2. Filters Block */
@@ -559,7 +599,7 @@
 .shiki-filters-head {
     font-size: 11px;
     font-weight: 800;
-    color: #888899;
+    color: var(--text-muted);
     letter-spacing: 0.8px;
     text-transform: uppercase;
     margin-bottom: 2px;
@@ -575,30 +615,31 @@
 .c-ms-title {
     font-size: 11px;
     font-weight: 600;
-    color: #777788;
+    color: var(--text-muted);
 }
 
 .c-filter-select {
     width: 100%;
-    background: #141418;
-    border: 1px solid #22222a;
-    border-radius: 4px;
-    padding: 6px 8px;
-    color: #d0d0d8;
+    background: var(--sub-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    padding: 7px 10px;
+    color: var(--text-main);
     font-size: 12px;
     outline: none;
     cursor: pointer;
     box-sizing: border-box;
-    transition: border-color 0.15s ease;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .c-filter-select:focus {
-    border-color: #383848;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--hover-shadow-alpha);
 }
 
 .c-filter-select option {
-    background: #141418;
-    color: #d0d0d8;
+    background: var(--card-bg);
+    color: var(--text-main);
 }
 
 .c-score-inputs {
@@ -609,11 +650,11 @@
 
 .c-score-input {
     flex: 1;
-    background: #141418;
-    border: 1px solid #22222a;
-    border-radius: 4px;
+    background: var(--sub-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
     padding: 6px 8px;
-    color: #d0d0d8;
+    color: var(--text-main);
     font-size: 12px;
     outline: none;
     box-sizing: border-box;
@@ -621,7 +662,8 @@
 }
 
 .c-score-input:focus {
-    border-color: #383848;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--hover-shadow-alpha);
 }
 
 .c-score-presets {
@@ -632,10 +674,10 @@
 }
 
 .c-score-preset {
-    background: #141418;
-    border: 1px solid #22222a;
+    background: var(--sub-bg);
+    border: 1px solid var(--card-border);
     border-radius: 10px;
-    color: #888899;
+    color: var(--text-muted);
     font-size: 11px;
     padding: 2px 8px;
     cursor: pointer;
@@ -643,89 +685,187 @@
 }
 
 .c-score-preset:hover {
-    color: #ffffff;
-    border-color: #9333ea;
-    background: rgba(147, 51, 234, 0.1);
+    color: var(--primary);
+    border-color: var(--primary);
+    background: var(--hover-bg-alpha);
 }
 
-/* 9. Cards / Grid View */
+.c-score-preset.active {
+    background: var(--primary);
+    color: var(--on-primary);
+    border-color: var(--primary);
+}
+
+/* 9. Cards / Grid View (Premium Upgrades) */
 .shiki-grid-items {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 12px;
+    gap: 14px;
     width: 100%;
 }
 
 .shiki-grid-card {
     display: flex;
     flex-direction: column;
-    background: #141418;
-    border: 1px solid #22222a;
-    border-radius: 4px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
     overflow: hidden;
     cursor: pointer;
-    transition: border-color 0.15s ease;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease, border-color 0.2s ease;
 }
 
 .shiki-grid-card:hover {
-    border-color: #9333ea;
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px var(--shadow-glow);
+    border-color: var(--primary);
 }
 
 .shiki-grid-poster-wrap {
     width: 100%;
     aspect-ratio: 2 / 3;
     position: relative;
-    background: #1a1a20;
+    background: var(--sub-bg);
+    overflow: hidden;
 }
 
 .shiki-grid-poster {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.25s ease;
+}
+
+.shiki-grid-card:hover .shiki-grid-poster {
+    transform: scale(1.04);
 }
 
 .shiki-grid-score {
     position: absolute;
-    top: 4px;
-    right: 4px;
-    background: rgba(0, 0, 0, 0.85);
+    top: 6px;
+    right: 6px;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 8px;
     color: #ffd700;
+    font-weight: 700;
+    font-size: 10.5px;
+    padding: 2px 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    z-index: 2;
+}
+
+.shiki-grid-score i {
     font-size: 10px;
-    font-weight: 800;
-    padding: 1px 4px;
-    border-radius: 2px;
+    color: #ffd700;
 }
 
 .shiki-grid-info {
-    padding: 6px 8px;
+    padding: 8px 10px;
     display: flex;
     flex-direction: column;
     gap: 2px;
 }
 
 .shiki-grid-title {
-    font-size: 11.5px;
-    font-weight: 500;
-    color: #e0e0e0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-main);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .shiki-grid-ep {
-    font-size: 10.5px;
-    color: #777788;
+    font-size: 11px;
+    color: var(--text-muted);
 }
 
-/* 10. Mobile Responsive */
+/* 10. Responsive Breakpoints (768px – 1200px and below) */
+@media (max-width: 1100px) {
+    .shiki-side-col {
+        width: 200px;
+        gap: 14px;
+    }
+    .shiki-body-columns {
+        gap: 20px;
+    }
+    .shiki-side-avatar-img {
+        width: 90px;
+        height: 90px;
+    }
+}
+
 @media (max-width: 900px) {
+    .shiki-filters-toggle-btn {
+        display: inline-flex;
+    }
     .shiki-side-col {
         display: none;
+        width: 100%;
+        box-sizing: border-box;
+        margin-top: 10px;
+        padding: 16px;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: var(--radius-inner, 16px);
+        box-shadow: var(--shadow-card);
+    }
+    .shiki-side-col.drawer-open {
+        display: flex;
+        animation: modalScaleIn 0.2s ease;
     }
     .shiki-left-dock {
         display: none;
     }
     .shiki-body-columns {
         gap: 0;
+        flex-direction: column;
     }
+}
+
+/* 11. Chunked / Infinite Scroll Show More Controls */
+.shiki-show-more-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 0 12px 0;
+    width: 100%;
+}
+
+.shiki-load-more-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--sub-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-main);
+    font-size: 12.5px;
+    font-weight: 500;
+    padding: 8px 22px;
+    border-radius: var(--radius-pill, 20px);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.shiki-load-more-btn:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--on-primary);
+    box-shadow: 0 4px 14px var(--shadow-glow);
+    transform: translateY(-1px);
+}
+
+.shiki-section-sentinel {
+    height: 4px;
+    width: 100%;
+    pointer-events: none;
+    opacity: 0;
 }

@@ -43,6 +43,37 @@ MOBILE_JS_FILES = [
     'js/mobile.js'
 ]
 
+def minify_css(css_text):
+    """Strip comments and unnecessary whitespace from CSS."""
+    # Remove CSS comments
+    css_text = re.sub(r'/\*[\s\S]*?\*/', '', css_text)
+    # Strip whitespace per line and omit empty lines
+    lines = []
+    for line in css_text.splitlines():
+        line = line.strip()
+        if line:
+            lines.append(line)
+    res = "\n".join(lines)
+    # Collapse spaces around symbols safely
+    res = re.sub(r'\s*([\{\}\;\:\,])\s*', r'\1', res)
+    res = re.sub(r'\;\}', '}', res)
+    return res
+
+
+def minify_js(js_text):
+    """Strip comments and empty lines from JS safely without breaking syntax."""
+    # Strip multi-line comments
+    js_text = re.sub(r'/\*[\s\S]*?\*/', '', js_text)
+    # Strip single-line comments and trailing spaces
+    lines = []
+    for line in js_text.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith('//'):
+            continue
+        lines.append(line.rstrip())
+    return "\n".join(lines)
+
+
 def build_bundles(app_root):
     static_dir = os.path.join(app_root, 'static')
     bundle_css_path = os.path.join(static_dir, 'bundle.css')
@@ -57,9 +88,9 @@ def build_bundles(app_root):
         filepath = os.path.join(static_dir, fname)
         if os.path.exists(filepath):
             with open(filepath, 'r', encoding='utf-8') as infile:
-                css_parts.append(f"/* --- {fname} --- */\n" + infile.read() + "\n\n")
+                css_parts.append(infile.read() + "\n\n")
 
-    full_css = "".join(css_parts)
+    full_css = minify_css("".join(css_parts))
     with open(bundle_css_path, 'w', encoding='utf-8') as outfile:
         outfile.write(full_css)
 
@@ -69,9 +100,9 @@ def build_bundles(app_root):
         filepath = os.path.join(static_dir, fname)
         if os.path.exists(filepath):
             with open(filepath, 'r', encoding='utf-8') as infile:
-                js_parts.append(f"/* --- {fname} --- */\n" + infile.read() + "\n;\n")
+                js_parts.append(infile.read() + "\n;\n")
 
-    full_js = "".join(js_parts)
+    full_js = minify_js("".join(js_parts))
     with open(bundle_js_path, 'w', encoding='utf-8') as outfile:
         outfile.write(full_js)
 
@@ -81,8 +112,8 @@ def build_bundles(app_root):
         filepath = os.path.join(static_dir, fname)
         if os.path.exists(filepath):
             with open(filepath, 'r', encoding='utf-8') as infile:
-                mobile_css_parts.append(f"/* --- {fname} --- */\n" + infile.read() + "\n\n")
-    full_mobile_css = "".join(mobile_css_parts)
+                mobile_css_parts.append(infile.read() + "\n\n")
+    full_mobile_css = minify_css("".join(mobile_css_parts))
     with open(mobile_css_path, 'w', encoding='utf-8') as outfile:
         outfile.write(full_mobile_css)
 
@@ -92,8 +123,8 @@ def build_bundles(app_root):
         filepath = os.path.join(static_dir, fname)
         if os.path.exists(filepath):
             with open(filepath, 'r', encoding='utf-8') as infile:
-                mobile_js_parts.append(f"/* --- {fname} --- */\n" + infile.read() + "\n;\n")
-    full_mobile_js = "".join(mobile_js_parts)
+                mobile_js_parts.append(infile.read() + "\n;\n")
+    full_mobile_js = minify_js("".join(mobile_js_parts))
     with open(mobile_js_path, 'w', encoding='utf-8') as outfile:
         outfile.write(full_mobile_js)
 

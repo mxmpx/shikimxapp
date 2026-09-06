@@ -258,8 +258,86 @@ def fetch_cached_api(url, headers, ttl=1800):
 def fetch_user_rate(target_id, target_type):
     """Fetch user rate for a given target (Anime/Manga). Returns dict or None."""
     user_id = session.get("user_id")
+    if not user_id:
+        return None
+
+    target_id_str = str(target_id)
+    target_type_str = str(target_type).capitalize()
+    key = f"{target_type_str}_{target_id_str}"
+
+    # 1. Fast in-memory check (O(1) dictionary lookup)
+    try:
+        from routes.rates import _rates_mem_cache, _build_rates_index
+        uid = str(user_id)
+        cached = _rates_mem_cache.get(uid)
+        if cached:
+            by_target = cached.get("by_target")
+            if by_target is None and isinstance(cached.get("data"), list):
+                by_target = _build_rates_index(cached["data"])
+                cached["by_target"] = by_target
+            if by_target and key in by_target:
+                item = by_target[key]
+                return {
+                    "id": item.get("id"),
+                    "status": item.get("status"),
+                    "score": item.get("score", 0),
+                    "episodes": item.get("episodes", 0),
+                    "chapters": item.get("chapters", 0),
+                    "volumes": item.get("volumes", 0),
+                    "text": item.get("text", "") or "",
+                    "rewatches": item.get("rewatches", 0),
+                    "created_at": item.get("created_at"),
+                    "updated_at": item.get("updated_at")
+                }
+            elif by_target is not None:
+                # Rates list was cached in memory, but this item is not in user list
+                return None
+    except Exception as exc:
+        logger.debug("Mem cache rate lookup failed: %s", exc)
+
+    # 2. Local database cache check (populated once into indexed mem cache)
+    try:
+        conn = get_connection()
+        try:
+            row = conn.execute(
+                "SELECT data, expires_at FROM api_cache WHERE url = ?",
+                (f"rates:user_{user_id}",)
+            ).fetchone()
+        finally:
+            conn.close()
+
+        if row and row["data"]:
+            rates_list = json.loads(row["data"])
+            expires_at = float(row["expires_at"]) if "expires_at" in row.keys() else (time.time() + 1800)
+            from routes.rates import _rates_mem_cache, _build_rates_index
+            uid = str(user_id)
+            by_target = _build_rates_index(rates_list)
+            _rates_mem_cache[uid] = {
+                "data": rates_list,
+                "by_target": by_target,
+                "expires_at": expires_at
+            }
+            if key in by_target:
+                item = by_target[key]
+                return {
+                    "id": item.get("id"),
+                    "status": item.get("status"),
+                    "score": item.get("score", 0),
+                    "episodes": item.get("episodes", 0),
+                    "chapters": item.get("chapters", 0),
+                    "volumes": item.get("volumes", 0),
+                    "text": item.get("text", "") or "",
+                    "rewatches": item.get("rewatches", 0),
+                    "created_at": item.get("created_at"),
+                    "updated_at": item.get("updated_at")
+                }
+            return None
+    except Exception as exc:
+        logger.debug("DB rate lookup failed: %s", exc)
+
+    # 3. Fallback to network only if rates are not yet loaded
     auth_headers = get_auth_headers()
-    if not user_id or not auth_headers:
+    if not auth_headers:
         return None
     rate_url = f"{SHIKIMORI_BASE}/api/v2/user_rates?user_id={user_id}&target_id={target_id}&target_type={target_type}"
     try:
@@ -401,13 +479,49 @@ def resolve_single_anime_poster_graphql(anime_id, headers=None):
     return ""
 
 
+def resolve_manga_posters_graphql(manga_ids, headers=None):
+    """Query Shikimori GraphQL to resolve high-res webp poster URLs for manga IDs."""
+    if not manga_ids:
+        return {}
+
+    poster_map = {}
+    ids_list = [str(x) for x in manga_ids if str(x).isdigit()]
+    for i in range(0, len(ids_list), 50):
+        batch = ids_list[i:i + 50]
+        query = """
+        query BatchMangaPosters($ids: String!) {
+          mangas(ids: $ids, limit: 50) {
+            id
+            poster {
+              mainUrl
+              originalUrl
+            }
+          }
+        }
+        """
+        try:
+            data = fetch_graphql(query, {"ids": ",".join(batch)}, headers=headers, ttl=3600)
+            if data and isinstance(data.get("mangas"), list):
+                for m in data["mangas"]:
+                    p = m.get("poster")
+                    if p:
+                        url = p.get("mainUrl") or p.get("originalUrl")
+                        if url:
+                            poster_map[str(m["id"])] = fix_image_url(url)
+        except Exception as exc:
+            logger.debug("Failed to resolve GraphQL manga posters: %s", exc)
+    return poster_map
+
+
 def resolve_franchise_poster(item_id, is_manga=False):
-    """Fallback to franchise / predecessor poster if current title has no poster on Shikimori."""
+    """Fallback to franchise / predecessor / related poster if current title has no poster on Shikimori."""
     if not item_id:
         return ""
     media_type = "mangas" if is_manga else "animes"
-    url = f"{SHIKIMORI_BASE}/api/{media_type}/{item_id}/franchise"
     headers = {"User-Agent": APP_NAME}
+
+    # 1. Try franchise tree
+    url = f"{SHIKIMORI_BASE}/api/{media_type}/{item_id}/franchise"
     try:
         data = fetch_cached_api(url, headers, ttl=86400)
         if data and isinstance(data, dict):
@@ -419,6 +533,25 @@ def resolve_franchise_poster(item_id, is_manga=False):
                     return fix_image_url(cleaned, high_res=True)
     except Exception as e:
         logger.debug("Franchise poster lookup error for %s (%s): %s", item_id, media_type, e)
+
+    # 2. Try related entries (adaptation, prequel, sequel, etc.)
+    rel_url = f"{SHIKIMORI_BASE}/api/{media_type}/{item_id}/related"
+    try:
+        rel_data = fetch_cached_api(rel_url, headers, ttl=86400)
+        if rel_data and isinstance(rel_data, list):
+            for entry in rel_data:
+                rel = entry.get("anime") or entry.get("manga") or {}
+                img_obj = rel.get("image") or {}
+                if isinstance(img_obj, dict):
+                    img = img_obj.get("original") or img_obj.get("main") or img_obj.get("preview") or ""
+                else:
+                    img = str(img_obj)
+                if img and "missing_" not in img:
+                    cleaned = re.sub(r"/(x96|x48|preview)/", "/original/", img)
+                    return fix_image_url(cleaned, high_res=True)
+    except Exception as e:
+        logger.debug("Related poster lookup error for %s (%s): %s", item_id, media_type, e)
+
     return ""
 
 

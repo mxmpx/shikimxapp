@@ -1,6 +1,7 @@
 import sqlite3
 import os
 import json
+import time
 import logging
 from datetime import datetime, timezone
 
@@ -10,18 +11,37 @@ DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app.db")
 
 
 def get_connection():
-    """Get a database connection with row factory."""
+    """Get a database connection with row factory and high performance PRAGMAs."""
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA foreign_keys=ON")
+    conn.execute("PRAGMA synchronous = NORMAL;")
+    conn.execute("PRAGMA cache_size = -64000;")  # 64 MB RAM кэш страниц
+    conn.execute("PRAGMA temp_store = MEMORY;")
+    conn.execute("PRAGMA foreign_keys = ON;")
     return conn
+
+
+def cleanup_expired_cache():
+    """Delete expired records from api_cache using the indexed expires_at field."""
+    try:
+        conn = get_connection()
+        try:
+            now = time.time()
+            res = conn.execute("DELETE FROM api_cache WHERE expires_at < ?", (now,))
+            conn.commit()
+            if res.rowcount > 0:
+                logger.info("Cleaned up %d expired api_cache entries", res.rowcount)
+        finally:
+            conn.close()
+    except Exception as exc:
+        logger.error("Error during expired api_cache cleanup: %s", exc)
 
 
 def init_db():
     """Initialize database tables if they don't exist."""
-    conn = get_connection()
+    conn = sqlite3.connect(DB_PATH)
     try:
+        conn.execute("PRAGMA journal_mode=WAL;")
         conn.executescript("""
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -54,6 +74,7 @@ def init_db():
                 data TEXT NOT NULL,
                 expires_at REAL NOT NULL
             );
+            CREATE INDEX IF NOT EXISTS idx_api_cache_expires ON api_cache(expires_at);
         """)
         conn.commit()
         logger.info("Database initialized successfully at %s", DB_PATH)
@@ -62,6 +83,9 @@ def init_db():
         raise
     finally:
         conn.close()
+
+    # Perform startup cleanup of expired cache entries
+    cleanup_expired_cache()
 
 
 def get_or_create_user(shikimori_id=None, google_id=None, email=None, name=None, avatar=None, access_token=None):

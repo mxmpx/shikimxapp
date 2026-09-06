@@ -78,10 +78,22 @@ def service_worker():
 
 @app.route('/translations.txt')
 def translations_txt():
-    from flask import send_file
+    from flask import send_file, request, Response
     root_dir = os.path.dirname(os.path.abspath(__file__))
     txt_path = os.path.join(root_dir, 'translations.txt')
+    if not os.path.exists(txt_path):
+        return Response("Not found", status=404)
+    stat = os.stat(txt_path)
+    etag = f'"{int(stat.st_mtime)}-{stat.st_size}"'
+
+    if request.headers.get('If-None-Match') == etag:
+        res = Response(status=304)
+        res.headers['ETag'] = etag
+        res.headers['Cache-Control'] = 'public, max-age=3600'
+        return res
+
     response = send_file(txt_path, mimetype='text/plain; charset=utf-8')
+    response.headers['ETag'] = etag
     response.headers['Cache-Control'] = 'public, max-age=3600'
     return response
 

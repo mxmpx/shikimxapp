@@ -195,11 +195,15 @@ function toggleStatusSection(statusKey) {
 }
 window.toggleStatusSection = toggleStatusSection;
 
+let _ratesSearchDebounceTimer = null;
 function onRatesSearchInput(val) {
     ratesSearchQuery = val.trim().toLowerCase();
     const input = document.getElementById('rates-local-search');
     if (input && input.value !== val) input.value = val;
-    applyListFilters();
+    clearTimeout(_ratesSearchDebounceTimer);
+    _ratesSearchDebounceTimer = setTimeout(() => {
+        applyListFilters();
+    }, 200);
 }
 window.onRatesSearchInput = onRatesSearchInput;
 
@@ -287,6 +291,9 @@ function renderRatesView() {
                     <div class="shiki-title-row">
                         <div class="shiki-title-text">${isAnime ? (isEn ? 'ANIME LIST' : 'СПИСОК АНИМЕ') : (isEn ? 'MANGA LIST' : 'СПИСОК МАНГИ')}</div>
                         <div class="shiki-view-buttons">
+                            <button type="button" class="shiki-filters-toggle-btn" onclick="toggleRatesMobileFilters()" title="${isEn ? 'Filters' : 'Фильтры'}">
+                                <i class="ti ti-adjustments-horizontal"></i> <span>${isEn ? 'Filters' : 'Фильтры'}</span>
+                            </button>
                             <button type="button" class="shiki-view-btn ${currentViewMode === 'table' ? 'active' : ''}" data-view="table" onclick="setViewMode('table')" title="${isEn ? 'Lines' : 'Строки'}">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                             </button>
@@ -961,9 +968,17 @@ function filterRateItem(item) {
     return true;
 }
 
-function applyListFilters() {
+const SECTION_INITIAL_LIMIT = 50;
+const SECTION_CHUNK_SIZE = 50;
+let sectionRenderLimits = {};
+
+function applyListFilters(resetLimits = true) {
     const grid = document.getElementById('rates-grid-container');
     if (!grid) return;
+
+    if (resetLimits) {
+        sectionRenderLimits = {};
+    }
 
     const byType = ratesDataCache.filter(r => r.target_type === currentTargetType);
     const isAnime = currentTargetType === 'Anime';
@@ -1001,6 +1016,8 @@ function applyListFilters() {
         }
     }
 
+    window._lastSectionsData = sectionsToRender;
+
     if (sectionsToRender.length === 0) {
         grid.innerHTML = '<div style="padding: 40px 0; color: #777788; font-size: 13px;">' + (isEn ? 'No records found' : 'Записей не найдено') + '</div>';
         return;
@@ -1010,7 +1027,10 @@ function applyListFilters() {
         grid.innerHTML = sectionsToRender.map(sec => renderShikimoriTableSection(sec, isAnime, isEn)).join('');
     } else {
         grid.innerHTML = sectionsToRender.map(sec => renderDesktopCardsSection(sec, isAnime, isEn)).join('');
+        schedulePendingRatePosters();
     }
+
+    setupRatesSentinels();
 }
 
 // 1. SHIKIMORI TABLE SECTION (b-table list-lines)
@@ -1024,6 +1044,10 @@ function getSortIndicator(col) {
 function renderShikimoriTableSection(sec, isAnime, isEn) {
     const isCollapsed = !!collapsedSections[sec.key];
     const collapseText = isCollapsed ? (isEn ? `expand (${sec.items.length})` : `развернуть (${sec.items.length})`) : (isEn ? `collapse (${sec.items.length})` : `свернуть (${sec.items.length})`);
+
+    const limit = sectionRenderLimits[sec.key] || SECTION_INITIAL_LIMIT;
+    const visibleItems = sec.items.slice(0, limit);
+    const remaining = sec.items.length - visibleItems.length;
 
     return `
         <div class="shiki-section-block" data-status="${sec.key}">
@@ -1046,9 +1070,17 @@ function renderShikimoriTableSection(sec, isAnime, isEn) {
                         </tr>
                     </thead>
                     <tbody>
-                        ${sec.items.map((rate, idx) => renderShikimoriTableRow(rate, idx + 1, isAnime, isEn)).join('')}
+                        ${visibleItems.map((rate, idx) => renderShikimoriTableRow(rate, idx + 1, isAnime, isEn)).join('')}
                     </tbody>
                 </table>
+                ${remaining > 0 ? `
+                    <div class="shiki-show-more-wrap" id="more-wrap-${sec.key}">
+                        <button type="button" class="shiki-load-more-btn" onclick="loadMoreRatesSection('${sec.key}')">
+                            <i class="ti ti-chevron-down"></i> ${isEn ? `Show more (${remaining} remaining)` : `Показать ещё (осталось ${remaining})`}
+                        </button>
+                        <div class="shiki-section-sentinel" data-status="${sec.key}"></div>
+                    </div>
+                ` : ''}
             ` : ''}
         </div>
     `;
@@ -1090,6 +1122,10 @@ function renderDesktopCardsSection(sec, isAnime, isEn) {
     const isCollapsed = !!collapsedSections[sec.key];
     const collapseText = isCollapsed ? (isEn ? `expand (${sec.items.length})` : `развернуть (${sec.items.length})`) : (isEn ? `collapse (${sec.items.length})` : `свернуть (${sec.items.length})`);
 
+    const limit = sectionRenderLimits[sec.key] || SECTION_INITIAL_LIMIT;
+    const visibleItems = sec.items.slice(0, limit);
+    const remaining = sec.items.length - visibleItems.length;
+
     return `
         <div class="shiki-section-block" data-status="${sec.key}">
             <div class="shiki-section-head">
@@ -1101,8 +1137,16 @@ function renderDesktopCardsSection(sec, isAnime, isEn) {
 
             ${!isCollapsed ? `
                 <div class="shiki-grid-items">
-                    ${sec.items.map(r => renderRateCardItem(r, isAnime, isEn)).join('')}
+                    ${visibleItems.map(r => renderRateCardItem(r, isAnime, isEn)).join('')}
                 </div>
+                ${remaining > 0 ? `
+                    <div class="shiki-show-more-wrap" id="more-wrap-${sec.key}">
+                        <button type="button" class="shiki-load-more-btn" onclick="loadMoreRatesSection('${sec.key}')">
+                            <i class="ti ti-chevron-down"></i> ${isEn ? `Show more (${remaining} remaining)` : `Показать ещё (осталось ${remaining})`}
+                        </button>
+                        <div class="shiki-section-sentinel" data-status="${sec.key}"></div>
+                    </div>
+                ` : ''}
             ` : ''}
         </div>
     `;
@@ -1112,7 +1156,9 @@ function renderRateCardItem(rate, isAnime, isEn) {
     const targetObj = rate.target_data || rate.anime || rate.manga || {};
     const title = (isEn && targetObj.name) ? targetObj.name : (targetObj.russian || targetObj.name || `#${rate.target_id}`);
     const clickFn = isAnime ? `openAnimeModal(${rate.target_id})` : `openMangaModal(${rate.target_id})`;
-    const imgUrl = targetObj.image ? (typeof buildImgUrl === 'function' ? buildImgUrl(targetObj.image) : targetObj.image) : '';
+    const targetType = rate.target_type || (isAnime ? 'Anime' : 'Manga');
+    const rawImg = targetObj.image || '';
+    const imgUrl = rawImg ? (typeof buildImgUrl === 'function' ? buildImgUrl(rawImg, false) : rawImg) : '';
     const totalCount = isAnime ? (targetObj.episodes || 0) : (targetObj.chapters || 0);
     const curCount = isAnime ? (rate.episodes ?? 0) : (rate.chapters ?? 0);
     const unit = isEn ? (isAnime ? 'eps' : 'ch.') : (isAnime ? 'эп.' : 'гл.');
@@ -1120,8 +1166,8 @@ function renderRateCardItem(rate, isAnime, isEn) {
     return `
         <div class="shiki-grid-card" onclick="${clickFn}">
             <div class="shiki-grid-poster-wrap">
-                ${imgUrl ? `<img src="${imgUrl}" alt="${title}" class="shiki-grid-poster" loading="lazy" decoding="async">` : `<div class="shiki-grid-poster placeholder"><i class="ti ti-${isAnime ? 'movie' : 'book'}"></i></div>`}
-                ${rate.score ? `<span class="shiki-grid-score">${rate.score}</span>` : ''}
+                ${imgUrl ? `<img src="${imgUrl}" alt="${title}" class="shiki-grid-poster" loading="lazy" decoding="async" onerror="onRatePosterImgError(this, ${rate.target_id}, '${targetType}')">` : `<div class="shiki-grid-poster placeholder" data-poster-pending="true" data-target-id="${rate.target_id}" data-target-type="${targetType}"><i class="ti ti-${isAnime ? 'movie' : 'book'}"></i></div>`}
+                ${rate.score ? `<span class="shiki-grid-score"><i class="ti ti-star-filled"></i> ${rate.score}</span>` : ''}
             </div>
             <div class="shiki-grid-info">
                 <div class="shiki-grid-title" title="${title}">${title}</div>
@@ -1130,3 +1176,194 @@ function renderRateCardItem(rate, isAnime, isEn) {
         </div>
     `;
 }
+
+let _ratesPendingPosterDebounce = null;
+function schedulePendingRatePosters() {
+    clearTimeout(_ratesPendingPosterDebounce);
+    _ratesPendingPosterDebounce = setTimeout(() => {
+        resolvePendingRatePosters();
+    }, 150);
+}
+window.schedulePendingRatePosters = schedulePendingRatePosters;
+
+function resolvePendingRatePosters() {
+    const pendingNodes = document.querySelectorAll('.shiki-grid-poster.placeholder[data-poster-pending="true"]');
+    if (!pendingNodes.length) return;
+
+    const animeIds = new Set();
+    const mangaIds = new Set();
+
+    pendingNodes.forEach(node => {
+        const id = node.getAttribute('data-target-id');
+        const type = node.getAttribute('data-target-type') || 'Anime';
+        if (id) {
+            if (type === 'Manga') mangaIds.add(id);
+            else animeIds.add(id);
+        }
+    });
+
+    if (animeIds.size > 0) {
+        fetch(`/api/grid-data?type=animes&ids=${Array.from(animeIds).join(',')}`)
+            .then(r => r.json())
+            .then(data => {
+                if (Array.isArray(data)) {
+                    data.forEach(item => {
+                        if (item && item.image) {
+                            applyResolvedPoster(item.id, 'Anime', item.image);
+                        }
+                    });
+                }
+            })
+            .catch(() => {});
+    }
+
+    if (mangaIds.size > 0) {
+        fetch(`/api/grid-data?type=mangas&ids=${Array.from(mangaIds).join(',')}`)
+            .then(r => r.json())
+            .then(data => {
+                if (Array.isArray(data)) {
+                    data.forEach(item => {
+                        if (item && item.image) {
+                            applyResolvedPoster(item.id, 'Manga', item.image);
+                        }
+                    });
+                }
+            })
+            .catch(() => {});
+    }
+}
+window.resolvePendingRatePosters = resolvePendingRatePosters;
+
+function applyResolvedPoster(targetId, targetType, imgUrl) {
+    if (!imgUrl) return;
+    const cleanUrl = typeof buildImgUrl === 'function' ? buildImgUrl(imgUrl, false) : imgUrl;
+    if (!cleanUrl) return;
+
+    if (Array.isArray(ratesDataCache)) {
+        const entry = ratesDataCache.find(r => String(r.target_id) === String(targetId) && (r.target_type || 'Anime') === targetType);
+        if (entry) {
+            if (!entry.target_data) entry.target_data = {};
+            entry.target_data.image = cleanUrl;
+        }
+    }
+
+    const nodes = document.querySelectorAll(`.shiki-grid-poster.placeholder[data-target-id="${targetId}"][data-target-type="${targetType}"]`);
+    nodes.forEach(ph => {
+        const img = document.createElement('img');
+        img.src = cleanUrl;
+        img.className = 'shiki-grid-poster';
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.onerror = () => {
+            onRatePosterImgError(img, targetId, targetType);
+        };
+        ph.removeAttribute('data-poster-pending');
+        ph.replaceWith(img);
+    });
+}
+window.applyResolvedPoster = applyResolvedPoster;
+
+function onRatePosterImgError(img, targetId, targetType) {
+    if (!img) return;
+    img.onerror = null;
+    const typeKey = targetType === 'Manga' ? 'mangas' : 'animes';
+    fetch(`/api/grid-data?type=${typeKey}&ids=${targetId}`)
+        .then(r => r.json())
+        .then(data => {
+            if (Array.isArray(data) && data[0] && data[0].image && data[0].image !== img.src) {
+                img.src = data[0].image;
+            } else {
+                img.parentElement.innerHTML = `<div class="shiki-grid-poster placeholder"><i class="ti ti-${targetType === 'Manga' ? 'book' : 'movie'}"></i></div>`;
+            }
+        })
+        .catch(() => {
+            img.parentElement.innerHTML = `<div class="shiki-grid-poster placeholder"><i class="ti ti-${targetType === 'Manga' ? 'book' : 'movie'}"></i></div>`;
+        });
+}
+window.onRatePosterImgError = onRatePosterImgError;
+
+function loadMoreRatesSection(statusKey) {
+    const currentLimit = sectionRenderLimits[statusKey] || SECTION_INITIAL_LIMIT;
+    const newLimit = currentLimit + SECTION_CHUNK_SIZE;
+    sectionRenderLimits[statusKey] = newLimit;
+
+    const secData = window._lastSectionsData ? window._lastSectionsData.find(s => s.key === statusKey) : null;
+    if (!secData) {
+        applyListFilters(false);
+        return;
+    }
+
+    const items = secData.items;
+    const isAnime = currentTargetType === 'Anime';
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+
+    const newItems = items.slice(currentLimit, newLimit);
+    if (newItems.length === 0) {
+        const wrap = document.getElementById(`more-wrap-${statusKey}`);
+        if (wrap) wrap.remove();
+        return;
+    }
+
+    if (currentViewMode === 'table') {
+        const tbody = document.querySelector(`.shiki-section-block[data-status="${statusKey}"] tbody`);
+        if (tbody) {
+            const rowsHTML = newItems.map((rate, idx) => renderShikimoriTableRow(rate, currentLimit + idx + 1, isAnime, isEn)).join('');
+            tbody.insertAdjacentHTML('beforeend', rowsHTML);
+        }
+    } else {
+        const gridItems = document.querySelector(`.shiki-section-block[data-status="${statusKey}"] .shiki-grid-items`);
+        if (gridItems) {
+            const cardsHTML = newItems.map(r => renderRateCardItem(r, isAnime, isEn)).join('');
+            gridItems.insertAdjacentHTML('beforeend', cardsHTML);
+            schedulePendingRatePosters();
+        }
+    }
+
+    const remaining = items.length - Math.min(newLimit, items.length);
+    const wrap = document.getElementById(`more-wrap-${statusKey}`);
+    if (wrap) {
+        if (remaining > 0) {
+            const btn = wrap.querySelector('.shiki-load-more-btn');
+            if (btn) {
+                btn.innerHTML = `<i class="ti ti-chevron-down"></i> ${isEn ? `Show more (${remaining} remaining)` : `Показать ещё (осталось ${remaining})`}`;
+            }
+        } else {
+            wrap.remove();
+        }
+    }
+}
+window.loadMoreRatesSection = loadMoreRatesSection;
+
+function setupRatesSentinels() {
+    if (!('IntersectionObserver' in window)) return;
+
+    if (window._ratesIntersectionObserver) {
+        window._ratesIntersectionObserver.disconnect();
+    }
+
+    window._ratesIntersectionObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const statusKey = entry.target.dataset.status;
+                if (statusKey) {
+                    loadMoreRatesSection(statusKey);
+                }
+            }
+        });
+    }, {
+        rootMargin: '400px 0px',
+        threshold: 0.01
+    });
+
+    document.querySelectorAll('.shiki-section-sentinel').forEach(el => {
+        window._ratesIntersectionObserver.observe(el);
+    });
+}
+
+function toggleRatesMobileFilters() {
+    const sideCol = document.querySelector('.shiki-side-col');
+    if (sideCol) {
+        sideCol.classList.toggle('drawer-open');
+    }
+}
+window.toggleRatesMobileFilters = toggleRatesMobileFilters;

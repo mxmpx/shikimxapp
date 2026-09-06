@@ -6,6 +6,8 @@
 
 const LANGUAGE_KEY = 'app_language';
 const TRANSLATIONS_TXT_CACHE_KEY = 'shikimx_translations_txt_data';
+const TRANSLATIONS_PARSED_CACHE_KEY = 'shikimx_translations_parsed_v2';
+const TRANSLATIONS_ETAG_KEY = 'shikimx_translations_etag_v2';
 let currentLanguage = 'ru';
 window.TRANSLATIONS = { ru: {}, en: {} };
 
@@ -43,26 +45,47 @@ function parseTranslationsText(text) {
     return result;
 }
 
-// Immediate synchronous initialization from localStorage cache (ensures instant rendering with 0 delay)
+// Immediate synchronous initialization from localStorage parsed cache (0 parsing delay on page load)
 try {
-    const cachedTxt = localStorage.getItem(TRANSLATIONS_TXT_CACHE_KEY);
-    if (cachedTxt) {
-        window.TRANSLATIONS = parseTranslationsText(cachedTxt);
+    const cachedParsed = localStorage.getItem(TRANSLATIONS_PARSED_CACHE_KEY);
+    if (cachedParsed) {
+        window.TRANSLATIONS = JSON.parse(cachedParsed);
+    } else {
+        const cachedTxt = localStorage.getItem(TRANSLATIONS_TXT_CACHE_KEY);
+        if (cachedTxt) {
+            window.TRANSLATIONS = parseTranslationsText(cachedTxt);
+            try {
+                localStorage.setItem(TRANSLATIONS_PARSED_CACHE_KEY, JSON.stringify(window.TRANSLATIONS));
+            } catch (e) {}
+        }
     }
 } catch (e) {}
 
 /**
- * Asynchronously fetch translations.txt and update memory & local storage
+ * Asynchronously fetch translations.txt with ETag and update memory & local storage
  */
 async function loadTranslationsFromTxt() {
     try {
         const v = (typeof window.APP_VERSION !== 'undefined' && window.APP_VERSION) ? window.APP_VERSION : ((typeof window.ASSET_VERSION !== 'undefined' && window.ASSET_VERSION) ? window.ASSET_VERSION : '');
-        const res = await fetch('/translations.txt' + (v ? ('?v=' + v) : ''));
+        const storedEtag = localStorage.getItem(TRANSLATIONS_ETAG_KEY);
+        const headers = {};
+        if (storedEtag) {
+            headers['If-None-Match'] = storedEtag;
+        }
+
+        const res = await fetch('/translations.txt' + (v ? ('?v=' + v) : ''), { headers });
+        if (res.status === 304) {
+            // Unchanged: use cached parsed dictionary
+            return;
+        }
         if (res.ok) {
+            const etag = res.headers.get('ETag');
             const text = await res.text();
             window.TRANSLATIONS = parseTranslationsText(text);
             try {
+                localStorage.setItem(TRANSLATIONS_PARSED_CACHE_KEY, JSON.stringify(window.TRANSLATIONS));
                 localStorage.setItem(TRANSLATIONS_TXT_CACHE_KEY, text);
+                if (etag) localStorage.setItem(TRANSLATIONS_ETAG_KEY, etag);
             } catch (e) {}
             applyTranslations();
             updateLanguageButton();
@@ -88,7 +111,7 @@ function saveLanguage(lang) {
     } catch (err) {
         console.error('Ошибка сохранения языка:', err);
     }
-    // Save to SQLite DB for user session
+    // Save to SQLite DB for user session via settings API
     fetch('/api/settings/language', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -96,23 +119,28 @@ function saveLanguage(lang) {
     }).catch(() => {});
 }
 
+function applySyncedLanguage(dbLang) {
+    if (dbLang && (dbLang === 'ru' || dbLang === 'en')) {
+        const localLang = localStorage.getItem(LANGUAGE_KEY);
+        if (localLang !== dbLang) {
+            localStorage.setItem(LANGUAGE_KEY, dbLang);
+            currentLanguage = dbLang;
+            applyTranslations();
+            updateLanguageButton();
+            if (typeof updateDesktopMenuBadges === 'function') updateDesktopMenuBadges();
+            if (typeof updateMobileProfileBadges === 'function') updateMobileProfileBadges();
+        }
+    }
+}
+window.applySyncedLanguage = applySyncedLanguage;
+
 async function syncLanguageFromDB() {
     try {
         const res = await fetch('/api/settings/language');
         if (res.ok) {
             const data = await res.json();
             const dbLang = data.language || data.value;
-            if (dbLang && (dbLang === 'ru' || dbLang === 'en')) {
-                const localLang = localStorage.getItem(LANGUAGE_KEY);
-                if (localLang !== dbLang) {
-                    localStorage.setItem(LANGUAGE_KEY, dbLang);
-                    currentLanguage = dbLang;
-                    applyTranslations();
-                    updateLanguageButton();
-                    if (typeof updateDesktopMenuBadges === 'function') updateDesktopMenuBadges();
-                    if (typeof updateMobileProfileBadges === 'function') updateMobileProfileBadges();
-                }
-            }
+            applySyncedLanguage(dbLang);
         }
     } catch (e) {}
 }
@@ -195,5 +223,4 @@ document.addEventListener('DOMContentLoaded', () => {
     currentLanguage = getSavedLanguage();
     applyTranslations();
     updateLanguageButton();
-    syncLanguageFromDB();
 });

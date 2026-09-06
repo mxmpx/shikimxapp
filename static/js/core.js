@@ -348,18 +348,27 @@ async function openTab(tabId) {
 window.openTab = openTab;
 
 
-async function syncAppVersion() {
+let _aboutDataCache = null;
+
+function initAppVersionDisplay() {
+    const ver = window.APP_VERSION || '';
+    if (ver) {
+        const dropdownVer = document.getElementById('dropdown-version');
+        if (dropdownVer) dropdownVer.innerHTML = `<i class="ti ti-code"></i> Shiki MX v${ver}`;
+
+        const badgeVer = document.getElementById('about-badge-version');
+        if (badgeVer) badgeVer.innerText = `v${ver}`;
+    }
+}
+window.initAppVersionDisplay = initAppVersionDisplay;
+
+async function fetchAboutData() {
+    if (_aboutDataCache) return _aboutDataCache;
     try {
         const res = await fetch('/api/about');
+        if (!res.ok) return null;
         const data = await res.json();
-
-        if (data.version) {
-            const dropdownVer = document.getElementById('dropdown-version');
-            if (dropdownVer) dropdownVer.innerHTML = `<i class="ti ti-code"></i> Shiki MX v${data.version}`;
-
-            const badgeVer = document.getElementById('about-badge-version');
-            if (badgeVer) badgeVer.innerText = `v${data.version}`;
-        }
+        _aboutDataCache = data;
         return data;
     } catch (err) {
         console.error('Ошибка получения версии приложения:', err);
@@ -373,8 +382,16 @@ async function openAboutModal() {
     modal.classList.remove('hidden');
 
     try {
-        const data = await syncAppVersion();
+        const data = await fetchAboutData();
         if (!data) return;
+
+        if (data.version) {
+            const dropdownVer = document.getElementById('dropdown-version');
+            if (dropdownVer) dropdownVer.innerHTML = `<i class="ti ti-code"></i> Shiki MX v${data.version}`;
+
+            const badgeVer = document.getElementById('about-badge-version');
+            if (badgeVer) badgeVer.innerText = `v${data.version}`;
+        }
 
         const descEl = document.getElementById('about-modal-desc');
         if (descEl && data.description) descEl.innerText = data.description;
@@ -492,7 +509,7 @@ window.installPwaApp = installPwaApp;
 
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
-    syncAppVersion();
+    initAppVersionDisplay();
 
     const savedTab = localStorage.getItem('activeTab') || 'profile';
     openTab(savedTab);

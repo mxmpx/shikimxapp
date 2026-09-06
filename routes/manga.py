@@ -1,3 +1,5 @@
+import time
+import threading
 import logging
 from concurrent.futures import ThreadPoolExecutor
 from flask import Blueprint, jsonify, session
@@ -8,6 +10,10 @@ from utils import (
 from errors import AppError, api_route
 
 logger = logging.getLogger("shikimxapp.manga")
+
+_manga_base_cache = {}
+_manga_cache_lock = threading.Lock()
+
 manga_bp = Blueprint('manga', __name__)
 
 STATUS_MAP = {
@@ -145,6 +151,14 @@ def _build_manga_from_graphql(m, manga_id):
 @manga_bp.route("/api/manga/<int:manga_id>")
 @api_route
 def get_manga_details(manga_id):
+    now = time.time()
+    with _manga_cache_lock:
+        cached = _manga_base_cache.get(manga_id)
+        if cached and now < cached["expires_at"]:
+            result = dict(cached["data"])
+            result["user_rate"] = fetch_user_rate(manga_id, "Manga")
+            return jsonify(result)
+
     # 1. Single unified GraphQL query
     query = """
     query MangaDetails($id: String!) {
@@ -188,7 +202,11 @@ def get_manga_details(manga_id):
         gql_data = fetch_graphql(query, {"id": str(manga_id)}, ttl=3600)
         if gql_data and isinstance(gql_data.get("mangas"), list) and len(gql_data["mangas"]) > 0:
             logger.debug("Manga details loaded via GraphQL for manga_id=%s", manga_id)
-            return jsonify(_build_manga_from_graphql(gql_data["mangas"][0], manga_id))
+            manga_obj = _build_manga_from_graphql(gql_data["mangas"][0], manga_id)
+            with _manga_cache_lock:
+                _manga_base_cache[manga_id] = {"data": dict(manga_obj), "expires_at": now + 3600}
+            manga_obj["user_rate"] = fetch_user_rate(manga_id, "Manga")
+            return jsonify(manga_obj)
     except Exception as exc:
         logger.warning("GraphQL manga details failed for %s, falling back to REST: %s", manga_id, exc)
 
@@ -261,10 +279,7 @@ def get_manga_details(manga_id):
                 "image": fix_image_url(item.get("image"))
             })
 
-    user_rate = fetch_user_rate(manga_id, "Manga")
-
-    logger.debug("Manga details loaded: manga_id=%s, chars=%d, rel=%d", manga_id, len(characters), len(related))
-    return jsonify({
+    manga_obj = {
         "id": data.get("id"),
         "name": data.get("name"),
         "russian": data.get("russian") or data.get("name"),
@@ -286,6 +301,9 @@ def get_manga_details(manga_id):
         "characters_total": len(characters),
         "related": related[:20],
         "related_total": len(related),
-        "shikimori_url": f"{SHIKIMORI_BASE}{data.get('url')}" if data.get('url') else "",
-        "user_rate": user_rate
-    })
+        "shikimori_url": f"{SHIKIMORI_BASE}{data.get('url')}" if data.get('url') else ""
+    }
+    with _manga_cache_lock:
+        _manga_base_cache[manga_id] = {"data": dict(manga_obj), "expires_at": now + 3600}
+    manga_obj["user_rate"] = fetch_user_rate(manga_id, "Manga")
+    return jsonify(manga_obj)

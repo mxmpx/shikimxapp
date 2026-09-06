@@ -104,7 +104,7 @@ body {
     color: var(--text-main);
     margin: 0;
     padding-bottom: 24px;
-    min-width: 1200px;
+    min-width: 320px;
     transition: background-color 0.25s, color 0.25s;
 }
 

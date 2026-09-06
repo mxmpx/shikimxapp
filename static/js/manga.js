@@ -1,4 +1,4 @@
-// ==================== MANGA MODAL & DETAILS ====================
+const _mangaDetailsCache = new Map();
 
 async function openMangaModal(mangaId) {
     const modal = document.getElementById('anime-modal');
@@ -11,12 +11,29 @@ async function openMangaModal(mangaId) {
 
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
+
+    const mid = String(mangaId);
+    if (_mangaDetailsCache.has(mid)) {
+        renderMangaDetail(_mangaDetailsCache.get(mid));
+        fetch(`/api/manga/${mangaId}`)
+            .then(res => res.ok ? res.json() : null)
+            .then(fresh => {
+                if (fresh) {
+                    _mangaDetailsCache.set(mid, fresh);
+                    renderMangaDetail(fresh);
+                }
+            })
+            .catch(() => {});
+        return;
+    }
+
     body.innerHTML = '<div class="anime-modal-loader"><i class="ti ti-loader animate-spin"></i> ' + i18n('manga.loading') + '</div>';
 
     try {
         const res = await fetch(`/api/manga/${mangaId}`);
         if (!res.ok) throw new Error(i18n('manga.load_error'));
         const manga = await res.json();
+        _mangaDetailsCache.set(mid, manga);
         renderMangaDetail(manga);
     } catch (err) {
         body.innerHTML = `<div class="anime-error"><i class="ti ti-alert-circle"></i> ${i18n('manga.load_error')}: ${err.message}</div>`;

@@ -1,3 +1,5 @@
+import time
+import threading
 import logging
 import requests
 from flask import Blueprint, jsonify, session, request
@@ -9,6 +11,9 @@ from utils import (
 from errors import AppError, api_route
 
 logger = logging.getLogger("shikimxapp.anime")
+
+_anime_base_cache = {}
+_anime_cache_lock = threading.Lock()
 
 try:
     from services.video_aggregator import video_aggregator
@@ -211,6 +216,14 @@ def _build_anime_result(data, anime_id, characters_data=None):
 @anime_bp.route("/api/anime/<int:anime_id>")
 @api_route
 def get_anime_details(anime_id):
+    now = time.time()
+    with _anime_cache_lock:
+        cached = _anime_base_cache.get(anime_id)
+        if cached and now < cached["expires_at"]:
+            result = dict(cached["data"])
+            result["user_rate"] = fetch_user_rate(anime_id, "Anime")
+            return jsonify(result)
+
     # 1. Попытка загрузки через единый GraphQL-запрос со всеми связями
     query = """
     query AnimeDetails($id: String!) {
@@ -269,7 +282,11 @@ def get_anime_details(anime_id):
         gql_data = fetch_graphql(query, {"id": str(anime_id)}, ttl=3600)
         if gql_data and isinstance(gql_data.get("animes"), list) and len(gql_data["animes"]) > 0:
             logger.debug("Anime details loaded via GraphQL for anime_id=%s", anime_id)
-            return jsonify(_build_anime_from_graphql(gql_data["animes"][0], anime_id))
+            anime_obj = _build_anime_from_graphql(gql_data["animes"][0], anime_id)
+            with _anime_cache_lock:
+                _anime_base_cache[anime_id] = {"data": dict(anime_obj), "expires_at": now + 3600}
+            anime_obj["user_rate"] = fetch_user_rate(anime_id, "Anime")
+            return jsonify(anime_obj)
     except Exception as exc:
         logger.warning("GraphQL anime details failed for %s, fallback to REST: %s", anime_id, exc)
 
@@ -291,7 +308,11 @@ def get_anime_details(anime_id):
     roles_data = fetch_cached_api(roles_url, headers, ttl=3600)
 
     logger.debug("Anime details loaded via REST fallback: anime_id=%s", anime_id)
-    return jsonify(_build_anime_result(data, anime_id, characters_data=roles_data))
+    anime_obj = _build_anime_result(data, anime_id, characters_data=roles_data)
+    with _anime_cache_lock:
+        _anime_base_cache[anime_id] = {"data": dict(anime_obj), "expires_at": now + 3600}
+    anime_obj["user_rate"] = fetch_user_rate(anime_id, "Anime")
+    return jsonify(anime_obj)
 
 
 

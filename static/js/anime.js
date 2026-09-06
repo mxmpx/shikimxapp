@@ -58,9 +58,13 @@ function pushModalState() {
     const modalContent = body.closest('.modal-content') || body;
     const currentScroll = modalContent.scrollTop || body.scrollTop || window.scrollY || 0;
     const currentTitle = document.getElementById('mobile-anime-top-title')?.textContent || '';
+    const currentId = window.currentModalAnimeId || window.currentPlayingAnimeId;
+
+    if (!currentId) return;
 
     window.modalStack.push({
-        html: body.innerHTML,
+        id: currentId,
+        type: 'anime',
         scrollTop: currentScroll,
         title: currentTitle,
         openedFromSections: window._openedFromSections
@@ -77,7 +81,24 @@ function popModalState() {
     const body = document.getElementById('anime-modal-body');
     if (body && window.modalStack && window.modalStack.length > 0) {
         const state = window.modalStack.pop();
-        if (typeof state === 'string') {
+        if (state && state.id) {
+            const aid = String(state.id);
+            window.currentModalAnimeId = state.id;
+            window.currentPlayingAnimeId = state.id;
+            if (state.openedFromSections) {
+                window._openedFromSections = state.openedFromSections;
+            }
+            if (_animeDetailsCache.has(aid)) {
+                renderAnimeDetail(_animeDetailsCache.get(aid));
+            } else {
+                openAnimeModal(state.id);
+            }
+            const modalContent = body.closest('.modal-content') || body;
+            setTimeout(() => {
+                modalContent.scrollTop = state.scrollTop || 0;
+                body.scrollTop = state.scrollTop || 0;
+            }, 10);
+        } else if (typeof state === 'string') {
             body.innerHTML = state;
         } else if (state && state.html) {
             body.innerHTML = state.html;
@@ -137,6 +158,8 @@ function handleModalBack() {
 
 window.handleModalBack = handleModalBack;
 
+const _animeDetailsCache = new Map();
+
 async function openAnimeModal(animeId) {
     const modal = document.getElementById('anime-modal');
     const body = document.getElementById('anime-modal-body');
@@ -146,14 +169,32 @@ async function openAnimeModal(animeId) {
         pushModalState();
     }
 
+    window.currentModalAnimeId = animeId;
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
+
+    const aid = String(animeId);
+    if (_animeDetailsCache.has(aid)) {
+        renderAnimeDetail(_animeDetailsCache.get(aid));
+        fetch(`/api/anime/${animeId}`)
+            .then(res => res.ok ? res.json() : null)
+            .then(fresh => {
+                if (fresh && window.currentPlayingAnimeId == animeId) {
+                    _animeDetailsCache.set(aid, fresh);
+                    renderAnimeDetail(fresh);
+                }
+            })
+            .catch(() => {});
+        return;
+    }
+
     body.innerHTML = '<div class="anime-modal-loader"><i class="ti ti-loader animate-spin"></i> ' + i18n('anime.loading') + '</div>';
 
     try {
         const res = await fetch(`/api/anime/${animeId}`);
         if (!res.ok) throw new Error(i18n('anime.load_error'));
         const anime = await res.json();
+        _animeDetailsCache.set(aid, anime);
         renderAnimeDetail(anime);
     } catch (err) {
         body.innerHTML = `<div class="anime-error"><i class="ti ti-alert-circle"></i> ${i18n('anime.load_error')}: ${err.message}</div>`;
@@ -177,6 +218,9 @@ function closeAnimeModal(e) {
     }
 
     modal.classList.add('hidden');
+    window.modalStack = [];
+    window.currentModalAnimeId = null;
+    updateBackButtonVisibility();
     document.body.style.overflow = '';
     const player = document.getElementById('watch-player-container');
     if (player) {

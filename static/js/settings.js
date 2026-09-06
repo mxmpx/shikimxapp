@@ -105,6 +105,9 @@ async function syncAndApplySettings() {
     if (isAuthenticated) {
         const serverSettings = await loadSettingsFromServer();
         if (serverSettings) {
+            if (serverSettings.language && typeof window.applySyncedLanguage === 'function') {
+                window.applySyncedLanguage(serverSettings.language);
+            }
             if (serverSettings.background) {
                 bgSettings = serverSettings.background;
                 try { localStorage.setItem(BG_SETTINGS_KEY, JSON.stringify(bgSettings)); } catch (e) {}
