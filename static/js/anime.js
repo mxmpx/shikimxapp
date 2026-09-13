@@ -879,6 +879,7 @@ window.restoreFloatingMiniPlayer = restoreFloatingMiniPlayer;
 
 
 function initAnicliPlayerUI(container, initialEpisode = 1) {
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     const episodes = window.anicliEpisodesData;
     if (!episodes || !Object.keys(episodes).length) {
         container.innerHTML = '<div class="anime-error"><i class="ti ti-alert-circle"></i> ' + i18n('anime.no_players') + '</div>';
@@ -1052,10 +1053,11 @@ function renderMobileTranslations() {
     const container = document.getElementById('mobile-trans-container');
     if (!container) return;
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     const epNum = window.currentAnicliEp || 1;
     const epData = window.anicliEpisodesData ? window.anicliEpisodesData[epNum.toString()] : null;
     if (!epData) {
-        container.innerHTML = '<div style="padding: 32px 16px; text-align: center; color: #888;">Озвучки не найдены</div>';
+        container.innerHTML = `<div style="padding: 32px 16px; text-align: center; color: #888;">${isEn ? 'No voiceovers found' : 'Озвучки не найдены'}</div>`;
         return;
     }
 
@@ -1084,13 +1086,13 @@ function renderMobileTranslations() {
     container.innerHTML = `
         <div class="mobile-trans-pills">
             <button type="button" class="trans-pill ${f === 'all' ? 'active' : ''}" onclick="setMobileTransFilter('all')">
-                ${f === 'all' ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>` : ''} Все
+                ${f === 'all' ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>` : ''} ${isEn ? 'All' : 'Все'}
             </button>
             <button type="button" class="trans-pill ${f === 'dub' ? 'active' : ''}" onclick="setMobileTransFilter('dub')">
-                ${f === 'dub' ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>` : ''} Озвучка
+                ${f === 'dub' ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>` : ''} ${isEn ? 'Dubbing' : 'Озвучка'}
             </button>
             <button type="button" class="trans-pill ${f === 'sub' ? 'active' : ''}" onclick="setMobileTransFilter('sub')">
-                ${f === 'sub' ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>` : ''} Субтитры
+                ${f === 'sub' ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>` : ''} ${isEn ? 'Subtitles' : 'Субтитры'}
             </button>
         </div>
 
@@ -1133,6 +1135,7 @@ window.renderMobileTranslations = renderMobileTranslations;
 
 function goToAnicliStep(step) {
     window.currentAnicliStep = step;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     const s1 = document.getElementById('anicli-step-1');
     const s2 = document.getElementById('anicli-step-2');
     const s3 = document.getElementById('anicli-step-3');
@@ -1190,27 +1193,28 @@ function goToAnicliStep(step) {
             }
             if (iframe) iframe.src = "";
             renderMobilePlayers(window.currentAnicliEp, window.currentAnicliTrans);
-            if (subTitle) subTitle.innerText = `${window.currentAnicliTrans || ''} • Серия ${window.currentAnicliEp}`;
+            if (subTitle) subTitle.innerText = `${window.currentAnicliTrans || ''} • ${isEn ? 'Episode ' + window.currentAnicliEp : 'Серия ' + window.currentAnicliEp}`;
         } else if (step === 4) {
             // Шаг 4: Видеоплеер (отдельный экран)
             if (s4) {
                 s4.classList.remove('hidden');
                 s4.style.removeProperty('display');
             }
-            if (subTitle) subTitle.innerText = `${window.currentAnicliTrans || ''} • Серия ${window.currentAnicliEp}`;
+            if (subTitle) subTitle.innerText = `${window.currentAnicliTrans || ''} • ${isEn ? 'Episode ' + window.currentAnicliEp : 'Серия ' + window.currentAnicliEp}`;
         }
     }
 }
 
 function onAnicliEpisodeChange(epNum) {
     window.currentAnicliEp = epNum;
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     
     // Update active class on chips and mobile rows
     document.querySelectorAll('#anicli-ep-chips .anicli-chip').forEach(c => {
         c.classList.toggle('active', parseInt(c.dataset.ep || c.innerText) === epNum);
     });
     const wizardEpLbl = document.getElementById('wizard-ep-lbl');
-    if (wizardEpLbl) wizardEpLbl.innerText = `(Серия ${epNum})`;
+    if (wizardEpLbl) wizardEpLbl.innerText = `(${isEn ? 'Episode ' + epNum : 'Серия ' + epNum})`;
     populateAnicliTranslations(epNum);
     goToAnicliStep(2);
 }
@@ -1263,9 +1267,10 @@ function renderMobilePlayers(epNum, transName) {
     const container = document.getElementById('mobile-players-container');
     if (!container) return;
 
+    const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
     const epData = window.anicliEpisodesData ? window.anicliEpisodesData[epNum.toString()] : null;
     if (!epData || !epData[transName]) {
-        container.innerHTML = '<div style="padding: 32px 16px; text-align: center; color: #888;">Источники не найдены</div>';
+        container.innerHTML = `<div style="padding: 32px 16px; text-align: center; color: #888;">${isEn ? 'No sources found' : 'Источники не найдены'}</div>`;
         return;
     }
 
@@ -1273,8 +1278,8 @@ function renderMobilePlayers(epNum, transName) {
 
     container.innerHTML = `
         <div class="mobile-sources-header-bar">
-            <div class="mobile-sources-title">Доступные источники</div>
-            <div class="mobile-sources-subtitle">${transName} &bull; Серия ${epNum}</div>
+            <div class="mobile-sources-title">${isEn ? 'Available sources' : 'Доступные источники'}</div>
+            <div class="mobile-sources-subtitle">${transName} &bull; ${isEn ? 'Episode ' + epNum : 'Серия ' + epNum}</div>
         </div>
         <div class="mobile-players-list">
             ${players.map((p, idx) => {
@@ -1329,7 +1334,8 @@ function onAnicliPlayerChange(url, element, playerName) {
     // 2. Update info text
     const info = document.getElementById('video-active-info');
     if (info) {
-        info.innerHTML = `Серия ${window.currentAnicliEp} &bull; ${window.currentAnicliTrans} &bull; ${playerName}`;
+        const isEn = typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+        info.innerHTML = `${isEn ? 'Episode ' + window.currentAnicliEp : 'Серия ' + window.currentAnicliEp} &bull; ${window.currentAnicliTrans} &bull; ${playerName}`;
     }
 
     // 3. Render iframe

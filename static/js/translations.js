@@ -105,6 +105,18 @@ function getSavedLanguage() {
     }
 }
 
+// Global accessor so that expressions like `${isEn ? 'A' : 'B'}` work everywhere seamlessly
+try {
+    Object.defineProperty(window, 'isEn', {
+        get() {
+            return typeof getSavedLanguage === 'function' ? (getSavedLanguage() === 'en') : false;
+        },
+        configurable: true
+    });
+} catch (e) {
+    window.isEn = false;
+}
+
 function saveLanguage(lang) {
     try {
         localStorage.setItem(LANGUAGE_KEY, lang);
