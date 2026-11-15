@@ -39,8 +39,7 @@ def _cleanup_stream_cache(force=False):
 AVAILABLE_ANICLI_MODULES = [
     'animego',
     'yummy_anime',
-    'anilibria',
-    'anilibme'
+    'anilibria'
 ]
 
 _ROMAN_MAP = {'i': 1, 'v': 5, 'x': 10, 'l': 50}
@@ -381,18 +380,22 @@ class VideoAggregator:
 
         def fetch_ep_sources(item):
             ep_idx, ep = item
-            try:
-                return ep_idx, ep.get_sources()
-            except Exception:
-                return ep_idx, []
+            num_val = getattr(ep, 'num', None)
+            ep_num = str(num_val).strip() if num_val else str(ep_idx)
+            for attempt in range(2):
+                try:
+                    return ep_num, ep.get_sources()
+                except Exception:
+                    if attempt == 0:
+                        time.sleep(0.2)
+            return ep_num, []
 
         # Параллельный сбор источников для всех серий тайтла
         with ThreadPoolExecutor(max_workers=8) as ep_executor:
             raw_ep_results = list(ep_executor.map(fetch_ep_sources, enumerate(episodes, start=1)))
 
         episodes_map = {}
-        for ep_idx, sources in raw_ep_results:
-            ep_key = str(ep_idx)
+        for ep_key, sources in raw_ep_results:
             for src in sources:
                 url = getattr(src, 'url', None) or getattr(src, 'player', None)
                 url_str = str(url).strip() if url else ""
@@ -418,6 +421,9 @@ class VideoAggregator:
                     player_name = "Aksor TV"
                 elif "cdn-iframe" in u_lower:
                     player_name = "AnimeGo CDN"
+                    # AnimeGo использует в ссылке AnilibriaTV, но в плеере cdnvideohub озвучка называется AniLibria
+                    url_str = re.sub(r'(/cdn-iframe/\d+/)AnilibriaTV(/|\?|$)', r'\1AniLibria\2', url_str, flags=re.IGNORECASE)
+                    url_str = re.sub(r'([?&]dubbing=)AnilibriaTV', r'\1AniLibria', url_str, flags=re.IGNORECASE)
                 elif "anilib" in u_lower or mod_name == "anilibria":
                     player_name = "AniLibria"
                 elif "yummyani" in u_lower:
@@ -612,7 +618,7 @@ class VideoAggregator:
         sources_found = set()
         max_episodes = 0
 
-        # Пул параллельных задач
+        # Пул параллельных задач с адаптивным fast-path отсечением
         tasks = []
         with ThreadPoolExecutor(max_workers=5) as executor:
             if self.kodik_token or os.getenv("KODIK_API_KEY"):
@@ -621,8 +627,11 @@ class VideoAggregator:
             for mod_name in self.extractors.keys():
                 tasks.append(executor.submit(self.fetch_single_anicli_source, mod_name, titles, expected_episodes, anime_id))
 
+            start_time = time.monotonic()
+            first_success_time = None
+
             try:
-                for future in as_completed(tasks, timeout=7):
+                for future in as_completed(tasks, timeout=10):
                     try:
                         res = future.result(timeout=0.5)
                         if not res or not res.get("episodes"):
@@ -644,6 +653,35 @@ class VideoAggregator:
                                 for p in player_list:
                                     if not any(existing["url"] == p["url"] for existing in merged_episodes[ep_num][clean_trans]):
                                         merged_episodes[ep_num][clean_trans].append(p)
+
+                        if first_success_time is None and merged_episodes:
+                            first_success_time = time.monotonic()
+
+                        # Адаптивный Fast-Path отсекатель:
+                        # 1. Если Kodik вернул все ожидаемые серии (или для фильма/спешла >= 1 серии)
+                        exp_eps = int(expected_episodes) if (expected_episodes and str(expected_episodes).isdigit() and int(expected_episodes) > 0) else None
+                        has_all_expected = exp_eps is not None and len(merged_episodes) >= exp_eps
+                        is_movie_or_special = exp_eps == 1 and len(merged_episodes) >= 1
+
+                        kodik_complete = "Kodik API" in sources_found and (has_all_expected or is_movie_or_special)
+
+                        # 2. Если уже ответили >= 2 провайдера и есть все ожидаемые серии
+                        multi_source_complete = len(sources_found) >= 2 and (has_all_expected or is_movie_or_special)
+
+                        # 3. Grace-period: если после первого успешного ответа прошло более 2.0 секунд, не ждём зависшие парсеры
+                        grace_period_expired = (
+                            first_success_time is not None
+                            and (time.monotonic() - first_success_time >= 2.0)
+                            and len(merged_episodes) > 0
+                        )
+
+                        if kodik_complete or multi_source_complete or grace_period_expired:
+                            elapsed = time.monotonic() - start_time
+                            logger.info(
+                                "Video aggregator fast-path cutoff: sources=%s, episodes=%d, elapsed=%.2fs",
+                                list(sources_found), len(merged_episodes), elapsed
+                            )
+                            break
 
                     except Exception as e:
                         logger.warning("Video aggregation task failed: %s", e)
@@ -684,15 +722,20 @@ class VideoAggregator:
         }
 
         if sorted_episodes:
+            # Для неполных результатов используем короткий TTL кэша (5 минут), чтобы не блокировать дозагрузку
+            is_partial = expected_episodes and int(expected_episodes) > 2 and len(sorted_episodes) <= 1
+            cache_ttl = 300 if is_partial else 14400
+            db_ttl = 300 if is_partial else 86400
+
             with _stream_cache_lock:
-                STREAM_CACHE[cache_key] = (payload, now + 14400)
-            # Сохранение в постоянный SQLite кэш на 24 часа
+                STREAM_CACHE[cache_key] = (payload, now + cache_ttl)
+            # Сохранение в постоянный SQLite кэш
             try:
                 from database import get_connection
                 conn = get_connection()
                 conn.execute(
                     "INSERT OR REPLACE INTO api_cache (url, data, expires_at) VALUES (?, ?, ?)",
-                    (cache_key, json.dumps(payload), now + 86400)
+                    (cache_key, json.dumps(payload), int(now + db_ttl))
                 )
                 conn.commit()
                 conn.close()

@@ -1,0 +1,19 @@
+services:
+  shikimxapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shikimxapp
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:5000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

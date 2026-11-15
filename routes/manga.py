@@ -50,7 +50,8 @@ def format_manga_aired(date_str):
             if 0 <= m_idx < 12:
                 return f"{months[m_idx]} {year} г."
         return f"{year} г."
-    except Exception:
+    except Exception as exc:
+        logger.debug("_format_date: не удалось разобрать дату '%s': %s", date_str, exc)
         return date_str
 
 

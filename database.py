@@ -3,80 +3,206 @@ import os
 import json
 import time
 import logging
+from typing import Optional, Dict, Any, Union
 from datetime import datetime, timezone
+
+try:
+    from flask import has_request_context, g
+except ImportError:
+    has_request_context = lambda: False
+    g = None
 
 logger = logging.getLogger("shikimxapp.database")
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app.db")
 
 
-def get_connection():
-    """Get a database connection with row factory and high performance PRAGMAs."""
-    conn = sqlite3.connect(DB_PATH)
+class _ConnectionProxy:
+    """
+    Proxy around sqlite3.Connection to allow safe connection reuse across a single Flask request.
+    Calling conn.close() is a no-op within a request context, leaving actual closing to teardown_appcontext.
+    """
+    __slots__ = ("_conn",)
+
+    def __init__(self, conn: sqlite3.Connection):
+        self._conn = conn
+
+    def close(self):
+        # No-op in request context; connection is closed by teardown handler
+        pass
+
+    def __getattr__(self, name: str):
+        return getattr(self._conn, name)
+
+    def __enter__(self):
+        return self._conn.__enter__()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return self._conn.__exit__(exc_type, exc_val, exc_tb)
+
+
+def _create_raw_connection() -> sqlite3.Connection:
+    """Create a new raw database connection with row factory and high performance PRAGMAs."""
+    conn = sqlite3.connect(DB_PATH, timeout=20.0)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA synchronous = NORMAL;")
-    conn.execute("PRAGMA cache_size = -64000;")  # 64 MB RAM кэш страниц
+    conn.execute("PRAGMA cache_size = -64000;")  # 64 MB RAM cache
     conn.execute("PRAGMA temp_store = MEMORY;")
     conn.execute("PRAGMA foreign_keys = ON;")
     return conn
 
 
-def cleanup_expired_cache():
+def get_connection():
+    """
+    Get a database connection.
+    If inside a Flask request context, reuses the request-scoped connection stored in `g._db_conn`.
+    Otherwise, returns a dedicated raw connection.
+    """
+    if has_request_context() and g is not None:
+        if not hasattr(g, "_db_conn") or g._db_conn is None:
+            g._db_conn = _create_raw_connection()
+        return _ConnectionProxy(g._db_conn)
+    return _create_raw_connection()
+
+
+def close_request_db(exception: Optional[BaseException] = None):
+    """Teardown handler to close request-scoped database connection."""
+    if has_request_context() and g is not None:
+        conn = getattr(g, "_db_conn", None)
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception as exc:
+                logger.debug("Error closing request DB connection: %s", exc)
+            finally:
+                g._db_conn = None
+
+
+def cleanup_expired_cache() -> int:
     """Delete expired records from api_cache using the indexed expires_at field."""
     try:
-        conn = get_connection()
+        conn = _create_raw_connection()
         try:
             now = time.time()
             res = conn.execute("DELETE FROM api_cache WHERE expires_at < ?", (now,))
             conn.commit()
-            if res.rowcount > 0:
-                logger.info("Cleaned up %d expired api_cache entries", res.rowcount)
+            count = res.rowcount
+            if count > 0:
+                logger.info("Cleaned up %d expired api_cache entries", count)
+            return count
         finally:
             conn.close()
     except Exception as exc:
         logger.error("Error during expired api_cache cleanup: %s", exc)
+        return 0
+
+
+MAX_CACHE_ENTRIES = 5000
+
+
+def prune_api_cache_if_needed(max_entries: int = MAX_CACHE_ENTRIES) -> int:
+    """Ensure api_cache does not grow unbounded by pruning expired or oldest entries."""
+    try:
+        conn = _create_raw_connection()
+        try:
+            now = time.time()
+            # 1. First remove expired entries
+            res = conn.execute("DELETE FROM api_cache WHERE expires_at < ?", (now,))
+            removed = res.rowcount
+
+            # 2. If still exceeding max_entries, remove oldest by expires_at / FIFO
+            cur = conn.execute("SELECT count(*) FROM api_cache")
+            total = cur.fetchone()[0]
+            if total > max_entries:
+                overflow = total - max_entries
+                res2 = conn.execute(
+                    "DELETE FROM api_cache WHERE url IN (SELECT url FROM api_cache ORDER BY expires_at ASC LIMIT ?)",
+                    (overflow,)
+                )
+                removed += res2.rowcount
+            conn.commit()
+            return removed
+        finally:
+            conn.close()
+    except Exception as exc:
+        logger.error("Error during api_cache pruning: %s", exc)
+        return 0
+
+
+# Database Schema Migrations
+MIGRATIONS = [
+    (1, "initial_schema", """
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            shikimori_id INTEGER UNIQUE,
+            google_id TEXT UNIQUE,
+            email TEXT,
+            name TEXT,
+            avatar TEXT,
+            access_token TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS user_settings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            key TEXT NOT NULL,
+            value TEXT NOT NULL,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            UNIQUE(user_id, key)
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_user_settings_user_id ON user_settings(user_id);
+        CREATE INDEX IF NOT EXISTS idx_user_settings_user_id_key ON user_settings(user_id, key);
+        CREATE INDEX IF NOT EXISTS idx_users_shikimori_id ON users(shikimori_id);
+        CREATE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id);
+
+        CREATE TABLE IF NOT EXISTS api_cache (
+            url TEXT PRIMARY KEY,
+            data TEXT NOT NULL,
+            expires_at REAL NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_api_cache_expires ON api_cache(expires_at);
+    """),
+    (2, "add_schema_indexes", """
+        CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+    """)
+]
+
+
+def run_migrations(conn: sqlite3.Connection):
+    """Run incremental database migrations."""
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS schema_migrations (
+            version INTEGER PRIMARY KEY,
+            name TEXT NOT NULL,
+            applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+    conn.commit()
+
+    cur = conn.execute("SELECT version FROM schema_migrations")
+    applied = {row[0] for row in cur.fetchall()}
+
+    for version, name, sql in MIGRATIONS:
+        if version not in applied:
+            logger.info("Applying database migration %d: %s", version, name)
+            conn.executescript(sql)
+            conn.execute(
+                "INSERT INTO schema_migrations (version, name, applied_at) VALUES (?, ?, ?)",
+                (version, name, datetime.now(timezone.utc).isoformat())
+            )
+            conn.commit()
 
 
 def init_db():
-    """Initialize database tables if they don't exist."""
-    conn = sqlite3.connect(DB_PATH)
+    """Initialize database tables and run migrations."""
+    conn = _create_raw_connection()
     try:
         conn.execute("PRAGMA journal_mode=WAL;")
-        conn.executescript("""
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                shikimori_id INTEGER UNIQUE,
-                google_id TEXT UNIQUE,
-                email TEXT,
-                name TEXT,
-                avatar TEXT,
-                access_token TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-
-            CREATE TABLE IF NOT EXISTS user_settings (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                key TEXT NOT NULL,
-                value TEXT NOT NULL,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                UNIQUE(user_id, key)
-            );
-
-            CREATE INDEX IF NOT EXISTS idx_user_settings_user_id ON user_settings(user_id);
-            CREATE INDEX IF NOT EXISTS idx_user_settings_user_id_key ON user_settings(user_id, key);
-            CREATE INDEX IF NOT EXISTS idx_users_shikimori_id ON users(shikimori_id);
-            CREATE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id);
-            CREATE TABLE IF NOT EXISTS api_cache (
-                url TEXT PRIMARY KEY,
-                data TEXT NOT NULL,
-                expires_at REAL NOT NULL
-            );
-            CREATE INDEX IF NOT EXISTS idx_api_cache_expires ON api_cache(expires_at);
-        """)
-        conn.commit()
+        run_migrations(conn)
         logger.info("Database initialized successfully at %s", DB_PATH)
     except sqlite3.Error as exc:
         logger.error("Database initialization failed: %s", exc)
@@ -88,7 +214,7 @@ def init_db():
     cleanup_expired_cache()
 
 
-def get_or_create_user(shikimori_id=None, google_id=None, email=None, name=None, avatar=None, access_token=None):
+def get_or_create_user(shikimori_id=None, google_id=None, email=None, name=None, avatar=None, access_token=None) -> Dict[str, Any]:
     """
     Get existing user or create a new one.
     Returns user dict with id and other fields.
@@ -160,7 +286,7 @@ def get_or_create_user(shikimori_id=None, google_id=None, email=None, name=None,
         conn.close()
 
 
-def get_user_by_id(user_id):
+def get_user_by_id(user_id: int) -> Optional[Dict[str, Any]]:
     """Get user by internal database ID."""
     conn = get_connection()
     try:
@@ -171,7 +297,7 @@ def get_user_by_id(user_id):
         conn.close()
 
 
-def get_user_settings(user_id):
+def get_user_settings(user_id: int) -> Dict[str, Any]:
     """Get all settings for a user as a dict."""
     conn = get_connection()
     try:
@@ -188,7 +314,7 @@ def get_user_settings(user_id):
         conn.close()
 
 
-def get_user_setting(user_id, key, default=None):
+def get_user_setting(user_id: int, key: str, default: Any = None) -> Any:
     """Get a single setting for a user."""
     conn = get_connection()
     try:
@@ -207,7 +333,7 @@ def get_user_setting(user_id, key, default=None):
         conn.close()
 
 
-def set_user_setting(user_id, key, value):
+def set_user_setting(user_id: int, key: str, value: Any) -> None:
     """Set a single setting for a user (upsert)."""
     conn = get_connection()
     try:
@@ -226,7 +352,7 @@ def set_user_setting(user_id, key, value):
         conn.close()
 
 
-def set_user_settings(user_id, settings_dict):
+def set_user_settings(user_id: int, settings_dict: Dict[str, Any]) -> None:
     """Set multiple settings for a user at once in a single transaction."""
     if not settings_dict:
         return
@@ -250,7 +376,7 @@ def set_user_settings(user_id, settings_dict):
         conn.close()
 
 
-def delete_user_setting(user_id, key):
+def delete_user_setting(user_id: int, key: str) -> None:
     """Delete a setting for a user."""
     conn = get_connection()
     try:
@@ -260,7 +386,7 @@ def delete_user_setting(user_id, key):
         conn.close()
 
 
-def delete_user(user_id):
+def delete_user(user_id: int) -> None:
     """Delete a user and all their settings."""
     conn = get_connection()
     try:

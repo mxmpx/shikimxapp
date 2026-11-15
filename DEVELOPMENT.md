@@ -84,30 +84,42 @@ shikimxapp/
 
 ---
 
-## ⚡ 2. ГЛАВНОЕ ПРАВИЛО: Сборка ассетов (`build_assets.py`)
+## ⚡ 2. Разработка Frontend: React 19 + TypeScript + Vite (`frontend/`)
 
-> [!IMPORTANT]
-> **Любое изменение файлов в `static/js/*.js` или `static/css/*.css` НЕ отобразится в браузере, пока вы не пересоберёте бандлы!**
+Основным интерфейсом приложения является SPA на React 19 / TypeScript, расположенный в папке `frontend/`.
 
-В `templates/index.html` и в Service Worker используются скомпилированные файлы:
-```html
-<link rel="stylesheet" href="/static/bundle.css?v={{ app_version }}">
-<script src="/static/bundle.js?v={{ app_version }}"></script>
-```
-
-### Команда для пересборки:
+### Команды разработки:
 ```bash
-python build_assets.py
+# Установка зависимостей (один раз)
+cd frontend && npm install
+
+# Режим разработки с HMR (Hot Module Replacement)
+npm run dev
+
+# Проверка типов TypeScript (strict mode)
+npm run typecheck
+
+# Сборка production-бандла в static/dist/
+npm run build
 ```
-Что делает скрипт:
-1. Объединяет все CSS файлы из `static/css/` в `static/bundle.css` и `static/mobile.css`.
-2. Объединяет все JS файлы из `static/js/` в `static/bundle.js` и `static/mobile.js` в строгом порядке зависимостей.
-3. Вычисляет MD5-хэш содержимого всех бандлов и обновляет `CACHE_NAME` в `static/sw.js`.
-4. При старте `app.py` пересборка бандлов выполняется автоматически.
+
+Flask в `routes/profile.py` автоматически проверяет наличие `static/dist/index.html`. Если сборка существует, сервер отдаёт современный React-клиент с поддержкой deep-linking (`/`, `/animes/<id>`, `/mangas/<id>`).
 
 ---
 
-## 🌐 3. Система переводов и Двуязычие (i18n)
+## 📦 3. Резервный фронтенд (Legacy Vanilla SPA) и `build_assets.py`
+
+Если директория `static/dist/` отсутствует, Flask автоматически переключается на запасной Vanilla JS/CSS интерфейс из `templates/index.html`.
+
+Для пересборки legacy-бандлов:
+```bash
+python build_assets.py
+```
+*Примечание:* `build_assets.py` автоматически определяет наличие `static/dist/` и пропускает пересборку устаревших бандлов, экономя время старта сервера.
+
+---
+
+## 🌐 4. Система переводов и Двуязычие (i18n)
 
 ### 3.1. Хранение переводов (`translations.txt`)
 Все переводы интерфейса хранятся **исключительно** в файле `translations.txt` в формате:

@@ -18,37 +18,13 @@ rates_bp = Blueprint('rates', __name__)
 
 RATES_CACHE_TTL = 1800  # 30 minutes
 
-_rates_locks = {}
-_rates_locks_guard = threading.Lock()
-_rates_mem_cache = {}  # user_id -> {"data": [...], "by_target": {...}, "expires_at": float}
-
-
-def _build_rates_index(rates_list):
-    """Index rates list into a dictionary by target: {f'{target_type}_{target_id}': item}."""
-    index = {}
-    if not isinstance(rates_list, list):
-        return index
-    for item in rates_list:
-        tid = str(item.get("target_id") or (item.get("anime") or {}).get("id") or (item.get("manga") or {}).get("id") or "")
-        ttype = str(item.get("target_type") or ("Anime" if item.get("anime") else "Manga")).capitalize()
-        if tid:
-            index[f"{ttype}_{tid}"] = item
-    return index
-
-
-def _get_rates_lock(user_id):
-    with _rates_locks_guard:
-        if user_id not in _rates_locks:
-            _rates_locks[user_id] = threading.Lock()
-        return _rates_locks[user_id]
-
-
-def invalidate_user_rates_mem_cache(user_id=None):
-    if user_id is None:
-        user_id = session.get("user_id")
-    if user_id:
-        uid = str(user_id)
-        _rates_mem_cache.pop(uid, None)
+from services.rates_cache import (
+    _rates_mem_cache,
+    _rates_locks,
+    _build_rates_index,
+    _get_rates_lock,
+    invalidate_user_rates_mem_cache
+)
 
 
 def _get_cached_rates_from_db(user_id):
@@ -202,6 +178,7 @@ def enrich_rates_posters(rates_list, headers=None):
             logger.debug("Failed batch resolving anime posters for rates: %s", exc)
             anime_posters = {}
 
+        franchise_lookups = 0
         for item in rates_list:
             if item.get("target_type") == "Anime":
                 tid = str(item.get("target_id"))
@@ -210,8 +187,9 @@ def enrich_rates_posters(rates_list, headers=None):
                     if tid in anime_posters and anime_posters[tid]:
                         tdata["image"] = anime_posters[tid]
                         updated = True
-                    else:
+                    elif franchise_lookups < 8:
                         fr = resolve_franchise_poster(tid, is_manga=False)
+                        franchise_lookups += 1
                         if fr:
                             tdata["image"] = fr
                             updated = True
@@ -224,6 +202,7 @@ def enrich_rates_posters(rates_list, headers=None):
             logger.debug("Failed batch resolving manga posters for rates: %s", exc)
             manga_posters = {}
 
+        franchise_lookups = 0
         for item in rates_list:
             if item.get("target_type") == "Manga":
                 tid = str(item.get("target_id"))
@@ -232,8 +211,9 @@ def enrich_rates_posters(rates_list, headers=None):
                     if tid in manga_posters and manga_posters[tid]:
                         tdata["image"] = manga_posters[tid]
                         updated = True
-                    else:
+                    elif franchise_lookups < 8:
                         fr = resolve_franchise_poster(tid, is_manga=True)
+                        franchise_lookups += 1
                         if fr:
                             tdata["image"] = fr
                             updated = True

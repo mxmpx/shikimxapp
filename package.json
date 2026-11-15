@@ -1,5 +1,12 @@
 {
-  "dependencies": {
-    "@justalk/anime-api": "^3.0.0"
+  "name": "shikimxapp",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Shiki MX App - Web client for Shikimori",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "lint": "npm --prefix frontend run lint",
+    "format": "npm --prefix frontend run format"
   }
 }

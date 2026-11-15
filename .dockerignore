@@ -1,0 +1,16 @@
+.git
+.github
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.env
+.flask_secret
+logs/
+data/
+app.db
+frontend/node_modules/
+node_modules/
+.pytest_cache/
+tests/

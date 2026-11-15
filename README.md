@@ -76,10 +76,11 @@
 
 ## 🛠️ Технологический стек
 
-- **Backend:** Python 3.10+, Flask, SQLite, Requests, GraphQL, Flask-Compress
-- **Frontend:** Vanilla JavaScript (ES6+), HTML5, Vanilla CSS3 (CSS Grid & Flexbox)
-- **Иконки и шрифты:** Tabler Icons (3.46.0), Google Sans, JetBrains Mono (100% локально)
-- **PWA:** Web App Manifest, Service Worker Cache API
+- **Backend:** Python 3.10+, Flask 3.x, SQLite, Requests, GraphQL, Flask-Compress
+- **Frontend (Primary):** React 19, TypeScript, Vite 8, Tailwind CSS, mxstyle2 design system
+- **Frontend (Legacy Fallback):** Vanilla JavaScript (ES6+), HTML5, Vanilla CSS3 (CSS Grid & Flexbox)
+- **Иконки и шрифты:** Tabler Icons (3.46.0), Google Sans, JetBrains Mono (100% локально без внешних CDN)
+- **PWA:** Web App Manifest, Service Worker Cache API (`shikimx-v3-react`)
 - **API & Видео:** Shikimori REST & GraphQL API, Anicli-API, Kodik API
 
 ---
@@ -93,27 +94,38 @@ shikimxapp/
 ├── utils.py                   # Хелперы, SWR-кэш, автоповтор при 429, GraphQL и прокси изображений
 ├── errors.py                  # Централизованная обработка ошибок и логирование запросов
 ├── logging_config.py          # Конфигурация цветного консольного и файлового логирования
-├── run.py                     # Скрипт запуска dev-сервера
-├── build_assets.py            # Автоматическая сборка и версионирование CSS/JS бандлов
+├── run.py                     # Скрипт запуска сервера (127.0.0.1)
+├── build_assets.py            # Автоматическая сборка бандлов (с пропуском при наличии static/dist)
 ├── app_info.txt               # Метаданные приложения и чейнджлог
 ├── translations.txt           # Словарь локализации (RU / EN)
+├── frontend/                  # Современный React/TypeScript фронтенд (Vite)
+│   ├── src/
+│   │   ├── api/client.ts      # Типизированный HTTP-клиент к Flask API
+│   │   ├── components/        # ErrorBoundary, AnimeModal, MangaModal, AppHeader, etc.
+│   │   ├── views/             # ExploreView, CatalogView, CalendarView, RatesView, etc.
+│   │   ├── types/             # TypeScript-интерфейсы моделей данных
+│   │   ├── App.tsx            # Корневой компонент с роутингом по табам и модалкам
+│   │   └── main.tsx           # Инициализация React 19 DOM и Service Worker
+│   ├── package.json           # Зависимости и скрипты сборки (build, typecheck)
+│   └── vite.config.ts         # Конфигурация Vite с выводом в static/dist
+├── static/dist/               # Скомпилированный production-бандл React-приложения
 ├── services/
 │   └── video_aggregator.py    # Мультипровайдерный агрегатор видеопотоков
 ├── routes/
 │   ├── auth.py                # Shikimori OAuth 2.0 авторизация
-│   ├── profile.py             # Профиль и статистика
-│   ├── rates.py               # Управление списками (User Rates API v2, 6-поточный GraphQL)
-│   ├── favourites.py          # Избранное (аниме, манга, персонажи, 3-поточный fetch)
-│   ├── friends.py             # Друзья и клубы пользователя (2-поточный fetch)
+│   ├── profile.py             # Профиль, статистика и отдача React SPA на /, /animes/<id>, /mangas/<id>
+│   ├── rates.py               # Управление списками (User Rates API v2, target_data)
+│   ├── favourites.py          # Избранное (аниме, манга, персонажи)
+│   ├── friends.py             # Друзья и клубы пользователя
 │   ├── history.py             # История просмотров и активности
-│   ├── explore.py             # Каталоги, топы, форум, клубы, статьи, календарь
+│   ├── explore.py             # Каталоги, Топ 100, форум, клубы, статьи, календарь
 │   ├── anime.py               # Данные аниме, скриншоты, персонажи, франшиза, трейлеры
-│   ├── manga.py               # Детали манги и тома (единый GraphQL запрос)
-│   ├── media.py               # Проксирование и кэширование изображений
-│   ├── settings.py            # Пользовательские настройки (фон, навбар, видимость, язык)
+│   ├── manga.py               # Детали манги и тома
+│   ├── media.py               # Проксирование и безопасное кэширование изображений (/cache/img)
+│   ├── settings.py            # Настройки (фон, тема, навбар, продолжить просмотр)
 │   └── about.py               # Информация о приложении и чейнджлог
 ├── templates/
-│   └── index.html             # Основной SPA-шаблон приложения с портальными вкладками
+│   └── index.html             # Запасной SPA-шаблон приложения (fallback)
 └── static/
     ├── manifest.json          # PWA манифест
     ├── sw.js                  # PWA Service Worker (оффлайн-кэш)

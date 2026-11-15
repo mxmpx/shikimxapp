@@ -1,5 +1,7 @@
 import os
 import logging
+import threading
+import time
 import secrets
 import requests
 from flask import Blueprint, redirect, request, session, url_for, jsonify
@@ -9,6 +11,9 @@ from database import get_or_create_user
 
 logger = logging.getLogger("shikimxapp.auth")
 auth_bp = Blueprint('auth', __name__)
+
+_oauth_lock = threading.Lock()
+_processed_oauth_codes = {}  # code -> timestamp
 
 
 @auth_bp.route("/api/auth/status")
@@ -24,6 +29,7 @@ def auth_status():
 
 
 @auth_bp.route("/login")
+@auth_bp.route("/api/auth/login")
 def login():
     if not CLIENT_ID:
         logger.error("OAuth login attempted without SHIKIMORI_CLIENT_ID")
@@ -48,6 +54,24 @@ def callback():
     code = request.args.get("code")
     error = request.args.get("error")
     state = request.args.get("state")
+
+    # If the user is already authenticated in this session, safely redirect home
+    if session.get("user_id") and session.get("access_token"):
+        logger.info("User already authenticated in session, redirecting to index")
+        return redirect(url_for("profile.index"))
+
+    now = time.time()
+    with _oauth_lock:
+        # Clean up stale processed codes (> 60s)
+        stale_codes = [c for c, t in _processed_oauth_codes.items() if now - t > 60]
+        for c in stale_codes:
+            _processed_oauth_codes.pop(c, None)
+
+        # Check if code was already redeemed in parallel thread
+        if code and code in _processed_oauth_codes:
+            logger.info("Duplicate OAuth callback for already redeemed code, redirecting to index")
+            return redirect(url_for("profile.index"))
+
     saved_state = session.pop("oauth_state", None)
 
     if error or not code:
@@ -55,6 +79,9 @@ def callback():
         raise AppError(f"Ошибка авторизации: {error or 'код не получен'}", 400)
 
     if not state or not saved_state or state != saved_state:
+        # Check if parallel thread already processed this callback
+        if session.get("user_id"):
+            return redirect(url_for("profile.index"))
         logger.warning("OAuth CSRF state mismatch: received=%s, expected=%s", state, saved_state)
         raise AppError("Ошибка безопасности: неверный CSRF токен (state)", 400)
 
@@ -72,8 +99,15 @@ def callback():
         raise AppError("Не удалось связаться с Shikimori для получения токена", 502, logging.ERROR)
 
     if response.status_code != 200:
+        if session.get("user_id") or (code and code in _processed_oauth_codes):
+            logger.info("Token exchange returned %s but user/code already processed in race, redirecting to index", response.status_code)
+            return redirect(url_for("profile.index"))
         logger.error("Token exchange failed (%s): %s", response.status_code, response.text[:200])
         raise AppError(f"Не удалось получить токен: {response.text}", response.status_code, logging.ERROR)
+
+    with _oauth_lock:
+        if code:
+            _processed_oauth_codes[code] = time.time()
 
     access_token = response.json().get("access_token")
     if not access_token:
@@ -113,6 +147,7 @@ def callback():
 
 
 @auth_bp.route("/logout")
+@auth_bp.route("/api/auth/logout")
 def logout():
     user_id = session.get("user_id")
     session.clear()

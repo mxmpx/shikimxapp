@@ -112,7 +112,7 @@ def _build_anime_from_graphql(a, anime_id):
         "fandate": None,
         "franchise": a.get("franchise"),
         "description": a.get("descriptionHtml") or a.get("description") or "Описание отсутствует.",
-        "shikimori_url": f"https://shikimori.io{a.get('url')}" if a.get('url') else f"https://shikimori.io/animes/{anime_id}",
+        "shikimori_url": f"https://shikimori.one/animes/{anime_id}",
         "user_rate": user_rate,
         "synonyms": a.get("synonyms", []),
         "japanese": a.get("japanese") or [],
@@ -182,7 +182,7 @@ def _build_anime_result(data, anime_id, characters_data=None):
         "fandate": data.get("fandate"),
         "franchise": data.get("franchise"),
         "description": data.get("description_html") or data.get("description") or "Описание отсутствует.",
-        "shikimori_url": f"{SHIKIMORI_BASE}{data.get('url')}" if data.get('url') else "",
+        "shikimori_url": f"https://shikimori.one/animes/{anime_id}",
         "user_rate": user_rate,
         "synonyms": data.get("synonyms", []),
         "japanese": data.get("japanese", []),
@@ -283,6 +283,10 @@ def get_anime_details(anime_id):
         if gql_data and isinstance(gql_data.get("animes"), list) and len(gql_data["animes"]) > 0:
             logger.debug("Anime details loaded via GraphQL for anime_id=%s", anime_id)
             anime_obj = _build_anime_from_graphql(gql_data["animes"][0], anime_id)
+            try:
+                anime_obj["external_links"] = fetch_cached_api(f"{SHIKIMORI_BASE}/api/animes/{anime_id}/external_links", {"User-Agent": APP_NAME}, ttl=86400) or []
+            except Exception:
+                anime_obj["external_links"] = []
             with _anime_cache_lock:
                 _anime_base_cache[anime_id] = {"data": dict(anime_obj), "expires_at": now + 3600}
             anime_obj["user_rate"] = fetch_user_rate(anime_id, "Anime")
@@ -309,10 +313,141 @@ def get_anime_details(anime_id):
 
     logger.debug("Anime details loaded via REST fallback: anime_id=%s", anime_id)
     anime_obj = _build_anime_result(data, anime_id, characters_data=roles_data)
+    try:
+        anime_obj["external_links"] = fetch_cached_api(f"{SHIKIMORI_BASE}/api/animes/{anime_id}/external_links", {"User-Agent": APP_NAME}, ttl=86400) or []
+    except Exception:
+        anime_obj["external_links"] = []
     with _anime_cache_lock:
         _anime_base_cache[anime_id] = {"data": dict(anime_obj), "expires_at": now + 3600}
     anime_obj["user_rate"] = fetch_user_rate(anime_id, "Anime")
     return jsonify(anime_obj)
+
+
+_anime_community_cache = {}
+_anime_community_cache_lock = threading.Lock()
+
+
+@anime_bp.route("/api/anime/<int:anime_id>/members")
+@api_route
+def get_anime_community_members(anime_id):
+    """
+    Fetch real Shikimori community members and friends for this anime.
+    Returns real user profiles and avatars from Shikimori API/GraphQL.
+    """
+    now = time.time()
+    user_id = session.get("user_id")
+    auth_headers = get_auth_headers()
+    is_authorized = bool(user_id and auth_headers)
+
+    # 1. Check cached community data (TTL: 1 hour)
+    cached_community = None
+    with _anime_community_cache_lock:
+        entry = _anime_community_cache.get(anime_id)
+        if entry and now < entry["expires_at"]:
+            cached_community = entry["data"]
+
+    if not cached_community:
+        # Fetch real user rates for this anime from Shikimori
+        rates_url = f"{SHIKIMORI_BASE}/api/v2/user_rates?target_id={anime_id}&target_type=Anime&limit=40"
+        headers = {"User-Agent": APP_NAME}
+        raw_rates = fetch_cached_api(rates_url, headers, ttl=3600) or []
+
+        status_map = {
+            "watching": ("Смотрю", "#38bdf8"),
+            "completed": ("Просмотрено", "#4ade80"),
+            "planned": ("В планах", "#818cf8"),
+            "on_hold": ("Отложено", "#facc15"),
+            "dropped": ("Брошено", "#ef4444"),
+            "rewatching": ("Пересматриваю", "#06b6d4"),
+        }
+
+        user_rate_info = {}
+        if isinstance(raw_rates, list):
+            for rate in raw_rates:
+                uid = str(rate.get("user_id"))
+                st = rate.get("status", "watching")
+                ru_st, color = status_map.get(st, ("Смотрю", "#38bdf8"))
+                if uid not in user_rate_info:
+                    user_rate_info[uid] = {
+                        "status": ru_st,
+                        "status_color": color,
+                        "score": rate.get("score", 0),
+                    }
+
+        uids = list(user_rate_info.keys())[:24]
+        community_users = []
+        if uids:
+            alias_queries = "\n".join(
+                f'u{uid}: users(ids: "{uid}") {{ id nickname avatarUrl }}'
+                for uid in uids
+            )
+            gql_query = f"query {{\n{alias_queries}\n}}"
+            try:
+                gql_res = fetch_graphql(gql_query, ttl=3600)
+                if gql_res and isinstance(gql_res, dict):
+                    for uid in uids:
+                        u_list = gql_res.get(f"u{uid}") or []
+                        if u_list and isinstance(u_list, list) and u_list[0].get("avatarUrl"):
+                            u = u_list[0]
+                            info = user_rate_info.get(uid, {})
+                            avatar = fix_image_url(u.get("avatarUrl"))
+                            community_users.append({
+                                "id": int(u["id"]),
+                                "name": u.get("nickname") or f"Пользователь {uid}",
+                                "avatar": avatar,
+                                "status": info.get("status", "Смотрю"),
+                                "status_color": info.get("status_color", "#38bdf8"),
+                                "score": info.get("score", 0)
+                            })
+            except Exception as exc:
+                logger.debug("Failed resolving community avatars via GraphQL: %s", exc)
+
+        cached_community = community_users
+        with _anime_community_cache_lock:
+            _anime_community_cache[anime_id] = {
+                "data": community_users,
+                "expires_at": now + 3600
+            }
+
+    # 2. Check user's real friends if authorized
+    friends_watching = []
+    if is_authorized:
+        try:
+            friends_url = f"{SHIKIMORI_BASE}/api/users/{user_id}/friends"
+            raw_friends = fetch_cached_api(friends_url, auth_headers, ttl=900) or []
+            if isinstance(raw_friends, list) and raw_friends:
+                friend_map = {str(f.get("id")): f for f in raw_friends if f.get("id")}
+                for u in cached_community:
+                    uid_str = str(u["id"])
+                    if uid_str in friend_map:
+                        f_info = friend_map[uid_str]
+                        f_avatar = fix_image_url(f_info.get("avatar") or (f_info.get("image") or {}).get("x160") or u["avatar"])
+                        friends_watching.append({
+                            "id": u["id"],
+                            "name": f_info.get("nickname") or u["name"],
+                            "avatar": f_avatar,
+                            "status": u["status"],
+                            "status_color": u["status_color"],
+                            "score": u["score"]
+                        })
+        except Exception as exc:
+            logger.debug("Error checking friends for anime %s: %s", anime_id, exc)
+
+    # 3. Community watchers for display (active viewers)
+    community_watchers = [
+        u for u in cached_community
+        if u["status"] in ("Смотрю", "Просмотрено", "Пересматриваю")
+    ][:4]
+    if not community_watchers:
+        community_watchers = cached_community[:4]
+
+    return jsonify({
+        "is_authorized": is_authorized,
+        "friends": friends_watching,
+        "community_watchers": community_watchers,
+        "favorites": cached_community[:18],
+        "total_favorites": len(cached_community)
+    })
 
 
 

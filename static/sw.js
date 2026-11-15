@@ -1,19 +1,15 @@
-const CACHE_NAME = 'shikimx-v2-f3afc3d2';
+const CACHE_NAME = 'shikimx-v3-react';
 const FONT_CACHE_NAME = 'shikimx-fonts-v1';
 const IMAGE_CACHE_NAME = 'shikimx-images-v1';
 
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
-  '/favicon.ico',
-  '/translations.txt',
-  '/static/bundle.css',
-  '/static/bundle.js',
-  '/static/mobile.css',
-  '/static/mobile.js',
-  '/static/fonts/tabler-icons.woff2',
   '/static/icons/icon-192.png',
-  '/static/icons/icon-512.png'
+  '/static/icons/icon-512.png',
+  '/static/css/tabler-icons.min.css',
+  '/static/css/fonts.css',
+  '/static/fonts/tabler-icons.woff2'
 ];
 
 // Install Event: Pre-cache core application shell and static assets
@@ -31,8 +27,14 @@ self.addEventListener('install', event => {
 // Activate Event: Clean up stale caches from older versions
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys => {
-      return Promise.all(
+    (async () => {
+      if (self.registration.navigationPreload) {
+        try {
+          await self.registration.navigationPreload.disable();
+        } catch (e) {}
+      }
+      const keys = await caches.keys();
+      await Promise.all(
         keys
           .filter(key => key !== CACHE_NAME && key !== FONT_CACHE_NAME && key !== IMAGE_CACHE_NAME)
           .map(key => {
@@ -40,7 +42,7 @@ self.addEventListener('activate', event => {
             return caches.delete(key);
           })
       );
-    })
+    })()
   );
   self.clients.claim();
 });
@@ -102,10 +104,12 @@ self.addEventListener('fetch', event => {
   // 3. Static Assets (/static/*, /favicon.ico, /manifest.json)
   // Cache-First with ignoreSearch: true ONLY for static asset files (bundle.css, bundle.js, etc.)
   if (
+    requestUrl.pathname.startsWith('/static/dist/') ||
     requestUrl.pathname.startsWith('/static/bundle.') ||
     requestUrl.pathname.startsWith('/static/mobile.') ||
     requestUrl.pathname.startsWith('/static/fonts/') ||
     requestUrl.pathname.startsWith('/static/icons/') ||
+    requestUrl.pathname.startsWith('/static/css/') ||
     requestUrl.pathname === '/favicon.ico' ||
     requestUrl.pathname === '/manifest.json' ||
     requestUrl.pathname === '/translations.txt'

@@ -16,6 +16,10 @@ __pycache__/
 *.egg
 /dist/
 /build/
+static/dist/
+frontend/dist/
+*.tsbuildinfo
+docs/examples/**/dist/
 .venv/
 venv/
 ENV/
@@ -64,9 +68,9 @@ prompt/
 
 # Scratch, temporary files & test artifacts
 scratch/
-test_*.py
-test*.txt
-test*.deleted
+/test_*.py
+/test*.txt
+/test*.deleted
 *.bak
 *.backup
 *.tmp
@@ -109,3 +113,4 @@ $RECYCLE.BIN/
 .cursor/
 .system_generated/
 for AI examples/
+.flask_secret
