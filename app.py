@@ -104,15 +104,15 @@ def add_security_and_caching_headers(response):
     response.headers["X-Frame-Options"] = "SAMEORIGIN"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
 
-    # Robust Content-Security-Policy (CSP) protecting against XSS and injection
+    # Robust Content-Security-Policy (CSP) protecting against XSS and injection while supporting embedded video CDNs
     csp_directives = [
         "default-src 'self'",
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://shikimori.one https://*.shikimori.one https://*.shikimori.me https://*.shikimori.io https://kodik.info https://*.kodik.info",
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "img-src 'self' data: blob: https: http:",
         "font-src 'self' data: https://fonts.gstatic.com",
-        "connect-src 'self' https://shikimori.one https://*.shikimori.one https://*.shikimori.me https://*.shikimori.io https://*.kodik.info https://*.anilibria.top https://*.anilibria.tv https://*.kodikplayer.com",
-        "frame-src 'self' https: blob:",
+        "connect-src 'self' https: http: ws: wss:",
+        "frame-src 'self' https: http: blob:",
         "media-src 'self' blob: https: http:",
         "object-src 'none'",
         "base-uri 'self'",

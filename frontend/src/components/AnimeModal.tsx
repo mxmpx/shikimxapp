@@ -593,20 +593,26 @@ export function AnimeModal({ animeId, onClose }: AnimeModalProps) {
 
   const rawIframeSrc =
     activePlayerType === 'kodik'
-      ? currentSources[1]?.url || activeStreamSource?.url || ''
+      ? currentSources.find((s) => s.player === 'Kodik')?.url || currentSources[1]?.url || activeStreamSource?.url || ''
       : activeStreamSource?.url || ''
 
-  // Normalization for AnimeGo CDN voice priority
+  // Normalization for AnimeGo CDN and embed players voice priority
   const iframeSrc = (() => {
     if (!rawIframeSrc) return ''
     if (rawIframeSrc.includes('cdn-iframe')) {
       let fixed = rawIframeSrc
         .replace(/\/AnilibriaTV\//gi, '/AniLibria/')
         .replace(/([?&]dubbing=)AnilibriaTV/gi, '$1AniLibria')
-      if (selectedDub && selectedDub.toLowerCase().includes('anilibria')) {
+      if (selectedDub) {
+        const dubParam = selectedDub.toLowerCase().includes('anilibria')
+          ? 'AniLibria'
+          : selectedDub
         fixed = fixed
-          .replace(/\/cdn-iframe\/(\d+)\/[^/]+\//, '/cdn-iframe/$1/AniLibria/')
-          .replace(/([?&]dubbing=)[^&]+/, '$1AniLibria')
+          .replace(/\/cdn-iframe\/([^/]+)\/[^/]+\//, `/cdn-iframe/$1/${encodeURIComponent(dubParam)}/`)
+          .replace(/([?&]dubbing=)[^&]+/, `$1${encodeURIComponent(dubParam)}`)
+        if (!fixed.includes('dubbing=')) {
+          fixed += (fixed.includes('?') ? '&' : '?') + `dubbing=${encodeURIComponent(dubParam)}`
+        }
       }
       return fixed
     }

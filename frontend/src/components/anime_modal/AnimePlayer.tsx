@@ -67,19 +67,8 @@ export function AnimePlayer({
   useEffect(() => {
     if (isPlayerFullscreen) {
       document.body.classList.add('has-fullscreen-player')
-      const el = videoViewportRef.current
-      if (el && document.fullscreenEnabled && !document.fullscreenElement) {
-        if (el.requestFullscreen) {
-          el.requestFullscreen().catch(() => {})
-        } else if ((el as unknown as { webkitRequestFullscreen?: () => void }).webkitRequestFullscreen) {
-          ;(el as unknown as { webkitRequestFullscreen: () => void }).webkitRequestFullscreen()
-        }
-      }
     } else {
       document.body.classList.remove('has-fullscreen-player')
-      if (document.fullscreenElement) {
-        document.exitFullscreen?.().catch(() => {})
-      }
     }
     return () => {
       document.body.classList.remove('has-fullscreen-player')
@@ -87,26 +76,13 @@ export function AnimePlayer({
   }, [isPlayerFullscreen])
 
   useEffect(() => {
-    const handleFsChange = () => {
-      const fsEl =
-        document.fullscreenElement ||
-        (document as unknown as { webkitFullscreenElement?: Element })
-          .webkitFullscreenElement
-      if (!fsEl && isPlayerFullscreen) {
-        setIsPlayerFullscreen(false)
-      }
-    }
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isPlayerFullscreen) {
         setIsPlayerFullscreen(false)
       }
     }
-    document.addEventListener('fullscreenchange', handleFsChange)
-    document.addEventListener('webkitfullscreenchange', handleFsChange)
     window.addEventListener('keydown', handleKeyDown)
     return () => {
-      document.removeEventListener('fullscreenchange', handleFsChange)
-      document.removeEventListener('webkitfullscreenchange', handleFsChange)
       window.removeEventListener('keydown', handleKeyDown)
     }
   }, [isPlayerFullscreen])
@@ -696,8 +672,9 @@ export function AnimePlayer({
                       key={iframeSrc}
                       src={iframeSrc}
                       title="Видеопоток"
+                      referrerPolicy="no-referrer"
                       allowFullScreen
-                      allow="autoplay; fullscreen; picture-in-picture"
+                      allow="autoplay; fullscreen; picture-in-picture; encrypted-media; clipboard-write"
                       style={{
                         width: '100%',
                         height: '100%',
