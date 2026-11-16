@@ -72,10 +72,15 @@ export function CatalogView({ onOpenAnime }: CatalogViewProps) {
 
         {/* Sort Order Selector */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+          <label
+            htmlFor="catalog-sort-order"
+            style={{ fontSize: 12, color: 'var(--text-muted)' }}
+          >
             Сортировка:
-          </span>
+          </label>
           <select
+            id="catalog-sort-order"
+            aria-label="Сортировка аниме"
             value={order}
             onChange={(e) => setOrder(e.target.value)}
             style={{
@@ -127,14 +132,17 @@ export function CatalogView({ onOpenAnime }: CatalogViewProps) {
               style={{
                 padding: '6px 14px',
                 borderRadius: 8,
-                fontSize: 12,
+                fontSize: 12.5,
                 fontWeight: 500,
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
+                minHeight: 36,
+                display: 'inline-flex',
+                alignItems: 'center',
                 background: isActive
                   ? 'var(--primary-container)'
                   : 'var(--sub-bg)',
-                color: isActive ? 'var(--accent)' : 'var(--text-muted)',
+                color: isActive ? 'var(--on-primary-container, #e0e7ff)' : 'var(--text-muted)',
                 border: isActive
                   ? '1px solid rgba(var(--accent-rgb), 0.5)'
                   : '1px solid var(--border-subtle)',

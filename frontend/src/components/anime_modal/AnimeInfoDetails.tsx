@@ -200,15 +200,20 @@ export function AnimeInfoDetails({ anime }: AnimeInfoDetailsProps) {
           />
           <button
             onClick={() => setShowFullDesc(!showFullDesc)}
+            className="touch-btn"
             style={{
               marginTop: 10,
-              background: 'none',
-              border: 'none',
+              background: 'rgba(var(--accent-rgb), 0.08)',
+              border: '1px solid rgba(var(--accent-rgb), 0.2)',
+              borderRadius: 8,
               color: 'var(--accent)',
               fontSize: 12.5,
               fontWeight: 700,
               cursor: 'pointer',
-              padding: 0,
+              padding: '7px 14px',
+              minHeight: 36,
+              display: 'inline-flex',
+              alignItems: 'center',
             }}
           >
             {showFullDesc ? '▲ Свернуть описание' : '▼ Читать полностью'}

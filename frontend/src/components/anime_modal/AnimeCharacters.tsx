@@ -60,6 +60,9 @@ export function AnimeCharacters({ characters }: AnimeCharactersProps) {
         </div>
       </div>
       <div
+        tabIndex={0}
+        role="region"
+        aria-label="Персонажи и сэйю"
         style={{
           display: 'flex',
           gap: 14,
@@ -68,6 +71,7 @@ export function AnimeCharacters({ characters }: AnimeCharactersProps) {
           minWidth: 0,
           WebkitOverflowScrolling: 'touch',
           padding: '8px 4px 12px 4px',
+          outline: 'none',
         }}
       >
         {characters.map((char) => {

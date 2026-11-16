@@ -14,7 +14,6 @@ export function AnimeCard({ anime, onSelect }: AnimeCardProps) {
     <div
       role="button"
       tabIndex={0}
-      aria-label={`Открыть аниме: ${title}`}
       onClick={() => onSelect(anime.id)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -97,13 +96,13 @@ export function AnimeCard({ anime, onSelect }: AnimeCardProps) {
               border:
                 '1px solid var(--accent-gold-border, rgba(234, 179, 8, 0.3))',
               color: 'var(--score-color, #eab308)',
-              fontSize: 11,
+              fontSize: 11.5,
               fontWeight: 700,
               fontFamily: 'ui-monospace, SFMono-Regular, monospace',
               fontVariantNumeric: 'tabular-nums',
             }}
           >
-            <i className="ti ti-star-filled" style={{ fontSize: 10 }} />
+            <i className="ti ti-star-filled" style={{ fontSize: 10.5 }} />
             <span>{Number(anime.score).toFixed(1)}</span>
           </div>
         ) : null}
@@ -115,13 +114,13 @@ export function AnimeCard({ anime, onSelect }: AnimeCardProps) {
               position: 'absolute',
               bottom: 8,
               right: 8,
-              padding: '2px 6px',
+              padding: '2px 7px',
               borderRadius: 4,
               background: 'rgba(0, 0, 0, 0.75)',
               backdropFilter: 'blur(4px)',
               border: '1px solid var(--border-subtle)',
               color: 'var(--text-muted)',
-              fontSize: 10,
+              fontSize: 11,
               fontWeight: 600,
               textTransform: 'uppercase',
               fontFamily: 'ui-monospace, SFMono-Regular, monospace',
@@ -142,7 +141,7 @@ export function AnimeCard({ anime, onSelect }: AnimeCardProps) {
           flex: 1,
         }}
       >
-        <h4
+        <h3
           style={{
             margin: 0,
             fontSize: 13,
@@ -159,13 +158,13 @@ export function AnimeCard({ anime, onSelect }: AnimeCardProps) {
           title={title}
         >
           {title}
-        </h4>
+        </h3>
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            fontSize: 11,
+            fontSize: 12,
             color: 'var(--text-dim)',
             marginTop: 'auto',
           }}

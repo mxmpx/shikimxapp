@@ -307,6 +307,7 @@ export default function App() {
 
       {/* Main View Router for All Tabs with Suspense code splitting */}
       <main className="main-content-wrapper" style={{ flex: 1, paddingTop: 'var(--header-height, 56px)' }}>
+        <h1 className="sr-only">Shiki MX — Каталог аниме, манги и расписание онгоингов</h1>
         <ErrorBoundary key={activeTab}>
           <Suspense fallback={<ViewSkeleton />}>
             {/* 1. Главная / Explore */}
@@ -362,6 +363,7 @@ export default function App() {
                 onOpenAnime={handleOpenAnime}
                 onOpenManga={handleOpenManga}
                 initialTargetType={ratesTargetType}
+                isGuest={!userProfile}
               />
             )}
             {activeTab === 'favourites' && (

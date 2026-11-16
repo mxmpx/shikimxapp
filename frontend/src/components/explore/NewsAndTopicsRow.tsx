@@ -57,13 +57,18 @@ export function NewsAndTopicsRow({
               {onNavigateTab && (
                 <button
                   onClick={() => onNavigateTab('forum')}
+                  className="touch-btn"
                   style={{
                     background: 'none',
                     border: 'none',
-                    color: 'var(--text-muted)',
+                    color: 'var(--accent)',
                     fontSize: 12,
                     fontWeight: 600,
                     cursor: 'pointer',
+                    minHeight: 44,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    padding: '4px 8px',
                   }}
                 >
                   Все новости →
@@ -191,13 +196,18 @@ export function NewsAndTopicsRow({
               {onNavigateTab && (
                 <button
                   onClick={() => onNavigateTab('forum')}
+                  className="touch-btn"
                   style={{
                     background: 'none',
                     border: 'none',
-                    color: 'var(--text-muted)',
+                    color: 'var(--accent)',
                     fontSize: 12,
                     fontWeight: 600,
                     cursor: 'pointer',
+                    minHeight: 44,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    padding: '4px 8px',
                   }}
                 >
                   Форум →

@@ -56,7 +56,7 @@ export function BottomNav({
         <button
           onClick={() => setActiveTab('rates')}
           className={`bottom-nav-item ${isRates ? 'is-active' : ''}`}
-          aria-label="Мои списки"
+          aria-label="Списки — персональные списки"
           aria-current={isRates ? 'page' : undefined}
         >
           <i className="ti ti-list-check" />
@@ -67,7 +67,7 @@ export function BottomNav({
         <button
           onClick={() => setActiveTab('forum')}
           className={`bottom-nav-item ${isCommunity ? 'is-active' : ''}`}
-          aria-label="Форум и сообщество"
+          aria-label="Форум — темы и сообщество"
           aria-current={isCommunity ? 'page' : undefined}
         >
           <i className="ti ti-messages" />
@@ -78,7 +78,7 @@ export function BottomNav({
         <button
           onClick={() => setSheetOpen(true)}
           className={`bottom-nav-item ${sheetOpen ? 'is-active' : ''}`}
-          aria-label="Все разделы"
+          aria-label="Ещё — все разделы сайта"
           aria-expanded={sheetOpen}
         >
           <i className="ti ti-grid-dots" />

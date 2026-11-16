@@ -255,7 +255,7 @@ export function FavouritesView({
                 href={`https://shikimori.io/${activeTab === 'characters' ? 'characters' : 'people'}/${item.id}`}
                 target="_blank"
                 rel="noreferrer"
-                aria-label={`Открыть на Shikimori: ${title}`}
+                aria-label={`${title} — открыть на Shikimori`}
                 style={{
                   background: 'var(--card-bg)',
                   border: '1px solid var(--card-border)',

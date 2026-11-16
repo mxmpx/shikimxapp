@@ -142,7 +142,7 @@ export function SearchBar({ onOpenAnime }: SearchBarProps) {
             >
               <button
                 onClick={() => setMobileSearchOpen(false)}
-                aria-label="Назад"
+                aria-label="Закрыть поиск"
                 className="touch-btn"
                 style={{
                   background: 'none',

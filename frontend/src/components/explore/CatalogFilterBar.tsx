@@ -69,8 +69,10 @@ export function CatalogFilterBar({
         </div>
         <button
           onClick={onRandomAnime}
+          className="touch-btn"
           style={{
             padding: '7px 14px',
+            minHeight: 44,
             borderRadius: 8,
             border: '1px solid rgba(255, 255, 255, 0.12)',
             background: 'rgba(255, 255, 255, 0.04)',

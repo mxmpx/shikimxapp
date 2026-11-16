@@ -313,15 +313,20 @@ export function CritiquesView({
                         }
                         target="_blank"
                         rel="noreferrer"
+                        aria-label={`Читать на Shikimori: ${c.title || 'рецензия'}`}
                         style={{
-                          fontSize: 11.5,
-                          fontWeight: 500,
+                          fontSize: 12,
+                          fontWeight: 600,
                           color: 'var(--accent)',
                           textDecoration: 'none',
-                          display: 'flex',
+                          display: 'inline-flex',
                           alignItems: 'center',
-                          gap: 4,
+                          gap: 6,
                           flexShrink: 0,
+                          padding: '6px 12px',
+                          borderRadius: 6,
+                          background: 'rgba(var(--accent-rgb), 0.08)',
+                          minHeight: 32,
                         }}
                       >
                         Читать на Shikimori{' '}

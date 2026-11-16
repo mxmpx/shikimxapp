@@ -193,7 +193,6 @@ export function RanobeView({ onOpenManga }: RanobeViewProps) {
               key={ranobe.id}
               role="button"
               tabIndex={0}
-              aria-label={`Открыть ранобэ: ${ranobe.russian || ranobe.name}`}
               onClick={() => onOpenManga(ranobe.id)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {

@@ -46,6 +46,7 @@ export function OngoingSection({
           {onNavigateTab && (
             <button
               onClick={() => onNavigateTab('calendar')}
+              className="touch-btn"
               style={{
                 background: 'none',
                 border: 'none',
@@ -53,6 +54,10 @@ export function OngoingSection({
                 fontSize: 13,
                 fontWeight: 600,
                 cursor: 'pointer',
+                minHeight: 44,
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '4px 8px',
               }}
             >
               Расписание выхода серий →
@@ -180,6 +185,7 @@ export function OngoingSection({
             {onNavigateTab && (
               <button
                 onClick={() => onNavigateTab('articles')}
+                className="touch-btn"
                 style={{
                   background: 'none',
                   border: 'none',
@@ -187,6 +193,10 @@ export function OngoingSection({
                   fontSize: 13,
                   fontWeight: 600,
                   cursor: 'pointer',
+                  minHeight: 44,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  padding: '4px 8px',
                 }}
               >
                 Все материалы →

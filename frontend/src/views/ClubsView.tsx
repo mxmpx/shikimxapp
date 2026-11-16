@@ -328,7 +328,7 @@ export function ClubsView() {
             }}
           >
             {clubs.map((club, index) => (
-              <ClubCard key={club.id} club={club} index={index} />
+              <ClubCard key={`${club.id}-${index}`} club={club} index={index} />
             ))}
           </div>
 

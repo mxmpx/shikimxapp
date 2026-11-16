@@ -294,11 +294,11 @@ export function CollectionsView() {
                       flexDirection: 'column',
                     }}
                   >
-                    <h4
+                    <h3
                       style={{
                         fontSize: 14,
                         fontWeight: 600,
-                        color: '#fff',
+                        color: 'var(--text-primary)',
                         margin: '0 0 10px',
                         lineHeight: 1.35,
                         overflow: 'hidden',
@@ -309,7 +309,7 @@ export function CollectionsView() {
                       }}
                     >
                       {c.title}
-                    </h4>
+                    </h3>
 
                     {/* Author Meta */}
                     <div

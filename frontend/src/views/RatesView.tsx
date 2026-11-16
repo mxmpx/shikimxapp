@@ -6,6 +6,7 @@ interface RatesViewProps {
   onOpenAnime: (id: number) => void
   onOpenManga?: (id: number) => void
   initialTargetType?: 'Anime' | 'Manga'
+  isGuest?: boolean
 }
 
 const ANIME_STATUSES = [
@@ -30,6 +31,7 @@ export function RatesView({
   onOpenAnime,
   onOpenManga,
   initialTargetType = 'Anime',
+  isGuest = false,
 }: RatesViewProps) {
   const [targetType, setTargetType] = useState<'Anime' | 'Manga'>(
     initialTargetType
@@ -39,11 +41,16 @@ export function RatesView({
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (isGuest) {
+      setLoading(false)
+      setRates([])
+      return
+    }
     setLoading(true)
     fetchRates()
       .then((data) => setRates(Array.isArray(data) ? data : []))
       .finally(() => setLoading(false))
-  }, [])
+  }, [isGuest])
 
   const statuses = targetType === 'Anime' ? ANIME_STATUSES : MANGA_STATUSES
 
@@ -275,7 +282,75 @@ export function RatesView({
       </div>
 
       {/* Content */}
-      {loading ? (
+      {isGuest ? (
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '48px 24px',
+            background: 'var(--card-bg)',
+            border: '1px solid var(--card-border)',
+            borderRadius: 16,
+            maxWidth: 520,
+            margin: '20px auto 0',
+          }}
+        >
+          <div
+            style={{
+              width: 64,
+              height: 64,
+              borderRadius: 16,
+              background: 'var(--primary-container)',
+              color: 'var(--accent)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 32,
+              margin: '0 auto 18px',
+            }}
+          >
+            <i className="ti ti-user-circle" />
+          </div>
+          <h3
+            style={{
+              fontSize: 18,
+              fontWeight: 700,
+              color: 'var(--text-primary)',
+              margin: '0 0 8px',
+            }}
+          >
+            Синхронизация списков Shikimori
+          </h3>
+          <p
+            style={{
+              fontSize: 13.5,
+              color: 'var(--text-muted)',
+              lineHeight: 1.6,
+              margin: '0 0 24px',
+            }}
+          >
+            Войдите через официальный аккаунт Shikimori, чтобы получить доступ к своим спискам аниме и манги, отмечать просмотренные серии и выставлять оценки.
+          </p>
+          <a
+            href="/login"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '10px 22px',
+              borderRadius: 10,
+              background: 'var(--accent)',
+              color: '#ffffff',
+              fontWeight: 600,
+              fontSize: 14,
+              textDecoration: 'none',
+              transition: 'background-color 0.15s ease',
+            }}
+          >
+            <i className="ti ti-brand-shikimori" />
+            <span>Войти через Shikimori</span>
+          </a>
+        </div>
+      ) : loading ? (
         <div
           style={{
             display: 'flex',

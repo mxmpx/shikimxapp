@@ -1,0 +1,32 @@
+{
+  "base": "http://localhost:5173",
+  "viewports": [
+    { "name": "mobile", "width": 390, "height": 844 },
+    { "name": "tablet", "width": 768, "height": 1024 },
+    { "name": "desktop", "width": 1440, "height": 900 }
+  ],
+  "crawl": { "enabled": true, "maxPages": 20, "maxDepth": 2, "exclude": ["/logout", "/admin"] },
+  "states": [
+    { "name": "home", "steps": [] },
+    {
+      "name": "login",
+      "url": "/login",
+      "steps": [{ "action": "wait", "ms": 400 }]
+    },
+    {
+      "name": "dialog-open",
+      "steps": [
+        { "action": "click", "selector": ["[data-testid=\"open-dialog\"]", "text=Открыть"] },
+        { "action": "wait", "ms": 500 }
+      ]
+    },
+    {
+      "name": "form-filled",
+      "steps": [
+        { "action": "fill", "selector": "input[name=\"email\"]", "value": "audit@example.com" },
+        { "action": "fill", "selector": "input[name=\"password\"]", "value": "not-a-real-password" },
+        { "action": "click", "selector": "button[type=\"submit\"]" }
+      ]
+    }
+  ]
+}

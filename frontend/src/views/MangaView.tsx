@@ -196,7 +196,6 @@ export function MangaView({ onOpenManga }: MangaViewProps) {
               key={manga.id}
               role="button"
               tabIndex={0}
-              aria-label={`Открыть мангу: ${manga.russian || manga.name}`}
               onClick={() => onOpenManga(manga.id)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {

@@ -104,7 +104,6 @@ export function AnimePlayer({
         type="button"
         onClick={() => setPlayerOpen(!playerOpen)}
         aria-expanded={playerOpen}
-        aria-label="Свернуть или развернуть блок онлайн-плеера"
         style={{
           width: '100%',
           padding: '14px 16px',

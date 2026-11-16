@@ -1256,7 +1256,7 @@ export function AnimeModal({ animeId, onClose }: AnimeModalProps) {
                     href="#"
                     className="reveal-item"
                     style={{
-                      color: '#818cf8',
+                      color: 'var(--accent)',
                       textDecoration: 'none',
                       fontSize: 12.5,
                       fontWeight: 600,
@@ -1265,6 +1265,11 @@ export function AnimeModal({ animeId, onClose }: AnimeModalProps) {
                       whiteSpace: 'nowrap',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
+                      padding: '7px 10px',
+                      borderRadius: 8,
+                      background: 'rgba(255, 255, 255, 0.03)',
+                      minHeight: 32,
+                      boxSizing: 'border-box',
                       transition: 'all 0.15s ease',
                     }}
                   >
@@ -1280,7 +1285,8 @@ export function AnimeModal({ animeId, onClose }: AnimeModalProps) {
                     fontSize: 11.5,
                     cursor: 'pointer',
                     textAlign: 'left',
-                    padding: '4px 0 0 0',
+                    padding: '6px 0',
+                    minHeight: 32,
                     fontWeight: 600,
                   }}
                 >

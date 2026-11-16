@@ -148,7 +148,7 @@ export function NavigationTabs({ activeTab, setActiveTab }: NavigationTabsProps)
         <button
           onClick={() => setMainMenuOpen((prev) => !prev)}
           aria-expanded={mainMenuOpen}
-          aria-label="Главное меню разделов"
+          aria-label={`${currentTabInfo.label} — главное меню разделов`}
           style={{
             padding: '6px 14px',
             borderRadius: 10,

@@ -178,19 +178,53 @@ export function ArticlesView() {
                   <div
                     style={{
                       height: 150,
-                      background: cover
-                        ? `linear-gradient(to bottom, transparent 30%, rgba(10, 11, 15, 0.95)), url(${cover}) center/cover no-repeat`
-                        : 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(10, 11, 15, 0.95) 100%)',
+                      background:
+                        'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(10, 11, 15, 0.95) 100%)',
                       position: 'relative',
+                      overflow: 'hidden',
                       padding: '12px 14px',
                       display: 'flex',
                       alignItems: 'flex-start',
                       justifyContent: 'space-between',
                     }}
                   >
+                    {cover && (
+                      <img
+                        src={cover}
+                        alt=""
+                        loading="lazy"
+                        onError={(e) => {
+                          ;(e.currentTarget as HTMLElement).style.display = 'none'
+                        }}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          zIndex: 0,
+                        }}
+                      />
+                    )}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background:
+                          'linear-gradient(to bottom, transparent 30%, rgba(10, 11, 15, 0.95))',
+                        zIndex: 1,
+                        pointerEvents: 'none',
+                      }}
+                    />
                     {art.date && (
                       <span
                         style={{
+                          position: 'relative',
+                          zIndex: 2,
                           padding: '2px 7px',
                           borderRadius: 6,
                           background: 'rgba(10, 11, 15, 0.85)',
@@ -209,6 +243,8 @@ export function ArticlesView() {
                       art.comments_count > 0 && (
                         <span
                           style={{
+                            position: 'relative',
+                            zIndex: 2,
                             padding: '2px 7px',
                             borderRadius: 6,
                             background: 'rgba(10, 11, 15, 0.85)',
@@ -242,11 +278,11 @@ export function ArticlesView() {
                       flexDirection: 'column',
                     }}
                   >
-                    <h4
+                    <h3
                       style={{
                         fontSize: 15,
                         fontWeight: 600,
-                        color: '#fff',
+                        color: 'var(--text-primary)',
                         margin: '0 0 8px',
                         lineHeight: 1.35,
                         overflow: 'hidden',
@@ -257,7 +293,7 @@ export function ArticlesView() {
                       }}
                     >
                       {art.title}
-                    </h4>
+                    </h3>
 
                     {art.snippet && (
                       <div
