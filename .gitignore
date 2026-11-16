@@ -106,9 +106,7 @@ $RECYCLE.BIN/
 *.swp
 *.swo
 *~
-!.agents/
-.agents/*
-!.agents/skills/
+.agents/
 .gemini/
 .claude/
 .continue/
