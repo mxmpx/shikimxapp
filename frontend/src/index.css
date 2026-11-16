@@ -25,6 +25,15 @@
    ══════════════════════════════════════════════════════════════════ */
 
 :root {
+  color-scheme: dark light;
+
+  &:has(> head > meta[name="color-scheme"][content="dark"]) {
+    color-scheme: dark;
+  }
+  &:has(> head > meta[name="color-scheme"][content="light"]) {
+    color-scheme: light;
+  }
+
   /* ── 1. Page & Layout Canvas (Unslopped Cinema Slate) ── */
   --bg-page: #0a0b0f;
   --bg-page-radial: none;
@@ -732,6 +741,7 @@ textarea:focus-visible,
   display: flex !important;
   flex-direction: column !important;
   overflow: hidden !important;
+  overscroll-behavior: contain !important;
 }
 
 .modal-unified-scroll {
@@ -742,6 +752,7 @@ textarea:focus-visible,
   max-height: calc(100dvh - 56px);
   overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior: contain;
   padding: 28px 48px 60px 48px;
   padding-bottom: max(60px, env(safe-area-inset-bottom, 20px));
 }
@@ -1054,54 +1065,20 @@ body.has-fullscreen-player .app-header-mx2 {
   transform: scaleX(1) !important;
 }
 
-/* Child Stagger Delays */
-.stagger-children > *:nth-child(1) {
-  animation-delay: 25ms !important;
-  transition-delay: 25ms !important;
+/* Child Stagger Delays using modern CSS sibling-index() with fallback */
+.stagger-children > * {
+  --stagger-step: 25ms;
+  animation-delay: calc(var(--sibling-index, 1) * var(--stagger-step)) !important;
+  transition-delay: calc(var(--sibling-index, 1) * var(--stagger-step)) !important;
+  animation-delay: calc(sibling-index() * var(--stagger-step)) !important;
+  transition-delay: calc(sibling-index() * var(--stagger-step)) !important;
 }
-.stagger-children > *:nth-child(2) {
-  animation-delay: 50ms !important;
-  transition-delay: 50ms !important;
-}
-.stagger-children > *:nth-child(3) {
-  animation-delay: 75ms !important;
-  transition-delay: 75ms !important;
-}
-.stagger-children > *:nth-child(4) {
-  animation-delay: 100ms !important;
-  transition-delay: 100ms !important;
-}
-.stagger-children > *:nth-child(5) {
-  animation-delay: 125ms !important;
-  transition-delay: 125ms !important;
-}
-.stagger-children > *:nth-child(6) {
-  animation-delay: 150ms !important;
-  transition-delay: 150ms !important;
-}
-.stagger-children > *:nth-child(7) {
-  animation-delay: 175ms !important;
-  transition-delay: 175ms !important;
-}
-.stagger-children > *:nth-child(8) {
-  animation-delay: 200ms !important;
-  transition-delay: 200ms !important;
-}
-.stagger-children > *:nth-child(9) {
-  animation-delay: 225ms !important;
-  transition-delay: 225ms !important;
-}
-.stagger-children > *:nth-child(10) {
-  animation-delay: 250ms !important;
-  transition-delay: 250ms !important;
-}
-.stagger-children > *:nth-child(11) {
-  animation-delay: 275ms !important;
-  transition-delay: 275ms !important;
-}
-.stagger-children > *:nth-child(12) {
-  animation-delay: 300ms !important;
-  transition-delay: 300ms !important;
+
+@media (prefers-reduced-motion: reduce) {
+  .stagger-children > * {
+    animation-delay: 0ms !important;
+    transition-delay: 0ms !important;
+  }
 }
 
 .btn-shimmer {
@@ -1335,6 +1312,7 @@ div[style*='max-width: 1400px'] {
 .modal-overlay {
   backdrop-filter: blur(var(--modal-blur, 24px)) !important;
   -webkit-backdrop-filter: blur(var(--modal-blur, 24px)) !important;
+  overscroll-behavior: contain !important;
 }
 
 .shiki-dropdown-menu-mx2 {

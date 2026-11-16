@@ -491,6 +491,7 @@ export function SettingsModal({
                   }}
                 >
                   <label
+                    htmlFor="settings-custom-bgcolor"
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -501,6 +502,9 @@ export function SettingsModal({
                     }}
                   >
                     <input
+                      id="settings-custom-bgcolor"
+                      name="bg_color"
+                      aria-label="Выбор цвета фона"
                       type="color"
                       value={bgColor || '#0a0b0f'}
                       onChange={(e) => setBgColor(e.target.value)}
@@ -517,6 +521,7 @@ export function SettingsModal({
                   </label>
 
                   <button
+                    type="button"
                     onClick={handleResetBg}
                     style={{
                       background: 'none',
@@ -537,11 +542,21 @@ export function SettingsModal({
               <div
                 style={{ display: 'flex', flexDirection: 'column', gap: 10 }}
               >
+                <label htmlFor="settings-bg-image-url" style={{ display: 'none' }}>
+                  Ссылка на фоновое изображение
+                </label>
                 <input
-                  type="text"
+                  id="settings-bg-image-url"
+                  name="bg_image_url"
+                  aria-label="Ссылка на фоновое изображение"
+                  type="url"
                   placeholder="Вставьте ссылку на фоновое изображение (https://...)"
                   value={bgImageUrl}
                   onChange={(e) => setBgImageUrl(e.target.value)}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="none"
+                  spellCheck={false}
                   style={{
                     width: '100%',
                     height: 38,

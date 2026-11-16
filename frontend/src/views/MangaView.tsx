@@ -83,11 +83,17 @@ export function MangaView({ onOpenManga }: MangaViewProps) {
           }}
         >
           <input
-            type="text"
+            type="search"
+            id="manga-filter-search"
+            name="manga_search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Поиск манги..."
             aria-label="Поиск манги"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="none"
+            spellCheck={false}
             style={{
               padding: '6px 12px',
               borderRadius: 8,

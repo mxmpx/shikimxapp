@@ -81,11 +81,17 @@ export function RanobeView({ onOpenManga }: RanobeViewProps) {
           }}
         >
           <input
-            type="text"
+            type="search"
+            id="ranobe-filter-search"
+            name="ranobe_search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Поиск ранобэ..."
             aria-label="Поиск ранобэ"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="none"
+            spellCheck={false}
             style={{
               padding: '6px 12px',
               borderRadius: 8,

@@ -118,11 +118,17 @@ export function CollectionsView() {
             }}
           />
           <input
-            type="text"
+            type="search"
+            id="collections-search"
+            name="collections_search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Поиск коллекций..."
             aria-label="Поиск коллекций"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="none"
+            spellCheck={false}
             style={{
               width: '100%',
               height: 38,

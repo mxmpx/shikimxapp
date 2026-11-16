@@ -91,7 +91,9 @@ export function FriendsView() {
             }}
           />
           <input
-            type="text"
+            type="search"
+            id="friends-search"
+            name="friends_search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={
@@ -100,6 +102,10 @@ export function FriendsView() {
             aria-label={
               activeTab === 'friends' ? 'Поиск друзей' : 'Поиск клубов'
             }
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="none"
+            spellCheck={false}
             style={{
               width: '100%',
               height: 38,

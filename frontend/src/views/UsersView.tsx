@@ -238,11 +238,17 @@ export function UsersView() {
             }}
           />
           <input
-            type="text"
+            type="search"
+            id="users-search"
+            name="users_search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Поиск по никнейму..."
             aria-label="Поиск по никнейму"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="none"
+            spellCheck={false}
             style={{
               width: '100%',
               height: 38,

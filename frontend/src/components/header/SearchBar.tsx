@@ -73,7 +73,8 @@ export function SearchBar({ onOpenAnime }: SearchBarProps) {
   }, [])
 
   return (
-    <div
+    <search
+      role="search"
       ref={searchContainerRef}
       style={{
         position: 'relative',
@@ -103,12 +104,18 @@ export function SearchBar({ onOpenAnime }: SearchBarProps) {
         />
         <input
           ref={searchInputRef}
-          type="text"
+          type="search"
+          id="global-header-search"
+          name="q"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onFocus={() => setSearchFocused(true)}
           placeholder="Поиск по базе аниме и манги..."
           aria-label="Поиск по базе аниме и манги"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="none"
+          spellCheck={false}
           style={{
             flex: 1,
             background: 'none',
@@ -246,6 +253,6 @@ export function SearchBar({ onOpenAnime }: SearchBarProps) {
           )}
         </div>
       )}
-    </div>
+    </search>
   )
 }

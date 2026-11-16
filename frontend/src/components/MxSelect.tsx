@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useId } from 'react'
 
 export interface MxSelectOption {
   value: string | number
@@ -45,6 +45,7 @@ export function MxSelect({
   flex,
   minWidth,
 }: MxSelectProps) {
+  const selectId = useId()
   const [isOpen, setIsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -137,8 +138,12 @@ export function MxSelect({
 
       <button
         type="button"
+        id={`mx-select-btn-${selectId}`}
         role="combobox"
         aria-expanded={isOpen}
+        aria-haspopup="listbox"
+        aria-controls={isOpen ? `mx-select-list-${selectId}` : undefined}
+        aria-label={label ? `${label}: ${selectedOption ? selectedOption.label : placeholder}` : undefined}
         onClick={() => setIsOpen((prev) => !prev)}
         className={`mx2-dropdown-trigger ${isOpen ? 'open' : ''}`}
       >
@@ -181,16 +186,28 @@ export function MxSelect({
               <i className="ti ti-search mx2-dropdown-search-icon" />
               <input
                 ref={searchInputRef}
-                type="text"
+                type="search"
+                id={`mx-select-search-${selectId}`}
+                name={`mx_select_search_${label ? label.toLowerCase().replace(/\s+/g, '_') : 'field'}`}
+                aria-label={searchPlaceholder || `Поиск ${label || 'элементов'}`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={searchPlaceholder}
                 className="mx2-dropdown-search-input"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="none"
+                spellCheck={false}
               />
             </div>
           )}
 
-          <div className="mx2-dropdown-list">
+          <div
+            id={`mx-select-list-${selectId}`}
+            role="listbox"
+            aria-label={label || 'Список элементов'}
+            className="mx2-dropdown-list"
+          >
             {totalFilteredCount === 0 ? (
               <div className="mx2-dropdown-empty">Ничего не найдено</div>
             ) : filteredGroups ? (
@@ -206,6 +223,8 @@ export function MxSelect({
                       <button
                         key={String(option.value)}
                         type="button"
+                        role="option"
+                        aria-selected={isSelected}
                         onClick={() => {
                           onChange(option.value)
                           setIsOpen(false)

@@ -107,8 +107,10 @@ export function CatalogFilterBar({
         }}
       >
         {/* Genre */}
+        {/* Genre */}
         <div>
           <label
+            htmlFor="catalog-filter-genre"
             style={{
               display: 'block',
               fontSize: 11,
@@ -120,6 +122,8 @@ export function CatalogFilterBar({
             Жанр
           </label>
           <select
+            id="catalog-filter-genre"
+            name="genre"
             value={genre}
             onChange={(e) => setGenre(e.target.value)}
             style={{
@@ -149,6 +153,7 @@ export function CatalogFilterBar({
         {/* Season */}
         <div>
           <label
+            htmlFor="catalog-filter-season"
             style={{
               display: 'block',
               fontSize: 11,
@@ -160,6 +165,8 @@ export function CatalogFilterBar({
             Сезон
           </label>
           <select
+            id="catalog-filter-season"
+            name="season"
             value={season}
             onChange={(e) => setSeason(e.target.value)}
             style={{
@@ -188,6 +195,7 @@ export function CatalogFilterBar({
         {/* Kind */}
         <div>
           <label
+            htmlFor="catalog-filter-kind"
             style={{
               display: 'block',
               fontSize: 11,
@@ -199,6 +207,8 @@ export function CatalogFilterBar({
             Тип
           </label>
           <select
+            id="catalog-filter-kind"
+            name="kind"
             value={kind}
             onChange={(e) => setKind(e.target.value)}
             style={{
@@ -225,6 +235,7 @@ export function CatalogFilterBar({
         {/* Status */}
         <div>
           <label
+            htmlFor="catalog-filter-status"
             style={{
               display: 'block',
               fontSize: 11,
@@ -236,6 +247,8 @@ export function CatalogFilterBar({
             Статус
           </label>
           <select
+            id="catalog-filter-status"
+            name="status"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
             style={{
@@ -260,6 +273,7 @@ export function CatalogFilterBar({
         {/* Min score */}
         <div>
           <label
+            htmlFor="catalog-filter-score"
             style={{
               display: 'block',
               fontSize: 11,
@@ -271,6 +285,8 @@ export function CatalogFilterBar({
             Мин. оценка
           </label>
           <select
+            id="catalog-filter-score"
+            name="score"
             value={score}
             onChange={(e) => setScore(e.target.value)}
             style={{
@@ -295,6 +311,7 @@ export function CatalogFilterBar({
         {/* Order */}
         <div>
           <label
+            htmlFor="catalog-filter-order"
             style={{
               display: 'block',
               fontSize: 11,
@@ -306,6 +323,8 @@ export function CatalogFilterBar({
             Сортировка
           </label>
           <select
+            id="catalog-filter-order"
+            name="order"
             value={order}
             onChange={(e) => setOrder(e.target.value)}
             style={{

@@ -453,6 +453,8 @@ export function MangaModal({ mangaId, onClose, onOpenAnime }: MangaModalProps) {
                     >
                       Статус
                       <select
+                        id="manga-status-select"
+                        name="manga_status"
                         value={status}
                         onChange={(e) => setStatus(e.target.value)}
                         style={inputStyle}
@@ -465,6 +467,7 @@ export function MangaModal({ mangaId, onClose, onOpenAnime }: MangaModalProps) {
                       </select>
                     </label>
                     <label
+                      htmlFor="manga-chapters-input"
                       style={{
                         display: 'flex',
                         flexDirection: 'column',
@@ -475,6 +478,8 @@ export function MangaModal({ mangaId, onClose, onOpenAnime }: MangaModalProps) {
                     >
                       Глав прочитано
                       <input
+                        id="manga-chapters-input"
+                        name="chapters_read"
                         type="number"
                         min={0}
                         max={totalChapters || undefined}
@@ -486,6 +491,7 @@ export function MangaModal({ mangaId, onClose, onOpenAnime }: MangaModalProps) {
                       />
                     </label>
                     <label
+                      htmlFor="manga-volumes-input"
                       style={{
                         display: 'flex',
                         flexDirection: 'column',
@@ -496,6 +502,8 @@ export function MangaModal({ mangaId, onClose, onOpenAnime }: MangaModalProps) {
                     >
                       Томов прочитано
                       <input
+                        id="manga-volumes-input"
+                        name="volumes_read"
                         type="number"
                         min={0}
                         max={totalVolumes || undefined}
@@ -507,6 +515,7 @@ export function MangaModal({ mangaId, onClose, onOpenAnime }: MangaModalProps) {
                       />
                     </label>
                     <label
+                      htmlFor="manga-score-input"
                       style={{
                         display: 'flex',
                         flexDirection: 'column',
@@ -517,6 +526,8 @@ export function MangaModal({ mangaId, onClose, onOpenAnime }: MangaModalProps) {
                     >
                       Оценка (0–10)
                       <input
+                        id="manga-score-input"
+                        name="score"
                         type="number"
                         min={0}
                         max={10}
@@ -527,6 +538,9 @@ export function MangaModal({ mangaId, onClose, onOpenAnime }: MangaModalProps) {
                     </label>
                   </div>
                   <textarea
+                    id="manga-note-textarea"
+                    name="note"
+                    aria-label="Заметка или отзыв о манге"
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
                     placeholder="Заметка или отзыв..."

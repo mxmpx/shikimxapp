@@ -129,6 +129,13 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
+    let meta = document.querySelector<HTMLMetaElement>('meta[name="color-scheme"]')
+    if (!meta) {
+      meta = document.createElement('meta')
+      meta.name = 'color-scheme'
+      document.head.appendChild(meta)
+    }
+    meta.content = theme === 'dark' ? 'dark' : theme === 'light' ? 'light' : 'dark light'
     localStorage.setItem('shikimx_theme', theme)
   }, [theme])
 
