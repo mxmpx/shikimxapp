@@ -6,7 +6,7 @@ import threading
 import ipaddress
 import socket
 import requests
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 from flask import Blueprint, redirect, request, send_from_directory, current_app
 from utils import APP_NAME
 
@@ -258,7 +258,13 @@ def cleanup_img_cache(cache_dir: str, force: bool = False) -> None:
 
 @media_bp.route("/cache/img")
 def cache_img():
-    img_url = request.args.get("url")
+    # Извлекаем полный URL, включая все вложенные query-параметры (например, camo tokens)
+    qs = request.query_string.decode("utf-8", errors="ignore")
+    if qs.startswith("url="):
+        img_url = unquote(qs[4:])
+    else:
+        img_url = request.args.get("url")
+
     if not img_url:
         logger.warning("Image cache request without URL")
         return "Missing URL", 400
@@ -283,13 +289,15 @@ def cache_img():
     cache_dir = os.path.join(current_app.root_path, "static", "img_cache")
     os.makedirs(cache_dir, exist_ok=True)
 
-    # Фоновая очистка старых файлов (раз в час)
-    threading.Thread(
-        target=cleanup_img_cache,
-        args=(cache_dir,),
-        daemon=True,
-        name="img-cache-cleanup"
-    ).start()
+    # Фоновая очистка старых файлов не чаще раза в час
+    global _img_cache_last_cleanup
+    if time.time() - _img_cache_last_cleanup > IMG_CACHE_CLEANUP_INTERVAL:
+        threading.Thread(
+            target=cleanup_img_cache,
+            args=(cache_dir,),
+            daemon=True,
+            name="img-cache-cleanup"
+        ).start()
 
     filename = hashlib.md5(img_url.encode("utf-8")).hexdigest() + f".{ext}"
     filepath = os.path.join(cache_dir, filename)
@@ -320,8 +328,8 @@ def cache_img():
             response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
             return response
         logger.warning("Image download failed (%s): %s", r.status_code, img_url)
+        return "Image unavailable", 404
     except requests.RequestException as exc:
         logger.warning("Image cache error for %s: %s", img_url, exc)
 
-    logger.info("Redirecting to original image: %s", img_url)
-    return redirect(img_url)
+    return "Image error", 404

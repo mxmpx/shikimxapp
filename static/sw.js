@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shikimx-v4-react';
+const CACHE_NAME = 'shikimx-v5-react';
 const FONT_CACHE_NAME = 'shikimx-fonts-v1';
 const IMAGE_CACHE_NAME = 'shikimx-images-v1';
 
@@ -61,7 +61,17 @@ self.addEventListener('fetch', event => {
 
   const requestUrl = new URL(request.url);
 
-  // 1. Skip OAuth and dynamic mutation routes
+  // 1. Skip external cross-origin requests (e.g. Shikimori CDN images, external posters) so the browser
+  // loads them directly via native HTTP/2 multiplexing without Service Worker thread bottleneck
+  if (
+    requestUrl.origin !== self.location.origin &&
+    requestUrl.hostname !== 'fonts.googleapis.com' &&
+    requestUrl.hostname !== 'fonts.gstatic.com'
+  ) {
+    return;
+  }
+
+  // 2. Skip OAuth and dynamic mutation routes
   if (
     requestUrl.pathname.startsWith('/login') ||
     requestUrl.pathname.startsWith('/auth') ||
