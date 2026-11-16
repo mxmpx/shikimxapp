@@ -212,6 +212,12 @@ export function SearchBar({ onOpenAnime }: SearchBarProps) {
                 <img
                   src={item.image}
                   alt={item.name}
+                  onError={(e) => {
+                    const target = e.currentTarget as HTMLImageElement
+                    if (target.src !== 'https://shikimori.io/assets/globals/missing_original.jpg') {
+                      target.src = 'https://shikimori.io/assets/globals/missing_original.jpg'
+                    }
+                  }}
                   style={{
                     width: 32,
                     height: 44,

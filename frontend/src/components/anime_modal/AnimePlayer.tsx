@@ -873,6 +873,9 @@ export function AnimePlayer({
                     <img
                       src={animeImage}
                       alt=""
+                      onError={(e) => {
+                        ;(e.currentTarget as HTMLElement).style.display = 'none'
+                      }}
                       style={{
                         position: 'absolute',
                         inset: 0,

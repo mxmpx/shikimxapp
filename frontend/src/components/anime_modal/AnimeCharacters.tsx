@@ -95,8 +95,14 @@ export function AnimeCharacters({ characters }: AnimeCharactersProps) {
               onMouseLeave={() => setHoveredCard(null)}
             >
               <img
-                src={char.image}
+                src={char.image || 'https://shikimori.io/assets/globals/missing_original.jpg'}
                 alt={char.name}
+                onError={(e) => {
+                  const target = e.currentTarget as HTMLImageElement
+                  if (target.src !== 'https://shikimori.io/assets/globals/missing_original.jpg') {
+                    target.src = 'https://shikimori.io/assets/globals/missing_original.jpg'
+                  }
+                }}
                 style={{
                   width: 60,
                   height: 60,

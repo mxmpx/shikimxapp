@@ -272,6 +272,9 @@ export function ForumView() {
                           <img
                             src={t.author_avatar}
                             alt={author}
+                            onError={(e) => {
+                              ;(e.currentTarget as HTMLElement).style.display = 'none'
+                            }}
                             style={{
                               width: 14,
                               height: 14,

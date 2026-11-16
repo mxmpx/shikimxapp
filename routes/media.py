@@ -22,6 +22,8 @@ IMG_CACHE_CLEANUP_INTERVAL = 3600  # 1 час
 
 _img_cache_last_cleanup = 0.0
 _img_cache_cleanup_lock = threading.Lock()
+_failed_image_urls = set()
+_failed_image_lock = threading.Lock()
 
 ALLOWED_IMAGE_HOSTS = {
     "shikimori.one",
@@ -33,6 +35,7 @@ ALLOWED_IMAGE_HOSTS = {
     "dere.shikimori.one",
     "dere.shikimori.io",
     "dere.shikimori.me",
+    "camo-v3.shikimori.io",
     "nyaa.si",
     "nyaa.iss.one",
     "img.youtube.com",
@@ -258,16 +261,25 @@ def cleanup_img_cache(cache_dir: str, force: bool = False) -> None:
 
 @media_bp.route("/cache/img")
 def cache_img():
-    # Извлекаем полный URL, включая все вложенные query-параметры (например, camo tokens)
+    # Извлекаем полный URL, сохраняя вложенные параметры и HMAC-подписи (например, camo tokens)
     qs = request.query_string.decode("utf-8", errors="ignore")
     if qs.startswith("url="):
-        img_url = unquote(qs[4:])
+        raw_target = qs[4:]
+        if raw_target.startswith("http%3A") or raw_target.startswith("https%3A"):
+            img_url = unquote(raw_target)
+        else:
+            img_url = raw_target
     else:
         img_url = request.args.get("url")
 
     if not img_url:
         logger.warning("Image cache request without URL")
         return "Missing URL", 400
+
+    # Быстрый возврат для ранее проверенных недоступных/битых картинок (без зависания потоков)
+    with _failed_image_lock:
+        if img_url in _failed_image_urls:
+            return "Image unavailable", 404
 
     if not is_allowed_image_url(img_url):
         try:
@@ -312,7 +324,7 @@ def cache_img():
         # Patch socket creation during proxy fetch to prevent DNS rebinding
         urllib_conn.create_connection = _safe_create_connection
         try:
-            r = requests.get(img_url, headers={"User-Agent": APP_NAME}, timeout=10)
+            r = requests.get(img_url, headers={"User-Agent": APP_NAME}, timeout=3.5)
         finally:
             urllib_conn.create_connection = _orig_create_connection
 
@@ -328,8 +340,12 @@ def cache_img():
             response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
             return response
         logger.warning("Image download failed (%s): %s", r.status_code, img_url)
+        with _failed_image_lock:
+            _failed_image_urls.add(img_url)
         return "Image unavailable", 404
     except requests.RequestException as exc:
         logger.warning("Image cache error for %s: %s", img_url, exc)
+        with _failed_image_lock:
+            _failed_image_urls.add(img_url)
 
     return "Image error", 404

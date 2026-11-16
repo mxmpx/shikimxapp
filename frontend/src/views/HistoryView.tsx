@@ -136,6 +136,12 @@ export function HistoryView({ onOpenAnime }: HistoryViewProps) {
                   <img
                     src={img}
                     alt={title}
+                    onError={(e) => {
+                      const targetEl = e.currentTarget as HTMLImageElement
+                      if (targetEl.src !== 'https://shikimori.io/assets/globals/missing_original.jpg') {
+                        targetEl.src = 'https://shikimori.io/assets/globals/missing_original.jpg'
+                      }
+                    }}
                     style={{
                       width: 40,
                       height: 54,

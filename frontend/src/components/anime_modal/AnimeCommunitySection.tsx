@@ -78,8 +78,14 @@ export function AnimeCommunitySection({ community }: AnimeCommunitySectionProps)
                 }}
               >
                 <img
-                  src={fr.avatar}
+                  src={fr.avatar || 'https://shikimori.io/assets/globals/missing_avatar.jpg'}
                   alt={fr.name}
+                  onError={(e) => {
+                    const target = e.currentTarget as HTMLImageElement
+                    if (target.src !== 'https://shikimori.io/assets/globals/missing_avatar.jpg') {
+                      target.src = 'https://shikimori.io/assets/globals/missing_avatar.jpg'
+                    }
+                  }}
                   style={{
                     width: 26,
                     height: 26,
@@ -192,8 +198,14 @@ export function AnimeCommunitySection({ community }: AnimeCommunitySectionProps)
                 title={`${u.name} (${u.status})`}
               >
                 <img
-                  src={u.avatar}
+                  src={u.avatar || 'https://shikimori.io/assets/globals/missing_avatar.jpg'}
                   alt={u.name}
+                  onError={(e) => {
+                    const target = e.currentTarget as HTMLImageElement
+                    if (target.src !== 'https://shikimori.io/assets/globals/missing_avatar.jpg') {
+                      target.src = 'https://shikimori.io/assets/globals/missing_avatar.jpg'
+                    }
+                  }}
                   style={{
                     width: '100%',
                     height: '100%',

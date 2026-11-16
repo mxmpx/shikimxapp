@@ -61,17 +61,23 @@ def parse_news_topic(t):
 
     all_text = (t.get("html_body") or "") + " " + (t.get("html_footer") or "") + " " + (t.get("body") or "")
     if not img_src:
-        img_match = re.search(r'<img[^>]+src=["\']([^"\']+)["\']', all_text)
-        if img_match:
-            candidate = img_match.group(1)
-            if "missing" not in candidate:
-                img_src = candidate
+        # Приоритет: официальные обложки и постеры, загруженные редакторами на CDN Shikimori
+        user_img_match = re.search(r'<img[^>]+src=["\'](https?://[^"\']*shikimori\.(?:one|io|me)/system/user_images_h/[^"\']+)["\']', all_text)
+        if user_img_match:
+            img_src = user_img_match.group(1)
 
     yt_match = re.search(r'youtube\.com/vi/([^/]+)', all_text) or re.search(r'youtu\.be/([a-zA-Z0-9_\-]+)', all_text)
     if yt_match:
         is_youtube = True
         if not img_src:
             img_src = f"https://img.youtube.com/vi/{yt_match.group(1)}/hqdefault.jpg"
+
+    if not img_src:
+        img_match = re.search(r'<img[^>]+src=["\']([^"\']+)["\']', all_text)
+        if img_match:
+            candidate = img_match.group(1)
+            if "missing" not in candidate:
+                img_src = candidate
 
     if img_src:
         if "missing" in img_src:
@@ -82,9 +88,22 @@ def parse_news_topic(t):
             elif not img_src.startswith("http"):
                 img_src = f"{SHIKIMORI_BASE}" + ("" if img_src.startswith("/") else "/") + img_src
 
+            # Если это camo-ссылка Shikimori, разворачиваем оригинальный адрес источника (кроме несовместимых SSL)
+            if "camo-v3.shikimori.io" in img_src and "url=" in img_src:
+                try:
+                    camo_match = re.search(r'[?&]url=([^&]+)', img_src)
+                    if camo_match:
+                        from urllib.parse import unquote
+                        unwrapped = unquote(camo_match.group(1))
+                        if unwrapped.startswith("http") and not ("okcdn.ru" in unwrapped or "ok.ru" in unwrapped):
+                            img_src = unwrapped
+                except Exception:
+                    pass
+
             img_src = re.sub(r'/(preview|x64|x32|x96|x148|x160)/', '/original/', img_src)
 
-    cached_img = f"/cache/img?url={img_src}" if img_src else ""
+    # Отдаем прямой CDN URL для параллельной загрузки браузером через HTTP/2
+    cached_img = img_src if img_src else ""
 
     tags = ["Аниме"]
     title_lower = title.lower()

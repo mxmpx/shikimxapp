@@ -197,6 +197,12 @@ export function CritiquesView({
                       <img
                         src={animeImg}
                         alt={c.title}
+                        onError={(e) => {
+                          const target = e.currentTarget as HTMLImageElement
+                          if (target.src !== 'https://shikimori.io/assets/globals/missing_original.jpg') {
+                            target.src = 'https://shikimori.io/assets/globals/missing_original.jpg'
+                          }
+                        }}
                         style={{
                           width: '100%',
                           height: '100%',

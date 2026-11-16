@@ -65,6 +65,10 @@ export function AnimeScreenshotsGallery({
             <img
               src={url}
               alt={`Кадр ${idx + 1}`}
+              onError={(e) => {
+                const parent = (e.currentTarget as HTMLElement).parentElement
+                if (parent) parent.style.display = 'none'
+              }}
               style={{
                 width: '100%',
                 height: '100%',

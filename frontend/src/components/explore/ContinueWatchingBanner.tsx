@@ -88,6 +88,12 @@ export function ContinueWatchingBanner({
             <img
               src={item.image}
               alt={item.title}
+              onError={(e) => {
+                const target = e.currentTarget as HTMLImageElement
+                if (target.src !== 'https://shikimori.io/assets/globals/missing_original.jpg') {
+                  target.src = 'https://shikimori.io/assets/globals/missing_original.jpg'
+                }
+              }}
               style={{
                 width: 44,
                 height: 60,
