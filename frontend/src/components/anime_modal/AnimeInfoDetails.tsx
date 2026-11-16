@@ -19,7 +19,10 @@ export function AnimeInfoDetails({ anime }: AnimeInfoDetailsProps) {
           background: 'var(--card-bg)',
           border: '1px solid var(--card-border)',
           borderRadius: 16,
-          padding: '20px 24px',
+          padding: 'clamp(14px, 3vw, 20px) clamp(12px, 3vw, 24px)',
+          maxWidth: '100%',
+          minWidth: 0,
+          boxSizing: 'border-box',
         }}
       >
         {/* Header with Title, Studio Badge and Status */}
@@ -87,8 +90,10 @@ export function AnimeInfoDetails({ anime }: AnimeInfoDetailsProps) {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(220px, 100%), 1fr))',
             gap: '4px 36px',
+            maxWidth: '100%',
+            minWidth: 0,
           }}
         >
           {/* Column 1 */}

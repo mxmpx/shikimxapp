@@ -107,17 +107,20 @@ export function AnimePlayer({
         aria-label="Свернуть или развернуть блок онлайн-плеера"
         style={{
           width: '100%',
-          padding: '16px 22px',
+          padding: '14px 16px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 10,
           background: 'none',
           border: 'none',
           cursor: 'pointer',
           fontFamily: 'inherit',
+          boxSizing: 'border-box',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flexWrap: 'wrap' }}>
           <div
             style={{
               width: 40,
@@ -362,8 +365,8 @@ export function AnimePlayer({
                 options={episodeOptions}
                 searchable={totalEpisodes > 10}
                 searchPlaceholder="Номер серии..."
-                flex="1 1 180px"
-                minWidth={170}
+                flex="1 1 140px"
+                minWidth="min(140px, 100%)"
               />
 
               {/* 2. Озвучка / Перевод Custom Dropdown */}
@@ -375,8 +378,8 @@ export function AnimePlayer({
                 groups={dubGroups}
                 searchable={true}
                 searchPlaceholder="Поиск озвучки..."
-                flex="2 1 240px"
-                minWidth={220}
+                flex="2 1 180px"
+                minWidth="min(180px, 100%)"
               />
 
               {/* 3. Источник / Зеркало Custom Dropdown */}
@@ -386,8 +389,8 @@ export function AnimePlayer({
                 value={selectedSource}
                 onChange={(val) => setSelectedSource(String(val))}
                 options={sourceOptions}
-                flex="1 1 180px"
-                minWidth={180}
+                flex="1 1 140px"
+                minWidth="min(140px, 100%)"
               />
             </div>
 

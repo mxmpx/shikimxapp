@@ -53,9 +53,7 @@ export function CollectionsView() {
   }
 
   return (
-    <div
-      style={{ maxWidth: 1400, margin: '0 auto', padding: '24px 32px 60px' }}
-    >
+    <div className="page-container">
       {/* Header */}
       <div
         style={{
@@ -191,8 +189,8 @@ export function CollectionsView() {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))',
-              gap: 18,
+              gridTemplateColumns: 'repeat(auto-fill, minmax(min(270px, 100%), 1fr))',
+              gap: 14,
             }}
           >
             {collections.map((c) => {
@@ -200,7 +198,12 @@ export function CollectionsView() {
               return (
                 <a
                   key={c.id}
-                  href={c.url || `https://shikimori.one/collections/${c.id}`}
+                  href={
+                    (c.url || `https://shikimori.io/collections/${c.id}`).replace(
+                      'shikimori.one',
+                      'shikimori.io'
+                    )
+                  }
                   target="_blank"
                   rel="noreferrer"
                   style={{

@@ -545,7 +545,7 @@ export const appConfig: AppConfig = {
     tagline: 'Современный клиент Shikimori с мультиплеером и mxstyle2 дизайном',
     developer: 'MX Developer',
     githubUrl: 'https://github.com',
-    shikimoriUrl: 'https://shikimori.one',
+    shikimoriUrl: 'https://shikimori.io',
     telegramUrl: 'https://t.me',
     features: [
       'Сверхбыстрый поиск аниме и манги с горячей клавишей /',
@@ -709,13 +709,13 @@ export const appConfig: AppConfig = {
 
   // ── 31. Сетевые настройки и API ──
   api: {
-    shikimoriApiBase: 'https://shikimori.one/api',
+    shikimoriApiBase: 'https://shikimori.io/api',
     localApiBase: '/api',
     requestTimeoutMs: 12000,
     retryCount: 2,
     defaultPosterPlaceholder: '/static/img/no-poster.png',
     defaultAvatarPlaceholder:
-      'https://shikimori.one/assets/globals/missing_avatar.png',
+      'https://shikimori.io/assets/globals/missing_avatar.png',
   },
 
   // ── 32. Общие тексты интерфейса ──
@@ -760,7 +760,12 @@ export function applyConfigToDOM(cfg: AppConfig = getUserConfig()): void {
   if (typeof document === 'undefined') return
   const root = document.documentElement
 
-  root.style.setProperty('--header-height', `${cfg.dimensions.headerHeight}px`)
+  const isMobile =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(max-width: 768px)').matches
+  const headerHeight = isMobile ? 52 : cfg.dimensions.headerHeight
+  root.style.setProperty('--header-height', `${headerHeight}px`)
   root.style.setProperty('--search-width', `${cfg.dimensions.searchWidth}px`)
   root.style.setProperty(
     '--search-focus-width',
@@ -881,4 +886,12 @@ export function resetUserConfig(): void {
   } catch (e) {
     console.error('Failed to reset config overrides:', e)
   }
+}
+
+if (typeof window !== 'undefined' && window.matchMedia) {
+  try {
+    window.matchMedia('(max-width: 768px)').addEventListener('change', () => {
+      applyConfigToDOM()
+    })
+  } catch {}
 }

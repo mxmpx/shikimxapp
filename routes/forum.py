@@ -14,8 +14,8 @@ def build_topic_url(t):
     url = t.get("url")
     if url:
         if url.startswith("http"):
-            return url
-        return f"{SHIKIMORI_BASE}{'' if url.startswith('/') else '/'}{url}"
+            return url.replace("shikimori.one", "shikimori.io")
+        return f"{SHIKIMORI_BASE}{'' if url.startswith('/') else '/'}{url}".replace("shikimori.one", "shikimori.io")
 
     topic_id = t.get("id")
     if not topic_id:

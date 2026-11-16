@@ -36,7 +36,7 @@ export function AppHeader({
       className="app-header-mx2"
       style={{
         height: 'var(--header-height, 56px)',
-        padding: '0 24px',
+        padding: '0 var(--page-gutter, 24px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',

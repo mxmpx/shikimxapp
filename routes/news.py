@@ -2,7 +2,7 @@ import re
 import logging
 from flask import Blueprint, jsonify, request
 from utils import (
-    SHIKIMORI_BASE, APP_NAME, fetch_cached_api, fix_image_url
+    SHIKIMORI_BASE, APP_NAME, fetch_cached_api, fix_image_url, unwrap_camo_url
 )
 from errors import api_route
 
@@ -14,8 +14,8 @@ def build_topic_url(t):
     url = t.get("url")
     if url:
         if url.startswith("http"):
-            return url
-        return f"{SHIKIMORI_BASE}{'' if url.startswith('/') else '/'}{url}"
+            return url.replace("shikimori.one", "shikimori.io")
+        return f"{SHIKIMORI_BASE}{'' if url.startswith('/') else '/'}{url}".replace("shikimori.one", "shikimori.io")
 
     topic_id = t.get("id")
     if not topic_id:
@@ -88,18 +88,8 @@ def parse_news_topic(t):
             elif not img_src.startswith("http"):
                 img_src = f"{SHIKIMORI_BASE}" + ("" if img_src.startswith("/") else "/") + img_src
 
-            # Если это camo-ссылка Shikimori, разворачиваем оригинальный адрес источника (кроме несовместимых SSL)
-            if "camo-v3.shikimori.io" in img_src and "url=" in img_src:
-                try:
-                    camo_match = re.search(r'[?&]url=([^&]+)', img_src)
-                    if camo_match:
-                        from urllib.parse import unquote
-                        unwrapped = unquote(camo_match.group(1))
-                        if unwrapped.startswith("http") and not ("okcdn.ru" in unwrapped or "ok.ru" in unwrapped):
-                            img_src = unwrapped
-                except Exception:
-                    pass
-
+            # Если это camo-ссылка Shikimori, разворачиваем оригинальный адрес источника
+            img_src = unwrap_camo_url(img_src)
             img_src = re.sub(r'/(preview|x64|x32|x96|x148|x160)/', '/original/', img_src)
 
     # Отдаем прямой CDN URL для параллельной загрузки браузером через HTTP/2

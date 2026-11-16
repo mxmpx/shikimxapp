@@ -47,7 +47,7 @@ export function AnimeCommunitySection({ community }: AnimeCommunitySectionProps)
           ).map((fr) => (
             <a
               key={fr.id}
-              href={`https://shikimori.one/${encodeURIComponent(fr.name)}`}
+              href={`https://shikimori.io/${encodeURIComponent(fr.name)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="reveal-item"
@@ -163,7 +163,7 @@ export function AnimeCommunitySection({ community }: AnimeCommunitySectionProps)
             className="stagger-children"
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(6, 1fr)',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(36px, 1fr))',
               gap: 8,
               marginTop: 2,
             }}
@@ -171,7 +171,7 @@ export function AnimeCommunitySection({ community }: AnimeCommunitySectionProps)
             {community.favorites.map((u) => (
               <a
                 key={u.id}
-                href={`https://shikimori.one/${encodeURIComponent(u.name)}`}
+                href={`https://shikimori.io/${encodeURIComponent(u.name)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="favorite-avatar reveal-pop"

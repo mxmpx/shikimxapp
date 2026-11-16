@@ -12,7 +12,12 @@ function UserCard({ user }: { user: UserSearchItem; index: number }) {
 
   return (
     <a
-      href={user.url || `https://shikimori.one/${user.nickname}`}
+      href={
+        (user.url || `https://shikimori.io/${user.nickname}`).replace(
+          'shikimori.one',
+          'shikimori.io'
+        )
+      }
       target="_blank"
       rel="noreferrer"
       style={{
@@ -173,9 +178,7 @@ export function UsersView() {
   }
 
   return (
-    <div
-      style={{ maxWidth: 1400, margin: '0 auto', padding: '24px 32px 60px' }}
-    >
+    <div className="page-container">
       {/* Header */}
       <div
         style={{
@@ -311,8 +314,8 @@ export function UsersView() {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-              gap: 16,
+              gridTemplateColumns: 'repeat(auto-fill, minmax(min(240px, 100%), 1fr))',
+              gap: 12,
             }}
           >
             {users.map((u, index) => (

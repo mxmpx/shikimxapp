@@ -37,7 +37,7 @@ export function CatalogFilterBar({
         background: 'var(--card-bg)',
         border: '1px solid var(--card-border)',
         borderRadius: 16,
-        padding: '20px 24px',
+        padding: 'clamp(14px, 3vw, 20px)',
         marginBottom: 20,
       }}
     >

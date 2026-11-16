@@ -123,6 +123,14 @@
   --z-modal: 9999;
   --z-overlay: 10000;
   --z-cursor: 99999;
+
+  /* ── 11. Mobile Layout & Responsive Tokens ── */
+  --page-gutter: clamp(12px, 3.5vw, 32px);
+  --header-height: 56px;
+  --bottom-nav-height: 56px;
+  --card-min: 140px;
+  --card-gap: 14px;
+  --modal-pad: clamp(14px, 4vw, 28px);
 }
 
 [data-theme='light'] {
@@ -806,17 +814,26 @@ body.has-fullscreen-player .app-header-mx2 {
   margin: 0 auto;
 }
 
-/* Responsive modal rules */
-@media (max-width: 960px) {
+/* Responsive modal rules (P0: AnimeModal & MangaModal full responsiveness without overflow) */
+@media (max-width: 1024px) {
   .modal-unified-scroll {
-    padding: 16px 16px 36px !important;
+    padding: 16px 16px calc(40px + env(safe-area-inset-bottom, 0px)) !important;
+    overflow-x: hidden !important;
   }
   .modal-columns-layout {
     flex-direction: column !important;
+    align-items: stretch !important;
     gap: 20px !important;
-  }
-  .modal-sidebar {
     width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+  .modal-sidebar,
+  .modal-main-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
   }
   .sidebar-header-row {
     display: flex !important;
@@ -829,6 +846,7 @@ body.has-fullscreen-player .app-header-mx2 {
   }
   .sidebar-actions-col {
     flex: 1 !important;
+    min-width: 0 !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
@@ -839,6 +857,34 @@ body.has-fullscreen-player .app-header-mx2 {
   .header-spacer {
     padding-right: 0 !important;
     margin-top: 40px;
+  }
+}
+
+.timeline-card,
+.timeline-card > * {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.player-dropdowns-bar {
+  flex-wrap: wrap !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.player-dropdowns-bar > * {
+  min-width: 0 !important;
+}
+
+@media (max-width: 600px) {
+  .player-dropdowns-bar {
+    padding: 10px 12px !important;
+    gap: 8px !important;
+  }
+  .player-dropdowns-bar > * {
+    flex: 1 1 100% !important;
+    min-width: 100% !important;
   }
 }
 
@@ -1867,3 +1913,255 @@ div[style*='max-width: 1400px'] {
   font-size: 12px;
   color: var(--text-dim);
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   MOBILE ADAPTIVE ARCHITECTURE LAYER (MOBILE-FIRST SYSTEM)
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Breakpoint Tokens & Root Overrides ── */
+@media (max-width: 768px) {
+  :root {
+    --header-height: 52px;
+    --bottom-nav-height: 58px;
+    --card-min: 135px;
+    --card-gap: 10px;
+    --page-gutter: 12px;
+  }
+}
+
+/* ── 2. Touch Interaction & iOS Zoom Prevention ── */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  button,
+  a,
+  input[type="button"],
+  input[type="submit"],
+  .touch-target {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* ── 3. Touch Target Standards (WCAG 2.2 / Apple HIG >= 44x44) ── */
+.touch-btn {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.touch-icon-btn {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+/* ── 4. Layout Visibility Utility Classes ── */
+.mobile-only {
+  display: none !important;
+}
+
+.mobile-flex {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+  .mobile-only {
+    display: block !important;
+  }
+  .mobile-flex {
+    display: flex !important;
+  }
+}
+
+/* ── 5. Standard Page Container & Responsive Grids ── */
+.page-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 16px var(--page-gutter) 60px;
+  box-sizing: border-box;
+}
+
+.responsive-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--card-min, 140px), 1fr));
+  gap: var(--card-gap, 12px);
+}
+
+@media (max-width: 480px) {
+  .responsive-card-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+}
+
+/* ── 6. Mobile Bottom Navigation Bar ── */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(var(--bottom-nav-height, 58px) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: rgba(10, 11, 15, 0.96);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid var(--modal-border);
+  z-index: var(--z-bottom-nav, 90);
+  box-sizing: border-box;
+}
+
+body.has-modal .mobile-bottom-nav {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+  }
+}
+
+.bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 100%;
+  padding: 6px 0;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.15s ease, transform 0.1s ease;
+  user-select: none;
+}
+
+.bottom-nav-item:active {
+  transform: scale(0.94);
+}
+
+.bottom-nav-item.is-active {
+  color: var(--accent);
+}
+
+.bottom-nav-item i {
+  font-size: 19px;
+  line-height: 1;
+}
+
+/* ── 7. Fullscreen Mobile Navigation Sheet ── */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-sheet-content {
+    animation: fadeIn 0.15s ease-out !important;
+  }
+}
+
+.mobile-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  overscroll-behavior: contain;
+}
+
+.mobile-sheet-content {
+  background: var(--modal-bg);
+  border-top: 1px solid var(--modal-border);
+  border-radius: 20px 20px 0 0;
+  max-height: calc(85dvh - env(safe-area-inset-top, 0px));
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.7);
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mobile-sheet-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 10px auto 4px;
+  flex-shrink: 0;
+}
+
+/* ── 8. Mobile Search Overlay ── */
+.mobile-search-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  background: var(--modal-bg);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  z-index: 2500;
+  display: flex;
+  flex-direction: column;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  overscroll-behavior: contain;
+  animation: fadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── 9. Safe Area Padding Utilities ── */
+.safe-bottom-padding {
+  padding-bottom: calc(var(--bottom-nav-height, 58px) + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+@media (max-width: 768px) {
+  .main-content-wrapper {
+    padding-bottom: calc(var(--bottom-nav-height, 58px) + env(safe-area-inset-bottom, 0px) + 16px) !important;
+  }
+}
+
+/* ── 10. Modal Mobile Fullscreen Layouts ── */
+@media (max-width: 768px) {
+  .modal-mobile-sheet {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+  }
+}
+

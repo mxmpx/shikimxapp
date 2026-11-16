@@ -60,7 +60,7 @@ export function AboutModal({ onClose }: AboutModalProps) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '20px',
+        padding: 'clamp(10px, 3vw, 20px)',
         outline: 'none',
       }}
       onClick={(e) => {
@@ -79,7 +79,7 @@ export function AboutModal({ onClose }: AboutModalProps) {
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
-          maxHeight: '90vh',
+          maxHeight: 'min(90vh, 100dvh)',
         }}
       >
         {/* Banner */}
@@ -150,10 +150,11 @@ export function AboutModal({ onClose }: AboutModalProps) {
           <button
             onClick={onClose}
             aria-label="Закрыть информацию о сайте"
+            className="touch-btn"
             style={{
-              width: 32,
-              height: 32,
-              borderRadius: 8,
+              width: 44,
+              height: 44,
+              borderRadius: 10,
               border: '1px solid var(--border-subtle)',
               background: 'var(--subtle-bg)',
               color: 'var(--text-muted)',
@@ -287,7 +288,7 @@ export function AboutModal({ onClose }: AboutModalProps) {
             }}
           >
             <a
-              href="https://shikimori.one"
+              href="https://shikimori.io"
               target="_blank"
               rel="noreferrer"
               style={{
@@ -308,7 +309,7 @@ export function AboutModal({ onClose }: AboutModalProps) {
                 className="ti ti-brand-shikimori"
                 style={{ color: 'var(--accent)' }}
               />
-              <span>Открыть Shikimori.one</span>
+              <span>Открыть Shikimori.io</span>
             </a>
           </div>
         </div>

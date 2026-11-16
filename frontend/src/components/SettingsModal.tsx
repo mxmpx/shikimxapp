@@ -149,7 +149,7 @@ export function SettingsModal({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '20px',
+        padding: 'clamp(10px, 3vw, 20px)',
         outline: 'none',
       }}
       onClick={(e) => {
@@ -168,7 +168,7 @@ export function SettingsModal({
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
-          maxHeight: '90vh',
+          maxHeight: 'min(90vh, 100dvh)',
         }}
       >
         {/* Header */}
@@ -223,10 +223,11 @@ export function SettingsModal({
           <button
             onClick={onClose}
             aria-label="Закрыть настройки"
+            className="touch-btn"
             style={{
-              width: 32,
-              height: 32,
-              borderRadius: 8,
+              width: 44,
+              height: 44,
+              borderRadius: 10,
               border: '1px solid var(--border-subtle)',
               background: 'var(--subtle-bg)',
               color: 'var(--text-muted)',
@@ -260,9 +261,11 @@ export function SettingsModal({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: 12,
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
               <div
                 style={{
                   width: 36,
@@ -362,6 +365,8 @@ export function SettingsModal({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: 10,
                 marginBottom: 14,
               }}
             >
@@ -629,7 +634,7 @@ export function SettingsModal({
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(96px, 100%), 1fr))',
                 gap: 10,
               }}
             >
@@ -646,6 +651,7 @@ export function SettingsModal({
                     style={{
                       padding: '12px 10px',
                       borderRadius: 10,
+                      minWidth: 0,
                       border: isSelected
                         ? '1px solid var(--accent)'
                         : '1px solid var(--border-subtle)',

@@ -19,8 +19,8 @@ export function NewsAndTopicsRow({
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: 20,
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(280px, 100%), 1fr))',
+          gap: 16,
         }}
       >
         {/* News Block */}
@@ -75,7 +75,12 @@ export function NewsAndTopicsRow({
               {news.slice(0, 5).map((n) => (
                 <a
                   key={n.id}
-                  href={n.url || `https://shikimori.one/forum/news/${n.id}`}
+                  href={
+                    (n.url || `https://shikimori.io/forum/news/${n.id}`).replace(
+                      'shikimori.one',
+                      'shikimori.io'
+                    )
+                  }
                   target="_blank"
                   rel="noreferrer"
                   style={{
@@ -205,7 +210,10 @@ export function NewsAndTopicsRow({
                 <a
                   key={t.id}
                   href={
-                    t.url || `https://shikimori.one/forum/animanga/${t.id}`
+                    (t.url || `https://shikimori.io/forum/animanga/${t.id}`).replace(
+                      'shikimori.one',
+                      'shikimori.io'
+                    )
                   }
                   target="_blank"
                   rel="noreferrer"

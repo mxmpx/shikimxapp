@@ -78,7 +78,7 @@ export function Top100View({ onOpenAnime, onOpenManga }: Top100ViewProps) {
         onOpenManga(id)
       } else {
         window.open(
-          `https://shikimori.one/mangas/${id}`,
+          `https://shikimori.io/mangas/${id}`,
           '_blank',
           'noopener,noreferrer'
         )
@@ -89,9 +89,7 @@ export function Top100View({ onOpenAnime, onOpenManga }: Top100ViewProps) {
   }
 
   return (
-    <div
-      style={{ maxWidth: 1400, margin: '0 auto', padding: '24px 32px 60px' }}
-    >
+    <div className="page-container">
       <div
         style={{
           display: 'flex',
@@ -262,13 +260,7 @@ export function Top100View({ onOpenAnime, onOpenManga }: Top100ViewProps) {
           <div>Рейтинг пока недоступен</div>
         </div>
       ) : (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-            gap: 18,
-          }}
-        >
+        <div className="responsive-card-grid">
           {items.map((anime, idx) => {
             const rank = anime.rank || idx + 1
             const isTop1 = rank === 1

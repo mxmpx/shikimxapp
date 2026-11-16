@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shikimx-v5-react';
+const CACHE_NAME = 'shikimx-v7-mobile';
 const FONT_CACHE_NAME = 'shikimx-fonts-v1';
 const IMAGE_CACHE_NAME = 'shikimx-images-v1';
 

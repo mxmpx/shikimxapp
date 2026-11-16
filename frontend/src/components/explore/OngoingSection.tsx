@@ -96,13 +96,7 @@ export function OngoingSection({
             <div>Список онгоингов пока пуст</div>
           </div>
         ) : (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-              gap: 18,
-            }}
-          >
+          <div className="responsive-card-grid">
             {onScreens.slice(0, 16).map((item) => (
               <AnimeCard
                 key={item.id}
@@ -140,13 +134,7 @@ export function OngoingSection({
               Обновления каталога
             </h3>
           </div>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-              gap: 18,
-            }}
-          >
+          <div className="responsive-card-grid">
             {updates.slice(0, 16).map((item) => (
               <AnimeCard
                 key={item.id}

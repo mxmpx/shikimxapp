@@ -36,6 +36,7 @@ from services.api_client import (
 )
 
 from services.poster_resolver import (
+    unwrap_camo_url,
     fix_image_url,
     resolve_posters_graphql,
     resolve_single_anime_poster_graphql,

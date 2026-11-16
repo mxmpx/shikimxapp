@@ -43,7 +43,7 @@ export function AnimeScreenshotsGallery({
         className="screenshots-grid"
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(min(140px, 100%), 1fr))',
           gap: 12,
         }}
       >

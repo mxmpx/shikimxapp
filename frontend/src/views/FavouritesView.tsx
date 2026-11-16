@@ -65,9 +65,7 @@ export function FavouritesView({
   const currentItems = data[activeTab]
 
   return (
-    <div
-      style={{ maxWidth: 1400, margin: '0 auto', padding: '24px 32px 60px' }}
-    >
+    <div className="page-container">
       {/* Header */}
       <div
         style={{
@@ -211,13 +209,7 @@ export function FavouritesView({
           <div>В этой категории пока ничего нет</div>
         </div>
       ) : activeTab === 'animes' || activeTab === 'mangas' ? (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-            gap: 18,
-          }}
-        >
+        <div className="responsive-card-grid">
           {currentItems.map((item) => (
             <AnimeCard
               key={item.id}
@@ -236,7 +228,7 @@ export function FavouritesView({
                     ? onOpenManga
                     : (id) =>
                         window.open(
-                          `https://shikimori.one/mangas/${id}`,
+                          `https://shikimori.io/mangas/${id}`,
                           '_blank'
                         )
               }
@@ -248,8 +240,8 @@ export function FavouritesView({
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-            gap: 16,
+            gridTemplateColumns: 'repeat(auto-fill, minmax(min(160px, 100%), 1fr))',
+            gap: 12,
           }}
         >
           {currentItems.map((item) => {
@@ -260,7 +252,7 @@ export function FavouritesView({
             return (
               <a
                 key={item.id}
-                href={`https://shikimori.one/${activeTab === 'characters' ? 'characters' : 'people'}/${item.id}`}
+                href={`https://shikimori.io/${activeTab === 'characters' ? 'characters' : 'people'}/${item.id}`}
                 target="_blank"
                 rel="noreferrer"
                 aria-label={`Открыть на Shikimori: ${title}`}

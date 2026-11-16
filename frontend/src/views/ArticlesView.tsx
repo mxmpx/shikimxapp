@@ -48,9 +48,7 @@ export function ArticlesView() {
   }
 
   return (
-    <div
-      style={{ maxWidth: 1400, margin: '0 auto', padding: '24px 32px 60px' }}
-    >
+    <div className="page-container">
       {/* Header */}
       <div
         style={{
@@ -134,7 +132,7 @@ export function ArticlesView() {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, 100%), 1fr))',
               gap: 18,
             }}
           >
@@ -143,7 +141,12 @@ export function ArticlesView() {
               return (
                 <a
                   key={art.id}
-                  href={art.url || `https://shikimori.one/articles/${art.id}`}
+                  href={
+                    (art.url || `https://shikimori.io/articles/${art.id}`).replace(
+                      'shikimori.one',
+                      'shikimori.io'
+                    )
+                  }
                   target="_blank"
                   rel="noreferrer"
                   style={{

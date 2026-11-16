@@ -100,7 +100,7 @@ export function NavigationTabs({ activeTab, setActiveTab }: NavigationTabsProps)
   const currentTabInfo = TAB_CONFIG[activeTab] || TAB_CONFIG.profile
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 20px)' }}>
       {/* Brand */}
       <div
         onClick={() => {
@@ -143,8 +143,8 @@ export function NavigationTabs({ activeTab, setActiveTab }: NavigationTabsProps)
         </span>
       </div>
 
-      {/* Main Menu Dropdown */}
-      <div ref={mainMenuRef} style={{ position: 'relative' }}>
+      {/* Main Menu Dropdown (Desktop only - mobile uses bottom nav sheet) */}
+      <div ref={mainMenuRef} className="desktop-only" style={{ position: 'relative' }}>
         <button
           onClick={() => setMainMenuOpen((prev) => !prev)}
           aria-expanded={mainMenuOpen}

@@ -22,9 +22,7 @@ export function RanobeView({ onOpenManga }: RanobeViewProps) {
   }, [page, status, order, searchQuery])
 
   return (
-    <div
-      style={{ maxWidth: 1400, margin: '0 auto', padding: '24px 32px 60px' }}
-    >
+    <div className="page-container">
       <div
         style={{
           display: 'flex',
@@ -189,13 +187,7 @@ export function RanobeView({ onOpenManga }: RanobeViewProps) {
           <div>Ранобэ не найдено по заданным критериям</div>
         </div>
       ) : (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-            gap: 18,
-          }}
-        >
+        <div className="responsive-card-grid">
           {items.map((ranobe) => (
             <div
               key={ranobe.id}

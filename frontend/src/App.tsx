@@ -1,5 +1,6 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react'
 import { AppHeader, TabKey } from './components/AppHeader'
+import { BottomNav } from './components/navigation/BottomNav'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { UserProfile } from './types/anime'
 import { fetchUserProfile } from './api/client'
@@ -208,14 +209,14 @@ export default function App() {
 
   useEffect(() => {
     if (isAnyModalOpen) {
-      document.body.classList.add('modal-open')
+      document.body.classList.add('modal-open', 'has-modal')
       document.documentElement.classList.add('modal-open')
     } else {
-      document.body.classList.remove('modal-open')
+      document.body.classList.remove('modal-open', 'has-modal')
       document.documentElement.classList.remove('modal-open')
     }
     return () => {
-      document.body.classList.remove('modal-open')
+      document.body.classList.remove('modal-open', 'has-modal')
       document.documentElement.classList.remove('modal-open')
     }
   }, [isAnyModalOpen])
@@ -305,7 +306,7 @@ export default function App() {
       />
 
       {/* Main View Router for All Tabs with Suspense code splitting */}
-      <main style={{ flex: 1, paddingTop: 'var(--header-height, 56px)' }}>
+      <main className="main-content-wrapper" style={{ flex: 1, paddingTop: 'var(--header-height, 56px)' }}>
         <ErrorBoundary key={activeTab}>
           <Suspense fallback={<ViewSkeleton />}>
             {/* 1. Главная / Explore */}
@@ -423,6 +424,15 @@ export default function App() {
           <AboutModal onClose={() => setShowAboutModal(false)} />
         )}
       </Suspense>
+
+      {/* Mobile Bottom Navigation (shown on <= 768px) */}
+      <BottomNav
+        activeTab={activeTab}
+        setActiveTab={handleTabChange}
+        onOpenSettings={() => setShowSettingsModal(true)}
+        onOpenAbout={() => setShowAboutModal(true)}
+        onOpenStats={() => setShowStatsModal(true)}
+      />
     </div>
   )
 }

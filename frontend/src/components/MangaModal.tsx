@@ -128,8 +128,8 @@ export function MangaModal({ mangaId, onClose, onOpenAnime }: MangaModalProps) {
         right: 0,
         bottom: 0,
         width: '100%',
-        height: 'calc(100vh - var(--header-height, 56px))',
-        zIndex: 90,
+        height: 'calc(100dvh - var(--header-height, 56px))',
+        zIndex: 1000,
         background: 'var(--modal-bg)',
         backdropFilter: 'blur(28px)',
         display: 'flex',
@@ -146,8 +146,8 @@ export function MangaModal({ mangaId, onClose, onOpenAnime }: MangaModalProps) {
           position: 'absolute',
           top: 18,
           right: 28,
-          width: 36,
-          height: 36,
+          width: 44,
+          height: 44,
           borderRadius: '50%',
           background: 'var(--subtle-bg)',
           border: '1px solid var(--border-subtle)',
@@ -221,7 +221,7 @@ export function MangaModal({ mangaId, onClose, onOpenAnime }: MangaModalProps) {
           >
             <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
               {/* Poster + facts */}
-              <div style={{ width: 240, flexShrink: 0 }}>
+              <div style={{ width: 'min(240px, 100%)', margin: '0 auto', flexShrink: 0 }}>
                 <div
                   style={{
                     borderRadius: 12,
@@ -334,7 +334,7 @@ export function MangaModal({ mangaId, onClose, onOpenAnime }: MangaModalProps) {
               </div>
 
               {/* Main */}
-              <div style={{ flex: 1, minWidth: 280 }}>
+              <div style={{ flex: 1, minWidth: 'min(280px, 100%)' }}>
                 <h2
                   id="manga-modal-title"
                   style={{
@@ -761,7 +761,7 @@ export function MangaModal({ mangaId, onClose, onOpenAnime }: MangaModalProps) {
                           if (rel.is_anime && onOpenAnime) onOpenAnime(rel.id)
                           else
                             window.open(
-                              `https://shikimori.one/mangas/${rel.id}`,
+                              `https://shikimori.io/mangas/${rel.id}`,
                               '_blank',
                               'noopener,noreferrer'
                             )

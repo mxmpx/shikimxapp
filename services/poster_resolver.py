@@ -7,6 +7,22 @@ logger = logging.getLogger("shikimxapp.poster_resolver")
 _franchise_poster_mem_cache: Dict[tuple, str] = {}
 
 
+def unwrap_camo_url(url: str) -> str:
+    """Unwrap Camo proxy URLs to their original source image URL."""
+    if not url or "camo" not in url:
+        return url
+    try:
+        camo_match = re.search(r'[?&]url=([^&]+)', url)
+        if camo_match:
+            from urllib.parse import unquote
+            unwrapped = unquote(camo_match.group(1))
+            if unwrapped.startswith("http://") or unwrapped.startswith("https://"):
+                return unwrapped
+    except Exception:
+        pass
+    return url
+
+
 def fix_image_url(image_data: Union[dict, str, None], high_res: bool = False) -> str:
     """Normalize and resolve full Shikimori CDN URLs for anime and manga posters/avatars."""
     if not image_data:
@@ -51,7 +67,7 @@ def fix_image_url(image_data: Union[dict, str, None], high_res: bool = False) ->
             path = "/" + path
         path = f"https://shikimori.io{path}"
 
-    return path
+    return unwrap_camo_url(path)
 
 
 def resolve_posters_graphql(anime_ids: List[Union[int, str]], headers: Optional[dict] = None) -> Dict[str, str]:

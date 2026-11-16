@@ -53,9 +53,7 @@ export function RecommendationsView({ onOpenAnime }: RecommendationsViewProps) {
   }
 
   return (
-    <div
-      style={{ maxWidth: 1400, margin: '0 auto', padding: '24px 32px 60px' }}
-    >
+    <div className="page-container">
       {/* Header */}
       <div
         style={{
@@ -136,13 +134,7 @@ export function RecommendationsView({ onOpenAnime }: RecommendationsViewProps) {
         </div>
       ) : (
         <>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-              gap: 18,
-            }}
-          >
+          <div className="responsive-card-grid">
             {items.map((anime) => (
               <AnimeCard key={anime.id} anime={anime} onSelect={onOpenAnime} />
             ))}

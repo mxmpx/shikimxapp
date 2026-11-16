@@ -41,9 +41,7 @@ export function CatalogView({ onOpenAnime }: CatalogViewProps) {
   }, [page, selectedGenre, order])
 
   return (
-    <div
-      style={{ maxWidth: 1400, margin: '0 auto', padding: '24px 32px 60px' }}
-    >
+    <div className="page-container">
       {/* Header and Controls */}
       <div
         style={{
@@ -178,13 +176,7 @@ export function CatalogView({ onOpenAnime }: CatalogViewProps) {
           По выбранным фильтрам ничего не найдено
         </div>
       ) : (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-            gap: 18,
-          }}
-        >
+        <div className="responsive-card-grid">
           {items.map((item) => (
             <AnimeCard key={item.id} anime={item} onSelect={onOpenAnime} />
           ))}

@@ -64,9 +64,7 @@ export function ForumView() {
   }
 
   return (
-    <div
-      style={{ maxWidth: 1400, margin: '0 auto', padding: '24px 32px 60px' }}
-    >
+    <div className="page-container">
       <div
         style={{
           display: 'flex',

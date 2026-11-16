@@ -125,7 +125,7 @@ export function StatsModal({ userProfile, onClose }: StatsModalProps) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '20px',
+        padding: 'clamp(10px, 3vw, 20px)',
         outline: 'none',
       }}
       onClick={(e) => {
@@ -144,7 +144,7 @@ export function StatsModal({ userProfile, onClose }: StatsModalProps) {
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
-          maxHeight: '90vh',
+          maxHeight: 'min(90vh, 100dvh)',
         }}
       >
         {/* Header */}
@@ -201,10 +201,11 @@ export function StatsModal({ userProfile, onClose }: StatsModalProps) {
           <button
             onClick={onClose}
             aria-label="Закрыть статистику просмотров"
+            className="touch-btn"
             style={{
-              width: 32,
-              height: 32,
-              borderRadius: 8,
+              width: 44,
+              height: 44,
+              borderRadius: 10,
               border: '1px solid var(--border-subtle)',
               background: 'var(--subtle-bg)',
               color: 'var(--text-muted)',

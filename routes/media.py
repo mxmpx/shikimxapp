@@ -8,7 +8,7 @@ import socket
 import requests
 from urllib.parse import urlparse, unquote
 from flask import Blueprint, redirect, request, send_from_directory, current_app
-from utils import APP_NAME
+from utils import APP_NAME, unwrap_camo_url
 
 logger = logging.getLogger("shikimxapp.media")
 media_bp = Blueprint('media', __name__)
@@ -36,6 +36,8 @@ ALLOWED_IMAGE_HOSTS = {
     "dere.shikimori.io",
     "dere.shikimori.me",
     "camo-v3.shikimori.io",
+    "camo-v3.shikimori.one",
+    "camo-v3.shikimori.me",
     "nyaa.si",
     "nyaa.iss.one",
     "img.youtube.com",
@@ -55,6 +57,8 @@ ALLOWED_IMAGE_HOSTS = {
     "preview.redd.it",
     "cdn.discordapp.com",
     "media.discordapp.net",
+    "okcdn.ru",
+    "iv.okcdn.ru",
 }
 
 ALLOWED_HOST_SUFFIXES = (
@@ -71,6 +75,8 @@ ALLOWED_HOST_SUFFIXES = (
     ".redd.it",
     ".discordapp.com",
     ".discordapp.net",
+    ".okcdn.ru",
+    ".ok.ru",
 )
 
 
@@ -276,6 +282,8 @@ def cache_img():
         logger.warning("Image cache request without URL")
         return "Missing URL", 400
 
+    img_url = unwrap_camo_url(img_url)
+
     # Быстрый возврат для ранее проверенных недоступных/битых картинок (без зависания потоков)
     with _failed_image_lock:
         if img_url in _failed_image_urls:
@@ -324,7 +332,10 @@ def cache_img():
         # Patch socket creation during proxy fetch to prevent DNS rebinding
         urllib_conn.create_connection = _safe_create_connection
         try:
-            r = requests.get(img_url, headers={"User-Agent": APP_NAME}, timeout=3.5)
+            req_headers = {"User-Agent": APP_NAME}
+            if "shikimori" in img_url:
+                req_headers["Referer"] = "https://shikimori.io/"
+            r = requests.get(img_url, headers=req_headers, timeout=3.5)
         finally:
             urllib_conn.create_connection = _orig_create_connection
 

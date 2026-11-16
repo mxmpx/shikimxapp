@@ -20,7 +20,11 @@ export function AnimeCharacters({ characters }: AnimeCharactersProps) {
         background: 'var(--card-bg)',
         border: '1px solid var(--card-border)',
         borderRadius: 16,
-        padding: '20px 24px',
+        padding: '20px clamp(12px, 3vw, 24px)',
+        maxWidth: '100%',
+        minWidth: 0,
+        overflow: 'hidden',
+        boxSizing: 'border-box',
       }}
     >
       <div
@@ -60,8 +64,10 @@ export function AnimeCharacters({ characters }: AnimeCharactersProps) {
           display: 'flex',
           gap: 14,
           overflowX: 'auto',
-          padding: '16px 8px 18px 8px',
-          margin: '-8px -8px 0 -8px',
+          maxWidth: '100%',
+          minWidth: 0,
+          WebkitOverflowScrolling: 'touch',
+          padding: '8px 4px 12px 4px',
         }}
       >
         {characters.map((char) => {

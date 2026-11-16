@@ -56,9 +56,7 @@ export function CritiquesView({
   }
 
   return (
-    <div
-      style={{ maxWidth: 1400, margin: '0 auto', padding: '24px 32px 60px' }}
-    >
+    <div className="page-container">
       {/* Header */}
       <div
         style={{
@@ -266,7 +264,7 @@ export function CritiquesView({
                               onOpenManga
                                 ? onOpenManga(linkedMangaId)
                                 : window.open(
-                                    `https://shikimori.one/mangas/${linkedMangaId}`,
+                                    `https://shikimori.io/mangas/${linkedMangaId}`,
                                     '_blank'
                                   )
                             }
@@ -308,8 +306,10 @@ export function CritiquesView({
 
                       <a
                         href={
-                          c.url ||
-                          `https://shikimori.one/forum/critiques/${c.id}`
+                          (c.url || `https://shikimori.io/forum/critiques/${c.id}`).replace(
+                            'shikimori.one',
+                            'shikimori.io'
+                          )
                         }
                         target="_blank"
                         rel="noreferrer"

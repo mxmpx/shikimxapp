@@ -63,7 +63,7 @@ export function SeasonalHeroBanner({
         style={{
           position: 'relative',
           zIndex: 1,
-          padding: '36px 40px',
+          padding: 'clamp(20px, 4vw, 36px) clamp(16px, 4vw, 40px)',
           maxWidth: 620,
         }}
       >
@@ -110,7 +110,7 @@ export function SeasonalHeroBanner({
 
         <h2
           style={{
-            fontSize: 30,
+            fontSize: 'clamp(20px, 3.5vw, 30px)',
             fontWeight: 700,
             color: 'var(--text-primary)',
             margin: '0 0 10px',

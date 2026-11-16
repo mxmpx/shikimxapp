@@ -26,9 +26,7 @@ export function FriendsView() {
   )
 
   return (
-    <div
-      style={{ maxWidth: 1400, margin: '0 auto', padding: '24px 32px 60px' }}
-    >
+    <div className="page-container">
       {/* Header */}
       <div
         style={{
@@ -266,8 +264,8 @@ export function FriendsView() {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-              gap: 16,
+              gridTemplateColumns: 'repeat(auto-fill, minmax(min(240px, 100%), 1fr))',
+              gap: 12,
             }}
           >
             {filteredFriends.map((f, index) => {
@@ -280,7 +278,7 @@ export function FriendsView() {
               return (
                 <a
                   key={f.id || index}
-                  href={`https://shikimori.one/${name}`}
+                  href={`https://shikimori.io/${name}`}
                   target="_blank"
                   rel="noreferrer"
                   style={{
@@ -416,7 +414,7 @@ export function FriendsView() {
             return (
               <a
                 key={c.id || index}
-                href={`https://shikimori.one/clubs/${c.id}`}
+                href={`https://shikimori.io/clubs/${c.id}`}
                 target="_blank"
                 rel="noreferrer"
                 style={{

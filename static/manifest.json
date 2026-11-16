@@ -6,8 +6,8 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#0d0414",
-  "theme_color": "#2b133d",
+  "background_color": "#0a0b0f",
+  "theme_color": "#0a0b0f",
   "lang": "ru",
   "categories": ["entertainment", "anime", "multimedia"],
   "icons": [

@@ -22,9 +22,7 @@ export function MangaView({ onOpenManga }: MangaViewProps) {
   }, [page, status, order, searchQuery])
 
   return (
-    <div
-      style={{ maxWidth: 1400, margin: '0 auto', padding: '24px 32px 60px' }}
-    >
+    <div className="page-container">
       {/* Header and Filter Controls */}
       <div
         style={{
@@ -192,13 +190,7 @@ export function MangaView({ onOpenManga }: MangaViewProps) {
           <div>Манга не найдена по заданным критериям</div>
         </div>
       ) : (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-            gap: 18,
-          }}
-        >
+        <div className="responsive-card-grid">
           {items.map((manga) => (
             <div
               key={manga.id}

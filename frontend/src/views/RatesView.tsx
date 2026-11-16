@@ -92,9 +92,7 @@ export function RatesView({
   }
 
   return (
-    <div
-      style={{ maxWidth: 1400, margin: '0 auto', padding: '24px 32px 60px' }}
-    >
+    <div className="page-container">
       {/* Header */}
       <div
         style={{
@@ -319,8 +317,8 @@ export function RatesView({
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: 16,
+            gridTemplateColumns: 'repeat(auto-fill, minmax(min(270px, 100%), 1fr))',
+            gap: 12,
           }}
         >
           {filteredRates.map((r, index) => {
@@ -367,7 +365,7 @@ export function RatesView({
                       onOpenManga(id)
                     } else {
                       window.open(
-                        `https://shikimori.one/mangas/${id}`,
+                        `https://shikimori.io/mangas/${id}`,
                         '_blank'
                       )
                     }
@@ -382,7 +380,7 @@ export function RatesView({
                       onOpenManga(id)
                     } else {
                       window.open(
-                        `https://shikimori.one/mangas/${id}`,
+                        `https://shikimori.io/mangas/${id}`,
                         '_blank'
                       )
                     }

@@ -338,8 +338,8 @@ export function AnimeModal({ animeId, onClose }: AnimeModalProps) {
           right: 0,
           bottom: 0,
           width: '100%',
-          height: 'calc(100vh - var(--header-height, 56px))',
-          zIndex: 90,
+          height: 'calc(100dvh - var(--header-height, 56px))',
+          zIndex: 1000,
           background: 'var(--modal-bg)',
           backdropFilter: 'blur(28px)',
           display: 'flex',
@@ -391,8 +391,8 @@ export function AnimeModal({ animeId, onClose }: AnimeModalProps) {
           right: 0,
           bottom: 0,
           width: '100%',
-          height: 'calc(100vh - var(--header-height, 56px))',
-          zIndex: 90,
+          height: 'calc(100dvh - var(--header-height, 56px))',
+          zIndex: 1000,
           background: 'var(--modal-bg)',
           backdropFilter: 'blur(28px)',
           display: 'flex',
@@ -656,8 +656,8 @@ export function AnimeModal({ animeId, onClose }: AnimeModalProps) {
   // Direct External Links
   const extLinks = anime.external_links || []
   const shikiUrl = (
-    anime.shikimori_url || `https://shikimori.one/animes/${anime.id}`
-  ).replace('shikimori.io', 'shikimori.one')
+    anime.shikimori_url || `https://shikimori.io/animes/${anime.id}`
+  ).replace('shikimori.one', 'shikimori.io')
   const kpDirect = extLinks.find((l) => l.kind === 'kinopoisk')?.url
   const kpUrl =
     kpDirect ||
@@ -694,8 +694,8 @@ export function AnimeModal({ animeId, onClose }: AnimeModalProps) {
         right: 0,
         bottom: 0,
         width: '100%',
-        height: 'calc(100vh - var(--header-height, 56px))',
-        zIndex: 90,
+        height: 'calc(100dvh - var(--header-height, 56px))',
+        zIndex: 1000,
         background: 'var(--modal-bg)',
         backdropFilter: 'blur(28px)',
         display: 'flex',
@@ -711,10 +711,10 @@ export function AnimeModal({ animeId, onClose }: AnimeModalProps) {
         title="Закрыть (Esc)"
         style={{
           position: 'absolute',
-          top: 18,
-          right: 28,
-          width: 36,
-          height: 36,
+          top: 14,
+          right: 20,
+          width: 44,
+          height: 44,
           borderRadius: '50%',
           background: 'var(--subtle-bg)',
           border: '1px solid var(--border-subtle)',
@@ -911,6 +911,7 @@ export function AnimeModal({ animeId, onClose }: AnimeModalProps) {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
+                  flexWrap: 'wrap',
                   gap: 7,
                   padding: '2px 0',
                 }}
@@ -1410,7 +1411,7 @@ export function AnimeModal({ animeId, onClose }: AnimeModalProps) {
                 className="title-main"
                 style={{
                   fontWeight: 800,
-                  fontSize: 32,
+                  fontSize: 'clamp(20px, 3.8vw, 32px)',
                   lineHeight: 1.16,
                   margin: 0,
                 }}

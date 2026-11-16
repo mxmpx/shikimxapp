@@ -47,9 +47,10 @@ export function UserMenu({
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      {/* Forum button */}
+      {/* Forum button (desktop only, accessible via BottomNav on mobile) */}
       <button
         onClick={() => setActiveTab('forum')}
+        className="desktop-only"
         aria-label="Форум и обсуждения"
         style={{
           width: 34,
@@ -78,10 +79,11 @@ export function UserMenu({
             ? 'Переключить на светлую тему'
             : 'Переключить на тёмную тему'
         }
+        className="touch-btn"
         style={{
-          width: 34,
-          height: 34,
-          borderRadius: 9,
+          width: 44,
+          height: 44,
+          borderRadius: 10,
           background: 'var(--input-bg)',
           border: '1px solid var(--input-border)',
           color: 'var(--text-muted)',
@@ -89,7 +91,7 @@ export function UserMenu({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: 15,
+          fontSize: 16,
           transition: 'all 0.15s ease',
         }}
         title={theme === 'dark' ? 'Светлая тема' : 'Темная тема'}
@@ -127,11 +129,11 @@ export function UserMenu({
                 border: '1px solid var(--accent)',
               }}
             />
-            <span style={{ fontSize: 13, fontWeight: 600 }}>
+            <span className="desktop-only" style={{ fontSize: 13, fontWeight: 600 }}>
               {userProfile.nickname}
             </span>
             <i
-              className="ti ti-caret-down"
+              className="ti ti-caret-down desktop-only"
               style={{ fontSize: 12, opacity: 0.6 }}
             />
           </button>

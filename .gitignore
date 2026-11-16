@@ -68,6 +68,7 @@ prompt/
 
 # Scratch, temporary files & test artifacts
 scratch/
+.audit/
 /test_*.py
 /test*.txt
 /test*.deleted

@@ -16,9 +16,7 @@ export function HistoryView({ onOpenAnime }: HistoryViewProps) {
   }, [])
 
   return (
-    <div
-      style={{ maxWidth: 1000, margin: '0 auto', padding: '24px 32px 60px' }}
-    >
+    <div className="page-container" style={{ maxWidth: 1000 }}>
       {/* Header */}
       <div
         style={{

@@ -124,7 +124,9 @@ export function MxSelect({
       className="mx2-dropdown"
       style={{
         flex: flex || '1 1 180px',
-        minWidth: minWidth || 160,
+        minWidth: minWidth !== undefined ? (typeof minWidth === 'number' ? `min(${minWidth}px, 100%)` : minWidth) : 'min(140px, 100%)',
+        maxWidth: '100%',
+        boxSizing: 'border-box',
         ...style,
       }}
     >

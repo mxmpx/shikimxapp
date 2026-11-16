@@ -59,7 +59,14 @@ export function AnimeRelatedTimeline({ related }: AnimeRelatedTimelineProps) {
           return (
             <div
               key={item.id}
-              style={{ display: 'flex', alignItems: 'stretch' }}
+              style={{
+                display: 'flex',
+                alignItems: 'stretch',
+                width: '100%',
+                minWidth: 0,
+                maxWidth: '100%',
+                boxSizing: 'border-box',
+              }}
             >
               <div
                 style={{
@@ -105,6 +112,8 @@ export function AnimeRelatedTimeline({ related }: AnimeRelatedTimelineProps) {
                 className="timeline-card reveal-slide-left"
                 style={{
                   flex: 1,
+                  minWidth: 0,
+                  maxWidth: '100%',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 14,
@@ -112,6 +121,7 @@ export function AnimeRelatedTimeline({ related }: AnimeRelatedTimelineProps) {
                   margin: '4px 0',
                   borderRadius: 14,
                   cursor: 'pointer',
+                  boxSizing: 'border-box',
                   background: isMain
                     ? 'rgba(var(--accent-rgb), 0.12)'
                     : 'var(--card-bg)',

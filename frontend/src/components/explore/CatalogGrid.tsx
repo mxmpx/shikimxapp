@@ -38,13 +38,7 @@ export function CatalogGrid({
 
   return (
     <div>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-          gap: 18,
-        }}
-      >
+      <div className="responsive-card-grid">
         {catalogItems.map((anime) => (
           <AnimeCard
             key={anime.id}

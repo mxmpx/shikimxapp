@@ -70,9 +70,7 @@ export function CalendarView({ onOpenAnime }: CalendarViewProps) {
   const days = useMemo(() => groupByDay(entries), [entries])
 
   return (
-    <div
-      style={{ maxWidth: 1400, margin: '0 auto', padding: '24px 32px 60px' }}
-    >
+    <div className="page-container">
       <div
         style={{
           display: 'flex',
@@ -229,13 +227,7 @@ export function CalendarView({ onOpenAnime }: CalendarViewProps) {
                 </span>
               </div>
 
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-                  gap: 18,
-                }}
-              >
+              <div className="responsive-card-grid">
                 {day.items.map((entry) => (
                   <div key={entry.id} style={{ position: 'relative' }}>
                     <AnimeCard anime={entry} onSelect={onOpenAnime} />

@@ -8,7 +8,12 @@ function ClubCard({ club }: { club: ClubItem; index: number }) {
 
   return (
     <a
-      href={club.url || `https://shikimori.one/clubs/${club.id}`}
+      href={
+        (club.url || `https://shikimori.io/clubs/${club.id}`).replace(
+          'shikimori.one',
+          'shikimori.io'
+        )
+      }
       target="_blank"
       rel="noreferrer"
       style={{
@@ -179,9 +184,7 @@ export function ClubsView() {
   }
 
   return (
-    <div
-      style={{ maxWidth: 1400, margin: '0 auto', padding: '24px 32px 60px' }}
-    >
+    <div className="page-container">
       {/* Header */}
       <div
         style={{
@@ -320,8 +323,8 @@ export function ClubsView() {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: 16,
+              gridTemplateColumns: 'repeat(auto-fill, minmax(min(260px, 100%), 1fr))',
+              gap: 12,
             }}
           >
             {clubs.map((club, index) => (
