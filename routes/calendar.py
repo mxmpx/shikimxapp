@@ -15,6 +15,7 @@ CALENDAR_CACHE_TTL = 3600  # 1 hour
 _calendar_tiered_cache = TieredCache(name="calendar", memory_ttl=CALENDAR_CACHE_TTL, max_workers=1)
 
 DAYS_NAMES = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"]
+DAYS_NAMES_EN = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 
 def _fetch_calendar_raw():
@@ -68,6 +69,7 @@ def _fetch_calendar_raw():
             "next_episode_at": next_ep_at,
             "day_of_week": day_of_week,
             "day_name": DAYS_NAMES[day_of_week] if day_of_week is not None else "Скоро",
+            "day_name_en": DAYS_NAMES_EN[day_of_week] if day_of_week is not None else "Soon",
             "time_str": time_str,
             "date_str": date_str,
         })
@@ -76,7 +78,7 @@ def _fetch_calendar_raw():
     return items
 
 
-@calendar_bp.route("/api/calendar")
+@calendar_bp.route("/api/calendar", methods=["GET"])
 @api_route
 def get_airing_calendar():
     """Fetch airing anime calendar from Shikimori, grouped by day of the week."""

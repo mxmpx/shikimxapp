@@ -1,16 +1,14 @@
 import os
-import time
-import json
 import logging
-from concurrent.futures import ThreadPoolExecutor
-from flask import Blueprint, session, send_from_directory, jsonify
-from utils import SHIKIMORI_BASE, get_auth_headers, fetch_with_retry
+from flask import Blueprint, session, send_from_directory, jsonify, current_app
+from utils import SHIKIMORI_BASE, get_auth_headers, fetch_with_retry, fix_image_url
 from services.tiered_cache import TieredCache
 
 logger = logging.getLogger("shikimxapp.profile")
 profile_bp = Blueprint('profile', __name__)
 
 _profile_tiered_cache = TieredCache(name="profile", memory_ttl=1800, max_workers=2)
+
 
 def get_fast_user_profile(user_id, headers):
     """Retrieve profile instantly from TieredCache with background SWR revalidation."""
@@ -29,7 +27,8 @@ def get_fast_user_profile(user_id, headers):
         background_refresh=True
     )
 
-@profile_bp.route("/api/profile")
+
+@profile_bp.route("/api/profile", methods=["GET"])
 def api_profile():
     user_id = session.get("user_id")
     headers = get_auth_headers()
@@ -48,15 +47,34 @@ def api_profile():
         "authenticated": True,
         "id": profile.get("id"),
         "nickname": profile.get("nickname"),
-        "avatar": avatar or "",
+        "avatar": fix_image_url(avatar) if avatar else "",
         "stats": profile.get("stats"),
     })
 
-@profile_bp.route("/")
-@profile_bp.route("/animes/<int:anime_id>")
-@profile_bp.route("/mangas/<int:manga_id>")
+
+@profile_bp.route("/", methods=["GET"])
+@profile_bp.route("/animes/<int:anime_id>", methods=["GET"])
+@profile_bp.route("/mangas/<int:manga_id>", methods=["GET"])
+@profile_bp.route("/calendar", methods=["GET"])
+@profile_bp.route("/catalog", methods=["GET"])
+@profile_bp.route("/explore", methods=["GET"])
+@profile_bp.route("/rates", methods=["GET"])
+@profile_bp.route("/favourites", methods=["GET"])
+@profile_bp.route("/friends", methods=["GET"])
+@profile_bp.route("/history", methods=["GET"])
+@profile_bp.route("/news", methods=["GET"])
+@profile_bp.route("/forum", methods=["GET"])
+@profile_bp.route("/clubs", methods=["GET"])
+@profile_bp.route("/collections", methods=["GET"])
+@profile_bp.route("/critiques", methods=["GET"])
+@profile_bp.route("/articles", methods=["GET"])
+@profile_bp.route("/users", methods=["GET"])
+@profile_bp.route("/top100", methods=["GET"])
+@profile_bp.route("/recommendations", methods=["GET"])
+@profile_bp.route("/ranobe", methods=["GET"])
+@profile_bp.route("/manga", methods=["GET"])
+@profile_bp.route("/settings", methods=["GET"])
 def index(anime_id=None, manga_id=None):
-    from flask import current_app
     dist_dir = os.path.join(current_app.root_path, "static", "dist")
     dist_index = os.path.join(dist_dir, "index.html")
     if os.path.exists(dist_index):
@@ -71,4 +89,3 @@ def index(anime_id=None, manga_id=None):
         503,
         {"Content-Type": "text/html; charset=utf-8"}
     )
-

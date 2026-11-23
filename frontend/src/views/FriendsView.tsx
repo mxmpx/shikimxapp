@@ -322,6 +322,8 @@ export function FriendsView() {
                       <img
                         src={avatar}
                         alt={name}
+                        loading="lazy"
+                        decoding="async"
                         style={{
                           width: '100%',
                           height: '100%',
@@ -458,6 +460,8 @@ export function FriendsView() {
                     <img
                       src={logo}
                       alt={c.name}
+                      loading="lazy"
+                      decoding="async"
                       style={{
                         width: '100%',
                         height: '100%',

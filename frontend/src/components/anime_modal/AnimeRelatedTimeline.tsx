@@ -134,6 +134,8 @@ export function AnimeRelatedTimeline({ related }: AnimeRelatedTimelineProps) {
                 <img
                   src={item.image}
                   alt={item.name}
+                  loading="lazy"
+                  decoding="async"
                   style={{
                     width: 44,
                     height: 60,

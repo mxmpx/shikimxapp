@@ -1,4 +1,5 @@
 import time
+import json
 import threading
 import logging
 import requests
@@ -6,13 +7,15 @@ from flask import Blueprint, jsonify, session, request
 from utils import (
     SHIKIMORI_BASE, APP_NAME, fetch_cached_api, fix_image_url,
     get_auth_headers, fetch_with_retry, fetch_user_rate,
-    resolve_single_anime_poster_graphql, fetch_graphql
+    resolve_single_anime_poster_graphql, fetch_graphql, BoundedDict,
+    background_executor
 )
+from database import get_connection
 from errors import AppError, api_route
 
 logger = logging.getLogger("shikimxapp.anime")
 
-_anime_base_cache = {}
+_anime_base_cache = BoundedDict(maxsize=500)
 _anime_cache_lock = threading.Lock()
 
 try:
@@ -33,8 +36,6 @@ def _build_anime_from_graphql(a, anime_id):
 
     genres = [g.get("russian") or g.get("name") for g in a.get("genres", []) if g]
     studios = [s.get("name") for s in a.get("studios", []) if s and s.get("name")]
-
-    user_rate = fetch_user_rate(anime_id, "Anime")
 
     characters = []
     seen_ids = set()
@@ -113,7 +114,7 @@ def _build_anime_from_graphql(a, anime_id):
         "franchise": a.get("franchise"),
         "description": a.get("descriptionHtml") or a.get("description") or "Описание отсутствует.",
         "shikimori_url": f"https://shikimori.io/animes/{anime_id}",
-        "user_rate": user_rate,
+        "user_rate": None,
         "synonyms": a.get("synonyms", []),
         "japanese": a.get("japanese") or [],
         "english": a.get("english") or [],
@@ -138,8 +139,6 @@ def _build_anime_result(data, anime_id, characters_data=None):
 
     status_map = {'released': 'Вышло', 'ongoing': 'Онгоинг', 'anons': 'Анонс'}
     kind_map = {'tv': 'ТВ Сериал', 'movie': 'Фильм', 'ova': 'OVA', 'ona': 'ONA', 'special': 'Спешл', 'music': 'Клип'}
-
-    user_rate = fetch_user_rate(anime_id, "Anime")
 
     roles = characters_data if isinstance(characters_data, list) else []
     characters = []
@@ -183,7 +182,7 @@ def _build_anime_result(data, anime_id, characters_data=None):
         "franchise": data.get("franchise"),
         "description": data.get("description_html") or data.get("description") or "Описание отсутствует.",
         "shikimori_url": f"https://shikimori.io/animes/{anime_id}",
-        "user_rate": user_rate,
+        "user_rate": None,
         "synonyms": data.get("synonyms", []),
         "japanese": data.get("japanese", []),
         "english": data.get("english", []),
@@ -213,10 +212,55 @@ def _build_anime_result(data, anime_id, characters_data=None):
         "licensed_by": [l.get("name") for l in data.get("licensed_by", []) if l.get("name")]
     }
 
-@anime_bp.route("/api/anime/<int:anime_id>")
+def _get_cached_external_links_or_fetch_bg(anime_id: int) -> list:
+    """Return cached external links immediately; fetch in background if not cached yet."""
+    ext_url = f"{SHIKIMORI_BASE}/api/animes/{anime_id}/external_links"
+    now = time.time()
+    try:
+        conn = get_connection()
+        row = conn.execute("SELECT data, expires_at FROM api_cache WHERE url = ?", (ext_url,)).fetchone()
+        if row and now < row["expires_at"]:
+            return json.loads(row["data"])
+    except Exception:
+        pass
+
+    # Not cached: trigger non-blocking background fetch so subsequent requests have it
+    def _bg_fetch_ext():
+        try:
+            fetch_cached_api(ext_url, {"User-Agent": APP_NAME}, ttl=86400)
+        except Exception:
+            pass
+
+    try:
+        background_executor.submit(_bg_fetch_ext)
+    except Exception:
+        pass
+
+    return []
+
+
+def _save_anime_persistent(anime_id: int, anime_obj: dict, ttl: int = 86400):
+    """Save full anime object to both RAM cache and SQLite persistent cache."""
+    now = time.time()
+    expires_at = now + ttl
+    with _anime_cache_lock:
+        _anime_base_cache[anime_id] = {"data": dict(anime_obj), "expires_at": expires_at}
+    try:
+        conn = get_connection()
+        conn.execute(
+            "INSERT OR REPLACE INTO api_cache (url, data, expires_at) VALUES (?, ?, ?)",
+            (f"anime_full:{anime_id}", json.dumps(anime_obj), int(expires_at))
+        )
+        conn.commit()
+    except Exception as exc:
+        logger.debug("Failed writing anime persistent cache: %s", exc)
+
+
+@anime_bp.route("/api/anime/<int:anime_id>", methods=["GET"])
 @api_route
 def get_anime_details(anime_id):
     now = time.time()
+    # 1. RAM Cache check (O(1), <0.1ms)
     with _anime_cache_lock:
         cached = _anime_base_cache.get(anime_id)
         if cached and now < cached["expires_at"]:
@@ -224,7 +268,24 @@ def get_anime_details(anime_id):
             result["user_rate"] = fetch_user_rate(anime_id, "Anime")
             return jsonify(result)
 
-    # 1. Попытка загрузки через единый GraphQL-запрос со всеми связями
+    # 2. SQLite Persistent Cache check (1-2ms, survives restarts)
+    cache_key = f"anime_full:{anime_id}"
+    try:
+        conn = get_connection()
+        row = conn.execute(
+            "SELECT data, expires_at FROM api_cache WHERE url = ?", (cache_key,)
+        ).fetchone()
+        if row and now < row["expires_at"]:
+            cached_data = json.loads(row["data"])
+            with _anime_cache_lock:
+                _anime_base_cache[anime_id] = {"data": cached_data, "expires_at": row["expires_at"]}
+            result = dict(cached_data)
+            result["user_rate"] = fetch_user_rate(anime_id, "Anime")
+            return jsonify(result)
+    except Exception as exc:
+        logger.debug("Anime SQLite cache lookup error: %s", exc)
+
+    # 3. Попытка загрузки через единый GraphQL-запрос со всеми связями
     query = """
     query AnimeDetails($id: String!) {
       animes(ids: $id, limit: 1) {
@@ -283,18 +344,15 @@ def get_anime_details(anime_id):
         if gql_data and isinstance(gql_data.get("animes"), list) and len(gql_data["animes"]) > 0:
             logger.debug("Anime details loaded via GraphQL for anime_id=%s", anime_id)
             anime_obj = _build_anime_from_graphql(gql_data["animes"][0], anime_id)
-            try:
-                anime_obj["external_links"] = fetch_cached_api(f"{SHIKIMORI_BASE}/api/animes/{anime_id}/external_links", {"User-Agent": APP_NAME}, ttl=86400) or []
-            except Exception:
-                anime_obj["external_links"] = []
-            with _anime_cache_lock:
-                _anime_base_cache[anime_id] = {"data": dict(anime_obj), "expires_at": now + 3600}
-            anime_obj["user_rate"] = fetch_user_rate(anime_id, "Anime")
-            return jsonify(anime_obj)
+            anime_obj["external_links"] = _get_cached_external_links_or_fetch_bg(anime_id)
+            _save_anime_persistent(anime_id, anime_obj, ttl=86400)
+            resp = dict(anime_obj)
+            resp["user_rate"] = fetch_user_rate(anime_id, "Anime")
+            return jsonify(resp)
     except Exception as exc:
         logger.warning("GraphQL anime details failed for %s, fallback to REST: %s", anime_id, exc)
 
-    # 2. Резервный REST путь, если GraphQL недоступен
+    # 4. Резервный REST путь, если GraphQL недоступен
     headers = {"User-Agent": APP_NAME}
     anime_url = f"{SHIKIMORI_BASE}/api/animes/{anime_id}"
 
@@ -313,21 +371,18 @@ def get_anime_details(anime_id):
 
     logger.debug("Anime details loaded via REST fallback: anime_id=%s", anime_id)
     anime_obj = _build_anime_result(data, anime_id, characters_data=roles_data)
-    try:
-        anime_obj["external_links"] = fetch_cached_api(f"{SHIKIMORI_BASE}/api/animes/{anime_id}/external_links", {"User-Agent": APP_NAME}, ttl=86400) or []
-    except Exception:
-        anime_obj["external_links"] = []
-    with _anime_cache_lock:
-        _anime_base_cache[anime_id] = {"data": dict(anime_obj), "expires_at": now + 3600}
-    anime_obj["user_rate"] = fetch_user_rate(anime_id, "Anime")
-    return jsonify(anime_obj)
+    anime_obj["external_links"] = _get_cached_external_links_or_fetch_bg(anime_id)
+    _save_anime_persistent(anime_id, anime_obj, ttl=86400)
+    resp = dict(anime_obj)
+    resp["user_rate"] = fetch_user_rate(anime_id, "Anime")
+    return jsonify(resp)
 
 
-_anime_community_cache = {}
+_anime_community_cache = BoundedDict(maxsize=500)
 _anime_community_cache_lock = threading.Lock()
 
 
-@anime_bp.route("/api/anime/<int:anime_id>/members")
+@anime_bp.route("/api/anime/<int:anime_id>/members", methods=["GET"])
 @api_route
 def get_anime_community_members(anime_id):
     """
@@ -452,8 +507,8 @@ def get_anime_community_members(anime_id):
 
 
 
-@anime_bp.route("/api/anime/<int:anime_id>/anicli")
-@anime_bp.route("/api/anime/<int:anime_id>/video")
+@anime_bp.route("/api/anime/<int:anime_id>/anicli", methods=["GET"])
+@anime_bp.route("/api/anime/<int:anime_id>/video", methods=["GET"])
 @api_route
 def get_anicli_stream(anime_id):
     custom_title = request.args.get("title", "").strip()
@@ -503,7 +558,7 @@ def get_anicli_stream(anime_id):
     return jsonify(data)
 
 
-@anime_bp.route("/api/character/<int:char_id>")
+@anime_bp.route("/api/character/<int:char_id>", methods=["GET"])
 @api_route
 def get_character_details(char_id):
     headers = {"User-Agent": APP_NAME}
@@ -566,7 +621,7 @@ def get_character_details(char_id):
     })
 
 
-@anime_bp.route("/api/club/<int:club_id>")
+@anime_bp.route("/api/club/<int:club_id>", methods=["GET"])
 @api_route
 def get_club_details(club_id):
     headers = {"User-Agent": APP_NAME}

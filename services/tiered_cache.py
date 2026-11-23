@@ -5,6 +5,8 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Callable, Dict, Optional, Tuple
 from database import get_connection
 
+from services.cache_utils import BoundedDict
+
 logger = logging.getLogger("shikimxapp.tiered_cache")
 
 
@@ -16,10 +18,10 @@ class TieredCache:
     - Tier 3: Fetch function execution with background revalidation when stale
     """
 
-    def __init__(self, name: str, memory_ttl: int = 1800, max_workers: int = 2):
+    def __init__(self, name: str, memory_ttl: int = 1800, max_workers: int = 2, max_mem_entries: int = 1000):
         self.name = name
         self.memory_ttl = memory_ttl
-        self._mem_cache: Dict[str, Tuple[Any, float]] = {}
+        self._mem_cache = BoundedDict(maxsize=max_mem_entries)
         self._executor = ThreadPoolExecutor(
             max_workers=max_workers,
             thread_name_prefix=f"swr_{name}"

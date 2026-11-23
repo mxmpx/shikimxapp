@@ -20,37 +20,73 @@ import {
 
 // ─── ANIME & STREAMS ───
 
-export async function fetchAnimeDetails(id: number): Promise<AnimeDetail> {
-  const res = await fetch(`/api/anime/${id}`)
-  if (!res.ok) {
-    throw new Error(`Ошибка загрузки аниме #${id}: ${res.statusText}`)
-  }
-  const data = await res.json()
+const ANIME_CACHE_TTL_MS = 5 * 60 * 1000 // 5 minutes client-side memory cache
+const _animeDetailsCache = new Map<number, { data: AnimeDetail; exp: number }>()
+const _pendingAnimeFetches = new Map<number, Promise<AnimeDetail>>()
 
-  // Shikimori может вернуть скриншоты как строки или как объекты.
-  // Приводим всё к плоскому массиву URL, чтобы UI не зависел от формы ответа.
-  if (Array.isArray(data.screenshots)) {
-    data.screenshots = data.screenshots
-      .map((shot: unknown) => {
-        if (typeof shot === 'string') return shot
-        if (shot && typeof shot === 'object') {
-          const obj = shot as Record<string, unknown>
-          return (
-            obj.original_url ||
-            obj.originalUrl ||
-            obj.preview ||
-            obj.x332Url ||
-            ''
-          )
-        }
-        return ''
-      })
-      .filter((url: string) => Boolean(url))
-  } else {
-    data.screenshots = []
+export function prefetchAnimeDetails(id: number): void {
+  if (!id || typeof id !== 'number') return
+  const cached = _animeDetailsCache.get(id)
+  if (cached && Date.now() < cached.exp) return
+  if (_pendingAnimeFetches.has(id)) return
+
+  fetchAnimeDetails(id).catch(() => {})
+}
+
+export async function fetchAnimeDetails(id: number, forceRefresh = false): Promise<AnimeDetail> {
+  const now = Date.now()
+  if (!forceRefresh) {
+    const cached = _animeDetailsCache.get(id)
+    if (cached && now < cached.exp) {
+      return cached.data
+    }
   }
 
-  return data as AnimeDetail
+  // Deduplicate in-flight requests (e.g. card hover prefetch + click)
+  if (!forceRefresh && _pendingAnimeFetches.has(id)) {
+    return _pendingAnimeFetches.get(id)!
+  }
+
+  const fetchPromise = (async () => {
+    try {
+      const res = await fetch(`/api/anime/${id}`)
+      if (!res.ok) {
+        throw new Error(`Ошибка загрузки аниме #${id}: ${res.statusText}`)
+      }
+      const data = await res.json()
+
+      // Normalize screenshots
+      if (Array.isArray(data.screenshots)) {
+        data.screenshots = data.screenshots
+          .map((shot: unknown) => {
+            if (typeof shot === 'string') return shot
+            if (shot && typeof shot === 'object') {
+              const obj = shot as Record<string, unknown>
+              return (
+                obj.original_url ||
+                obj.originalUrl ||
+                obj.preview ||
+                obj.x332Url ||
+                ''
+              )
+            }
+            return ''
+          })
+          .filter((url: string) => Boolean(url))
+      } else {
+        data.screenshots = []
+      }
+
+      const detail = data as AnimeDetail
+      _animeDetailsCache.set(id, { data: detail, exp: Date.now() + ANIME_CACHE_TTL_MS })
+      return detail
+    } finally {
+      _pendingAnimeFetches.delete(id)
+    }
+  })()
+
+  _pendingAnimeFetches.set(id, fetchPromise)
+  return fetchPromise
 }
 
 export async function fetchAnimeCommunity(id: number): Promise<AnimeCommunityData> {
@@ -159,7 +195,18 @@ export async function fetchCatalog(
   return Array.isArray(data) ? data : data.animes || []
 }
 
-export async function fetchExplore(): Promise<ExploreFeed> {
+let _cachedExplore: { data: ExploreFeed; exp: number } | null = null
+let _pendingExplore: Promise<ExploreFeed> | null = null
+
+export async function fetchExplore(forceRefresh = false): Promise<ExploreFeed> {
+  const now = Date.now()
+  if (!forceRefresh && _cachedExplore && now < _cachedExplore.exp) {
+    return _cachedExplore.data
+  }
+  if (!forceRefresh && _pendingExplore) {
+    return _pendingExplore
+  }
+
   const empty: ExploreFeed = {
     on_screens: [],
     anime_updates: [],
@@ -168,27 +215,35 @@ export async function fetchExplore(): Promise<ExploreFeed> {
     latest: [],
     other: [],
   }
-  try {
-    const res = await fetch('/api/tab/explore')
-    if (res.ok) {
-      const data = await res.json()
-      if (data && typeof data === 'object') {
-        return {
-          on_screens: Array.isArray(data.on_screens) ? data.on_screens : [],
-          anime_updates: Array.isArray(data.anime_updates)
-            ? data.anime_updates
-            : [],
-          content: Array.isArray(data.content) ? data.content : [],
-          hot: Array.isArray(data.hot) ? data.hot : [],
-          latest: Array.isArray(data.latest) ? data.latest : [],
-          other: Array.isArray(data.other) ? data.other : [],
+
+  const promise = (async () => {
+    try {
+      const res = await fetch('/api/tab/explore')
+      if (res.ok) {
+        const data = await res.json()
+        if (data && typeof data === 'object') {
+          const feed: ExploreFeed = {
+            on_screens: Array.isArray(data.on_screens) ? data.on_screens : [],
+            anime_updates: Array.isArray(data.anime_updates) ? data.anime_updates : [],
+            content: Array.isArray(data.content) ? data.content : [],
+            hot: Array.isArray(data.hot) ? data.hot : [],
+            latest: Array.isArray(data.latest) ? data.latest : [],
+            other: Array.isArray(data.other) ? data.other : [],
+          }
+          _cachedExplore = { data: feed, exp: Date.now() + 5 * 60 * 1000 }
+          return feed
         }
       }
+    } catch (e) {
+      console.error('Ошибка загрузки explore:', e)
+    } finally {
+      _pendingExplore = null
     }
-  } catch (e) {
-    console.error('Ошибка загрузки explore:', e)
-  }
-  return empty
+    return empty
+  })()
+
+  _pendingExplore = promise
+  return promise
 }
 
 export async function fetchRandomAnime(): Promise<CatalogItem | null> {
@@ -408,22 +463,43 @@ function saveLocalContinueList(list: ContinueWatchingItem[]) {
   } catch {}
 }
 
-export async function fetchCalendar(): Promise<CalendarEntry[]> {
-  try {
-    const res = await fetch('/api/calendar')
-    if (res.ok) {
-      const data = await res.json()
-      if (Array.isArray(data)) return data
-      if (data && Array.isArray(data.items)) return data.items
-      if (data && Array.isArray(data.days)) {
-        return data.days.flatMap((d: any) => d.items || [])
-      }
-    }
-    throw new Error(`Ошибка загрузки календаря (${res.status})`)
-  } catch (e: any) {
-    console.error('Ошибка календаря:', e)
-    throw e
+let _cachedCalendar: { data: CalendarEntry[]; exp: number } | null = null
+let _pendingCalendar: Promise<CalendarEntry[]> | null = null
+
+export async function fetchCalendar(forceRefresh = false): Promise<CalendarEntry[]> {
+  const now = Date.now()
+  if (!forceRefresh && _cachedCalendar && now < _cachedCalendar.exp) {
+    return _cachedCalendar.data
   }
+  if (!forceRefresh && _pendingCalendar) {
+    return _pendingCalendar
+  }
+
+  const promise = (async () => {
+    try {
+      const res = await fetch('/api/calendar')
+      if (res.ok) {
+        const data = await res.json()
+        let items: CalendarEntry[] = []
+        if (Array.isArray(data)) items = data
+        else if (data && Array.isArray(data.items)) items = data.items
+        else if (data && Array.isArray(data.days)) {
+          items = data.days.flatMap((d: any) => d.items || [])
+        }
+        _cachedCalendar = { data: items, exp: Date.now() + 5 * 60 * 1000 }
+        return items
+      }
+      throw new Error(`Ошибка загрузки календаря (${res.status})`)
+    } catch (e: any) {
+      console.error('Ошибка календаря:', e)
+      throw e
+    } finally {
+      _pendingCalendar = null
+    }
+  })()
+
+  _pendingCalendar = promise
+  return promise
 }
 
 export async function fetchRecommendations(
@@ -603,22 +679,89 @@ export async function fetchUserProfile(): Promise<UserProfile | null> {
 
 // ─── DETAILS & MODALS (Manga, Club, Character, User, About, Settings) ───
 
-export async function fetchMangaDetails(id: number): Promise<MangaItem> {
-  const res = await fetch(`/api/manga/${id}`)
-  if (!res.ok) throw new Error(`Ошибка загрузки манги #${id}`)
-  return res.json()
+const MANGA_CACHE_TTL_MS = 5 * 60 * 1000 // 5 minutes client cache
+const _mangaDetailsCache = new Map<number, { data: MangaItem; exp: number }>()
+const _pendingMangaFetches = new Map<number, Promise<MangaItem>>()
+
+export function prefetchMangaDetails(id: number): void {
+  if (!id || typeof id !== 'number') return
+  const cached = _mangaDetailsCache.get(id)
+  if (cached && Date.now() < cached.exp) return
+  if (_pendingMangaFetches.has(id)) return
+
+  fetchMangaDetails(id).catch(() => {})
 }
 
-export async function fetchCharacterDetails(id: number): Promise<any> {
-  const res = await fetch(`/api/character/${id}`)
-  if (!res.ok) throw new Error(`Ошибка загрузки персонажа #${id}`)
-  return res.json()
+export async function fetchMangaDetails(id: number, forceRefresh = false): Promise<MangaItem> {
+  const now = Date.now()
+  if (!forceRefresh) {
+    const cached = _mangaDetailsCache.get(id)
+    if (cached && now < cached.exp) {
+      return cached.data
+    }
+  }
+
+  if (!forceRefresh && _pendingMangaFetches.has(id)) {
+    return _pendingMangaFetches.get(id)!
+  }
+
+  const promise = (async () => {
+    try {
+      const res = await fetch(`/api/manga/${id}`)
+      if (!res.ok) throw new Error(`Ошибка загрузки манги #${id}`)
+      const data = await res.json()
+      _mangaDetailsCache.set(id, { data, exp: Date.now() + MANGA_CACHE_TTL_MS })
+      return data
+    } finally {
+      _pendingMangaFetches.delete(id)
+    }
+  })()
+
+  _pendingMangaFetches.set(id, promise)
+  return promise
 }
+
+const _characterCache = new Map<number, { data: any; exp: number }>()
+const _pendingCharFetches = new Map<number, Promise<any>>()
+
+export async function fetchCharacterDetails(id: number, forceRefresh = false): Promise<any> {
+  const now = Date.now()
+  if (!forceRefresh) {
+    const cached = _characterCache.get(id)
+    if (cached && now < cached.exp) return cached.data
+  }
+  if (!forceRefresh && _pendingCharFetches.has(id)) {
+    return _pendingCharFetches.get(id)!
+  }
+
+  const promise = (async () => {
+    try {
+      const res = await fetch(`/api/character/${id}`)
+      if (!res.ok) throw new Error(`Ошибка загрузки персонажа #${id}`)
+      const data = await res.json()
+      _characterCache.set(id, { data, exp: Date.now() + 10 * 60 * 1000 })
+      return data
+    } finally {
+      _pendingCharFetches.delete(id)
+    }
+  })()
+
+  _pendingCharFetches.set(id, promise)
+  return promise
+}
+
+const _clubCache = new Map<number, { data: any; exp: number }>()
 
 export async function fetchClubDetails(id: number): Promise<any> {
+  const now = Date.now()
+  const cached = _clubCache.get(id)
+  if (cached && now < cached.exp) return cached.data
+
   const res = await fetch(`/api/club/${id}`)
   if (!res.ok) throw new Error(`Ошибка загрузки клуба #${id}`)
-  return res.json()
+  const data = await res.json()
+  _clubCache.set(id, { data, exp: now + 10 * 60 * 1000 })
+  return data
 }
 
 export async function fetchUserDetails(

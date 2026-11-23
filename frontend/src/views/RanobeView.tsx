@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { MangaItem } from '../types/anime'
-import { fetchRanobeCatalog } from '../api/client'
+import { fetchRanobeCatalog, prefetchMangaDetails } from '../api/client'
 
 interface RanobeViewProps {
   onOpenManga: (id: number) => void
@@ -217,6 +217,7 @@ export function RanobeView({ onOpenManga }: RanobeViewProps) {
                 e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.16)'
                 e.currentTarget.style.boxShadow =
                   '0 8px 24px rgba(0, 0, 0, 0.45)'
+                prefetchMangaDetails(ranobe.id)
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'none'
@@ -237,6 +238,7 @@ export function RanobeView({ onOpenManga }: RanobeViewProps) {
                   src={ranobe.image}
                   alt={ranobe.russian || ranobe.name}
                   loading="lazy"
+                  decoding="async"
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
                 {ranobe.score ? (

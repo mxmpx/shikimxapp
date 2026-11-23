@@ -195,6 +195,8 @@ export function CritiquesView({
                       <img
                         src={animeImg}
                         alt={c.title}
+                        loading="lazy"
+                        decoding="async"
                         onError={(e) => {
                           const target = e.currentTarget as HTMLImageElement
                           if (target.src !== 'https://shikimori.io/assets/globals/missing_original.jpg') {

@@ -171,3 +171,31 @@ def test_api_clubs_popular_endpoint(client):
         assert isinstance(data, list)
         assert len(data) == 1
         assert data[0]["id"] == 1
+
+
+def test_api_tab_explore_endpoint(client):
+    """Test /api/tab/explore returns 200 without deadlock."""
+    mock_gql = {
+        "on_screens": [
+            {
+                "id": 100,
+                "name": "Test Ongoing",
+                "russian": "Тестовый Онгоинг",
+                "kind": "tv",
+                "score": 8.0,
+                "studios": [{"id": 1, "name": "Studio A"}],
+                "poster": {"mainUrl": "https://shikimori.one/posters/100.jpg"}
+            }
+        ],
+        "updates": []
+    }
+    with patch("routes.explore.fetch_graphql", return_value=mock_gql), \
+         patch("routes.explore.fetch_cached_api", return_value=[]):
+        res = client.get("/api/tab/explore")
+        assert res.status_code == 200
+        data = res.get_json()
+        assert isinstance(data, dict)
+        assert "on_screens" in data
+        assert len(data["on_screens"]) == 1
+        assert data["on_screens"][0]["id"] == 100
+

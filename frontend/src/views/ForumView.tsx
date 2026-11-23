@@ -270,6 +270,8 @@ export function ForumView() {
                           <img
                             src={t.author_avatar}
                             alt={author}
+                            loading="lazy"
+                            decoding="async"
                             onError={(e) => {
                               ;(e.currentTarget as HTMLElement).style.display = 'none'
                             }}

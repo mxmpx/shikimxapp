@@ -6,8 +6,8 @@ import { AnicliStreamData } from '../../types/anime'
 interface AnimePlayerProps {
   playerOpen: boolean
   setPlayerOpen: (open: boolean) => void
-  activePlayerType: 'anicli' | 'kodik'
-  setActivePlayerType: (t: 'anicli' | 'kodik') => void
+  activePlayerType?: 'anicli' | 'kodik'
+  setActivePlayerType?: (t: 'anicli' | 'kodik') => void
   selectedEpisode: number
   onEpisodeChange: (ep: number | string) => void
   totalEpisodes: number
@@ -136,13 +136,7 @@ export function AnimePlayer({
             <PlayIcon size={18} color="var(--accent)" />
           </div>
           <div style={{ textAlign: 'left' }}>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 9,
-              }}
-            >
+            <div>
               <span
                 style={{
                   color: 'var(--text-primary)',
@@ -151,18 +145,6 @@ export function AnimePlayer({
                 }}
               >
                 ОНЛАЙН ПРОСМОТР
-              </span>
-              <span
-                style={{
-                  padding: '3px 8px',
-                  borderRadius: 6,
-                  fontSize: 10.5,
-                  background: 'rgba(74, 222, 128, 0.15)',
-                  color: '#4ade80',
-                  border: '1px solid rgba(74, 222, 128, 0.35)',
-                }}
-              >
-                ● Агрегатор активен
               </span>
             </div>
             <div
@@ -185,27 +167,6 @@ export function AnimePlayer({
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span
-            style={{
-              fontSize: 11.5,
-              fontWeight: 600,
-              padding: '5px 12px',
-              borderRadius: 999,
-              background:
-                activePlayerType === 'kodik'
-                  ? 'rgba(var(--accent-rgb), 0.14)'
-                  : 'rgba(56,189,248,0.14)',
-              color:
-                activePlayerType === 'kodik'
-                  ? 'var(--accent)'
-                  : '#38bdf8',
-              border: `1px solid ${activePlayerType === 'kodik' ? 'rgba(var(--accent-rgb), 0.3)' : 'rgba(56,189,248,0.3)'}`,
-            }}
-          >
-            {activePlayerType === 'kodik'
-              ? 'Плеер 1 (Shikimori iFrame)'
-              : 'Плеер 2 (Anicli / Мульти-стрим)'}
-          </span>
           <div
             style={{
               width: 32,
@@ -237,105 +198,6 @@ export function AnimePlayer({
             background: 'rgba(0,0,0,0.12)',
           }}
         >
-          {/* Top Mode Tabs */}
-          <div
-            style={{
-              padding: '12px 20px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              borderBottom: '1px solid var(--card-border)',
-              background: 'rgba(0,0,0,0.2)',
-              flexWrap: 'wrap',
-              gap: 10,
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-              }}
-            >
-              <button
-                type="button"
-                onClick={() => setActivePlayerType('anicli')}
-                style={{
-                  padding: '7px 14px',
-                  borderRadius: 8,
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  background:
-                    activePlayerType === 'anicli'
-                      ? 'var(--accent-btn-bg)'
-                      : 'transparent',
-                  color:
-                    activePlayerType === 'anicli'
-                      ? '#fff'
-                      : 'var(--text-muted)',
-                  border:
-                    activePlayerType === 'anicli'
-                      ? 'none'
-                      : '1px solid var(--input-border)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                }}
-              >
-                <i className="ti ti-device-tv" />
-                <span>Мульти-агрегатор (Kodik, AnimeGo)</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setActivePlayerType('kodik')}
-                style={{
-                  padding: '7px 14px',
-                  borderRadius: 8,
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  background:
-                    activePlayerType === 'kodik'
-                      ? 'var(--accent-btn-bg)'
-                      : 'transparent',
-                  color:
-                    activePlayerType === 'kodik'
-                      ? '#fff'
-                      : 'var(--text-muted)',
-                  border:
-                    activePlayerType === 'kodik'
-                      ? 'none'
-                      : '1px solid var(--input-border)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                }}
-              >
-                <PlayIcon size={12} color="currentColor" />
-                <span>Зеркало плеера</span>
-              </button>
-            </div>
-
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                fontSize: 11.5,
-                color: 'var(--text-muted)',
-              }}
-            >
-              <i
-                className="ti ti-circle-check"
-                style={{ color: '#4ade80' }}
-              />
-              <span>
-                Источники: Kodik, AniLibria, AnimeGo, Sibnet, Yummy
-              </span>
-            </div>
-          </div>
-
           <div style={{ padding: '16px 20px 22px' }}>
             {/* Compact Dropdowns Bar ABOVE Player */}
             <div
@@ -875,6 +737,8 @@ export function AnimePlayer({
                     <img
                       src={animeImage}
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                       onError={(e) => {
                         ;(e.currentTarget as HTMLElement).style.display = 'none'
                       }}

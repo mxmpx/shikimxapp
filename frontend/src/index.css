@@ -2184,3 +2184,28 @@ body.has-modal .mobile-bottom-nav {
   }
 }
 
+/* ── 11. Performance & Zero-CLS Skeletons ── */
+@keyframes mx-skeleton-pulse {
+  0% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0.75;
+  }
+}
+
+.mx-skeleton {
+  animation: mx-skeleton-pulse 1.6s ease-in-out infinite;
+  background: var(--card-bg, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.06));
+}
+
+.cv-auto-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 320px;
+}
+
+

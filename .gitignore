@@ -65,6 +65,7 @@ prompts/
 prompt/
 *.prompt
 *.prompt.md
+docs/folder-icon-*
 
 # Scratch, temporary files & test artifacts
 scratch/
@@ -98,6 +99,7 @@ ehthumbs.db
 ehthumbs_vista.db
 Thumbs.db
 [Dd]esktop.ini
+Folder.ico
 $RECYCLE.BIN/
 
 # IDE & AI Assistant metadata

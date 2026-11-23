@@ -2,51 +2,31 @@ import logging
 import requests
 from flask import Blueprint, jsonify, request
 from utils import (
-    SHIKIMORI_BASE, APP_NAME, fetch_cached_api, fix_image_url
+    SHIKIMORI_BASE, APP_NAME, fetch_cached_api, fix_image_url, build_topic_url
 )
 from errors import api_route
 
 logger = logging.getLogger("shikimxapp.forum")
 forum_bp = Blueprint('forum', __name__)
 
-
-def build_topic_url(t):
-    url = t.get("url")
-    if url:
-        if url.startswith("http"):
-            return url.replace("shikimori.one", "shikimori.io")
-        return f"{SHIKIMORI_BASE}{'' if url.startswith('/') else '/'}{url}".replace("shikimori.one", "shikimori.io")
-
-    topic_id = t.get("id")
-    if not topic_id:
-        return SHIKIMORI_BASE
-
-    forum_info = t.get("forum") or {}
-    forum_name = (forum_info.get("name") or "") if isinstance(forum_info, dict) else ""
-
-    forum_path = "animanga"
-    if "collection" in forum_name:
-        forum_path = "collections"
-    elif "critique" in forum_name:
-        forum_path = "critiques"
-    elif "article" in forum_name:
-        forum_path = "articles"
-    elif "news" in forum_name:
-        forum_path = "news"
-
-    return f"{SHIKIMORI_BASE}/forum/{forum_path}/{topic_id}"
+ALLOWED_FORUMS = {
+    "all", "cosplay", "animanga", "site", "games", "vn",
+    "critiques", "news", "clubs", "my_clubs", "reviews", "offtopic"
+}
 
 
-@forum_bp.route("/api/forum/topics")
+@forum_bp.route("/api/forum/topics", methods=["GET"])
 @api_route
 def get_forum_topics():
     """Get forum topics by category."""
-    forum = request.args.get("forum", "all")
-    page = int(request.args.get("page", 1))
-    limit = min(int(request.args.get("limit", 20)), 30)
+    raw_forum = request.args.get("forum", "all")
+    forum = raw_forum if raw_forum in ALLOWED_FORUMS else "all"
+
+    page = max(1, request.args.get("page", 1, type=int) or 1)
+    limit = max(1, min(request.args.get("limit", 20, type=int) or 20, 30))
 
     headers = {"User-Agent": APP_NAME}
-    forum_param = f"&forum={forum}" if forum and forum != "all" else ""
+    forum_param = f"&forum={requests.utils.quote(forum)}" if forum and forum != "all" else ""
     url = f"{SHIKIMORI_BASE}/api/topics?page={page}&limit={limit}{forum_param}"
     data = fetch_cached_api(url, headers, ttl=300) or []
 
@@ -77,16 +57,16 @@ def get_forum_topics():
     return jsonify(results)
 
 
-@forum_bp.route("/api/clubs/popular")
+@forum_bp.route("/api/clubs/popular", methods=["GET"])
 @api_route
 def get_popular_clubs():
     """Get list of clubs with multi-page support."""
-    page = int(request.args.get("page", 1))
-    limit = int(request.args.get("limit", 30))
+    page = max(1, request.args.get("page", 1, type=int) or 1)
+    limit = max(1, min(request.args.get("limit", 30, type=int) or 30, 60))
     search_q = request.args.get("search") or request.args.get("q")
 
     headers = {"User-Agent": APP_NAME}
-    search_param = f"&search={requests.utils.quote(search_q)}" if search_q else ""
+    search_param = f"&search={requests.utils.quote(search_q.strip())}" if search_q and search_q.strip() else ""
 
     if limit > 30:
         url1 = f"{SHIKIMORI_BASE}/api/clubs?page={(page - 1) * 2 + 1}&limit=30{search_param}"

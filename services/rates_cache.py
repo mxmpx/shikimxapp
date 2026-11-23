@@ -5,12 +5,14 @@ import time
 import logging
 import threading
 
+from services.cache_utils import BoundedDict
+
 logger = logging.getLogger("shikimxapp.rates_cache")
 
 _MAX_RATES_LOCK_ENTRIES = 256
 _rates_locks = {}
 _rates_locks_guard = threading.Lock()
-_rates_mem_cache = {}  # user_id -> {"data": [...], "by_target": {...}, "expires_at": float}
+_rates_mem_cache = BoundedDict(maxsize=500)  # user_id -> {"data": [...], "by_target": {...}, "expires_at": float}
 
 
 def _build_rates_index(rates_list):

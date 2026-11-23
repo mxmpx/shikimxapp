@@ -44,7 +44,20 @@ from services.poster_resolver import (
     resolve_franchise_poster,
 )
 
-from services.formatters import parse_shikimori_bbcode
+from services.formatters import (
+    parse_shikimori_bbcode,
+    build_topic_url,
+    parse_news_topic,
+    parse_topic_item,
+    format_aired,
+    strip_html_tags,
+)
+
+from services.cache_utils import (
+    BoundedDict,
+    BoundedSet,
+    background_executor,
+)
 
 __all__ = [
     "get_connection",
@@ -73,4 +86,11 @@ __all__ = [
     "resolve_manga_posters_graphql",
     "resolve_franchise_poster",
     "parse_shikimori_bbcode",
+    "build_topic_url",
+    "parse_news_topic",
+    "format_aired",
+    "strip_html_tags",
+    "BoundedDict",
+    "BoundedSet",
+    "background_executor",
 ]

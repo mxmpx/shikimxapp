@@ -1,5 +1,6 @@
 import React from 'react'
 import { CatalogItem } from '../types/anime'
+import { prefetchAnimeDetails } from '../api/client'
 
 interface AnimeCardProps {
   anime: CatalogItem
@@ -38,6 +39,7 @@ export function AnimeCard({ anime, onSelect }: AnimeCardProps) {
         e.currentTarget.style.transform = 'translateY(-2px)'
         e.currentTarget.style.borderColor = 'var(--card-hover-border)'
         e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.45)'
+        prefetchAnimeDetails(anime.id)
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = 'none'
@@ -62,6 +64,7 @@ export function AnimeCard({ anime, onSelect }: AnimeCardProps) {
           }
           alt={title}
           loading="lazy"
+          decoding="async"
           onError={(e) => {
             const target = e.currentTarget as HTMLImageElement
             if (

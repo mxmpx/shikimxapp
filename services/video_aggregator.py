@@ -13,6 +13,12 @@ from dotenv import load_dotenv
 load_dotenv()
 logger = logging.getLogger("shikimxapp.video")
 
+# Muffle high-volume external HTTP/2 debug logs from anicli dependencies
+logging.getLogger("hpack").setLevel(logging.WARNING)
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
+logging.getLogger("anicli_api").setLevel(logging.INFO)
+
 STREAM_CACHE = {}
 STREAM_CACHE_MAX_ENTRIES = 200
 _STREAM_CACHE_CLEANUP_INTERVAL = 300

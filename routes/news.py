@@ -1,8 +1,8 @@
-import re
 import logging
 from flask import Blueprint, jsonify, request
 from utils import (
-    SHIKIMORI_BASE, APP_NAME, fetch_cached_api, fix_image_url, unwrap_camo_url
+    SHIKIMORI_BASE, APP_NAME, fetch_cached_api, build_topic_url,
+    parse_news_topic, parse_topic_item, strip_html_tags
 )
 from errors import api_route
 
@@ -10,148 +10,11 @@ logger = logging.getLogger("shikimxapp.news")
 news_bp = Blueprint('news', __name__)
 
 
-def build_topic_url(t):
-    url = t.get("url")
-    if url:
-        if url.startswith("http"):
-            return url.replace("shikimori.one", "shikimori.io")
-        return f"{SHIKIMORI_BASE}{'' if url.startswith('/') else '/'}{url}".replace("shikimori.one", "shikimori.io")
-
-    topic_id = t.get("id")
-    if not topic_id:
-        return SHIKIMORI_BASE
-
-    forum_info = t.get("forum") or {}
-    forum_name = (forum_info.get("name") or "") if isinstance(forum_info, dict) else ""
-
-    forum_path = "animanga"
-    if "collection" in forum_name:
-        forum_path = "collections"
-    elif "critique" in forum_name:
-        forum_path = "critiques"
-    elif "article" in forum_name:
-        forum_path = "articles"
-    elif "news" in forum_name:
-        forum_path = "news"
-
-    return f"{SHIKIMORI_BASE}/forum/{forum_path}/{topic_id}"
-
-
-def parse_news_topic(t):
-    title = t.get("topic_title") or t.get("title") or ""
-    href = build_topic_url(t)
-    created_at = t.get("created_at", "")[:10] if t.get("created_at") else ""
-    author = (t.get("user") or {}).get("nickname", "")
-    topic_id = t.get("id")
-    comments_count = t.get("comments_count", 0)
-
-    img_src = ""
-    is_youtube = False
-    linked = t.get("linked")
-    linked_anime_id = None
-    if linked and isinstance(linked, dict):
-        if linked.get("type") == "Anime":
-            linked_anime_id = linked.get("id")
-        if linked.get("image"):
-            img_dict = linked.get("image")
-            if isinstance(img_dict, dict):
-                candidate = img_dict.get("original") or img_dict.get("preview") or ""
-                if candidate and "missing" not in candidate:
-                    img_src = candidate
-
-    all_text = (t.get("html_body") or "") + " " + (t.get("html_footer") or "") + " " + (t.get("body") or "")
-    if not img_src:
-        # Приоритет: официальные обложки и постеры, загруженные редакторами на CDN Shikimori
-        user_img_match = re.search(r'<img[^>]+src=["\'](https?://[^"\']*shikimori\.(?:one|io|me)/system/user_images_h/[^"\']+)["\']', all_text)
-        if user_img_match:
-            img_src = user_img_match.group(1)
-
-    yt_match = re.search(r'youtube\.com/vi/([^/]+)', all_text) or re.search(r'youtu\.be/([a-zA-Z0-9_\-]+)', all_text)
-    if yt_match:
-        is_youtube = True
-        if not img_src:
-            img_src = f"https://img.youtube.com/vi/{yt_match.group(1)}/hqdefault.jpg"
-
-    if not img_src:
-        img_match = re.search(r'<img[^>]+src=["\']([^"\']+)["\']', all_text)
-        if img_match:
-            candidate = img_match.group(1)
-            if "missing" not in candidate:
-                img_src = candidate
-
-    if img_src:
-        if "missing" in img_src:
-            img_src = ""
-        else:
-            if img_src.startswith("//"):
-                img_src = "https:" + img_src
-            elif not img_src.startswith("http"):
-                img_src = f"{SHIKIMORI_BASE}" + ("" if img_src.startswith("/") else "/") + img_src
-
-            # Если это camo-ссылка Shikimori, разворачиваем оригинальный адрес источника
-            img_src = unwrap_camo_url(img_src)
-            img_src = re.sub(r'/(preview|x64|x32|x96|x148|x160)/', '/original/', img_src)
-
-    # Отдаем прямой CDN URL для параллельной загрузки браузером через HTTP/2
-    cached_img = img_src if img_src else ""
-
-    tags = ["Аниме"]
-    title_lower = title.lower()
-    if "трейлер" in title_lower or "тизер" in title_lower or "pv" in title_lower or is_youtube:
-        tags.append("Трейлер")
-    elif "постер" in title_lower or "визуал" in title_lower:
-        tags.append("Постер")
-    elif "дата" in title_lower or "премьера" in title_lower:
-        tags.append("Премьера")
-    tags.append("Новость")
-
-    if title and href:
-        return {
-            "id": topic_id,
-            "title": title,
-            "url": href,
-            "image": cached_img,
-            "author": author,
-            "date": created_at,
-            "tags": tags,
-            "comments_count": comments_count,
-            "is_youtube": is_youtube,
-            "linked_anime_id": linked_anime_id
-        }
-    return None
-
-
-def parse_topic_item(t, default_tag=""):
-    title = t.get("topic_title") or t.get("title") or ""
-    topic_id = t.get("id")
-    forum = (t.get("forum") or {}).get("name") or "" if isinstance(t.get("forum"), dict) else ""
-
-    tag_name = default_tag
-    if "collection" in forum:
-        tag_name = "Коллекция"
-    elif "critique" in forum:
-        tag_name = "Рецензия"
-    elif "article" in forum:
-        tag_name = "Статья"
-    elif "news" in forum:
-        tag_name = "Новость"
-
-    return {
-        "id": topic_id,
-        "title": title,
-        "url": build_topic_url(t),
-        "comments_count": t.get("comments_count", 0),
-        "tag": tag_name,
-        "author": (t.get("user") or {}).get("nickname", ""),
-        "date": t.get("created_at", "")[:10] if t.get("created_at") else ""
-    }
-
-
-@news_bp.route("/api/news")
+@news_bp.route("/api/news", methods=["GET"])
 @api_route
 def get_news():
-    page = request.args.get("page", 1, type=int)
-    limit = request.args.get("limit", 10, type=int)
+    page = max(1, request.args.get("page", 1, type=int) or 1)
+    limit = max(1, min(request.args.get("limit", 10, type=int) or 10, 50))
     headers = {"User-Agent": APP_NAME}
     url = f"{SHIKIMORI_BASE}/api/topics?forum=news&page={page}&limit={limit}"
 
@@ -170,46 +33,46 @@ def get_news():
     return jsonify(items)
 
 
-@news_bp.route("/api/critiques/catalog")
+@news_bp.route("/api/critiques/catalog", methods=["GET"])
 @api_route
 def get_critiques_catalog():
     """Get critiques and reviews from topics with continuous multi-page support."""
-    page = int(request.args.get("page", 1))
-    limit = int(request.args.get("limit", 30))
+    page = max(1, request.args.get("page", 1, type=int) or 1)
+    limit = max(1, min(request.args.get("limit", 30, type=int) or 30, 60))
 
     headers = {"User-Agent": APP_NAME}
     data = []
 
-    if page == 1:
-        crit_url = f"{SHIKIMORI_BASE}/api/topics?forum=critiques&page=1&limit={limit}"
-        crit_data = fetch_cached_api(crit_url, headers, ttl=1800) or []
-        if isinstance(crit_data, list):
-            data.extend(crit_data)
+    # Always fetch reviews and critiques for the requested page
+    crit_url = f"{SHIKIMORI_BASE}/api/topics?forum=critiques&page={page}&limit={limit}"
+    crit_data = fetch_cached_api(crit_url, headers, ttl=1800) or []
+    if isinstance(crit_data, list):
+        data.extend(crit_data)
 
-        existing_ids = {t.get("id") for t in data}
-        animanga_url = f"{SHIKIMORI_BASE}/api/topics?forum=animanga&page=1&limit={limit}"
+    # If critiques don't fully saturate the requested limit, supplement with animanga
+    if len(data) < limit:
+        needed = limit - len(data)
+        existing_ids = {t.get("id") for t in data if isinstance(t, dict)}
+        animanga_url = f"{SHIKIMORI_BASE}/api/topics?forum=animanga&page={page}&limit={needed}"
         ani_data = fetch_cached_api(animanga_url, headers, ttl=1800) or []
         if isinstance(ani_data, list):
             for t in ani_data:
                 if t.get("id") not in existing_ids:
                     data.append(t)
-    else:
-        animanga_url = f"{SHIKIMORI_BASE}/api/topics?forum=animanga&page={page}&limit={limit}"
-        ani_data = fetch_cached_api(animanga_url, headers, ttl=1800) or []
-        if isinstance(ani_data, list):
-            data = ani_data
 
     results = []
     seen_ids = set()
     for t in data:
+        if not isinstance(t, dict):
+            continue
         tid = t.get("id")
-        if tid in seen_ids:
+        if not tid or tid in seen_ids:
             continue
         seen_ids.add(tid)
         parsed = parse_news_topic(t)
         if not parsed:
             continue
-        body_text = re.sub(r'<[^>]+>', ' ', t.get("html_body") or t.get("body") or "")[:260].strip()
+        body_text = strip_html_tags(t.get("html_body") or t.get("body") or "", max_length=260)
         results.append({
             "id": tid,
             "title": parsed["title"],
@@ -225,12 +88,12 @@ def get_critiques_catalog():
     return jsonify(results)
 
 
-@news_bp.route("/api/articles/catalog")
+@news_bp.route("/api/articles/catalog", methods=["GET"])
 @api_route
 def get_articles_catalog():
     """Get articles from topics with multi-page support."""
-    page = int(request.args.get("page", 1))
-    limit = int(request.args.get("limit", 30))
+    page = max(1, request.args.get("page", 1, type=int) or 1)
+    limit = max(1, min(request.args.get("limit", 30, type=int) or 30, 60))
 
     headers = {"User-Agent": APP_NAME}
     if limit > 30:
@@ -247,14 +110,16 @@ def get_articles_catalog():
     seen_ids = set()
     if isinstance(data, list):
         for t in data:
+            if not isinstance(t, dict):
+                continue
             tid = t.get("id")
-            if tid in seen_ids:
+            if not tid or tid in seen_ids:
                 continue
             seen_ids.add(tid)
             parsed = parse_news_topic(t)
             if not parsed:
                 continue
-            body_text = re.sub(r'<[^>]+>', ' ', t.get("html_body") or t.get("body") or "")[:200].strip()
+            body_text = strip_html_tags(t.get("html_body") or t.get("body") or "", max_length=200)
             results.append({
                 "id": tid,
                 "title": parsed["title"],

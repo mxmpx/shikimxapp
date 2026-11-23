@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { MangaItem } from '../types/anime'
-import { fetchMangaCatalog } from '../api/client'
+import { fetchMangaCatalog, prefetchMangaDetails } from '../api/client'
 
 interface MangaViewProps {
   onOpenManga: (id: number) => void
@@ -220,6 +220,7 @@ export function MangaView({ onOpenManga }: MangaViewProps) {
                 e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.16)'
                 e.currentTarget.style.boxShadow =
                   '0 8px 24px rgba(0, 0, 0, 0.45)'
+                prefetchMangaDetails(manga.id)
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'none'
@@ -240,6 +241,7 @@ export function MangaView({ onOpenManga }: MangaViewProps) {
                   src={manga.image}
                   alt={manga.russian || manga.name}
                   loading="lazy"
+                  decoding="async"
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
                 {manga.score ? (

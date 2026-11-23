@@ -114,14 +114,40 @@ export default function App() {
   const [theme, setTheme] = useState<string>(
     () => localStorage.getItem('shikimx_theme') || 'dark'
   )
-  const [activeTab, setActiveTab] = useState<TabKey>('profile')
+  const [activeTab, setActiveTab] = useState<TabKey>(() => {
+    if (typeof window !== 'undefined') {
+      const rawHash = window.location.hash.replace('#', '')
+      if (rawHash) return rawHash as TabKey
+    }
+    return 'profile'
+  })
   const [ratesTargetType, setRatesTargetType] = useState<'Anime' | 'Manga'>(
     'Anime'
   )
 
-  // Modals state
-  const [modalAnimeId, setModalAnimeId] = useState<number | null>(null)
-  const [modalMangaId, setModalMangaId] = useState<number | null>(null)
+  // Direct deep link modal check
+  const [isInitialDirectModalOpen, setIsInitialDirectModalOpen] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return Boolean(window.location.pathname.match(/\/(animes|mangas)\/\d+/))
+    }
+    return false
+  })
+
+  // Modals state initialized synchronously from current URL
+  const [modalAnimeId, setModalAnimeId] = useState<number | null>(() => {
+    if (typeof window !== 'undefined') {
+      const match = window.location.pathname.match(/\/animes\/(\d+)/)
+      if (match && match[1]) return Number(match[1])
+    }
+    return null
+  })
+  const [modalMangaId, setModalMangaId] = useState<number | null>(() => {
+    if (typeof window !== 'undefined') {
+      const match = window.location.pathname.match(/\/mangas\/(\d+)/)
+      if (match && match[1]) return Number(match[1])
+    }
+    return null
+  })
   const [showStatsModal, setShowStatsModal] = useState(false)
   const [showSettingsModal, setShowSettingsModal] = useState(false)
   const [showAboutModal, setShowAboutModal] = useState(false)
@@ -158,6 +184,7 @@ export default function App() {
         setModalAnimeId(null)
         setModalMangaId(Number(mangaMatch[1]))
       } else {
+        setIsInitialDirectModalOpen(false)
         setModalAnimeId(null)
         setModalMangaId(null)
       }
@@ -179,6 +206,7 @@ export default function App() {
   }
 
   const handleCloseAnime = () => {
+    setIsInitialDirectModalOpen(false)
     setModalAnimeId(null)
     if (window.location.pathname !== '/') {
       const targetUrl = activeTab === 'profile' ? '/' : `/#${activeTab}`
@@ -193,6 +221,7 @@ export default function App() {
   }
 
   const handleCloseManga = () => {
+    setIsInitialDirectModalOpen(false)
     setModalMangaId(null)
     if (window.location.pathname !== '/') {
       const targetUrl = activeTab === 'profile' ? '/' : `/#${activeTab}`
@@ -222,6 +251,7 @@ export default function App() {
   }, [isAnyModalOpen])
 
   const handleTabChange = (tab: TabKey) => {
+    setIsInitialDirectModalOpen(false)
     if (modalAnimeId !== null) handleCloseAnime()
     if (modalMangaId !== null) handleCloseManga()
     setActiveTab(tab)
@@ -236,6 +266,7 @@ export default function App() {
   }
 
   const handleOpenRatesWithType = (type: 'Anime' | 'Manga') => {
+    setIsInitialDirectModalOpen(false)
     if (modalAnimeId !== null) handleCloseAnime()
     if (modalMangaId !== null) handleCloseManga()
     setRatesTargetType(type)
@@ -308,76 +339,80 @@ export default function App() {
       {/* Main View Router for All Tabs with Suspense code splitting */}
       <main className="main-content-wrapper" style={{ flex: 1, paddingTop: 'var(--header-height, 56px)' }}>
         <h1 className="sr-only">Shiki MX — Каталог аниме, манги и расписание онгоингов</h1>
-        <ErrorBoundary key={activeTab}>
-          <Suspense fallback={<ViewSkeleton />}>
-            {/* 1. Главная / Explore */}
-            {activeTab === 'profile' && (
-              <ExploreView
-                onOpenAnime={handleOpenAnime}
-                userProfile={userProfile}
-                onNavigateTab={(tab) => setActiveTab(tab as TabKey)}
-              />
-            )}
+        {isInitialDirectModalOpen ? (
+          <div style={{ minHeight: '80vh' }} />
+        ) : (
+          <ErrorBoundary key={activeTab}>
+            <Suspense fallback={<ViewSkeleton />}>
+              {/* 1. Главная / Explore */}
+              {activeTab === 'profile' && (
+                <ExploreView
+                  onOpenAnime={handleOpenAnime}
+                  userProfile={userProfile}
+                  onNavigateTab={(tab) => setActiveTab(tab as TabKey)}
+                />
+              )}
 
-            {/* 2. БАЗА ДАННЫХ */}
-            {activeTab === 'catalog-anime' && (
-              <CatalogView onOpenAnime={handleOpenAnime} />
-            )}
-            {activeTab === 'top100' && (
-              <Top100View
-                onOpenAnime={handleOpenAnime}
-                onOpenManga={handleOpenManga}
-              />
-            )}
-            {activeTab === 'catalog-manga' && (
-              <MangaView onOpenManga={handleOpenManga} />
-            )}
-            {activeTab === 'catalog-ranobe' && (
-              <RanobeView onOpenManga={handleOpenManga} />
-            )}
+              {/* 2. БАЗА ДАННЫХ */}
+              {activeTab === 'catalog-anime' && (
+                <CatalogView onOpenAnime={handleOpenAnime} />
+              )}
+              {activeTab === 'top100' && (
+                <Top100View
+                  onOpenAnime={handleOpenAnime}
+                  onOpenManga={handleOpenManga}
+                />
+              )}
+              {activeTab === 'catalog-manga' && (
+                <MangaView onOpenManga={handleOpenManga} />
+              )}
+              {activeTab === 'catalog-ranobe' && (
+                <RanobeView onOpenManga={handleOpenManga} />
+              )}
 
-            {/* 3. СООБЩЕСТВО */}
-            {activeTab === 'forum' && <ForumView />}
-            {activeTab === 'clubs' && <ClubsView />}
-            {activeTab === 'collections' && <CollectionsView />}
-            {activeTab === 'critiques' && (
-              <CritiquesView
-                onOpenAnime={handleOpenAnime}
-                onOpenManga={handleOpenManga}
-              />
-            )}
-            {activeTab === 'articles' && <ArticlesView />}
-            {activeTab === 'users' && <UsersView />}
+              {/* 3. СООБЩЕСТВО */}
+              {activeTab === 'forum' && <ForumView />}
+              {activeTab === 'clubs' && <ClubsView />}
+              {activeTab === 'collections' && <CollectionsView />}
+              {activeTab === 'critiques' && (
+                <CritiquesView
+                  onOpenAnime={handleOpenAnime}
+                  onOpenManga={handleOpenManga}
+                />
+              )}
+              {activeTab === 'articles' && <ArticlesView />}
+              {activeTab === 'users' && <UsersView />}
 
-            {/* 4. РАЗНОЕ */}
-            {activeTab === 'recommendations' && (
-              <RecommendationsView onOpenAnime={handleOpenAnime} />
-            )}
-            {activeTab === 'calendar' && (
-              <CalendarView onOpenAnime={handleOpenAnime} />
-            )}
+              {/* 4. РАЗНОЕ */}
+              {activeTab === 'recommendations' && (
+                <RecommendationsView onOpenAnime={handleOpenAnime} />
+              )}
+              {activeTab === 'calendar' && (
+                <CalendarView onOpenAnime={handleOpenAnime} />
+              )}
 
-            {/* 5. ПОЛЬЗОВАТЕЛЬ */}
-            {activeTab === 'rates' && (
-              <RatesView
-                onOpenAnime={handleOpenAnime}
-                onOpenManga={handleOpenManga}
-                initialTargetType={ratesTargetType}
-                isGuest={!userProfile}
-              />
-            )}
-            {activeTab === 'favourites' && (
-              <FavouritesView
-                onOpenAnime={handleOpenAnime}
-                onOpenManga={handleOpenManga}
-              />
-            )}
-            {activeTab === 'friends' && <FriendsView />}
-            {activeTab === 'history' && (
-              <HistoryView onOpenAnime={handleOpenAnime} />
-            )}
-          </Suspense>
-        </ErrorBoundary>
+              {/* 5. ПОЛЬЗОВАТЕЛЬ */}
+              {activeTab === 'rates' && (
+                <RatesView
+                  onOpenAnime={handleOpenAnime}
+                  onOpenManga={handleOpenManga}
+                  initialTargetType={ratesTargetType}
+                  isGuest={!userProfile}
+                />
+              )}
+              {activeTab === 'favourites' && (
+                <FavouritesView
+                  onOpenAnime={handleOpenAnime}
+                  onOpenManga={handleOpenManga}
+                />
+              )}
+              {activeTab === 'friends' && <FriendsView />}
+              {activeTab === 'history' && (
+                <HistoryView onOpenAnime={handleOpenAnime} />
+              )}
+            </Suspense>
+          </ErrorBoundary>
+        )}
       </main>
 
       {/* Modals with Suspense fallback */}

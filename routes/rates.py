@@ -8,9 +8,8 @@ from database import get_connection
 from utils import (
     SHIKIMORI_BASE, APP_NAME, get_auth_headers, fetch_cached_api,
     resolve_posters_graphql, resolve_manga_posters_graphql, resolve_franchise_poster,
-    fetch_graphql, fix_image_url, fetch_with_retry
+    fetch_graphql, fix_image_url, fetch_with_retry, background_executor
 )
-from concurrent.futures import ThreadPoolExecutor
 from errors import AppError, api_route
 
 logger = logging.getLogger("shikimxapp.rates")
@@ -25,6 +24,40 @@ from services.rates_cache import (
     _get_rates_lock,
     invalidate_user_rates_mem_cache
 )
+
+
+def _verify_rate_ownership(user_id, rate_id, headers):
+    """Check that rate_id belongs to user_id to defeat IDOR attacks."""
+    if not user_id or not rate_id:
+        return False
+    uid = str(user_id)
+    rid = str(rate_id)
+
+    # 1. Check in-memory rates cache
+    mem = _rates_mem_cache.get(uid)
+    rates_data = mem.get("data") if mem else None
+    if not rates_data:
+        rates_data, _ = _get_cached_rates_from_db(uid)
+    if rates_data:
+        for r in rates_data:
+            if str(r.get("id")) == rid:
+                return True
+
+    # 2. Check directly via Shikimori API
+    try:
+        url = f"{SHIKIMORI_BASE}/api/v2/user_rates/{rid}"
+        r = requests.get(url, headers=headers, timeout=8)
+        if r.status_code == 200:
+            rate_info = r.json()
+            if str(rate_info.get("user_id")) == uid:
+                return True
+            logger.warning("IDOR attempt: user %s tried accessing rate %s owned by user %s", uid, rid, rate_info.get("user_id"))
+            return False
+        elif r.status_code == 404:
+            return False
+    except Exception as exc:
+        logger.warning("Error verifying rate ownership for rate_id=%s: %s", rid, exc)
+    return False
 
 
 def _get_cached_rates_from_db(user_id):
@@ -229,12 +262,12 @@ def _fetch_fresh_rates_sync(user_id, headers):
     anime_raw = []
     page = 1
     while True:
-        url = f"{SHIKIMORI_BASE}/api/users/{uid}/anime_rates?limit=5000&page={page}"
+        url = f"{SHIKIMORI_BASE}/api/users/{uid}/anime_rates?limit=500&page={page}"
         data = fetch_with_retry(url, headers)
         if not data or not isinstance(data, list):
             break
         anime_raw.extend(data)
-        if len(data) < 5000 or page >= 10:
+        if len(data) < 500 or page >= 10:
             break
         page += 1
 
@@ -242,12 +275,12 @@ def _fetch_fresh_rates_sync(user_id, headers):
     manga_raw = []
     page = 1
     while True:
-        url = f"{SHIKIMORI_BASE}/api/users/{uid}/manga_rates?limit=5000&page={page}"
+        url = f"{SHIKIMORI_BASE}/api/users/{uid}/manga_rates?limit=500&page={page}"
         data = fetch_with_retry(url, headers)
         if not data or not isinstance(data, list):
             break
         manga_raw.extend(data)
-        if len(data) < 5000 or page >= 10:
+        if len(data) < 500 or page >= 10:
             break
         page += 1
 
@@ -276,7 +309,7 @@ def _fetch_fresh_rates_sync(user_id, headers):
     return rates
 
 
-@rates_bp.route("/api/tab/rates")
+@rates_bp.route("/api/tab/rates", methods=["GET"])
 @api_route
 def tab_rates():
     user_id = session.get("user_id")
@@ -322,7 +355,7 @@ def tab_rates():
                 finally:
                     user_lock.release()
 
-        threading.Thread(target=_bg_worker, daemon=True).start()
+        background_executor.submit(_bg_worker)
         logger.info("Serving stale rates feed (SWR) for user=%s while background refresh runs", uid)
         return jsonify(db_data)
 
@@ -339,7 +372,7 @@ def tab_rates():
         rates = _fetch_fresh_rates_sync(uid, headers)
         return jsonify(rates)
 
-@rates_bp.route("/api/grid-data")
+@rates_bp.route("/api/grid-data", methods=["GET"])
 @api_route
 def grid_data():
     grid_type = request.args.get("type")
@@ -347,7 +380,7 @@ def grid_data():
     if not raw_ids:
         return jsonify([])
 
-    ids_list = [i.strip() for i in raw_ids.split(",") if i.strip()]
+    ids_list = [i.strip() for i in raw_ids.split(",") if i.strip() and i.strip().isdigit()][:200]
 
     if grid_type == "animes":
         items_dict = {}
@@ -498,6 +531,8 @@ def save_user_rate():
 
     try:
         if rate_id:
+            if not _verify_rate_ownership(user_id, rate_id, headers):
+                raise AppError("Доступ запрещен: оценка не принадлежит текущему пользователю", 403)
             # PATCH existing
             url = f"{SHIKIMORI_BASE}/api/v2/user_rates/{rate_id}"
             r = requests.patch(url, headers=headers, json={"user_rate": rate_payload}, timeout=10)
@@ -616,6 +651,9 @@ def delete_user_rate(rate_id=None):
 
     if not rate_id:
         raise AppError("Не указан ID оценки", 400)
+
+    if not _verify_rate_ownership(user_id, rate_id, headers):
+        raise AppError("Доступ запрещен: оценка не принадлежит текущему пользователю", 403)
 
     url = f"{SHIKIMORI_BASE}/api/v2/user_rates/{rate_id}"
     try:

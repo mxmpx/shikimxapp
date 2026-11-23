@@ -47,7 +47,8 @@ Compress(app)
 
 _startup_time = time.time()
 
-# Session Secret Key Configuration:
+# Session Secret Key & Cookie Configuration:
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 # Never accept default placeholder strings which permit session forgery
 _env_secret = os.getenv("FLASK_SECRET_KEY")
 if _env_secret and _env_secret.strip() not in ("", "change_this_to_a_random_secret_string"):
@@ -130,6 +131,23 @@ def add_security_and_caching_headers(response):
         response.headers["Cache-Control"] = "public, max-age=604800"
     elif request.path.startswith("/static/") and "Cache-Control" not in response.headers:
         response.headers["Cache-Control"] = "public, max-age=3600, stale-while-revalidate=86400"
+    elif request.method == "GET" and "Cache-Control" not in response.headers:
+        if (
+            request.path.startswith("/api/catalog")
+            or request.path.startswith("/api/tab/explore")
+            or request.path.startswith("/api/calendar")
+            or request.path.startswith("/api/top100")
+            or request.path.startswith("/api/news")
+            or request.path.startswith("/api/about")
+        ):
+            response.headers["Cache-Control"] = "public, max-age=60, stale-while-revalidate=300"
+        elif (
+            (request.path.startswith("/api/anime/") and not request.path.endswith("/user_rate"))
+            or (request.path.startswith("/api/manga/") and not request.path.endswith("/user_rate"))
+            or request.path.startswith("/api/character/")
+            or request.path.startswith("/api/club/")
+        ):
+            response.headers["Cache-Control"] = "private, max-age=30, stale-while-revalidate=300"
 
     return response
 
@@ -157,8 +175,8 @@ app.register_blueprint(about_bp)
 app.register_blueprint(settings_bp)
 
 
-@app.route('/health')
-@app.route('/api/health')
+@app.route('/health', methods=["GET"])
+@app.route('/api/health', methods=["GET"])
 def health():
     """Health check endpoint for monitoring and container readiness probes."""
     db_connected = False
@@ -191,23 +209,23 @@ def health():
     }), code
 
 
-@app.route('/manifest.json')
+@app.route('/manifest.json', methods=["GET"])
 def manifest():
     return app.send_static_file('manifest.json')
 
 
-@app.route('/favicon.ico')
+@app.route('/favicon.ico', methods=["GET"])
 def favicon():
     return app.send_static_file('icons/icon-192.png')
 
 
-@app.route('/apple-touch-icon.png')
-@app.route('/apple-touch-icon-precomposed.png')
+@app.route('/apple-touch-icon.png', methods=["GET"])
+@app.route('/apple-touch-icon-precomposed.png', methods=["GET"])
 def apple_touch_icon():
     return app.send_static_file('icons/icon-192.png')
 
 
-@app.route('/sw.js')
+@app.route('/sw.js', methods=["GET"])
 def service_worker():
     response = app.send_static_file('sw.js')
     response.headers['Service-Worker-Allowed'] = '/'
@@ -218,7 +236,7 @@ def service_worker():
     return response
 
 
-@app.route('/translations.txt')
+@app.route('/translations.txt', methods=["GET"])
 def translations_txt():
     root_dir = os.path.dirname(os.path.abspath(__file__))
     txt_path = os.path.join(root_dir, 'translations.txt')
@@ -239,7 +257,7 @@ def translations_txt():
     return response
 
 
-@app.route('/.well-known/appspecific/com.chrome.devtools.json')
+@app.route('/.well-known/appspecific/com.chrome.devtools.json', methods=["GET"])
 def chrome_devtools_json():
     return jsonify({})
 

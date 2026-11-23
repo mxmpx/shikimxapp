@@ -88,6 +88,8 @@ export function ContinueWatchingBanner({
             <img
               src={item.image}
               alt={item.title}
+              loading="lazy"
+              decoding="async"
               onError={(e) => {
                 const target = e.currentTarget as HTMLImageElement
                 if (target.src !== 'https://shikimori.io/assets/globals/missing_original.jpg') {

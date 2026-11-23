@@ -63,6 +63,8 @@ function UserCard({ user }: { user: UserSearchItem; index: number }) {
           <img
             src={avatar}
             alt={user.nickname}
+            loading="lazy"
+            decoding="async"
             onError={() => setImgError(true)}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />

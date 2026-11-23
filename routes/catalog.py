@@ -5,21 +5,20 @@ import requests
 from flask import Blueprint, jsonify, request
 from utils import (
     SHIKIMORI_BASE, APP_NAME, fetch_cached_api, fix_image_url,
-    fetch_graphql, resolve_posters_graphql
+    fetch_graphql, resolve_posters_graphql, parse_news_topic
 )
-from routes.news import parse_news_topic
 from errors import AppError, api_route
 
 logger = logging.getLogger("shikimxapp.catalog")
 catalog_bp = Blueprint('catalog', __name__)
 
 
-@catalog_bp.route("/api/catalog")
+@catalog_bp.route("/api/catalog", methods=["GET"])
 @api_route
 def get_catalog():
     """Advanced catalog search with filtering via GraphQL."""
-    page = request.args.get("page", 1, type=int)
-    limit = min(request.args.get("limit", 24, type=int), 50)
+    page = max(1, request.args.get("page", 1, type=int) or 1)
+    limit = max(1, min(request.args.get("limit", 24, type=int) or 24, 50))
     order = request.args.get("order", "ranked")
     kind = request.args.get("kind", "")
     status = request.args.get("status", "")
@@ -190,7 +189,7 @@ def get_random_anime():
     raise AppError("Не удалось подобрать случайное аниме", 502)
 
 
-@catalog_bp.route("/api/genres")
+@catalog_bp.route("/api/genres", methods=["GET"])
 @api_route
 def get_genres():
     """Get list of anime genres via GraphQL."""
@@ -233,12 +232,12 @@ def get_genres():
     return jsonify([])
 
 
-@catalog_bp.route("/api/recommendations")
+@catalog_bp.route("/api/recommendations", methods=["GET"])
 @api_route
 def get_recommendations():
     """Get smart / popular recommendations with multi-page support."""
-    page = int(request.args.get("page", 1))
-    limit = min(int(request.args.get("limit", 36)), 50)
+    page = max(1, request.args.get("page", 1, type=int) or 1)
+    limit = max(1, min(request.args.get("limit", 36, type=int) or 36, 50))
 
     query = """
     query GetRecommendations($page: Int, $limit: Int) {
@@ -284,13 +283,13 @@ def get_recommendations():
     return jsonify(results)
 
 
-@catalog_bp.route("/api/top100")
+@catalog_bp.route("/api/top100", methods=["GET"])
 @api_route
 def get_top100():
     """Get Top 100 anime/manga/movie/ongoing with ranks."""
     top_type = request.args.get("type", "anime")
-    page = int(request.args.get("page", 1))
-    limit = min(int(request.args.get("limit", 100)), 100)
+    page = max(1, request.args.get("page", 1, type=int) or 1)
+    limit = max(1, min(request.args.get("limit", 100, type=int) or 100, 100))
 
     if top_type == "manga":
         query = """
@@ -433,12 +432,12 @@ def get_top100():
     return jsonify(results)
 
 
-@catalog_bp.route("/api/manga/catalog")
+@catalog_bp.route("/api/manga/catalog", methods=["GET"])
 @api_route
 def get_manga_catalog():
     """Get Manga catalog with filters."""
-    page = int(request.args.get("page", 1))
-    limit = min(int(request.args.get("limit", 24)), 48)
+    page = max(1, request.args.get("page", 1, type=int) or 1)
+    limit = max(1, min(request.args.get("limit", 24, type=int) or 24, 48))
     kind = request.args.get("kind")
     status = request.args.get("status")
     order = request.args.get("order", "ranked")
@@ -522,12 +521,12 @@ def get_manga_catalog():
     return jsonify(results)
 
 
-@catalog_bp.route("/api/ranobe/catalog")
+@catalog_bp.route("/api/ranobe/catalog", methods=["GET"])
 @api_route
 def get_ranobe_catalog():
     """Get Ranobe / Light novel catalog."""
-    page = int(request.args.get("page", 1))
-    limit = min(int(request.args.get("limit", 24)), 48)
+    page = max(1, request.args.get("page", 1, type=int) or 1)
+    limit = max(1, min(request.args.get("limit", 24, type=int) or 24, 48))
     status = request.args.get("status")
     order = request.args.get("order", "ranked")
     search_q = request.args.get("search")
@@ -560,12 +559,12 @@ def get_ranobe_catalog():
     return jsonify(results)
 
 
-@catalog_bp.route("/api/collections/catalog")
+@catalog_bp.route("/api/collections/catalog", methods=["GET"])
 @api_route
 def get_collections_catalog():
     """Get user collections from topics with multi-page support."""
-    page = int(request.args.get("page", 1))
-    limit = int(request.args.get("limit", 60))
+    page = max(1, request.args.get("page", 1, type=int) or 1)
+    limit = max(1, min(request.args.get("limit", 60, type=int) or 60, 60))
     search_q = request.args.get("search") or request.args.get("q")
 
     headers = {"User-Agent": APP_NAME}

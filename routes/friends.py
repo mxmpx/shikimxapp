@@ -5,8 +5,10 @@ import threading
 import requests
 from flask import Blueprint, session, jsonify
 from database import get_connection
-from utils import SHIKIMORI_BASE, APP_NAME, get_auth_headers, fetch_cached_api, fix_image_url
-from concurrent.futures import ThreadPoolExecutor
+from utils import (
+    SHIKIMORI_BASE, APP_NAME, get_auth_headers, fetch_cached_api, fix_image_url,
+    BoundedDict, background_executor
+)
 from errors import AppError, api_route
 
 logger = logging.getLogger("shikimxapp.friends")
@@ -16,7 +18,7 @@ FRIENDS_CACHE_TTL = 900  # 15 minutes
 
 _friends_locks = {}
 _friends_locks_guard = threading.Lock()
-_friends_mem_cache = {}  # user_id -> {"data": {...}, "expires_at": float}
+_friends_mem_cache = BoundedDict(maxsize=500)  # user_id -> {"data": {...}, "expires_at": float}
 
 
 def _get_friends_lock(user_id):
@@ -85,7 +87,7 @@ def _fetch_fresh_friends_sync(user_id, headers):
     return payload
 
 
-@friends_bp.route("/api/tab/friends")
+@friends_bp.route("/api/tab/friends", methods=["GET"])
 @api_route
 def tab_friends():
     user_id = session.get("user_id")
@@ -124,7 +126,7 @@ def tab_friends():
                 finally:
                     user_lock.release()
 
-        threading.Thread(target=_bg_worker, daemon=True).start()
+        background_executor.submit(_bg_worker)
         logger.info("Serving stale friends feed (SWR) for user=%s while background refresh runs", uid)
         return jsonify(db_data)
 
@@ -138,8 +140,8 @@ def tab_friends():
         return jsonify(data)
 
 
-@friends_bp.route("/api/friend/<user_id>")
-@friends_bp.route("/api/user_info/<user_id>")
+@friends_bp.route("/api/friend/<int:user_id>", methods=["GET"])
+@friends_bp.route("/api/user_info/<int:user_id>", methods=["GET"])
 @api_route
 def get_friend_details(user_id):
     headers = {"User-Agent": APP_NAME}
@@ -157,17 +159,20 @@ def get_friend_details(user_id):
     anime_stats = statuses.get("anime") or []
     manga_stats = statuses.get("manga") or []
 
-    completed_anime = next((s.get("size") for s in anime_stats if s.get("name") == "completed"), 0)
-    watching_anime = next((s.get("size") for s in anime_stats if s.get("name") == "watching"), 0)
-    planned_anime = next((s.get("size") for s in anime_stats if s.get("name") == "planned"), 0)
-    on_hold_anime = next((s.get("size") for s in anime_stats if s.get("name") == "on_hold"), 0)
-    dropped_anime = next((s.get("size") for s in anime_stats if s.get("name") == "dropped"), 0)
+    a_map = {s.get("name"): s.get("size", 0) for s in anime_stats if isinstance(s, dict)}
+    m_map = {s.get("name"): s.get("size", 0) for s in manga_stats if isinstance(s, dict)}
 
-    completed_manga = next((s.get("size") for s in manga_stats if s.get("name") == "completed"), 0)
-    reading_manga = next((s.get("size") for s in manga_stats if s.get("name") == "watching"), 0)
-    planned_manga = next((s.get("size") for s in manga_stats if s.get("name") == "planned"), 0)
-    on_hold_manga = next((s.get("size") for s in manga_stats if s.get("name") == "on_hold"), 0)
-    dropped_manga = next((s.get("size") for s in manga_stats if s.get("name") == "dropped"), 0)
+    completed_anime = a_map.get("completed", 0)
+    watching_anime = a_map.get("watching", 0)
+    planned_anime = a_map.get("planned", 0)
+    on_hold_anime = a_map.get("on_hold", 0)
+    dropped_anime = a_map.get("dropped", 0)
+
+    completed_manga = m_map.get("completed", 0)
+    reading_manga = m_map.get("watching", 0)
+    planned_manga = m_map.get("planned", 0)
+    on_hold_manga = m_map.get("on_hold", 0)
+    dropped_manga = m_map.get("dropped", 0)
 
     sex_map = {"male": "Мужской", "female": "Женский"}
     sex = sex_map.get(data.get("sex"), data.get("sex") or "—")

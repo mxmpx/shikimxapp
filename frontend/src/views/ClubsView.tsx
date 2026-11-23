@@ -61,6 +61,8 @@ function ClubCard({ club }: { club: ClubItem; index: number }) {
           <img
             src={logo}
             alt={club.name}
+            loading="lazy"
+            decoding="async"
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             onError={() => setImgError(true)}
           />

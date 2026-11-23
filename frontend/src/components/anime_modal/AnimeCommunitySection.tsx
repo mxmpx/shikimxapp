@@ -80,6 +80,8 @@ export function AnimeCommunitySection({ community }: AnimeCommunitySectionProps)
                 <img
                   src={fr.avatar || 'https://shikimori.io/assets/globals/missing_avatar.jpg'}
                   alt={fr.name}
+                  loading="lazy"
+                  decoding="async"
                   onError={(e) => {
                     const target = e.currentTarget as HTMLImageElement
                     if (target.src !== 'https://shikimori.io/assets/globals/missing_avatar.jpg') {
@@ -200,6 +202,8 @@ export function AnimeCommunitySection({ community }: AnimeCommunitySectionProps)
                 <img
                   src={u.avatar || 'https://shikimori.io/assets/globals/missing_avatar.jpg'}
                   alt={u.name}
+                  loading="lazy"
+                  decoding="async"
                   onError={(e) => {
                     const target = e.currentTarget as HTMLImageElement
                     if (target.src !== 'https://shikimori.io/assets/globals/missing_avatar.jpg') {

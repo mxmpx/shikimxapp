@@ -179,18 +179,73 @@ export function MangaModal({ mangaId, onClose, onOpenAnime }: MangaModalProps) {
         {loading ? (
           <div
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '60%',
-              color: 'var(--text-dim)',
+              maxWidth: 1100,
+              margin: '0 auto',
+              padding: '24px 24px 60px',
+              width: '100%',
+              boxSizing: 'border-box',
             }}
           >
-            <i
-              className="ti ti-loader animate-spin"
-              style={{ fontSize: 24, marginRight: 12, color: 'var(--accent)' }}
-            />
-            <span>Загрузка манги...</span>
+            <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+              {/* Left Column Skeleton */}
+              <div style={{ width: 'min(240px, 100%)', margin: '0 auto', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
+                <div
+                  className="mx-skeleton"
+                  style={{
+                    borderRadius: 12,
+                    aspectRatio: '2/3',
+                    width: '100%',
+                  }}
+                />
+                <div
+                  className="mx-skeleton"
+                  style={{
+                    borderRadius: 12,
+                    height: 180,
+                    width: '100%',
+                  }}
+                />
+              </div>
+
+              {/* Right Column Skeleton */}
+              <div style={{ flex: 1, minWidth: 'min(300px, 100%)', display: 'flex', flexDirection: 'column', gap: 18 }}>
+                <div>
+                  <div
+                    className="mx-skeleton"
+                    style={{
+                      height: 32,
+                      width: '60%',
+                      borderRadius: 8,
+                      marginBottom: 8,
+                    }}
+                  />
+                  <div
+                    className="mx-skeleton"
+                    style={{
+                      height: 18,
+                      width: '35%',
+                      borderRadius: 6,
+                    }}
+                  />
+                </div>
+                <div
+                  className="mx-skeleton"
+                  style={{
+                    height: 40,
+                    width: 280,
+                    borderRadius: 10,
+                  }}
+                />
+                <div
+                  className="mx-skeleton"
+                  style={{
+                    height: 240,
+                    borderRadius: 14,
+                    width: '100%',
+                  }}
+                />
+              </div>
+            </div>
           </div>
         ) : error || !manga ? (
           <div
@@ -235,6 +290,9 @@ export function MangaModal({ mangaId, onClose, onOpenAnime }: MangaModalProps) {
                     <img
                       src={manga.image}
                       alt={manga.russian || manga.name}
+                      loading="eager"
+                      decoding="async"
+                      fetchPriority="high"
                       style={{
                         width: '100%',
                         height: '100%',
@@ -710,6 +768,8 @@ export function MangaModal({ mangaId, onClose, onOpenAnime }: MangaModalProps) {
                             <img
                               src={ch.image}
                               alt={ch.russian || ch.name}
+                              loading="lazy"
+                              decoding="async"
                               style={{
                                 width: '100%',
                                 height: '100%',
@@ -790,6 +850,8 @@ export function MangaModal({ mangaId, onClose, onOpenAnime }: MangaModalProps) {
                             <img
                               src={rel.image}
                               alt={rel.name}
+                              loading="lazy"
+                              decoding="async"
                               style={{
                                 width: '100%',
                                 height: '100%',

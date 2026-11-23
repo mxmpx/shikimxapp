@@ -11,7 +11,7 @@ logger = logging.getLogger("shikimxapp.search")
 search_bp = Blueprint('search', __name__)
 
 
-@search_bp.route("/api/search")
+@search_bp.route("/api/search", methods=["GET"])
 @api_route
 def search():
     q = request.args.get("q", "").strip()

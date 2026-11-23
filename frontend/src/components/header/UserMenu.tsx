@@ -121,6 +121,8 @@ export function UserMenu({
             <img
               src={userProfile.avatar}
               alt={userProfile.nickname}
+              loading="eager"
+              decoding="async"
               style={{
                 width: 28,
                 height: 28,
@@ -171,6 +173,8 @@ export function UserMenu({
                 <img
                   src={userProfile.avatar}
                   alt={userProfile.nickname}
+                  loading="lazy"
+                  decoding="async"
                   style={{ width: 34, height: 34, borderRadius: '50%' }}
                 />
                 <div>

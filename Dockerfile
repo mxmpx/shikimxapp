@@ -34,6 +34,14 @@ COPY . .
 # Copy built frontend assets from stage 1 into static/dist
 COPY --from=frontend-builder /app/static/dist ./static/dist
 
+# Create non-root user and setup directories with correct permissions
+RUN groupadd -g 1000 appuser && \
+    useradd -u 1000 -g appuser -s /bin/sh -m appuser && \
+    mkdir -p /app/data /app/logs /app/static/img_cache && \
+    chown -R appuser:appuser /app
+
+USER appuser
+
 # Expose port
 EXPOSE 5000
 

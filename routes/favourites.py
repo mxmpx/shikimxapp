@@ -7,7 +7,7 @@ from flask import Blueprint, session, jsonify
 from database import get_connection
 from utils import (
     SHIKIMORI_BASE, get_auth_headers, fetch_cached_api,
-    fetch_graphql, fix_image_url
+    fetch_graphql, fix_image_url, BoundedDict, background_executor
 )
 from concurrent.futures import ThreadPoolExecutor
 from errors import AppError, api_route
@@ -19,7 +19,7 @@ FAVOURITES_CACHE_TTL = 3600  # 1 hour
 
 _favs_locks = {}
 _favs_locks_guard = threading.Lock()
-_favs_mem_cache = {}  # user_id -> {"data": {...}, "expires_at": float}
+_favs_mem_cache = BoundedDict(maxsize=500)  # user_id -> {"data": {...}, "expires_at": float}
 
 
 def _get_favs_lock(user_id):
@@ -71,7 +71,7 @@ def _save_favs_to_db_and_mem(user_id, favs_data):
 def _enrich_anime_chunk(animes):
     if not isinstance(animes, list) or not animes:
         return
-    anime_ids = [str(x["id"]) for x in animes if isinstance(x, dict) and x.get("id")]
+    anime_ids = [str(x["id"]) for x in animes if isinstance(x, dict) and x.get("id")][:100]
     for i in range(0, len(anime_ids), 50):
         chunk = anime_ids[i:i + 50]
         query = """
@@ -101,7 +101,7 @@ def _enrich_anime_chunk(animes):
 def _enrich_manga_chunk(mangas):
     if not isinstance(mangas, list) or not mangas:
         return
-    manga_ids = [str(x["id"]) for x in mangas if isinstance(x, dict) and x.get("id")]
+    manga_ids = [str(x["id"]) for x in mangas if isinstance(x, dict) and x.get("id")][:100]
     for i in range(0, len(manga_ids), 50):
         chunk = manga_ids[i:i + 50]
         query = """
@@ -131,7 +131,7 @@ def _enrich_manga_chunk(mangas):
 def _enrich_char_chunk(chars):
     if not isinstance(chars, list) or not chars:
         return
-    char_ids = [str(c["id"]) for c in chars if isinstance(c, dict) and c.get("id")]
+    char_ids = [str(c["id"]) for c in chars if isinstance(c, dict) and c.get("id")][:100]
     for i in range(0, len(char_ids), 50):
         chunk = char_ids[i:i + 50]
         query = """
@@ -198,7 +198,7 @@ def _fetch_fresh_favourites_sync(user_id, headers):
     return empty
 
 
-@favourites_bp.route("/api/tab/favourites")
+@favourites_bp.route("/api/tab/favourites", methods=["GET"])
 @api_route
 def tab_favourites():
     user_id = session.get("user_id")
@@ -237,7 +237,7 @@ def tab_favourites():
                 finally:
                     user_lock.release()
 
-        threading.Thread(target=_bg_worker, daemon=True).start()
+        background_executor.submit(_bg_worker)
         logger.info("Serving stale favourites feed (SWR) for user=%s while background refresh runs", uid)
         return jsonify(db_data)
 

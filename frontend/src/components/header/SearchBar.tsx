@@ -267,6 +267,8 @@ export function SearchBar({ onOpenAnime }: SearchBarProps) {
                 <img
                   src={item.image}
                   alt={item.name}
+                  loading="lazy"
+                  decoding="async"
                   onError={(e) => {
                     const target = e.currentTarget as HTMLImageElement
                     if (target.src !== 'https://shikimori.io/assets/globals/missing_original.jpg') {
@@ -460,6 +462,8 @@ export function SearchBar({ onOpenAnime }: SearchBarProps) {
                 <img
                   src={item.image}
                   alt={item.name}
+                  loading="lazy"
+                  decoding="async"
                   onError={(e) => {
                     const target = e.currentTarget as HTMLImageElement
                     if (target.src !== 'https://shikimori.io/assets/globals/missing_original.jpg') {

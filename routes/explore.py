@@ -6,14 +6,9 @@ from flask import Blueprint, jsonify
 from database import get_connection
 from utils import (
     SHIKIMORI_BASE, APP_NAME, fetch_cached_api, fix_image_url,
-    fetch_graphql
+    fetch_graphql, parse_news_topic, parse_topic_item, background_executor
 )
 from concurrent.futures import ThreadPoolExecutor
-from routes.news import parse_news_topic, parse_topic_item, news_bp
-from routes.catalog import catalog_bp
-from routes.calendar import calendar_bp
-from routes.forum import forum_bp
-from routes.search import search_bp
 from errors import api_route
 
 logger = logging.getLogger("shikimxapp.explore")
@@ -22,7 +17,8 @@ explore_bp = Blueprint('explore', __name__)
 EXPLORE_FEED_CACHE_KEY = "explore:tab_feed_v2"
 EXPLORE_FEED_TTL = 1800  # 30 minutes
 
-_explore_lock = threading.Lock()
+_explore_mem_lock = threading.Lock()
+_explore_refresh_lock = threading.Lock()
 _explore_mem_cache = {
     "data": None,
     "expires_at": 0.0
@@ -49,8 +45,9 @@ def _get_cached_explore_from_db():
 def _save_explore_to_db_and_mem(feed):
     now = time.time()
     expires_at = now + EXPLORE_FEED_TTL
-    _explore_mem_cache["data"] = feed
-    _explore_mem_cache["expires_at"] = expires_at
+    with _explore_mem_lock:
+        _explore_mem_cache["data"] = feed
+        _explore_mem_cache["expires_at"] = expires_at
     try:
         conn = get_connection()
         try:
@@ -201,24 +198,26 @@ def _refresh_explore_feed_sync():
     return feed
 
 
-@explore_bp.route("/api/tab/explore")
+@explore_bp.route("/api/tab/explore", methods=["GET"])
 @api_route
 def tab_explore():
     now = time.time()
 
-    if _explore_mem_cache["data"] and now < _explore_mem_cache["expires_at"]:
-        return jsonify(_explore_mem_cache["data"])
+    with _explore_mem_lock:
+        if _explore_mem_cache["data"] and now < _explore_mem_cache["expires_at"]:
+            return jsonify(_explore_mem_cache["data"])
 
     db_data, db_expires_at = _get_cached_explore_from_db()
     if db_data:
-        _explore_mem_cache["data"] = db_data
-        _explore_mem_cache["expires_at"] = db_expires_at
+        with _explore_mem_lock:
+            _explore_mem_cache["data"] = db_data
+            _explore_mem_cache["expires_at"] = db_expires_at
 
         if now < db_expires_at:
             return jsonify(db_data)
 
         def _bg_worker():
-            if _explore_lock.acquire(blocking=False):
+            if _explore_refresh_lock.acquire(blocking=False):
                 try:
                     logger.debug("Background refreshing stale explore feed...")
                     _refresh_explore_feed_sync()
@@ -226,14 +225,15 @@ def tab_explore():
                 except Exception as exc:
                     logger.error("Background explore feed refresh failed: %s", exc)
                 finally:
-                    _explore_lock.release()
+                    _explore_refresh_lock.release()
 
-        threading.Thread(target=_bg_worker, daemon=True).start()
+        background_executor.submit(_bg_worker)
         logger.info("Serving stale explore feed (SWR) while background refresh runs")
         return jsonify(db_data)
 
-    with _explore_lock:
-        if _explore_mem_cache["data"] and now < _explore_mem_cache["expires_at"]:
-            return jsonify(_explore_mem_cache["data"])
+    with _explore_refresh_lock:
+        with _explore_mem_lock:
+            if _explore_mem_cache["data"] and now < _explore_mem_cache["expires_at"]:
+                return jsonify(_explore_mem_cache["data"])
         feed = _refresh_explore_feed_sync()
         return jsonify(feed)

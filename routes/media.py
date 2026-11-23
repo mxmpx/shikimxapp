@@ -7,8 +7,8 @@ import ipaddress
 import socket
 import requests
 from urllib.parse import urlparse, unquote
-from flask import Blueprint, redirect, request, send_from_directory, current_app
-from utils import APP_NAME, unwrap_camo_url
+from flask import Blueprint, jsonify, request, send_from_directory, current_app
+from utils import APP_NAME, unwrap_camo_url, BoundedSet, background_executor
 
 logger = logging.getLogger("shikimxapp.media")
 media_bp = Blueprint('media', __name__)
@@ -22,8 +22,7 @@ IMG_CACHE_CLEANUP_INTERVAL = 3600  # 1 час
 
 _img_cache_last_cleanup = 0.0
 _img_cache_cleanup_lock = threading.Lock()
-_failed_image_urls = set()
-_failed_image_lock = threading.Lock()
+_failed_image_urls = BoundedSet(maxsize=2000)
 
 ALLOWED_IMAGE_HOSTS = {
     "shikimori.one",
@@ -81,8 +80,10 @@ ALLOWED_HOST_SUFFIXES = (
 
 
 import urllib3.util.connection as urllib_conn
-
-_orig_create_connection = urllib_conn.create_connection
+from requests.adapters import HTTPAdapter
+from urllib3.connection import HTTPConnection, HTTPSConnection
+from urllib3.connectionpool import HTTPConnectionPool, HTTPSConnectionPool
+from urllib3.poolmanager import PoolManager
 
 
 def _safe_create_connection(address, *args, **kwargs):
@@ -104,7 +105,58 @@ def _safe_create_connection(address, *args, **kwargs):
     except (socket.gaierror, ValueError) as exc:
         raise OSError(f"SSRF DNS resolution failed for {host}: {exc}") from exc
 
-    return _orig_create_connection(address, *args, **kwargs)
+    return urllib_conn.create_connection(address, *args, **kwargs)
+
+
+class SafeHTTPConnection(HTTPConnection):
+    def _new_conn(self) -> socket.socket:
+        return _safe_create_connection(
+            (self._dns_host, self.port),
+            self.timeout,
+            source_address=self.source_address,
+            socket_options=self.socket_options,
+        )
+
+
+class SafeHTTPSConnection(HTTPSConnection):
+    def _new_conn(self) -> socket.socket:
+        return _safe_create_connection(
+            (self._dns_host, self.port),
+            self.timeout,
+            source_address=self.source_address,
+            socket_options=self.socket_options,
+        )
+
+
+class SafeHTTPConnectionPool(HTTPConnectionPool):
+    ConnectionCls = SafeHTTPConnection
+
+
+class SafeHTTPSConnectionPool(HTTPSConnectionPool):
+    ConnectionCls = SafeHTTPSConnection
+
+
+class SafeHTTPAdapter(HTTPAdapter):
+    def init_poolmanager(self, connections, maxsize, block=False, **pool_kwargs):
+        self.poolmanager = PoolManager(
+            num_pools=connections,
+            maxsize=maxsize,
+            block=block,
+            **pool_kwargs
+        )
+        self.poolmanager.pool_classes_by_scheme = {
+            "http": SafeHTTPConnectionPool,
+            "https": SafeHTTPSConnectionPool,
+        }
+
+
+def _get_safe_media_session() -> requests.Session:
+    """Session equipped with per-socket SSRF DNS rebinding protection."""
+    sess = requests.Session()
+    adapter = SafeHTTPAdapter()
+    sess.mount("http://", adapter)
+    sess.mount("https://", adapter)
+    return sess
 
 
 def _is_private_host(hostname: str) -> bool:
@@ -265,7 +317,7 @@ def cleanup_img_cache(cache_dir: str, force: bool = False) -> None:
         logger.warning("Ошибка при очистке img_cache: %s", exc)
 
 
-@media_bp.route("/cache/img")
+@media_bp.route("/cache/img", methods=["GET"])
 def cache_img():
     # Извлекаем полный URL, сохраняя вложенные параметры и HMAC-подписи (например, camo tokens)
     qs = request.query_string.decode("utf-8", errors="ignore")
@@ -280,26 +332,18 @@ def cache_img():
 
     if not img_url:
         logger.warning("Image cache request without URL")
-        return "Missing URL", 400
+        return jsonify({"error": "Missing URL"}), 400
 
     img_url = unwrap_camo_url(img_url)
 
     # Быстрый возврат для ранее проверенных недоступных/битых картинок (без зависания потоков)
-    with _failed_image_lock:
-        if img_url in _failed_image_urls:
-            return "Image unavailable", 404
+    if img_url in _failed_image_urls:
+        return jsonify({"error": "Image unavailable"}), 404
 
+    # Защита от SSRF и Open Redirect: разрешены только домены из allowlist
     if not is_allowed_image_url(img_url):
-        try:
-            parsed = urlparse(img_url)
-            hostname = (parsed.hostname or "").lower()
-            if parsed.scheme in ("http", "https") and hostname and not _is_private_host(hostname):
-                logger.info("Redirecting unallowlisted public image directly: %s", img_url)
-                return redirect(img_url, 302)
-        except Exception:
-            pass
         logger.warning("Disallowed image cache host attempted: %s", img_url)
-        return "Forbidden host", 403
+        return jsonify({"error": "Forbidden host"}), 403
 
     clean_url = img_url.split("?")[0]
     ext = clean_url.split(".")[-1].lower()
@@ -309,15 +353,10 @@ def cache_img():
     cache_dir = os.path.join(current_app.root_path, "static", "img_cache")
     os.makedirs(cache_dir, exist_ok=True)
 
-    # Фоновая очистка старых файлов не чаще раза в час
+    # Фоновая очистка старых файлов не чаще раза в час через управляемый thread pool
     global _img_cache_last_cleanup
     if time.time() - _img_cache_last_cleanup > IMG_CACHE_CLEANUP_INTERVAL:
-        threading.Thread(
-            target=cleanup_img_cache,
-            args=(cache_dir,),
-            daemon=True,
-            name="img-cache-cleanup"
-        ).start()
+        background_executor.submit(cleanup_img_cache, cache_dir)
 
     filename = hashlib.md5(img_url.encode("utf-8")).hexdigest() + f".{ext}"
     filepath = os.path.join(cache_dir, filename)
@@ -328,35 +367,60 @@ def cache_img():
         response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
         return response
 
+    max_img_bytes = 15 * 1024 * 1024  # 15MB
     try:
-        # Patch socket creation during proxy fetch to prevent DNS rebinding
-        urllib_conn.create_connection = _safe_create_connection
-        try:
-            req_headers = {"User-Agent": APP_NAME}
-            if "shikimori" in img_url:
-                req_headers["Referer"] = "https://shikimori.io/"
-            r = requests.get(img_url, headers=req_headers, timeout=3.5)
-        finally:
-            urllib_conn.create_connection = _orig_create_connection
+        req_headers = {"User-Agent": APP_NAME}
+        if "shikimori" in img_url:
+            req_headers["Referer"] = "https://shikimori.io/"
 
-        content_type = r.headers.get("Content-Type", "")
-        if r.status_code == 200 and len(r.content) <= 15 * 1024 * 1024:  # Max 15MB
-            if not is_valid_image_content(r.content, content_type):
+        session = _get_safe_media_session()
+        with session.get(img_url, headers=req_headers, timeout=5.0, stream=True) as r:
+            if r.status_code != 200:
+                logger.warning("Image download failed (%s): %s", r.status_code, img_url)
+                _failed_image_urls.add(img_url)
+                return jsonify({"error": "Image unavailable"}), 404
+
+            # Проверка заголовка Content-Length заранее
+            content_length = r.headers.get("Content-Length")
+            if content_length:
+                try:
+                    if int(content_length) > max_img_bytes:
+                        logger.warning("Image too large according to Content-Length (%s bytes): %s", content_length, img_url)
+                        _failed_image_urls.add(img_url)
+                        return jsonify({"error": "Image too large"}), 400
+                except (ValueError, TypeError):
+                    pass
+
+            content_type = r.headers.get("Content-Type", "")
+            chunks = []
+            total_bytes = 0
+            for chunk in r.iter_content(chunk_size=64 * 1024):
+                if chunk:
+                    chunks.append(chunk)
+                    total_bytes += len(chunk)
+                    if total_bytes > max_img_bytes:
+                        logger.warning("Image exceeded 15MB limit during streaming: %s", img_url)
+                        _failed_image_urls.add(img_url)
+                        return jsonify({"error": "Image too large"}), 400
+
+            content = b"".join(chunks)
+            if not is_valid_image_content(content, content_type):
                 logger.warning("Invalid image content or MIME type (%s) for %s", content_type, img_url)
-                return "Invalid image format", 400
+                _failed_image_urls.add(img_url)
+                return jsonify({"error": "Invalid image format"}), 400
+
             with open(filepath, "wb") as f:
-                f.write(r.content)
+                f.write(content)
             logger.debug("Image cached: %s", filename)
             response = send_from_directory(cache_dir, filename)
             response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
             return response
-        logger.warning("Image download failed (%s): %s", r.status_code, img_url)
-        with _failed_image_lock:
-            _failed_image_urls.add(img_url)
-        return "Image unavailable", 404
+
     except requests.RequestException as exc:
         logger.warning("Image cache error for %s: %s", img_url, exc)
-        with _failed_image_lock:
-            _failed_image_urls.add(img_url)
+        _failed_image_urls.add(img_url)
+    except Exception as exc:
+        logger.warning("Unexpected error caching image %s: %s", img_url, exc)
+        _failed_image_urls.add(img_url)
 
-    return "Image error", 404
+    return jsonify({"error": "Image error"}), 404

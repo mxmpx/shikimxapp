@@ -107,6 +107,8 @@ export function AnimeCharacters({ characters }: AnimeCharactersProps) {
               <img
                 src={char.image || 'https://shikimori.io/assets/globals/missing_original.jpg'}
                 alt={char.name}
+                loading="lazy"
+                decoding="async"
                 onError={(e) => {
                   const target = e.currentTarget as HTMLImageElement
                   if (target.src !== 'https://shikimori.io/assets/globals/missing_original.jpg') {

@@ -29,22 +29,23 @@ def enrich_history(history_items):
         return history_items
 
     anime_ids = []
+    manga_ids = []
     for item in history_items:
         if isinstance(item, dict):
             target = item.get("target") or {}
-            aid = target.get("id")
-            if aid:
-                anime_ids.append(str(aid))
+            tid = target.get("id")
+            if tid:
+                ttype = (item.get("target_type") or target.get("type") or target.get("target_type") or "").lower()
+                if "manga" in ttype or "ranobe" in ttype:
+                    manga_ids.append(str(tid))
+                else:
+                    anime_ids.append(str(tid))
 
-    if not anime_ids:
-        return history_items
-
-    # Batch enrich in chunks of 50 via GraphQL
     anime_map = {}
     for i in range(0, len(anime_ids), 50):
         chunk = anime_ids[i:i + 50]
         query = """
-        query HistoryPosters($ids: String!) {
+        query HistoryAnimePosters($ids: String!) {
           animes(ids: $ids, limit: 50) {
             id
             russian
@@ -62,15 +63,39 @@ def enrich_history(history_items):
                 for a in gql_res["animes"]:
                     anime_map[str(a["id"])] = a
         except Exception as exc:
-            logger.debug("Failed resolving GraphQL history posters: %s", exc)
+            logger.debug("Failed resolving GraphQL anime history posters: %s", exc)
+
+    manga_map = {}
+    for i in range(0, len(manga_ids), 50):
+        chunk = manga_ids[i:i + 50]
+        query = """
+        query HistoryMangaPosters($ids: String!) {
+          mangas(ids: $ids, limit: 50) {
+            id
+            russian
+            name
+            poster {
+              mainUrl
+              originalUrl
+            }
+          }
+        }
+        """
+        try:
+            gql_res = fetch_graphql(query, {"ids": ",".join(chunk)}, ttl=3600)
+            if gql_res and isinstance(gql_res.get("mangas"), list):
+                for m in gql_res["mangas"]:
+                    manga_map[str(m["id"])] = m
+        except Exception as exc:
+            logger.debug("Failed resolving GraphQL manga history posters: %s", exc)
 
     for item in history_items:
         if not isinstance(item, dict):
             continue
         target = item.get("target") or {}
-        aid = str(target.get("id"))
-        if aid in anime_map:
-            extra = anime_map[aid]
+        tid = str(target.get("id"))
+        extra = anime_map.get(tid) or manga_map.get(tid)
+        if extra:
             if extra.get("russian"):
                 target["russian"] = extra["russian"]
             p = extra.get("poster")
@@ -92,8 +117,8 @@ def _fetch_fresh_history_sync(user_id, headers):
     return enrich_history(history)
 
 
-@history_bp.route("/api/tab/history")
-@history_bp.route("/api/history")
+@history_bp.route("/api/tab/history", methods=["GET"])
+@history_bp.route("/api/history", methods=["GET"])
 @api_route
 def tab_history():
     user_id = session.get("user_id")

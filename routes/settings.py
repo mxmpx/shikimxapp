@@ -21,6 +21,11 @@ DEFAULT_SETTINGS = {
 }
 
 
+ALLOWED_SETTINGS_KEYS = set(DEFAULT_SETTINGS.keys()) | {"theme", "player", "sidebar", "video_player"}
+MAX_GUEST_SETTING_VAL_BYTES = 512
+MAX_GUEST_CONTINUE_WATCHING = 5
+
+
 def _get_current_user_id():
     """Get the current logged-in user's internal database ID from session."""
     shikimori_id = session.get("user_id")
@@ -32,7 +37,7 @@ def _get_current_user_id():
     return None
 
 
-@settings_bp.route("/api/settings")
+@settings_bp.route("/api/settings", methods=["GET"])
 def get_settings():
     """Get settings for the current user, or defaults if not logged in."""
     user_id = _get_current_user_id()
@@ -66,7 +71,14 @@ def save_settings():
         logger.info("Settings saved in DB for user_id=%s: %s", user_id, list(data.keys()))
     else:
         for k, v in data.items():
-            session[f"setting_{k}"] = v
+            if k in ALLOWED_SETTINGS_KEYS:
+                # Prevent cookie overflow on guest sessions
+                try:
+                    val_str = json.dumps(v)
+                    if len(val_str) <= MAX_GUEST_SETTING_VAL_BYTES:
+                        session[f"setting_{k}"] = v
+                except (TypeError, ValueError):
+                    pass
 
     return jsonify({"success": True, "settings": data})
 
@@ -99,7 +111,13 @@ def save_setting(key):
         set_user_setting(user_id, key, val)
         logger.info("Setting '%s' saved in DB for user_id=%s", key, user_id)
     else:
-        session[f"setting_{key}"] = val
+        if key in ALLOWED_SETTINGS_KEYS:
+            try:
+                val_str = json.dumps(val)
+                if len(val_str) <= MAX_GUEST_SETTING_VAL_BYTES:
+                    session[f"setting_{key}"] = val
+            except (TypeError, ValueError):
+                pass
 
     return jsonify({"success": True, "key": key, "value": val})
 
@@ -159,9 +177,19 @@ def save_continue_watching():
         set_user_settings(user_id, {"continue_watching": new_list})
         logger.info("Saved continue_watching for user_id=%s (%d items)", user_id, len(new_list))
     else:
-        session["continue_watching"] = new_list
+        # Keep minimal fields and small count in session cookie for guests to prevent overflow
+        slim_list = [
+            {
+                "id": item.get("id"),
+                "anime_id": item.get("anime_id") or item.get("id"),
+                "title": (item.get("title") or item.get("name") or "")[:40],
+                "ep": item.get("ep") or item.get("episode") or 1,
+            }
+            for item in new_list[:MAX_GUEST_CONTINUE_WATCHING]
+        ]
+        session["continue_watching"] = slim_list
         session.modified = True
-        logger.info("Saved continue_watching in session for guest (%d items)", len(new_list))
+        logger.info("Saved compact continue_watching in session for guest (%d items)", len(slim_list))
 
     return jsonify({"success": True, "data": new_list})
 

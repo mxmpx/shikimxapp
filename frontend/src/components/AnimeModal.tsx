@@ -19,7 +19,6 @@ import {
   KinopoiskIcon,
   MalIcon,
   StarIcon,
-  Pill,
   ExternalSiteIcon,
   MOCK_COLLECTIONS,
 } from './AnimeModalIcons'
@@ -331,6 +330,9 @@ export function AnimeModal({ animeId, onClose }: AnimeModalProps) {
     return (
       <div
         className="modal-shell"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Загрузка аниме"
         style={{
           position: 'fixed',
           top: 'var(--header-height, 56px)',
@@ -343,39 +345,155 @@ export function AnimeModal({ animeId, onClose }: AnimeModalProps) {
           background: 'var(--modal-bg)',
           backdropFilter: 'blur(28px)',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          flexDirection: 'column',
+          overflow: 'hidden',
         }}
       >
-        <div
+        {/* Floating Close Button Placeholder */}
+        <button
+          onClick={onClose}
+          className="modal-close-floating"
+          aria-label="Закрыть"
           style={{
+            position: 'absolute',
+            top: 14,
+            right: 20,
+            width: 44,
+            height: 44,
+            borderRadius: '50%',
+            background: 'var(--subtle-bg)',
+            border: '1px solid var(--border-subtle)',
+            color: 'var(--text-muted)',
             display: 'flex',
-            flexDirection: 'column',
             alignItems: 'center',
-            gap: 14,
+            justifyContent: 'center',
+            cursor: 'pointer',
+            zIndex: 10,
           }}
         >
-          <div
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: '50%',
-              border: '3px solid rgba(var(--accent-rgb), 0.2)',
-              borderTopColor: 'var(--accent)',
-              animation: 'spin 0.8s linear infinite',
-            }}
-          />
-          <span
-            style={{
-              color: 'var(--text-muted)',
-              fontSize: 14,
-              fontWeight: 500,
-            }}
-          >
-            Загрузка информации об аниме...
-          </span>
+          <i className="ti ti-x" style={{ fontSize: 18 }} />
+        </button>
+
+        {/* Unified Scroll Skeleton */}
+        <div
+          className="modal-unified-scroll"
+          style={{
+            flex: 1,
+            overflowY: 'auto',
+            overflowX: 'hidden',
+          }}
+        >
+          <div className="modal-columns-layout">
+            {/* Left Column Skeleton */}
+            <div
+              className="modal-sidebar"
+              style={{
+                width: 'var(--anime-sidebar-width, 330px)',
+                flexShrink: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 16,
+              }}
+            >
+              <div
+                className="mx-skeleton"
+                style={{
+                  borderRadius: 18,
+                  aspectRatio: '2/3',
+                  width: '100%',
+                }}
+              />
+              <div
+                className="mx-skeleton"
+                style={{
+                  height: 44,
+                  borderRadius: 12,
+                  width: '100%',
+                }}
+              />
+              <div
+                className="mx-skeleton"
+                style={{
+                  height: 140,
+                  borderRadius: 16,
+                  width: '100%',
+                }}
+              />
+              <div
+                className="mx-skeleton"
+                style={{
+                  height: 180,
+                  borderRadius: 16,
+                  width: '100%',
+                }}
+              />
+            </div>
+
+            {/* Right Column Skeleton */}
+            <div
+              className="modal-main-content"
+              style={{
+                flex: 1,
+                minWidth: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 22,
+              }}
+            >
+              {/* Header Title Skeleton */}
+              <div>
+                <div
+                  className="mx-skeleton"
+                  style={{
+                    height: 36,
+                    width: '55%',
+                    borderRadius: 10,
+                    marginBottom: 8,
+                  }}
+                />
+                <div
+                  className="mx-skeleton"
+                  style={{
+                    height: 18,
+                    width: '30%',
+                    borderRadius: 6,
+                  }}
+                />
+              </div>
+
+              {/* Player Box Skeleton */}
+              <div
+                className="mx-skeleton"
+                style={{
+                  borderRadius: 20,
+                  aspectRatio: '16/9',
+                  maxHeight: 440,
+                  width: '100%',
+                }}
+              />
+
+              {/* Info Details Skeleton */}
+              <div
+                className="mx-skeleton"
+                style={{
+                  borderRadius: 16,
+                  height: 220,
+                  width: '100%',
+                }}
+              />
+
+              {/* Characters / Screenshots Skeleton */}
+              <div
+                className="mx-skeleton"
+                style={{
+                  borderRadius: 16,
+                  height: 180,
+                  width: '100%',
+                }}
+              />
+            </div>
+          </div>
         </div>
-        <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
       </div>
     )
   }
@@ -591,10 +709,7 @@ export function AnimeModal({ animeId, onClose }: AnimeModalProps) {
   const activeStreamSource =
     currentSources.find((s) => s.player === selectedSource) || currentSources[0]
 
-  const rawIframeSrc =
-    activePlayerType === 'kodik'
-      ? currentSources.find((s) => s.player === 'Kodik')?.url || currentSources[1]?.url || activeStreamSource?.url || ''
-      : activeStreamSource?.url || ''
+  const rawIframeSrc = activeStreamSource?.url || ''
 
   // Normalization for AnimeGo CDN and embed players voice priority
   const iframeSrc = (() => {
@@ -813,6 +928,9 @@ export function AnimeModal({ animeId, onClose }: AnimeModalProps) {
                   className="sidebar-poster-img"
                   src={anime.image}
                   alt={title}
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
                   style={{
                     width: '100%',
                     height: '100%',
@@ -1206,7 +1324,9 @@ export function AnimeModal({ animeId, onClose }: AnimeModalProps) {
             />
 
             {/* ── Friends & Community Avatars Subcomponent ── */}
-            <AnimeCommunitySection community={community} />
+            <div className="cv-auto-section">
+              <AnimeCommunitySection community={community} />
+            </div>
 
             {/* ── In Collections (В КОЛЛЕКЦИЯХ) ── */}
             <div
@@ -1436,32 +1556,6 @@ export function AnimeModal({ animeId, onClose }: AnimeModalProps) {
                   {origTitle}
                 </div>
               )}
-              <div
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: 8,
-                  marginTop: 14,
-                }}
-                className="stagger-children"
-              >
-                {[
-                  anime.kind,
-                  `${totalEpisodes} эп. по ${anime.duration || 24} мин.`,
-                  anime.status,
-                  anime.aired_on ? anime.aired_on.split('-')[0] : 'Лето',
-                  anime.rating || 'R-17',
-                ]
-                  .filter(Boolean)
-                  .map((p, idx) => (
-                    <span
-                      key={String(p)}
-                      className={`reveal-pop stagger-${(idx % 6) + 1}`}
-                    >
-                      <Pill>{p}</Pill>
-                    </span>
-                  ))}
-              </div>
             </div>
 
             {/* ── Video Player & Streaming Subcomponent ── */}
@@ -1495,16 +1589,22 @@ export function AnimeModal({ animeId, onClose }: AnimeModalProps) {
             <AnimeInfoDetails anime={anime} />
 
             {/* ── Characters & Seiyuu Subcomponent ── */}
-            <AnimeCharacters characters={anime.characters} />
+            <div className="cv-auto-section">
+              <AnimeCharacters characters={anime.characters} />
+            </div>
 
             {/* ── Screenshots Gallery Subcomponent ── */}
-            <AnimeScreenshotsGallery
-              screenshots={anime.screenshots}
-              onOpenLightbox={setLightbox}
-            />
+            <div className="cv-auto-section">
+              <AnimeScreenshotsGallery
+                screenshots={anime.screenshots}
+                onOpenLightbox={setLightbox}
+              />
+            </div>
 
             {/* ── Related / Franchise Timeline Subcomponent ── */}
-            <AnimeRelatedTimeline related={anime.related} />
+            <div className="cv-auto-section">
+              <AnimeRelatedTimeline related={anime.related} />
+            </div>
           </div>
         </div>
       </div>
@@ -1879,6 +1979,8 @@ export function AnimeModal({ animeId, onClose }: AnimeModalProps) {
                           <img
                             src={item.thumb}
                             alt={item.title}
+                            loading="lazy"
+                            decoding="async"
                             style={{
                               width: '100%',
                               height: '100%',

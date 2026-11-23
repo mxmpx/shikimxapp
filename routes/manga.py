@@ -1,17 +1,20 @@
 import time
+import json
 import threading
 import logging
 from concurrent.futures import ThreadPoolExecutor
-from flask import Blueprint, jsonify, session
+from flask import Blueprint, jsonify
 from utils import (
     SHIKIMORI_BASE, APP_NAME, fetch_cached_api, fix_image_url,
-    get_auth_headers, fetch_with_retry, fetch_user_rate, fetch_graphql
+    get_auth_headers, fetch_with_retry, fetch_user_rate, fetch_graphql,
+    format_aired, BoundedDict
 )
+from database import get_connection
 from errors import AppError, api_route
 
 logger = logging.getLogger("shikimxapp.manga")
 
-_manga_base_cache = {}
+_manga_base_cache = BoundedDict(maxsize=500)
 _manga_cache_lock = threading.Lock()
 
 manga_bp = Blueprint('manga', __name__)
@@ -33,26 +36,6 @@ KIND_MAP = {
     'one_shot': 'Ваншот',
     'doujin': 'Додзинси'
 }
-
-
-def format_manga_aired(date_str):
-    if not date_str:
-        return "—"
-    try:
-        parts = date_str.split('-')
-        year = parts[0]
-        if len(parts) > 1:
-            m_idx = int(parts[1]) - 1
-            months = [
-                'январь', 'февраль', 'март', 'апрель', 'май', 'июнь',
-                'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'
-            ]
-            if 0 <= m_idx < 12:
-                return f"{months[m_idx]} {year} г."
-        return f"{year} г."
-    except Exception as exc:
-        logger.debug("_format_date: не удалось разобрать дату '%s': %s", date_str, exc)
-        return date_str
 
 
 def _build_manga_from_graphql(m, manga_id):
@@ -120,7 +103,6 @@ def _build_manga_from_graphql(m, manga_id):
 
     aired_on = (m.get("airedOn") or {}).get("date") or str((m.get("airedOn") or {}).get("year") or "")
     released_on = (m.get("releasedOn") or {}).get("date") or str((m.get("releasedOn") or {}).get("year") or "")
-    user_rate = fetch_user_rate(manga_id, "Manga")
 
     return {
         "id": m.get("id"),
@@ -134,7 +116,7 @@ def _build_manga_from_graphql(m, manga_id):
         "volumes": m.get("volumes"),
         "chapters": m.get("chapters"),
         "aired_on": aired_on,
-        "aired_on_formatted": format_manga_aired(aired_on),
+        "aired_on_formatted": format_aired(aired_on),
         "released_on": released_on,
         "genres": genres,
         "publishers": publishers,
@@ -145,14 +127,32 @@ def _build_manga_from_graphql(m, manga_id):
         "related": related[:20],
         "related_total": len(related),
         "shikimori_url": f"https://shikimori.io{m.get('url')}" if m.get('url') else f"{SHIKIMORI_BASE}/mangas/{manga_id}",
-        "user_rate": user_rate
+        "user_rate": None
     }
 
 
-@manga_bp.route("/api/manga/<int:manga_id>")
+def _save_manga_persistent(manga_id: int, manga_obj: dict, ttl: int = 86400):
+    """Save full manga object to both RAM cache and SQLite persistent cache."""
+    now = time.time()
+    expires_at = now + ttl
+    with _manga_cache_lock:
+        _manga_base_cache[manga_id] = {"data": dict(manga_obj), "expires_at": expires_at}
+    try:
+        conn = get_connection()
+        conn.execute(
+            "INSERT OR REPLACE INTO api_cache (url, data, expires_at) VALUES (?, ?, ?)",
+            (f"manga_full:{manga_id}", json.dumps(manga_obj), int(expires_at))
+        )
+        conn.commit()
+    except Exception as exc:
+        logger.debug("Failed writing manga persistent cache: %s", exc)
+
+
+@manga_bp.route("/api/manga/<int:manga_id>", methods=["GET"])
 @api_route
 def get_manga_details(manga_id):
     now = time.time()
+    # 1. RAM Cache check (O(1), <0.1ms)
     with _manga_cache_lock:
         cached = _manga_base_cache.get(manga_id)
         if cached and now < cached["expires_at"]:
@@ -160,7 +160,24 @@ def get_manga_details(manga_id):
             result["user_rate"] = fetch_user_rate(manga_id, "Manga")
             return jsonify(result)
 
-    # 1. Single unified GraphQL query
+    # 2. SQLite Persistent Cache check (1-2ms, survives restarts)
+    cache_key = f"manga_full:{manga_id}"
+    try:
+        conn = get_connection()
+        row = conn.execute(
+            "SELECT data, expires_at FROM api_cache WHERE url = ?", (cache_key,)
+        ).fetchone()
+        if row and now < row["expires_at"]:
+            cached_data = json.loads(row["data"])
+            with _manga_cache_lock:
+                _manga_base_cache[manga_id] = {"data": cached_data, "expires_at": row["expires_at"]}
+            result = dict(cached_data)
+            result["user_rate"] = fetch_user_rate(manga_id, "Manga")
+            return jsonify(result)
+    except Exception as exc:
+        logger.debug("Manga SQLite cache lookup error: %s", exc)
+
+    # 3. Single unified GraphQL query
     query = """
     query MangaDetails($id: String!) {
       mangas(ids: $id, limit: 1) {
@@ -204,10 +221,10 @@ def get_manga_details(manga_id):
         if gql_data and isinstance(gql_data.get("mangas"), list) and len(gql_data["mangas"]) > 0:
             logger.debug("Manga details loaded via GraphQL for manga_id=%s", manga_id)
             manga_obj = _build_manga_from_graphql(gql_data["mangas"][0], manga_id)
-            with _manga_cache_lock:
-                _manga_base_cache[manga_id] = {"data": dict(manga_obj), "expires_at": now + 3600}
-            manga_obj["user_rate"] = fetch_user_rate(manga_id, "Manga")
-            return jsonify(manga_obj)
+            _save_manga_persistent(manga_id, manga_obj, ttl=86400)
+            res = dict(manga_obj)
+            res["user_rate"] = fetch_user_rate(manga_id, "Manga")
+            return jsonify(res)
     except Exception as exc:
         logger.warning("GraphQL manga details failed for %s, falling back to REST: %s", manga_id, exc)
 
@@ -292,7 +309,7 @@ def get_manga_details(manga_id):
         "volumes": data.get("volumes"),
         "chapters": data.get("chapters"),
         "aired_on": data.get("aired_on"),
-        "aired_on_formatted": format_manga_aired(data.get("aired_on")),
+        "aired_on_formatted": format_aired(data.get("aired_on")),
         "released_on": data.get("released_on"),
         "genres": genres,
         "publishers": publishers,
@@ -302,9 +319,10 @@ def get_manga_details(manga_id):
         "characters_total": len(characters),
         "related": related[:20],
         "related_total": len(related),
-        "shikimori_url": f"{SHIKIMORI_BASE}{data.get('url')}" if data.get('url') else ""
+        "shikimori_url": f"{SHIKIMORI_BASE}{data.get('url')}" if data.get('url') else "",
+        "user_rate": None
     }
-    with _manga_cache_lock:
-        _manga_base_cache[manga_id] = {"data": dict(manga_obj), "expires_at": now + 3600}
-    manga_obj["user_rate"] = fetch_user_rate(manga_id, "Manga")
-    return jsonify(manga_obj)
+    _save_manga_persistent(manga_id, manga_obj, ttl=86400)
+    res = dict(manga_obj)
+    res["user_rate"] = fetch_user_rate(manga_id, "Manga")
+    return jsonify(res)

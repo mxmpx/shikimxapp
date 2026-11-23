@@ -1,6 +1,9 @@
 import os
+import time
 import logging
+import threading
 from flask import Blueprint, jsonify
+from errors import api_route
 
 logger = logging.getLogger("shikimxapp.about")
 
@@ -8,7 +11,9 @@ about_bp = Blueprint('about', __name__)
 
 INFO_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "app_info.txt")
 
-_INFO_CACHE = {"data": None, "mtime": None}
+_INFO_LOCK = threading.Lock()
+_INFO_CACHE = {"data": None, "mtime": None, "checked_at": 0.0}
+
 
 def _parse_info_file():
     """Parse app_info.txt and return structured data."""
@@ -22,31 +27,31 @@ def _parse_info_file():
         "changelog": [],
         "shikimori_status": "Подключено",
     }
-    
+
     if not os.path.exists(INFO_FILE):
         logger.error("App info file not found: %s", INFO_FILE)
         return info
-    
+
     try:
         with open(INFO_FILE, "r", encoding="utf-8") as f:
             lines = f.read().splitlines()
     except OSError as exc:
         logger.error("Failed to read app info file %s: %s", INFO_FILE, exc)
         return info
-    
+
     section = None
     current_entry = None
-    
+
     for raw_line in lines:
         line = raw_line.strip()
         if not line or (line.startswith("#") and not line.startswith("###")):
             continue
-        
+
         # Section headers
         if line.startswith("[") and line.endswith("]"):
             section = line[1:-1].strip().upper()
             continue
-        
+
         # CHANGELOG section
         if section == "CHANGELOG":
             if line.startswith("###"):
@@ -64,12 +69,12 @@ def _parse_info_file():
             elif line.startswith("-") and current_entry is not None:
                 current_entry["changes"].append(line.lstrip("-").strip())
             continue
-        
+
         # FEATURES section
         if section == "FEATURES":
             info["features"].append(line)
             continue
-        
+
         # Key=value pairs (before any section)
         if "=" in line:
             key, value = line.split("=", 1)
@@ -86,26 +91,35 @@ def _parse_info_file():
                 info["stack"] = [s.strip() for s in value.split(";") if s.strip()]
             elif key == "SHIKIMORI_STATUS":
                 info["shikimori_status"] = value
-    
+
     return info
 
-def load_app_info():
-    """Load app info with mtime-based caching."""
-    try:
-        mtime = os.path.getmtime(INFO_FILE)
-    except OSError:
-        mtime = None
-    
-    if _INFO_CACHE["data"] is not None and _INFO_CACHE["mtime"] == mtime:
-        return _INFO_CACHE["data"]
-    
-    data = _parse_info_file()
-    _INFO_CACHE["data"] = data
-    _INFO_CACHE["mtime"] = mtime
-    return data
 
-@about_bp.route("/about")
-@about_bp.route("/api/about")
+def load_app_info():
+    """Load app info with mtime-based caching and disk I/O rate limiting."""
+    now = time.time()
+    with _INFO_LOCK:
+        if _INFO_CACHE["data"] is not None and (now - _INFO_CACHE["checked_at"] < 60):
+            return _INFO_CACHE["data"]
+
+        _INFO_CACHE["checked_at"] = now
+        try:
+            mtime = os.path.getmtime(INFO_FILE)
+        except OSError:
+            mtime = None
+
+        if _INFO_CACHE["data"] is not None and _INFO_CACHE["mtime"] == mtime:
+            return _INFO_CACHE["data"]
+
+        data = _parse_info_file()
+        _INFO_CACHE["data"] = data
+        _INFO_CACHE["mtime"] = mtime
+        return data
+
+
+@about_bp.route("/about", methods=["GET"])
+@about_bp.route("/api/about", methods=["GET"])
+@api_route
 def get_about_info():
     info = load_app_info()
     return jsonify(info)

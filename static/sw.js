@@ -1,6 +1,7 @@
-const CACHE_NAME = 'shikimx-v7-mobile';
+const CACHE_NAME = 'shikimx-v10-full-site-turbo';
 const FONT_CACHE_NAME = 'shikimx-fonts-v1';
 const IMAGE_CACHE_NAME = 'shikimx-images-v1';
+const API_CACHE_NAME = 'shikimx-api-v1';
 
 const STATIC_ASSETS = [
   '/',
@@ -36,7 +37,7 @@ self.addEventListener('activate', event => {
       const keys = await caches.keys();
       await Promise.all(
         keys
-          .filter(key => key !== CACHE_NAME && key !== FONT_CACHE_NAME && key !== IMAGE_CACHE_NAME)
+          .filter(key => key !== CACHE_NAME && key !== FONT_CACHE_NAME && key !== IMAGE_CACHE_NAME && key !== API_CACHE_NAME)
           .map(key => {
             console.log('[SW] Deleting old cache:', key);
             return caches.delete(key);
@@ -150,23 +151,29 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // 4. Cached Images (/cache/img?url=... or /static/img_cache/*)
-  // IMPORTANT: MUST NOT use ignoreSearch: true because each image has unique ?url= query param!
-  if (requestUrl.pathname.startsWith('/cache/img') || requestUrl.pathname.startsWith('/static/img_cache/')) {
+  // 4. Cached Images (Local image proxy & direct Shikimori / external CDN image assets)
+  const isImageRequest =
+    request.destination === 'image' ||
+    requestUrl.pathname.match(/\.(png|jpg|jpeg|webp|gif|svg|avif)($|\?)/i) ||
+    requestUrl.hostname.includes('shikimori') ||
+    requestUrl.pathname.startsWith('/cache/img') ||
+    requestUrl.pathname.startsWith('/static/img_cache/');
+
+  if (isImageRequest) {
     event.respondWith(
-      caches.match(request).then(cachedResponse => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-        return fetch(request).then(networkResponse => {
-          if (networkResponse && networkResponse.status === 200) {
-            const clone = networkResponse.clone();
-            caches.open(IMAGE_CACHE_NAME).then(cache => cache.put(request, clone));
+      caches.open(IMAGE_CACHE_NAME).then(cache => {
+        return cache.match(request).then(cachedResponse => {
+          if (cachedResponse) {
+            return cachedResponse;
           }
-          return networkResponse;
-        }).catch(() => {
-          // If network failed and image is not in cache, return 404 response
-          return new Response('', { status: 404, statusText: 'Image Not Cached' });
+          return fetch(request).then(networkResponse => {
+            if (networkResponse && (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
+              cache.put(request, networkResponse.clone());
+            }
+            return networkResponse;
+          }).catch(() => {
+            return cachedResponse || new Response('', { status: 404, statusText: 'Image Not Cached' });
+          });
         });
       })
     );
@@ -194,7 +201,45 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // 6. Default Network-First with Cache fallback for all other API / dynamic GET requests (exact URL match)
+  // 6. Stale-While-Revalidate for Anime, Manga, Characters, Catalog, Explore, Calendar, Top100, News (Instant 0-2ms response)
+  const isCachableApiEndpoint =
+    request.method === 'GET' &&
+    requestUrl.origin === self.location.origin &&
+    (
+      (requestUrl.pathname.startsWith('/api/anime/') && !requestUrl.pathname.includes('/user_rate')) ||
+      (requestUrl.pathname.startsWith('/api/manga/') && !requestUrl.pathname.includes('/user_rate')) ||
+      requestUrl.pathname.startsWith('/api/character/') ||
+      requestUrl.pathname.startsWith('/api/club/') ||
+      requestUrl.pathname.startsWith('/api/catalog') ||
+      requestUrl.pathname.startsWith('/api/tab/explore') ||
+      requestUrl.pathname.startsWith('/api/calendar') ||
+      requestUrl.pathname.startsWith('/api/top100') ||
+      requestUrl.pathname.startsWith('/api/news') ||
+      requestUrl.pathname.startsWith('/api/about') ||
+      requestUrl.pathname.startsWith('/api/recommendations')
+    );
+
+  if (isCachableApiEndpoint) {
+    event.respondWith(
+      caches.open(API_CACHE_NAME).then(cache => {
+        return cache.match(request).then(cachedResponse => {
+          const networkFetch = fetch(request)
+            .then(networkResponse => {
+              if (networkResponse && networkResponse.status === 200) {
+                cache.put(request, networkResponse.clone());
+              }
+              return networkResponse;
+            })
+            .catch(() => cachedResponse);
+
+          return cachedResponse || networkFetch;
+        });
+      })
+    );
+    return;
+  }
+
+  // 7. Default Network-First with Cache fallback for all other API / dynamic GET requests (exact URL match)
   event.respondWith(
     fetch(request).catch(() => caches.match(request))
   );
